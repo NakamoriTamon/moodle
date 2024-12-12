@@ -13,7 +13,7 @@ $responce = $frontController->index();
         <P class="content_sub_title">NEW ALLIVAL</P>
         <P class="content_title">新着講座</P>
     </div>
-    <button class="list_button">全ての講座を見る</button>
+    <button onclick="window.location.href='/custom/app/Views/front/event_top.php'" class=" list_button">全ての講座を見る</button>
 </div>
 <div class="slider">
     <?php foreach ($responce['eventList'] as $event) { ?>

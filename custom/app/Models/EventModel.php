@@ -62,4 +62,53 @@ class EventModel extends BaseModel
 
         return [];
     }
+
+    //イベントの総件数を取得
+    public function totalCount()
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT COUNT(*) as total FROM mdl_event WHERE visible = 1 ORDER BY timestart ASC");
+                $stmt->execute();
+                $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+                return $totalCount;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    // ページネーション
+    public function pagenate($limit, $offset)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT * FROM mdl_event WHERE visible = 1 ORDER BY timestart ASC LIMIT :limit OFFSET :offset"
+                );
+
+                // 値をバインド
+                $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+                $stmt->execute();
+                $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // 各イベントの詳細を追加
+                foreach ($events as &$event) {
+                    $event['details'] = $this->getEventDetails($event['id']);
+                }
+
+                return $events;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+    }
 }
