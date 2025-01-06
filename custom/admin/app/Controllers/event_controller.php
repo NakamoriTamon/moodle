@@ -12,9 +12,9 @@ class EventController
         $this->eventModel = new EventModel();
     }
 
-    public function getEventDetails($eventId)
+    public function index()
     {
-        $event = $this->eventModel->getEventById($eventId);
+        $event = $this->eventModel->getEvents();
 
         return $event;
     }

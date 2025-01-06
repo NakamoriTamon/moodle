@@ -1,0 +1,113 @@
+
+/* common */
+body {
+    opacity: 0;
+}
+.form-wrapper {
+    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+}
+.content_title {
+    padding-left: var(--bs-card-spacer-x);
+    border-bottom: 1px solid var(--bs-border-color);
+    font-size: 15px;
+}
+.alert{
+    width: 90%;
+    top: 10px;
+    z-index: 2;
+    transform: translateX(-50%);
+    left: 50%;
+}
+.w-35{
+    width: 35%;
+}
+.w-250{
+    width: 250px;
+}
+.min-130{
+    min-width: 130px;
+}
+.min-140{
+    min-width: 140px;
+}
+.w-170{
+    width: 170px;
+}
+.min-70vh{
+    min-height: 70vh;
+}
+.w-100px{
+    width: 100px !important;
+}
+.mt-01{
+    margin-top: 0.1rem;
+}
+.ml-025{
+    margin-left: 2.5%;
+}
+.mr-025{
+    margin-right: 2.5%;
+}
+.p-025{
+    padding: 2.5%;
+}
+/* table */
+.table_list a{
+    color: currentcolor;
+}
+.table_list{
+    margin: auto;
+    border: 1px solid var(--bs-border-color) !important;
+}
+.table_list thead{
+    background: #e5e5e5;
+}
+table{
+    word-break: keep-all;
+}
+.w-95{
+    width: 95%;
+    overflow: auto;
+}
+/* input */
+input.timepicker {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: .3rem .85rem;
+    color: #495057;
+}
+.search-select{
+    margin-left: 2.5%;
+}
+
+/* 各画面 */
+#login .container{
+    overflow-x: hidden;
+}
+#event .card button,
+#management .card button,
+#survey .card button{
+    margin-right: 2.5%;
+}
+#event .card .button-div
+#survey .button-div{
+    margin-right: 2.5%;
+}
+#event .card .button-div button,
+#management .card .button-div button{
+    margin-right: auto;
+}
+.card{
+    box-shadow: initial;
+}
+#upload .search-button{
+    height: 32.59px;
+}
+/* survey */
+#survey table{
+    text-wrap: wrap;
+}
+#survey table th{
+    min-width: 220px;
+    vertical-align: middle;
+}

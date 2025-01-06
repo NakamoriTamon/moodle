@@ -61,3 +61,6 @@ jsconfig.json
 UPGRADING-CURRENT.md
 .env
 /custom/upload/
+/custom/admin/public/img
+/custom/admin/public/fonts
+/custom/admin/public/js
