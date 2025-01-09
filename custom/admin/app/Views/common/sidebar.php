@@ -20,9 +20,11 @@
 					</a>
 					<ul id="information" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/index.php">管理者一覧</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/user_registration.php">ユーザー情報管理</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/event_registration.php">イベント登録情報管理</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/member_registration.php">費用請求</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="pages-404.html">管理者用申込画面(現金ユーザー登録)</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/membership_fee_registration.php">費用請求</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/statistics.php">統計データの収集・分析</a></li>
 					</ul>
 				</li>
 				<li class="sidebar-item">
@@ -51,10 +53,10 @@
 					</a>
 					<ul id="survey" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/index.php">アンケート集計</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="pages-404.html">アンケートカスタムフィールド</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/custom_index.php">アンケートカスタムフィールド</a></li>
 					</ul>
 				</li>
-				<li class="sidebar-item">
+				<!-- <li class="sidebar-item">
 					<a href="#master" data-bs-toggle="collapse" class="sidebar-link collapsed">
 						<i class="align-middle" data-feather="table"></i> <span class="align-middle">各種マスタ</span>
 					</a>
@@ -62,7 +64,7 @@
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/category/index.php">カテゴリーマスタ</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="pages-404.html">講師マスタ</a></li>
 					</ul>
-				</li>
+				</li> -->
 			</ul>
 		</div>
 	</nav>

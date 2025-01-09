@@ -111,3 +111,10 @@ input.timepicker {
     min-width: 220px;
     vertical-align: middle;
 }
+/* sidebar */
+.side_break {
+    display: inline-block;
+    margin-top: 3px;
+    margin-left: 0.8rem;
+    margin-bottom: 0px;
+}

@@ -6,7 +6,7 @@
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベントカスタムフィールド登録</p>
+					<p class="title ms-4 fs-4 fw-bold mb-0">アンケートカスタムフィールド登録</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -24,7 +24,7 @@
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0 min-70vh">
-							<p class="content_title p-3">イベントカスタムフィールド登録</p>
+							<p class="content_title p-3">アンケートカスタムフィールド登録</p>
 							<div class="form-wrapper">
 								<form method="POST" action="">
 									<div class="field-container">

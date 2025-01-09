@@ -5,13 +5,13 @@ $eventController = new EventController();
 $events = $eventController->index();
 ?>
 
-<body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative show">
+<body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
 	<div class="wrapper">
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベントカスタムフィールド一覧</p>
+					<p class="title ms-4 fs-4 fw-bold mb-0">アンケートカスタムフィールド一覧</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -30,7 +30,7 @@ $events = $eventController->index();
 					<div class="card min-70vh">
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3">
-								<button onclick="window.location.href='/custom/admin/app/Views/event/custom_upsert.php';"
+								<button onclick="window.location.href='/custom/admin/app/Views/survey/custom_upsert.php';"
 									class="btn btn-primary mt-3 mb-3 ms-auto">新規登録
 								</button>
 							</div>
@@ -39,7 +39,7 @@ $events = $eventController->index();
 									<thead>
 										<tr>
 											<th>ID</th>
-											<th>イベントカテゴリ区分</th>
+											<th>アンケートカテゴリ区分</th>
 											<th class="d-none d-md-table-cell">紐づけられているイベント</th>
 											<th class="text-center">Actions</th>
 										</tr>

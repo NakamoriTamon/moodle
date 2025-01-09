@@ -32,7 +32,7 @@ $events = $eventController->index();
 								<button onclick="window.location.href='/custom/admin/app/Views/event/upsert.php';" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
 							</div>
 							<div class="card m-auto mb-5 overflow-auto w-95">
-								<table class="table table-responsive table-striped table_list w-95">
+								<table class="table table-responsive table-striped table_list">
 									<thead>
 										<tr>
 											<th class="ps-4 pe-4">ID</th>
@@ -74,7 +74,7 @@ $events = $eventController->index();
 										</tr>
 										<tr>
 											<td class="ps-4 pe-4">3</td>
-											<td class="ps-4 pe-4">量子コンピュータ入門: 次世代計算技術の扉を開く</td>
+											<td class="ps-4 pe-4 text-nowrap">量子コンピュータ入門: 次世代計算技術の扉を開く</td>
 											<td class="ps-4 pe-4">2025/1/15</td>
 											<td class="ps-4 pe-4 text-nowrap">オンライン</td>
 											<td class="ps-4 pe-4 text-nowrap"></td>

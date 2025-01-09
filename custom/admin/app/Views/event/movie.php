@@ -11,14 +11,14 @@ $events = $eventController->index();
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">講義資料アップロード</p>
+					<p class="title ms-4 fs-4 fw-bold mb-0">講義動画アップロード</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<img src="/custom/admin/public/img/avatars/avatar.jpg" class="avatar img-fluid rounded" alt="Charles Hall" />
+								<div class="fs-5 me-4">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="login.php">Log out</a>
+								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -69,9 +69,9 @@ $events = $eventController->index();
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<div class="container">
+							<div class="">
 								<div class="card">
-									<div class="card-body">
+									<div class="card-body p-025">
 										<div class="d-flex justify-content-end">
 											<button class="btn btn-primary" id="uploadBtn">アップロード</button>
 										</div>

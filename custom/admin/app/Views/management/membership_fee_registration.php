@@ -1,8 +1,4 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-$eventController = new EventController();
-$events = $eventController->index();
-?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
     <div class="wrapper">
@@ -10,14 +6,14 @@ $events = $eventController->index();
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">DM送信</p>
+                    <p class="title ms-4 fs-4 fw-bold mb-0">費用請求</p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                 <div class="fs-5 me-4">システム管理者</div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="login.php">Log out</a>
+                                <a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
                             </div>
                         </li>
                     </ul>
@@ -26,44 +22,15 @@ $events = $eventController->index();
 
             <main class="content">
                 <div class="col-12 col-lg-12">
-                    <div class="card">
-                        <div class="card-body p-025">
-                            <div class="mb-3">
-                                <label class="form-label" for="notyf-message">対象区分</label>
-                                <select name="category_id" class="form-control">
-                                    <option value=1>全体</option>
-                                    <option value=2>イベント</option>
-                                    <option value=3>適塾記念会</option>
-                                    <option value=4>名誉教授会</option>
-                                    <option value=5>同窓会</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="notyf-message">イベント名</label>
-                                <select name="category_id" class="form-control">
-                                    <option value=1>イベントA</option>
-                                    <option value=2>イベントB</option>
-                                    <option value=3>イベントC</option>
-                                    <option value=4>イベントD</option>
-                                    <option value=5>イベントE</option>
-                                </select>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label" for="notyf-message">フリーワード</label>
-                                <input id="notyf-message" name="notyf-message" type="text" class="form-control" placeholder="田中 翔太">
-                            </div>
-                            <!-- <hr> -->
-                            <div class="d-flex w-100">
-                                <button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
-                            </div>
-                        </div>
-                    </div>
                     <div class="card min-70vh">
                         <div class="card-body p-0">
                             <div class="d-flex w-100 align-items-center justify-content-end mt-3">
-                                <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
-                                    <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
-                                </button>
+                                <select name="category_id" class="form-control w-25 search-select">
+                                    <option value=1>適塾記念会</option>
+                                    <option value=2>名誉教授会</option>
+                                    <option value=3>同窓会</option>
+                                </select>
+                                <button class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
                             </div>
                             <div class="card m-auto mb-5 w-95">
                                 <table class="table table-responsive table-striped table_list" style="width:100%">
@@ -106,7 +73,7 @@ $events = $eventController->index();
                                             <td class="ps-4 pe-4">nakamura@gmail.com</td>
                                             <td class="ps-4 pe-4">賛助会員</td>
                                             <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">未決済</td>
+                                            <td class="ps-4 pe-4 text-danger">未決済</td>
                                             <td class="ps-4 pe-4">2021/10/21</td>
                                             <td class="ps-4 pe-4">2024/12/20</td>
                                         </tr>
@@ -163,6 +130,30 @@ $events = $eventController->index();
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header ml-025">
+                        <h5 class="card-title mb-0 mt-3">メール送信設定</h5>
+                    </div>
+                    <div class="card-body ml-025">
+                        <div class="mb-3">
+                            <label class="form-label">請求メール送信日時</label>
+                            <div class="d-flex align-items-center">
+                                <input name="event_date" class="form-control w-25" value=3 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control w-25" value=25 type="number"><span class="ps-2 pe-2">日</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">督促メール送信日時</label>
+                            <div class="d-flex align-items-center">
+                                <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control w-25" value=5 type="number"><span class="ps-2 pe-2">日</span>
+                            </div>
+                        </div>
+                        <div class="d-flex w-100 align-items-center justify-content-end">
+                            <button class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
                         </div>
                     </div>
                 </div>
