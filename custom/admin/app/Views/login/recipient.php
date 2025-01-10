@@ -17,13 +17,13 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-3">
-                                    <form>
+                                    <form action="/custom/admin/app/Controllers/password_reset_controller.php" method="POST">
                                         <div class="mb-3">
                                             <label class="form-label">メールアドレス</label>
                                             <input class="form-control form-control-lg" type="email" name="email" placeholder="Enter your email" />
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <a href="reset.php" class="btn btn-lg btn-primary">次へ</a>
+                                            <button type="submit" class="btn btn-lg btn-primary">次へ</button>
                                         </div>
                                     </form>
                                 </div>

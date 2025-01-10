@@ -4284,20 +4284,6 @@ function validate_internal_user_password(stdClass $user, #[\SensitiveParameter] 
     $latestpepper = reset($peppers);
     // Add an empty pepper to the beginning of the array. To make it easier to check if the password matches without any pepper.
     $peppers = [-1 => ''] + $peppers;
-    // ペッパー文字列
-    $pepper = "your-secure-pepper-string";
-
-    // 保存時
-    $pepperedpassword = hash_hmac("sha256", $password, $pepper);
-    $hashedPassword = password_hash($pepperedpassword, PASSWORD_DEFAULT);
-
-    // 検証時
-    $pepperedpassword = hash_hmac("sha256", $password, $pepper);
-    if (password_verify($pepperedpassword, $user->password)) {
-        echo "ログイン成功";
-    } else {
-        echo "ログイン失敗";
-    }
     foreach ($peppers as $pepper) {
         $pepperedpassword = $password . $pepper;
 

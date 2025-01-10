@@ -1,4 +1,18 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/lib/moodlelib.php');
+
+// トークンを取得
+$token = $_GET['token'] ?? null;
+
+if ($token) {
+    global $DB;
+
+    // トークンの有効性を確認
+    $reset_data = $DB->get_record('password_reset', ['token' => $token]);
+
+    if ($reset_data && $reset_data->expiry > time()) {
+?>
 
 <body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
     <main class="d-flex w-100 h-100">
@@ -14,7 +28,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-3">
-                                    <form>
+                                    <form action="/custom/admin/app/Controllers/password_update_controller.php" method="POST">
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
                                             <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter new password" />
@@ -42,5 +56,11 @@
     <script src="/custom/admin/public/js/app.js"></script>
 
 </body>
+<?php
+    } else {
+        echo "無効なまたは期限切れのトークンです。";
+    }
+}
+?>
 
 </html>
