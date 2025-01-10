@@ -13,8 +13,18 @@
                             <div class="card-body">
                                 <div class="m-sm-3">
                                     <div class="row">
+                                        <!-- エラーメッセージの表示 -->
+                                        <?php
+                                        require_once(__DIR__ . '/../../../../../config.php');
+                                        global $SESSION;
+                                        if (!empty($SESSION->login_error)) {
+                                            echo '<p style="color: red;">' . $SESSION->login_error . '</p>';
+                                            unset($SESSION->login_error); // メッセージを一度表示したら削除
+                                        }
+                                        ?>
                                     </div>
-                                    <form>
+                                    <form name="loginForm" action="/custom/admin/app/Controllers/login_controller.php" method="post">
+                                        <input type="hidden" name="action" value="login">
                                         <div class="mb-3">
                                             <label class="form-label">メールアドレス</label>
                                             <input class="form-control form-control-lg" type="email" name="email" placeholder="Enter your email" />
@@ -27,7 +37,7 @@
                                             </small>
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <a href="/custom/admin/app/Views/management/index.php" class="btn btn-lg btn-primary">ログイン</a>
+                                        <button type="submit" class="btn btn-lg btn-primary">ログイン</button>
                                         </div>
                                     </form>
                                 </div>
