@@ -21,8 +21,8 @@ if ($email) {
         if ($existing_request) {
             // 前回リクエストから1時間以上経過しているか確認
             if ($current_time - $existing_request->timerequested < 3600) {
-                echo "パスワードリセットリクエストは1時間に1回のみ可能です。";
-                exit;
+                $_SESSION['result_message'] = 'パスワードリセットリクエストは1時間に1回のみ可能です。';
+                header('Location: /custom/admin/app/Views/login/result.php');
             }
 
             // リクエストが許可される場合、データを更新
@@ -49,9 +49,11 @@ if ($email) {
         $message = "以下のリンクをクリックしてパスワードを再設定してください。\n\n$reset_url";
         email_to_user($user, core_user::get_support_user(), $subject, $message);
 
-        echo "再設定用のメールを送信しました。";
+        $_SESSION['result_message'] = '再設定用のメールを送信しました。';
+        header('Location: /custom/admin/app/Views/login/result.php');
     } else {
-        echo "指定されたメールアドレスは存在しません。";
+        $_SESSION['result_message'] = '入力したメールアドレスは存在しません。';
+        header('Location: /custom/admin/app/Views/login/result.php');
     }
 }
 ?>

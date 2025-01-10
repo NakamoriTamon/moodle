@@ -14,10 +14,11 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-3">
-                                    <form>
+                                    <form action="/custom/admin/app/Controllers/login/sign_up_controller.php" method="post">
                                         <div class="mb-3">
                                             <label class="form-label">担当者名</label>
-                                            <input class="form-control form-control-lg" type="text" name="name" placeholder="Enter your name" />
+                                            <input class="form-control form-control-lg" type="text" name="lastname" placeholder="苗字" />
+                                            <input class="form-control form-control-lg" type="text" name="firstname" placeholder="名前" />
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">メールアドレス</label>
@@ -28,23 +29,18 @@
                                             <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter password" />
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <a href="login.php" class="btn btn-lg btn-primary">サインアップ</a>
+                                            <button type="submit" class="btn btn-lg btn-primary">サインアップ</button>
+                                            <a href="/custom/admin/app/Views/login/login.php" class="btn btn-lg btn-primary">ログイン画面に戻る</a>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                        </div>
-                        <div class="text-center mb-3">
-                            すでにアカウントをお持ちですか? <a href="login.php">ログイン</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
-    <script src="/custom/admin/public/js/app.js"></script>
-
 </body>
 
 </html>

@@ -1,0 +1,57 @@
+<?php
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/lib/moodlelib.php');
+
+$lastname = $_POST['lastname'] ?? null;
+$firstname = $_POST['firstname'] ?? null;
+$email = $_POST['email'] ?? null;
+$password = $_POST['password'] ?? null;
+
+if ($lastname && $firstname && $email && $password) {
+    global $DB, $CFG;
+
+    // 入力されたメールアドレスが存在するか確認
+    $user = $DB->get_record('user', ['email' => $email]);
+
+    if (!$user) {
+        try {
+            // ユーザーを作成
+            $new_user = new stdClass();
+            $new_user->username = strtolower($firstname . '.' . $lastname . time()); // 例: john.doe1672901234
+            $new_user->auth = 'manual'; // 手動認証
+            $new_user->confirmed = 1;
+            $new_user->lastname = $lastname;
+            $new_user->firstname = $firstname;
+            $new_user->email = $email;
+            $new_user->password = password_hash($password, PASSWORD_DEFAULT);
+            $new_user->timecreated = time();
+            $new_user->timemodified = time();
+            $user_id = $DB->insert_record('user', $new_user);
+
+            // 管理者ロールを割り当てる
+            $admin_role = $DB->get_record('role', ['shortname' => 'manager']); // もしくは 'admin'
+            $context = context_system::instance(); // システムコンテキスト
+            role_assign($admin_role->id, $user_id, $context->id);
+
+            $siteadmins = explode(',', get_config('moodle', 'siteadmins'));
+            
+            // 管理者IDがすでに存在しない場合のみ追加
+            if (!in_array($user_id, $siteadmins)) {
+                $siteadmins[] = $user_id;
+                $value = implode(',', $siteadmins);
+                set_config('siteadmins', $value);
+            } else {
+                throw new Exception("Error Processing Request", 1);
+            }
+
+            $_SESSION['result_message'] = '管理者として正常に登録されました。';
+        } catch (Exception $e) {
+            $_SESSION['result_message'] = 'エラーが発生しました。再登録してください。';
+        }
+    } else {
+        $_SESSION['result_message'] = '入力したメールアドレスは登録済みです。';
+    }
+    header('Location: /custom/admin/app/Views/login/result.php');
+    exit;
+}
+?>

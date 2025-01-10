@@ -31,32 +31,28 @@ if ($token) {
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-3">
-                                    <form action="/custom/admin/app/Controllers/password_update_controller.php" method="POST">
+                                    <form action="/custom/admin/app/Controllers/login/password_update_controller.php" method="POST">
+                                        <input type="hidden" name="token" value="<?php echo htmlspecialchars($token, ENT_QUOTES, 'UTF-8'); ?>">
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" />
+                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" required />
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">パスワード ( 再設定 )</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" />
+                                            <label class="form-label">パスワード(確認)</label>
+                                            <input class="form-control form-control-lg" type="password" name="password_confirmation" placeholder="新しいパスワード(確認)" required />
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <button type="submit" class="btn btn-lg btn-primary">パスワードリセットa</button>
+                                            <button type="submit" class="btn btn-lg btn-primary">パスワードリセット</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                        </div>
-                        <div class="text-center mb-3">
-                            アカウントをお持ちでないですか? <a href="sign_up.php">アカウント作成</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
-    <script src="/custom/admin/public/js/app.js"></script>
 
 </body>
 <?php

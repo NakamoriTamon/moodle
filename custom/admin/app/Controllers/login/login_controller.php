@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ . '/../../../../config.php');
+require_once('/var/www/html/moodle/config.php');
 require_once($CFG->libdir . '/authlib.php');
 
 class LoginController

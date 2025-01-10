@@ -23,7 +23,7 @@
                                         }
                                         ?>
                                     </div>
-                                    <form name="loginForm" action="/custom/admin/app/Controllers/login_controller.php" method="post">
+                                    <form name="loginForm" action="/custom/admin/app/Controllers/login/login_controller.php" method="post">
                                         <input type="hidden" name="action" value="login">
                                         <div class="mb-3">
                                             <label class="form-label">メールアドレス</label>
@@ -51,7 +51,6 @@
             </div>
         </div>
     </main>
-    <script src="/custom/admin/public/js/app.js"></script>
 </body>
 
 </html>
