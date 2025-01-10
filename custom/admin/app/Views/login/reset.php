@@ -41,7 +41,7 @@ if ($token) {
                                             <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" />
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <button type="submit" class="btn btn-lg btn-primary">パスワードリセット</button>
+                                            <button type="submit" class="btn btn-lg btn-primary">パスワードリセットa</button>
                                         </div>
                                     </form>
                                 </div>
