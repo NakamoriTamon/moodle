@@ -9,9 +9,12 @@ if ($token) {
     global $DB;
 
     // トークンの有効性を確認
-    $reset_data = $DB->get_record('password_reset', ['token' => $token]);
+    $reset_data = $DB->get_record('user_password_resets', ['token' => $token]);
 
-    if ($reset_data && $reset_data->expiry > time()) {
+    if ($reset_data->timerequested + 3600 < time()) {
+        echo "トークンの有効期限が切れています。再度リクエストしてください。";
+        exit;
+    }
 ?>
 
 <body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
@@ -31,14 +34,14 @@ if ($token) {
                                     <form action="/custom/admin/app/Controllers/password_update_controller.php" method="POST">
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter new password" />
+                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" />
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">パスワード ( 再設定 )</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter new password" />
+                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" />
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                            <a href="login.php" class="btn btn-lg btn-primary">パスワードリセット</a>
+                                            <button type="submit" class="btn btn-lg btn-primary">パスワードリセット</button>
                                         </div>
                                     </form>
                                 </div>
@@ -57,9 +60,8 @@ if ($token) {
 
 </body>
 <?php
-    } else {
-        echo "無効なまたは期限切れのトークンです。";
-    }
+} else {
+    echo "無効なまたは期限切れのトークンです。";
 }
 ?>
 

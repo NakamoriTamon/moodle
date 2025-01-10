@@ -16,6 +16,7 @@ if ($email) {
 
         // ユーザーの既存のリクエスト確認
         $existing_request = $DB->get_record('user_password_resets', ['userid' => $user->id]);
+        $token = null;
 
         if ($existing_request) {
             // 前回リクエストから1時間以上経過しているか確認
@@ -26,7 +27,8 @@ if ($email) {
 
             // リクエストが許可される場合、データを更新
             $existing_request->timerequested = $current_time;
-            $existing_request->token = bin2hex(random_bytes(16)); // 32文字のランダムなトークン
+            $token = bin2hex(random_bytes(16)); // 32文字のランダムなトークン
+            $existing_request->token = $token;
             $DB->update_record('user_password_resets', $existing_request);
         } else {
             // 新規リクエストを作成
@@ -34,12 +36,13 @@ if ($email) {
             $new_request->userid = $user->id;
             $new_request->timerequested = $current_time;
             $new_request->timererequested = 0; // 初回リクエストの場合は 0
-            $new_request->token = bin2hex(random_bytes(16)); // 32文字のランダムなトークン
+            $token = bin2hex(random_bytes(16)); // 32文字のランダムなトークン
+            $new_request->token = $token;
             $DB->insert_record('user_password_resets', $new_request);
         }
 
         // 再設定URLを生成
-        $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/reset.php?token=' . $new_request->token;
+        $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/login/reset.php?token=' . $token;
 
         // メール送信
         $subject = "パスワード再設定のリクエスト";
