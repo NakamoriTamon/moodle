@@ -18,6 +18,9 @@ body {
     transform: translateX(-50%);
     left: 50%;
 }
+.choices__button{
+    margin-right: 0px !important;
+}
 .w-35{
     width: 35%;
 }
@@ -117,4 +120,8 @@ input.timepicker {
     margin-top: 3px;
     margin-left: 0.8rem;
     margin-bottom: 0px;
+}
+/* event */
+.repeatedly_area{
+    display: none;
 }

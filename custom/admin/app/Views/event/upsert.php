@@ -32,8 +32,8 @@
 									<div class=" mb-3">
 										<label class="form-label">イベント区分</label>
 										<select name="event_kbn" class="form-control mb-3">
-											<option selected>1度きりのイベント</option>
-											<option>複数回シリーズのイベント</option>
+											<option value=1 selected>1度きりのイベント</option>
+											<option value=2>複数回シリーズのイベント</option>
 										</select>
 									</div>
 									<div class="mb-3">
@@ -48,11 +48,20 @@
 										<textarea name="description" class=" form-control" rows="5"></textarea>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">カテゴリ名</label>
-										<select name="category_id" class="form-control mb-3">
-											<option value=1 selected="">カテゴリA</option>
-											<option value=1>カテゴリB</option>
-											<option value=1>カテゴリC</option>
+										<label class="form-label">カテゴリー</label>
+										<select id="category_id" name="category_id" class="form-control choices-multiple mb-3" multiple>
+											<optgroup label="">
+												<option value=1>未選択</option>
+												<option value=2>医療・健康</option>
+												<option value=3>科学・技術</option>
+												<option value=4>生活・福祉</option>
+												<option value=5>文化・芸術</option>
+												<option value=6>社会・経済</option>
+												<option value=7>自然・環境</option>
+												<option value=8>子ども・教育</option>
+												<option value=9>国際・言語</option>
+												<option value=10>その他</option>
+											</optgroup>
 										</select>
 									</div>
 									<div class="mb-3">
@@ -64,11 +73,13 @@
 									</div>
 									<div class="mb-3">
 										<label class="form-label">講義形式</label>
-										<select name="venue_id" class=" form-control mb-3">
-											<option value=1 selected="">会場</option>
-											<option value=1>会場(オンデマンドあり)</option>
-											<option value=1>オンライン</option>
-											<option value=1>ハイブリッド</option>
+										<select id="venue_id" class=" form-control choices-multiple mb-3" multiple>
+											<optgroup label="">
+												<option selected value=1>会場</option>
+												<option value=2>会場(オンデマンドあり)</option>
+												<option value=3>オンライン</option>
+												<option value=4>ハイブリッド</option>
+											</optgroup>
 										</select>
 									</div>
 									<div class="mb-3">
@@ -108,23 +119,188 @@
 											<span class="form-check-label">トップに固定する</span>
 										</label>
 									</div>
-									<div class="mb-3">
+									<div class="mb-3 onetime_area">
 										<label class="form-label">講師</label>
-										<select name="tutor_id" class=" form-control mb-3">
-											<option value=1 selected="">講師A</option>
-											<option value=1>講師B</option>
-											<option value=1>講師C</option>
-											<option value=1>講師D</option>
+										<select id="tutor_id" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+											<optgroup label="">
+												<option value=1>海道 尊</option>
+												<option value=2>川上 潤</option>
+											</optgroup>
 										</select>
 									</div>
-									<div class="mb-3">
+									<div class="repeatedly_area">
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第1講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_01" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第2講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_02" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第3講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_03" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第4講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_04" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第5講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_05" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第6講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_06" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第7講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_07" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第8講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_08" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+										<div class="mb-3">
+											<P class="fs-5 fw-bold">第9講座</P>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催日</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="event_date" class="form-control" type="date">
+										</div>
+
+										<div class="mb-3">
+											<label class="form-label">講師</label>
+											<select id="tutor_id_09" class=" form-control choices-multiple mb-3" name="tutor_id" multiple>
+												<optgroup label="">
+													<option value=1>海道 尊</option>
+													<option value=2>川上 潤</option>
+												</optgroup>
+											</select>
+										</div>
+
+									</div>
+									<!-- <div class="mb-3">
 										<label class="form-label">講義名</label>
 										<input name="lecture_name" class=" form-control" type="text">
 									</div>
 									<div class="mb-3">
 										<label class="form-label">講義概要</label>
 										<textarea name="lecture_outline" class="form-control" rows="5"></textarea>
-									</div>
+									</div> -->
 									<div class="mb-3">
 										<label class="form-label">プログラム</label>
 										<textarea name="program" class=" form-control" rows="5"></textarea>
@@ -157,12 +333,23 @@
 										<label class="form-label">参加費</label>
 										<input name="participation_fee" class=" form-control" min="0" type="number">
 									</div>
+									<div class="mb-3 repeatedly_area">
+										<label class="form-label">参加費( 全て受講 )</label>
+										<input id="" name="all_participation_fee" class="form-control" min="0" type="number">
+									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">申し込み締切日</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
 										<input name="deadline" class=" form-control" type="date">
+									</div>
+									<div class="mb-3 repeatedly_area">
+										<div class="form-label d-flex align-items-center">
+											<label class="me-2">申し込み締切日( 全て受講 )</label>
+											<span class="badge bg-danger">必須</span>
+										</div>
+										<input name="deadline" class="repeatedly_area form-control" type="date">
 									</div>
 									<div class="mb-3">
 										<label class="form-label">アーカイブ配信期間</label>
@@ -173,6 +360,23 @@
 											<input type="checkbox" checked name="is_double_speed" class="form-check-input">
 											<span name="is_double_speed" class=" form-check-label">動画倍速機能</span>
 										</label>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">イベントカスタム区分</label>
+										<select id="event_custom_id" class=" form-control mb-3" name="event_custom_id">
+											<option value=1>イベント一般</option>
+											<option value=2>適塾記念会イベント</option>
+											<option value=3>生命科学分野イベント</option>
+										</select>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">アンケートカスタム区分</label>
+										<select id="survey_custom_id" class=" form-control  mb-3" name="survey_custom_id">
+											<option value="">未選択</option>
+											<option value=1>イベント一般</option>
+											<option value=2>適塾記念会イベント</option>
+											<option value=3>生命科学分野イベント</option>
+										</select>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">その他</label>
@@ -193,3 +397,32 @@
 </body>
 
 </html>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const ids = ['venue_id', 'tutor_id', 'tutor_id_01', 'tutor_id_02', 'tutor_id_03', 'tutor_id_04', 'tutor_id_05',
+			'tutor_id_06', 'tutor_id_07', 'tutor_id_08', 'tutor_id_09', 'category_id'
+		];
+		ids.forEach((id) => {
+			const element = document.getElementById(id);
+			if (element) {
+				new Choices(element, {
+					shouldSort: false,
+					shouldSortItems: false,
+					removeItemButton: true,
+				});
+			}
+		});
+	});
+	$(document).ready(function() {
+		// select要素が変更された時にアラートを表示
+		$('select[name="event_kbn"]').on('change', function() {
+			if ($(this).val() == 2) {
+				$('.onetime_area').css('display', 'none');
+				$('.repeatedly_area').css('display', 'block');
+			} else {
+				$('.onetime_area').css('display', 'block');
+				$('.repeatedly_area').css('display', 'none');
+			}
+		});
+	});
+</script>

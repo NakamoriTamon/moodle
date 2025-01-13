@@ -29,6 +29,13 @@
 								<form method="POST" action="">
 									<div class="field-container">
 										<input type="hidden" name="eventId">
+										<div class="mb-4">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">カテゴリ区分名</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input type="text" name="" class="form-control">
+										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">項目名</label>

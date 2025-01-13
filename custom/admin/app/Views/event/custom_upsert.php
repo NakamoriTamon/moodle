@@ -10,7 +10,7 @@
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<div class="fs-5 me-4">システム管理者</div>
+								<div class="fs-5 me-4b text-decoration-underline">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -29,6 +29,13 @@
 								<form method="POST" action="">
 									<div class="field-container">
 										<input type="hidden" name="eventId">
+										<div class="mb-4">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">カテゴリ区分名</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input type="text" name="" class="form-control">
+										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">項目名</label>

@@ -11,7 +11,7 @@
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <div class="fs-5 me-4">システム管理者</div>
+                                <div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -38,9 +38,10 @@
                                 <table class="table table-responsive table-striped table_list">
                                     <thead>
                                         <tr>
-                                            <th class="ps-4 pe-4">ID</th>
+                                            <th class="ps-4 pe-4">ユーザーID</th>
                                             <th class="ps-4 pe-4">氏名</th>
                                             <th class="ps-4 pe-4">フリガナ</th>
+                                            <th class="ps-4 pe-4">生年月日</th>
                                             <th class="ps-4 pe-4 text-nowrap">住所</th>
                                             <th class="ps-4 pe-4">メールアドレス</th>
                                             <th class="ps-4 pe-4">電話番号</th>
@@ -48,23 +49,22 @@
                                             <th class="ps-4 pe-4">保護者連絡先</th>
                                             <th class="ps-4 pe-4">支払方法</th>
                                             <th class="ps-4 pe-4">適塾記念会入会状況</th>
-                                            <th class="ps-4 pe-4">申込日</th>
                                             <th class="w-170 ps-4 pe-4">アカウント承認設定</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="ps-4 pe-4">1</td>
+                                            <td class="ps-4 pe-4 text-nowrap">1325 2341</td>
                                             <td class="ps-4 pe-4 text-nowrap">田中 翔太</td>
                                             <td class="ps-4 pe-4 text-nowrap">タナカ ショウタ</td>
+                                            <td class="ps-4 pe-4">1999年7月15日</td>
                                             <td class="ps-4 pe-4">大阪府</td>
                                             <td class="ps-4 pe-4">tanaka@gmail.com</td>
-                                            <td class="ps-4 pe-4">07018271254</td>
+                                            <td class="ps-4 pe-4  text-nowrap">070-1827-1254</td>
                                             <td class="ps-4 pe-4"></td>
                                             <td class="ps-4 pe-4"></td>
                                             <td class="ps-4 pe-4">クレジット</td>
                                             <td class="ps-4 pe-4">入会済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
                                             <td class="ps-4 pe-4">
                                                 <select name=" category_id" class="form-control">
                                                     <option value=1>承認</option>
@@ -73,17 +73,17 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="ps-4 pe-4">2</td>
+                                            <td class="ps-4 pe-4">1328 2716</td>
                                             <td class="ps-4 pe-4">山田 健太</td>
                                             <td class="ps-4 pe-4">ヤマダ ケンタ</td>
+                                            <td class="ps-4 pe-4">2007年11月28日</td>
                                             <td class="ps-4 pe-4">愛知県</td>
                                             <td class="ps-4 pe-4">yamada@gmail.com</td>
-                                            <td class="ps-4 pe-4">09019991827</td>
+                                            <td class="ps-4 pe-4 text-nowrap">090-1999-1827</td>
                                             <td class="ps-4 pe-4"></td>
                                             <td class="ps-4 pe-4"></td>
-                                            <td class="ps-4 pe-4">クレジット</td>
+                                            <td class="ps-4 pe-4">コンビニ決済</td>
                                             <td class="ps-4 pe-4">入会済</td>
-                                            <td class="ps-4 pe-4">2024/10/19</td>
                                             <td class="ps-4 pe-4">
                                                 <select name="category_id" class="form-control">
                                                     <option value=1>承認</option>
@@ -92,17 +92,17 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="ps-4 pe-4">3</td>
+                                            <td class="ps-4 pe-4 text-nowrap">0001 0123</td>
                                             <td class="ps-4 pe-4">中村 優衣</td>
                                             <td class="ps-4 pe-4">ナカムラ ユイ</td>
+                                            <td class="ps-4 pe-4">2015年9月3日</td>
                                             <td class="ps-4 pe-4">三重県</td>
                                             <td class="ps-4 pe-4">nakamura@gmail.com</td>
-                                            <td class="ps-4 pe-4">07019283712</td>
+                                            <td class="ps-4 pe-4">070-1928-3712</td>
                                             <td class="ps-4 pe-4">中村 徹</td>
                                             <td class="ps-4 pe-4 text-nowrap">ナカムラ トオル</td>
                                             <td class="ps-4 pe-4">銀行振込</td>
                                             <td class="ps-4 pe-4">未入会</td>
-                                            <td class="ps-4 pe-4"></td>
                                             <td class="ps-4 pe-4">
                                                 <select name="category_id" class="form-control">
                                                     <option value=1>承認</option>
@@ -110,101 +110,6 @@
                                                 </select>
                                             </td>
                                         </tr>
-                                        <!-- <tr>
-                                            <td class="ps-4 pe-4">4</td>
-                                            <td class="ps-4 pe-4">佐藤 夢</td>
-                                            <td class="ps-4 pe-4">sato@gmail.com</td>
-                                            <td class="ps-4 pe-4">口座振替</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/4/1</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">5</td>
-                                            <td class="ps-4 pe-4">高橋 美咲</td>
-                                            <td class="ps-4 pe-4">takahashi@gmail.com</td>
-                                            <td class="ps-4 pe-4">口座振替</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/4/1</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">6</td>
-                                            <td class="ps-4 pe-4">伊藤 大輔</td>
-                                            <td class="ps-4 pe-4">ito@gmail.com</td>
-                                            <td class="ps-4 pe-4">コンビニ決済</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/4/1</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">7</td>
-                                            <td class="ps-4 pe-4">清水 由佳</td>
-                                            <td class="ps-4 pe-4">shimizu@gmail.com</td>
-                                            <td class="ps-4 pe-4">コンビニ決済</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/4/1</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">8</td>
-                                            <td class="ps-4 pe-4">加藤 拓也</td>
-                                            <td class="ps-4 pe-4">kato@gmail.com</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/4/1</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">決済済</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">2024/12/20</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr> -->
                                     </tbody>
                                 </table>
                             </div>

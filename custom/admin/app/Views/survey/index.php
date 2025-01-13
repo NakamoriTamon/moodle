@@ -25,15 +25,56 @@ $events = $eventController->index();
 			</nav>
 
 			<main class="content">
+				<div class="card">
+					<div class="card-body p-025">
+						<div class="d-flex justify-content-between">
+							<div class="mb-3 w-100">
+								<label class="form-label" for="notyf-message">カテゴリー</label>
+								<select name="category_id" class="form-control">
+									<option value=1>未選択</option>
+									<option value=2>医療・健康</option>
+									<option value=3>科学・技術</option>
+									<option value=4>生活・福祉</option>
+									<option value=5>文化・芸術</option>
+									<option value=6>社会・経済</option>
+									<option value=7>自然・環境</option>
+									<option value=8>子ども・教育</option>
+									<option value=9>国際・言語</option>
+									<option value=10>その他</option>
+								</select>
+							</div>
+							<div class="ms-3 mb-3 w-100">
+								<label class="form-label" for="notyf-message">開催ステータス</label>
+								<select name="category_id" class="form-control">
+									<option value=1>未選択</option>
+									<option value=1>開催前</option>
+									<option value=2>開催中</option>
+									<option value=3>開催終了</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4">
+							<label class="form-label" for="notyf-message">イベント名</label>
+							<select name="event_id" class="form-control">
+								<option value="">未選択</option>
+								<option value=1 selected>タンパク質の精製技術の基礎</option>
+								<option value=2>AIと機械学習の基礎講座</option>
+								<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
+								<option value=4>気候変動と持続可能なエネルギーソリューション</option>
+								<option value=5>心理学で学ぶ意思決定と行動経済学</option>
+							</select>
+						</div>
+						<!-- <hr> -->
+						<div class="d-flex w-100">
+							<button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+						</div>
+					</div>
+				</div>
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
-								<select name="category_id" class="form-control w-25 search-select">
-									<option value="1">イベントA</option>
-									<option value="2">イベントB</option>
-									<option value="3">イベントC</option>
-								</select>
+								<div></div>
 								<button class="btn btn-primary ms-auto mt-3 mb-3  mr-025 d-flex justify-content-center align-items-center">
 									<i class="align-middle me-1" data-feather="download"></i>CSV出力
 								</button>
