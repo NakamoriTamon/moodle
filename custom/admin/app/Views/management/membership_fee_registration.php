@@ -35,13 +35,6 @@
                                         <i class="align-middle me-1" data-feather="download"></i>CSV出力
                                     </button>
                                 </div>
-
-
-
-
-                                <!-- <div class=" ms-auto">
-
-                                </div> -->
                             </div>
                             <div class="card m-auto mb-5 w-95">
                                 <table class="table table-responsive table-striped table_list" style="width:100%">
@@ -165,6 +158,13 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">督促メール送信日時( 2回目 )</label>
+                            <div class="d-flex align-items-center">
+                                <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">除名期日</label>
                             <div class="d-flex align-items-center">
                                 <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
                                 <input name="event_date" class="form-control w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>

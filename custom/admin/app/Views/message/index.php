@@ -107,9 +107,10 @@ $events = $eventController->index();
                     <div class="card min-70vh">
                         <div class="card-body p-0">
                             <div class="d-flex w-100 align-items-center justify-content-end mt-3">
-                                <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
+                                <div class="mt-4"></div>
+                                <!-- <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
                                     <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
-                                </button>
+                                </button> -->
                             </div>
                             <div class="card m-auto mb-5 w-95">
                                 <table class="table table-responsive table-striped table_list" style="width:100%">
@@ -223,6 +224,33 @@ $events = $eventController->index();
                                     <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li>
                                 </ul>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0 mt-3">メール送信内容</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">メールタイトル</label>
+                            <div class="align-items-center">
+                                <textarea name="event_date" class="form-control w-100"></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-label d-flex align-items-center">
+                                <label class="me-2">メール本文</label>
+                                <span class="badge bg-danger">必須</span>
+                            </div>
+                            <div class="align-items-center">
+                                <textarea name="event_date" class="form-control w-100" rows=5></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex w-100 align-items-center justify-content-end">
+                            <button class="btn btn-primary mt-3 mb-3 me-0 d-flex justify-content-center align-items-center">
+                                <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
+                            </button>
                         </div>
                     </div>
                 </div>

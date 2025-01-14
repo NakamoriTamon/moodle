@@ -72,7 +72,7 @@
 												<option value="video">動画</option>
 											</select>
 										</div>
-										<div class="mb-3">
+										<div class="mb-5">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">選択肢 (カンマ区切り)</label>
 												<span class="badge bg-danger">必須</span>
@@ -80,6 +80,7 @@
 											<input type="text" name="" class="form-control">
 										</div>
 									</div>
+									<hr>
 									<div class="d-flex">
 										<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
 									</div>
@@ -119,6 +120,7 @@
 			const newField = document.createElement('div');
 			newField.classList.add('field-container', 'mt-5');
 			newField.innerHTML = ` 
+			    <div class="add_area">
 				<input type="hidden" name="eventId">
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">
@@ -163,10 +165,16 @@
 					</div>
 					<input type="text" name="" class="form-control">
 				</div>
+				</div>
+				<div class ="mb-3"><div class = "form-label mt-3 d-flex align-items-center">
+				<button type="button" class ="delete_btn btn btn-danger ms-auto me-0">削除</button></div></div><hr>
     		`;
 
 			// 新しいフィールドを追加
 			$(this).parent().before(newField);
+		});
+		$(document).on('click', '.delete_btn', function() {
+			$(this).closest('.add_area').remove();
 		});
 	</script>
 </body>

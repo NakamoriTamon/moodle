@@ -83,6 +83,8 @@
                                     <table class="table table-responsive table-striped table_list">
                                         <thead>
                                             <tr>
+                                                <th class="ps-4 pe-4">ID</th>
+                                                <th class="ps-4 pe-4">イベント名</th>
                                                 <th class="ps-4 pe-4">講座回数</th>
                                                 <th class="ps-4 pe-4">ユーザーID</th>
                                                 <th class="ps-4 pe-4">ユーザー名</th>
@@ -95,6 +97,8 @@
                                         </thead>
                                         <tbody>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第1講座</td>
                                                 <td class="ps-4 pe-4">1937 8274</td>
                                                 <td class="ps-4 pe-4">田中 翔太</td>
@@ -105,6 +109,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第1講座</td>
                                                 <td class="ps-4 pe-4">1628 7451</td>
                                                 <td class="ps-4 pe-4">山田 健太</td>
@@ -115,6 +121,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第1講座</td>
                                                 <td class="ps-4 pe-4">1524 8472</td>
                                                 <td class="ps-4 pe-4">中村 優衣</td>
@@ -125,6 +133,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第2講座</td>
                                                 <td class="ps-4 pe-4 text-nowrap">0000 0821</td>
                                                 <td class="ps-4 pe-4">佐藤 夢</td>
@@ -135,6 +145,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第2講座</td>
                                                 <td class="ps-4 pe-4">1938 5756</td>
                                                 <td class="ps-4 pe-4">高橋 美咲</td>
@@ -145,6 +157,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第2講座</td>
                                                 <td class="ps-4 pe-4">1231 9374</td>
                                                 <td class="ps-4 pe-4">伊藤 大輔</td>
@@ -155,6 +169,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第3講座</td>
                                                 <td class="ps-4 pe-4">1827 4651</td>
                                                 <td class="ps-4 pe-4">清水 由佳</td>
@@ -165,6 +181,8 @@
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                             </tr>
                                             <tr>
+                                                <td class="ps-4 pe-4">1</td>
+                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
                                                 <td class="ps-4 pe-4">第3講座</td>
                                                 <td class="ps-4 pe-4">1281 7362</td>
                                                 <td class="ps-4 pe-4">加藤 拓也</td>
