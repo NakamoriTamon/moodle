@@ -1,5 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once($CFG->libdir . '/authlib.php');
 
 class LoginController
@@ -10,6 +11,13 @@ class LoginController
         // フォームからのデータを受け取る
         $email = required_param('email', PARAM_EMAIL); // メールアドレス
         $password = required_param('password', PARAM_RAW); // パスワード
+
+        $email_error = validate_custom_email($email);
+        
+        if ($email_error) {
+            // 認証失敗時のエラーメッセージ
+            $this->redirectWithError('メールアドレスまたはパスワードが間違っています。', '/custom/admin/app/Views/login/login.php');
+        }
 
         // ユーザー情報を取得
         $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0], '*');

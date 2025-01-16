@@ -21,7 +21,7 @@ unset($_SESSION['result_message']);
                             <div class="card-body">
                                 <div class="m-sm-3">
                                     <div class="d-grid gap-2 mt-3">
-                                        <a href="/custom/admin/app/Views/login/login.php" class="btn btn-lg btn-primary">ログイン画面に戻る</a>
+                                        <a href="/custom/admin/app/Views/login/login.php" class="btn btn-lg btn-outline-dark">ログイン画面に戻る</a>
                                     </div></div>
                                 </div>
                             </div>

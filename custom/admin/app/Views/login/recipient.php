@@ -24,7 +24,7 @@
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
                                             <button type="submit" class="btn btn-lg btn-primary">次へ</button>
-                                            <a href="/custom/admin/app/Views/login/login.php" class="btn btn-lg btn-primary">ログイン画面に戻る</a>
+                                            <a href="/custom/admin/app/Views/login/login.php" class="btn btn-lg btn-outline-dark">ログイン画面に戻る</a>
                                         </div>
                                     </form>
                                 </div>

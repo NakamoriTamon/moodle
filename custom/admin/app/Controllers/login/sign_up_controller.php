@@ -1,13 +1,32 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/lib/moodlelib.php');
+require_once('/var/www/html/moodle/local/commonlib/lib.php');
 
 $lastname = $_POST['lastname'] ?? null;
 $firstname = $_POST['firstname'] ?? null;
 $email = $_POST['email'] ?? null;
 $password = $_POST['password'] ?? null;
 
-if ($lastname && $firstname && $email && $password) {
+// バリデーションチェック
+$lastname_error = validate_last_name($lastname);
+$firstname_error = validate_first_name($firstname);
+$email_error = validate_custom_email($email);
+$password_error = validate_password($password);
+
+// 必要なバリデーションや処理を行う
+if ($lastname_error || $firstname_error || $email_error || $password_error) {
+    // エラーメッセージをセッションに保存
+    $_SESSION['errors'] = [
+        'lastname' => $lastname_error,
+        'firstname' => $firstname_error,
+        'email' => $email_error,
+        'password' => $password_error,
+    ];
+    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+    header('Location: /custom/admin/app/Views/login/sign_up.php');
+    exit;
+} else {
     global $DB, $CFG;
 
     // 入力されたメールアドレスが存在するか確認
