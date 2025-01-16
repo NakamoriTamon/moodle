@@ -1,9 +1,8 @@
 [data-simplebar] {
-    width: 265px !important;
+    width: 264px !important;
 }
 #sidebar {
-    min-width: initial;
-    max-width: initial;
+   width: 265px !important
 }
 @media (max-width: 991.98px) {
     body:not([data-sidebar-position=right]) .sidebar {

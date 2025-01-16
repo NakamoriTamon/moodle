@@ -1,10 +1,10 @@
 <?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/EventController.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
 $eventController = new EventController();
 $events = $eventController->index();
 ?>
 
-<body id="survey" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
+<body id="survey" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative d-block">
 	<div class="wrapper">
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
@@ -14,10 +14,10 @@ $events = $eventController->index();
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<img src="/custom/admin/public/img/avatars/avatar.jpg" class="avatar img-fluid rounded" alt="Charles Hall" />
+								<div class="fs-5 me-4">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="login.php">Log out</a>
+								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -25,16 +25,60 @@ $events = $eventController->index();
 			</nav>
 
 			<main class="content">
+				<div class="card">
+					<div class="card-body p-025">
+						<div class="d-flex justify-content-between">
+							<div class="mb-3 w-100">
+								<label class="form-label" for="notyf-message">カテゴリー</label>
+								<select name="category_id" class="form-control">
+									<option value=1>未選択</option>
+									<option value=2>医療・健康</option>
+									<option value=3>科学・技術</option>
+									<option value=4>生活・福祉</option>
+									<option value=5>文化・芸術</option>
+									<option value=6>社会・経済</option>
+									<option value=7>自然・環境</option>
+									<option value=8>子ども・教育</option>
+									<option value=9>国際・言語</option>
+									<option value=10>その他</option>
+								</select>
+							</div>
+							<div class="ms-3 mb-3 w-100">
+								<label class="form-label" for="notyf-message">開催ステータス</label>
+								<select name="category_id" class="form-control">
+									<option value=1>未選択</option>
+									<option value=1>開催前</option>
+									<option value=2>開催中</option>
+									<option value=3>開催終了</option>
+								</select>
+							</div>
+						</div>
+						<div class="mb-4">
+							<label class="form-label" for="notyf-message">イベント名</label>
+							<select name="event_id" class="form-control">
+								<option value="">未選択</option>
+								<option value=1 selected>タンパク質の精製技術の基礎</option>
+								<option value=2>AIと機械学習の基礎講座</option>
+								<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
+								<option value=4>気候変動と持続可能なエネルギーソリューション</option>
+								<option value=5>心理学で学ぶ意思決定と行動経済学</option>
+							</select>
+						</div>
+						<!-- <hr> -->
+						<div class="d-flex w-100">
+							<button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+						</div>
+					</div>
+				</div>
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<div class="d-flex w-100 align-items-center justify-content-end">
-								<select name="category_id" class="form-control w-25 search-select">
-									<option value="1">イベントA</option>
-									<option value="2">イベントB</option>
-									<option value="3">イベントC</option>
-								</select>
-								<div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : 3件</div>
+							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
+								<div></div>
+								<button class="btn btn-primary ms-auto mt-3 mb-3  mr-025 d-flex justify-content-center align-items-center">
+									<i class="align-middle me-1" data-feather="download"></i>CSV出力
+								</button>
+								<!-- <div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : 3件</div> -->
 							</div>
 							<div class="card m-auto mb-5 w-95">
 								<table class="table table-responsive table-striped table_list text-break">
@@ -136,82 +180,10 @@ $events = $eventController->index();
 					</div>
 				</div>
 			</main>
-
-			<footer class=" footer">
-				<div class="container-fluid">
-					<div class="row text-muted">
-						<div class="col-6 text-start">
-							<p class="mb-0">
-								<a href="https://adminkit.io/" target="_blank" class="text-muted"><strong>AdminKit</strong></a> &copy;
-							</p>
-						</div>
-						<div class="col-6 text-end">
-							<ul class="list-inline">
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Support</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Help Center</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Privacy</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Terms</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</footer>
 		</div>
 	</div>
 
 	<script src="/custom/admin/public/js/app.js"></script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			// Bar chart
-			new Chart(document.getElementById("chartjs-dashboard-bar"), {
-				type: "bar",
-				data: {
-					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-					datasets: [{
-						label: "This year",
-						backgroundColor: window.theme.primary,
-						borderColor: window.theme.primary,
-						hoverBackgroundColor: window.theme.primary,
-						hoverBorderColor: window.theme.primary,
-						data: [54, 67, 41, 55, 62, 45, 55, 73, 60, 76, 48, 79],
-						barPercentage: .75,
-						categoryPercentage: .5
-					}]
-				},
-				options: {
-					maintainAspectRatio: false,
-					legend: {
-						display: false
-					},
-					scales: {
-						yAxes: [{
-							gridLines: {
-								display: false
-							},
-							stacked: false,
-							ticks: {
-								stepSize: 20
-							}
-						}],
-						xAxes: [{
-							stacked: false,
-							gridLines: {
-								color: "transparent"
-							}
-						}]
-					}
-				}
-			});
-		});
-	</script>
 </body>
 
 </html>

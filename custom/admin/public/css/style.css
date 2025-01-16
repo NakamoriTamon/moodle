@@ -18,6 +18,9 @@ body {
     transform: translateX(-50%);
     left: 50%;
 }
+.choices__button{
+    margin-right: 0px !important;
+}
 .w-35{
     width: 35%;
 }
@@ -110,4 +113,15 @@ input.timepicker {
 #survey table th{
     min-width: 220px;
     vertical-align: middle;
+}
+/* sidebar */
+.side_break {
+    display: inline-block;
+    margin-top: 3px;
+    margin-left: 0.8rem;
+    margin-bottom: 0px;
+}
+/* event */
+.repeatedly_area{
+    display: none;
 }

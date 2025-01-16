@@ -1,4 +1,4 @@
-<?php 
+<?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
 $eventController = new EventController();
@@ -51,10 +51,10 @@ $events = $eventController->index();
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<img src="/custom/admin/public/img/avatars/avatar.jpg" class="avatar img-fluid rounded" alt="Charles Hall" />
+								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="login.php">Log out</a>
+								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -82,16 +82,17 @@ $events = $eventController->index();
 										<div class="d-flex align-items-center">
 											<!-- <span class="pe-2">第</span> -->
 											<select name="category_id" class="form-control w-100">
-												<option value=1>1</option>
-												<option value=2>2</option>
-												<option value=3>3</option>
-												<option value=4>4</option>
-												<option value=5>5</option>
-												<option value=2>6</option>
-												<option value=3>7</option>
-												<option value=4>8</option>
-												<option value=5>9</option>
-											</select><span class="ps-2 pe-2">回</span>
+												<option value=1>第1回</option>
+												<option value=2>第2回</option>
+												<option value=3>第3回</option>
+												<option value=4>第4回</option>
+												<option value=5>第5回</option>
+												<option value=2>第6回</option>
+												<option value=3>第7回</option>
+												<option value=4>第8回</option>
+												<option value=5>第9回</option>
+											</select>
+											<!-- <span class="ps-2 pe-2">回</span> -->
 										</div>
 									</div>
 									<div class="d-flex align-items-end ms-auto">
@@ -104,20 +105,16 @@ $events = $eventController->index();
 				</div>
 				<div class="col-12 col-lg-12">
 					<div class="card">
-						<div class="card-body p-0">
-							<div class="card">
-								<div class="card-body">
-									<div class="d-flex justify-content-end">
-										<button class="btn btn-primary" id="uploadBtn">アップロード</button>
-									</div>
-									<div class="mb-3">
-										<label for="fileUpload" class="form-label">アップロードするファイルを選択</label>
-										<input type="file" class="form-control" id="fileUpload" multiple accept="application/pdf">
-									</div>
-									<div class="d-flex justify-content-end">
-										<button class="btn btn-primary" id="add-btn">追加</button>
-									</div>
-								</div>
+						<div class="card-body p-025">
+							<div class="d-flex justify-content-end">
+								<button class="btn btn-primary" id="uploadBtn">アップロード</button>
+							</div>
+							<div class="mb-3">
+								<label for="fileUpload" class="form-label">アップロードするファイルを選択</label>
+								<input type="file" class="form-control" id="fileUpload" multiple accept="application/pdf">
+							</div>
+							<div class="d-flex justify-content-end">
+								<button class="btn btn-primary" id="add-btn">追加</button>
 							</div>
 						</div>
 					</div>
