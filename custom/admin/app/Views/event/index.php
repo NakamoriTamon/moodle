@@ -9,8 +9,11 @@ $events = $eventController->index();
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベント一覧</p>
+					<p class="header-title title ms-4 fs-4 fw-bold mb-0">イベント一覧</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -27,8 +30,8 @@ $events = $eventController->index();
 			<main class="content">
 				<div class="col-12 col-lg-12">
 					<div class="card">
-						<div class="card-body p-025">
-							<div class="d-flex justify-content-between">
+						<div class="card-body p-055 p-025">
+							<div class="sp-block d-flex justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">カテゴリー</label>
 									<select name="category_id" class="form-control">
@@ -44,7 +47,7 @@ $events = $eventController->index();
 										<option value=10>その他</option>
 									</select>
 								</div>
-								<div class="ms-3 mb-3 w-100">
+								<div class="sp-ms-0 ms-3 mb-3 w-100">
 									<label class="form-label" for="notyf-message">開催ステータス</label>
 									<select name="category_id" class="form-control">
 										<option value=1>すべて</option>
@@ -101,7 +104,7 @@ $events = $eventController->index();
 												<td class="ps-4 pe-4">100人</td>
 												<td class="ps-4 pe-4">5,000円</td>
 												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a href="/custom/admin/app/Views/event/upsert.php?id=1" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 													<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
 												</td>
 											</tr>
@@ -114,7 +117,7 @@ $events = $eventController->index();
 												<td class="ps-4 pe-4">500人</td>
 												<td class="ps-4 pe-4">5,500円</td>
 												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a href="/custom/admin/app/Views/event/upsert.php?id=2" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 													<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
 												</td>
 											</tr>
@@ -127,7 +130,7 @@ $events = $eventController->index();
 												<td class="ps-4 pe-4">300人</td>
 												<td class="ps-4 pe-4">無料</td>
 												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a href="/custom/admin/app/Views/event/upsert.php?id=3" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 													<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
 												</td>
 											</tr>
@@ -140,7 +143,7 @@ $events = $eventController->index();
 												<td class="ps-4 pe-4">150人</td>
 												<td class="ps-4 pe-4">8,000円</td>
 												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a href="/custom/admin/app/Views/event/upsert.php?id=4" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 													<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
 												</td>
 											</tr>
@@ -153,7 +156,7 @@ $events = $eventController->index();
 												<td class="ps-4 pe-4">100人</td>
 												<td class="ps-4 pe-4">5,000円</td>
 												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a href="/custom/admin/app/Views/event/upsert.php?id=5" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 													<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
 												</td>
 											</tr>
@@ -178,7 +181,7 @@ $events = $eventController->index();
 										</div>
 									</div>
 								</div>
-								<div class="d-flex">
+								<div class="d-flex pc-pagenation">
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
 										<ul class="pagination">
 											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
@@ -189,6 +192,17 @@ $events = $eventController->index();
 											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="5" tabindex="0" class="page-link">5</a></li>
 											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="6" tabindex="0" class="page-link">6</a></li>
 											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li>
+										</ul>
+									</div>
+								</div>
+								<div class="d-flex sp-pagenation">
+									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+										<ul class="pagination">
+											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
+											<li class="paginate_button page-item active"><a href="#" aria-controls="datatables-buttons" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>
+											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="2" tabindex="0" class="page-link">2</a></li>
+											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="3" tabindex="0" class="page-link">3</a></li>
+											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="4" tabindex="0" class="page-link">Next</a></li>
 										</ul>
 									</div>
 								</div>

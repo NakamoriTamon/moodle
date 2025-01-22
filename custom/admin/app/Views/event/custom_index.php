@@ -10,8 +10,11 @@ $events = $eventController->index();
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベントカスタムフィールド一覧</p>
+					<p class="header-title title ms-4 fs-4 fw-bold mb-0">カスタムフィールド一覧</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -34,13 +37,13 @@ $events = $eventController->index();
 									class="btn btn-primary mt-3 mb-3 ms-auto">新規登録
 								</button>
 							</div>
-							<div class="card m-auto mb-5">
-								<table class="table table-responsive table-striped table_list w-95">
+							<div class="card m-auto mb-5 w-95">
+								<table class="table table-responsive table-striped table_list">
 									<thead>
 										<tr>
 											<th>ID</th>
 											<th>イベントカテゴリ区分</th>
-											<th class="d-none d-md-table-cell">紐づけられているイベント</th>
+											<th>紐づけられているイベント</th>
 											<th class="text-center">Actions</th>
 										</tr>
 									</thead>
@@ -49,12 +52,12 @@ $events = $eventController->index();
 											<td>1</td>
 											<td>イベント一般</td>
 											<td>
-												<a class="text-decoration-underline link-primary">イベントA</a>、
-												<a class="text-decoration-underline link-primary">イベントB</a>、
-												<a class="text-decoration-underline link-primary">イベントC</a>
+												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">タンパク質の精製技術の基礎</a>、
+												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">AIと機械学習の基礎講座</a>
+											</td>
 											</td>
 											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
 											</td>
 										</tr>
@@ -62,11 +65,10 @@ $events = $eventController->index();
 											<td>2</td>
 											<td>適塾記念会イベント</td>
 											<td>
-												<a class="text-decoration-underline link-primary">イベントD</a>、
-												<a class="text-decoration-underline link-primary">イベントE</a>
+												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">量子コンピュータ入門: 次世代計算技術の扉を開く</a>
 											</td>
 											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
 											</td>
 										</tr>
@@ -74,12 +76,11 @@ $events = $eventController->index();
 											<td>3</td>
 											<td>生命科学分野イベント</td>
 											<td>
-												<a class="text-decoration-underline link-primary">イベントF</a>、
-												<a class="text-decoration-underline link-primary">イベントG</a>、
-												<a class="text-decoration-underline link-primary">イベントH</a>
+												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">気候変動と持続可能なエネルギーソリューション</a>、
+												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">心理学で学ぶ意思決定と行動経済学</a>
 											</td>
-											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+											<td class="text-center text-nowrap">
+												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 												<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
 											</td>
 										</tr>

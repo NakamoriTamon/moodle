@@ -2,7 +2,7 @@
 
 	<nav id="sidebar" class="sidebar js-sidebar">
 		<div class="sidebar-content js-simplebar">
-			<a class="sidebar-brand" href="index.html">
+			<a class="sidebar-brand" href="#">
 				<span class="sidebar-brand-text align-middle">
 					大阪大学 知の広場
 				</span>
@@ -23,8 +23,7 @@
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/user_registration.php">ユーザー情報管理</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/event_registration.php">イベント登録情報管理</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/membership_fee_registration.php">費用請求</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li>
-						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/statistics.php">統計データの収集・分析</a></li> -->
+						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li> -->
 					</ul>
 				</li>
 				<li class="sidebar-item">
@@ -45,6 +44,7 @@
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/material.php">講義資料アップロード</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/movie.php">講義動画アップロード</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/custom_index.php">カスタムフィールド</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/qr.php">QR読取</a></li>
 					</ul>
 				</li>
 				<li class="sidebar-item">
@@ -71,7 +71,17 @@
 
 	<script>
 		$(document).ready(function() {
-			const currentPath = window.location.pathname;
+			let currentPath = window.location.pathname;
+			if (currentPath == "/custom/admin/app/Views/event/upsert.php") {
+				currentPath = "/custom/admin/app/Views/event/index.php";
+
+			}
+			if (currentPath == "/custom/admin/app/Views/survey/custom_upsert.php") {
+				currentPath = "/custom/admin/app/Views/survey/custom_index.php";
+			}
+			if (currentPath == "/custom/admin/app/Views/event/custom_upsert.php") {
+				currentPath = "/custom/admin/app/Views/event/custom_index.php";
+			}
 			const sidebarLinks = $(".sidebar-link");
 
 			sidebarLinks.each(function() {
