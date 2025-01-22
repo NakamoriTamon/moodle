@@ -6,7 +6,10 @@
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">管理者一覧</p>
+                    <a class="sidebar-toggle js-sidebar-toggle">
+                        <i class="hamburger align-self-center"></i>
+                    </a>
+                    <p class="title header-title ms-4 fs-4 fw-bold mb-0">管理者一覧</p>
                     <p class="title mb-0"></p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
@@ -25,7 +28,7 @@
                 <div class="col-12 col-lg-12">
                     <div class="card min-70vh">
                         <div class="card-body p-0">
-                            <div class="d-flex w-100 mt-3"><button class="btn btn-primary mt-3 mb-3 ms-auto">更新</button></div>
+                            <div class="d-flex w-100 mt-3"><button id="submit" class=" btn btn-primary mt-3 mb-3 ms-auto">更新</button></div>
                             <div class="card m-auto mb-5 w-95">
                                 <table class="table table-responsive table-striped table_list" style="width:100%">
                                     <thead>
@@ -83,3 +86,13 @@
 </body>
 
 </html>
+
+<script>
+    // モック用アラート　本番時は消してください
+    $('#submit').on('click', function(event) {
+        sessionStorage.setItem('alert', 'aaasss');
+        setTimeout(() => {
+            location.reload();
+        }, 50);
+    });
+</script>

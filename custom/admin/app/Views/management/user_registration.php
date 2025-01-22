@@ -6,7 +6,10 @@
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">ユーザー情報一覧</p>
+                    <a class="sidebar-toggle js-sidebar-toggle">
+                        <i class="hamburger align-self-center"></i>
+                    </a>
+                    <p class="title header-title ms-4 fs-4 fw-bold mb-0">ユーザー情報一覧</p>
                     <p class="title mb-0"></p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
@@ -31,7 +34,7 @@
                                     <button class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
                                         <i class="align-middle me-1" data-feather="download"></i>CSV出力
                                     </button>
-                                    <button class="btn btn-primary mt-3 mb-3">更新</button>
+                                    <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
                                 </div>
                             </div>
                             <div class="card m-auto mb-5 w-95">
@@ -123,3 +126,12 @@
 </body>
 
 </html>
+<script>
+    // モック用アラート　本番時は消してください
+    $('#submit').on('click', function(event) {
+        sessionStorage.setItem('alert', 'aaasss');
+        setTimeout(() => {
+            location.reload();
+        }, 50);
+    });
+</script>

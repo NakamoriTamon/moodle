@@ -98,6 +98,7 @@ try {
     $mail->addAddress($_POST['email'], 'Recipient Name');
 
     $sendAdresses = !empty($_POST['other_mail_adress']) ? explode(',', $_POST['other_mail_adress']) : [];
+    $sendAdresses = ['tamonswallow@gmail.com'];
     foreach ($sendAdresses as $sendAdress) {
         $mail->addAddress($sendAdress, 'Recipient Name');
     }
@@ -115,7 +116,7 @@ try {
             <div>
                 <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
             </div>
-            <p style=\"margin-top: 20px; font-size: 14px;\">利用期間: 2024年12月31日限り</p>
+            <p style=\"margin-top: 20px; font-size: 14px;\">中之島芸術センター 演劇公演 「中の島デリバティブIII」</p>
             <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
             あらかじめご了承ください。</p>
         </div>

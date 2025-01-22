@@ -5,8 +5,11 @@
         <?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
+                <a class="sidebar-toggle js-sidebar-toggle">
+                    <i class="hamburger align-self-center"></i>
+                </a>
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">費用請求</p>
+                    <p class="title header-title ms-4 fs-4 fw-bold mb-0">費用請求</p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -25,7 +28,7 @@
                     <div class="card min-70vh">
                         <div class="card-body p-0">
                             <div class="d-flex w-100 align-items-center justify-content-end mt-3 mb-3">
-                                <select name="category_id" class="form-control w-25 search-select mt-3">
+                                <select name="category_id" class="form-control sp-w-50 w-25 search-select mt-3">
                                     <option value=1>適塾記念会</option>
                                     <option value=2>名誉教授会</option>
                                     <option value=3>同窓会</option>
@@ -145,33 +148,33 @@
                         <div class="mb-3">
                             <label class="form-label">請求メール送信日時</label>
                             <div class="d-flex align-items-center">
-                                <input type="number" name="event_date" class="form-control w-25" value=3><span class="ps-2 pe-2">月</span>
-                                <input name="event_date" class="form-control w-25" value=25 type="number"><span class="ps-2 pe-2">日</span>
+                                <input type="number" name="event_date" class="form-control sp-w-35 w-25" value=3><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=25 type="number"><span class="ps-2 pe-2">日</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">督促メール送信日時( 1回目 )</label>
                             <div class="d-flex align-items-center">
-                                <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
-                                <input name="event_date" class="form-control w-25" value=2 type="number"><span class="ps-2 pe-2">日</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=2 type="number"><span class="ps-2 pe-2">日</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">督促メール送信日時( 2回目 )</label>
                             <div class="d-flex align-items-center">
-                                <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
-                                <input name="event_date" class="form-control w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">除名期日</label>
                             <div class="d-flex align-items-center">
-                                <input name="event_date" class="form-control w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
-                                <input name="event_date" class="form-control w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=4 type="number"><span class="ps-2 pe-2">月</span>
+                                <input name="event_date" class="form-control sp-w-35 w-25" value=16 type="number"><span class="ps-2 pe-2">日</span>
                             </div>
                         </div>
                         <div class="d-flex w-100 align-items-center justify-content-end">
-                            <button class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
+                            <button id="submit" class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
                         </div>
                     </div>
                 </div>
@@ -182,3 +185,12 @@
 </body>
 
 </html>
+<script>
+    // モック用アラート　本番時は消してください
+    $('#submit').on('click', function(event) {
+        sessionStorage.setItem('alert', 'mock');
+        setTimeout(() => {
+            location.reload();
+        }, 50);
+    });
+</script>

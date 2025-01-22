@@ -6,7 +6,10 @@
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">イベント登録情報一覧</p>
+                    <a class="sidebar-toggle js-sidebar-toggle">
+                        <i class="hamburger align-self-center"></i>
+                    </a>
+                    <p class="title header-title ms-4 fs-4 fw-bold mb-0">イベント登録情報一覧</p>
                     <p class="title mb-0"></p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
@@ -24,8 +27,8 @@
             <main class="content">
                 <div class="col-12 col-lg-12">
                     <div class="card">
-                        <div class="card-body p-025">
-                            <div class="d-flex justify-content-between">
+                        <div class="card-body p-025 p-055">
+                            <div class="d-flex sp-block justify-content-between">
                                 <div class="mb-3 w-100">
                                     <label class="form-label" for="notyf-message">カテゴリー</label>
                                     <select name="category_id" class="form-control">
@@ -41,7 +44,7 @@
                                         <option value=10>その他</option>
                                     </select>
                                 </div>
-                                <div class="ms-3 mb-3 w-100">
+                                <div class="ms-3 sp-ms-0 mb-3 w-100">
                                     <label class="form-label" for="notyf-message">開催ステータス</label>
                                     <select name="category_id" class="form-control">
                                         <option value=1>未選択</option>
@@ -51,16 +54,22 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <label class="form-label" for="notyf-message">イベント名</label>
-                                <select name="event_id" class="form-control">
-                                    <option value="">未選択</option>
-                                    <option value=1>タンパク質の精製技術の基礎</option>
-                                    <option value=2>AIと機械学習の基礎講座</option>
-                                    <option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
-                                    <option value=4>気候変動と持続可能なエネルギーソリューション</option>
-                                    <option value=5>心理学で学ぶ意思決定と行動経済学</option>
-                                </select>
+                            <div class="d-flex sp-block justify-content-between">
+                                <div class="mb-3 w-100">
+                                    <label class="form-label" for="notyf-message">イベント名</label>
+                                    <select name="event_id" class="form-control">
+                                        <option value="">未選択</option>
+                                        <option value=1>タンパク質の精製技術の基礎</option>
+                                        <option value=2>AIと機械学習の基礎講座</option>
+                                        <option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
+                                        <option value=4>気候変動と持続可能なエネルギーソリューション</option>
+                                        <option value=5>心理学で学ぶ意思決定と行動経済学</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4 ms-3 sp-ms-0 w-100">
+                                    <label class="form-label" for="notyf-message">フリーワード</label>
+                                    <input id="notyf-message" name="notyf-message" type="text" class="form-control" placeholder="田中 翔太">
+                                </div>
                             </div>
                             <!-- <hr> -->
                             <div class="d-flex w-100">
