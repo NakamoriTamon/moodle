@@ -56,6 +56,11 @@
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/custom_index.php">カスタムフィールド</p></a></li>
 					</ul>
 				</li>
+				<li class="sidebar-item pc-none">
+					<a class="sidebar-link" href="/custom/admin/app/Views/login/login.php">
+						<i class="align-middle" data-feather="log-out"></i> <span class="align-middle">Log out</span>
+					</a>
+				</li>
 				<!-- <li class="sidebar-item">
 					<a href="#master" data-bs-toggle="collapse" class="sidebar-link collapsed">
 						<i class="align-middle" data-feather="table"></i> <span class="align-middle">各種マスタ</span>

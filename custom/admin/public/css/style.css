@@ -18,6 +18,9 @@ body {
     transform: translateX(-50%);
     left: 50%;
 }
+.alert-message{
+    font-family: var(--bs-body-font-family);
+}
 .search-area{
     display: none;
 }
