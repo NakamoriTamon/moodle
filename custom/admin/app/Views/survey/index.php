@@ -9,12 +9,15 @@ $events = $eventController->index();
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">アンケート集計</p>
+					<p class="header-title title ms-4 fs-4 fw-bold mb-0">アンケート集計</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<div class="fs-5 me-4">システム管理者</div>
+								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -26,8 +29,8 @@ $events = $eventController->index();
 
 			<main class="content">
 				<div class="card">
-					<div class="card-body p-025">
-						<div class="d-flex justify-content-between">
+					<div class="card-body p-055 p-025">
+						<div class="sp-block d-flex justify-content-between">
 							<div class="mb-3 w-100">
 								<label class="form-label" for="notyf-message">カテゴリー</label>
 								<select name="category_id" class="form-control">
@@ -43,7 +46,7 @@ $events = $eventController->index();
 									<option value=10>その他</option>
 								</select>
 							</div>
-							<div class="ms-3 mb-3 w-100">
+							<div class="sp-ms-0 ms-3 mb-3 w-100">
 								<label class="form-label" for="notyf-message">開催ステータス</label>
 								<select name="category_id" class="form-control">
 									<option value=1>未選択</option>
@@ -57,7 +60,7 @@ $events = $eventController->index();
 							<label class="form-label" for="notyf-message">イベント名</label>
 							<select name="event_id" class="form-control">
 								<option value="">未選択</option>
-								<option value=1 selected>タンパク質の精製技術の基礎</option>
+								<option value=1>タンパク質の精製技術の基礎</option>
 								<option value=2>AIと機械学習の基礎講座</option>
 								<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
 								<option value=4>気候変動と持続可能なエネルギーソリューション</option>
@@ -66,11 +69,11 @@ $events = $eventController->index();
 						</div>
 						<!-- <hr> -->
 						<div class="d-flex w-100">
-							<button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+							<button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
 						</div>
 					</div>
 				</div>
-				<div class="col-12 col-lg-12">
+				<div class="search-area col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
@@ -187,3 +190,9 @@ $events = $eventController->index();
 </body>
 
 </html>
+
+<script>
+	$('#search-button').on('click', function() {
+		$('.search-area').css('display', 'block');
+	});
+</script>

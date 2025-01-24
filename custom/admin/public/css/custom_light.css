@@ -9,3 +9,6 @@
         margin-left: -265px;
     }
 }
+.wrapper, body[data-theme=dark] .wrapper {
+    background: initial;
+}

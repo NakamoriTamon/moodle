@@ -10,14 +10,17 @@ $events = $eventController->index();
         <div class="main">
             <nav class="navbar navbar-expand navbar-light navbar-bg">
                 <div class="navbar-collapse collapse">
-                    <p class="title ms-4 fs-4 fw-bold mb-0">DM送信</p>
+                    <a class="sidebar-toggle js-sidebar-toggle">
+                        <i class="hamburger align-self-center"></i>
+                    </a>
+                    <p class="title header-title ms-4 fs-4 fw-bold mb-0">DM送信</p>
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                 <div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="login.php">Log out</a>
+                                <a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
                             </div>
                         </li>
                     </ul>
@@ -27,7 +30,7 @@ $events = $eventController->index();
             <main class="content">
                 <div class="col-12 col-lg-12">
                     <div class="card">
-                        <div class="card-body p-025">
+                        <div class="card-body p-055">
                             <div class="mb-3">
                                 <label class="form-label" for="notyf-message">対象区分</label>
                                 <select id="kbn_id" name="kbn_id" class="form-control">
@@ -38,8 +41,8 @@ $events = $eventController->index();
                                     <option value=5>同窓会</option>
                                 </select>
                             </div>
-                            <div id="even-form" class=" d-none">
-                                <div class="d-flex justify-content-between">
+                            <div id="even-form" class="d-none">
+                                <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-3 w-100">
                                         <label class="form-label" for="notyf-message">カテゴリー</label>
                                         <select name="category_id" class="form-control">
@@ -55,7 +58,7 @@ $events = $eventController->index();
                                             <option value=10>その他</option>
                                         </select>
                                     </div>
-                                    <div class="ms-3 mb-3 w-100">
+                                    <div class="sp-ms-0 ms-3 mb-3 w-100">
                                         <label class="form-label" for="notyf-message">開催ステータス</label>
                                         <select name="category_id" class="form-control">
                                             <option value=1>未選択</option>
@@ -65,7 +68,7 @@ $events = $eventController->index();
                                         </select>
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-3 w-100">
                                         <label class="form-label" for="notyf-message">イベント名</label>
                                         <select name="category_id" class="form-control">
@@ -77,7 +80,7 @@ $events = $eventController->index();
                                             <option value=5>イベントE</option>
                                         </select>
                                     </div>
-                                    <div class="mb-3 ms-3 w-100">
+                                    <div class="sp-ms-0 mb-3 ms-3 w-100">
                                         <label class="form-label" for="notyf-message">回数</label>
                                         <select name="category_id" class="form-control w-100">
                                             <option value=1>すべて</option>
@@ -211,7 +214,7 @@ $events = $eventController->index();
                                 </table>
                             </div>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex pc-pagenation">
                             <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
                                 <ul class="pagination">
                                     <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
@@ -222,6 +225,17 @@ $events = $eventController->index();
                                     <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="5" tabindex="0" class="page-link">5</a></li>
                                     <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="6" tabindex="0" class="page-link">6</a></li>
                                     <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="d-flex sp-pagenation">
+                            <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                <ul class="pagination">
+                                    <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
+                                    <li class="paginate_button page-item active"><a href="#" aria-controls="datatables-buttons" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>
+                                    <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="2" tabindex="0" class="page-link">2</a></li>
+                                    <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="3" tabindex="0" class="page-link">3</a></li>
+                                    <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="4" tabindex="0" class="page-link">Next</a></li>
                                 </ul>
                             </div>
                         </div>

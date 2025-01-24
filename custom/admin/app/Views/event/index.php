@@ -11,8 +11,11 @@ $old_input = $_SESSION['old_input'] ?? [];
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベント一覧</p>
+					<p class="header-title title ms-4 fs-4 fw-bold mb-0">イベント一覧</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -29,10 +32,10 @@ $old_input = $_SESSION['old_input'] ?? [];
 			<main class="content">
 				<div class="col-12 col-lg-12">
 					<div class="card">
-						<div class="card-body p-025">
+						<div class="card-body p-055 p-025">
 							<form method="POST" action="/custom/admin/app/Controllers/event/event_controller.php">
 								<input type="hidden" name="action" value="index">
-								<div class="d-flex justify-content-between">
+								<div class="sp-block d-flex justify-content-between">
 									<div class="mb-3 w-100">
 										<label class="form-label" for="notyf-message">カテゴリー</label>
 										<select name="category_id" class="form-control">
@@ -45,7 +48,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 											<?php endforeach; ?>
 										</select>
 									</div>
-									<div class="ms-3 mb-3 w-100">
+									<div class="sp-ms-0 ms-3 mb-3 w-100">
 										<label class="form-label" for="notyf-message">開催ステータス</label>
 										<select name="event_status" class="form-control">
 											<option value="">すべて</option>$

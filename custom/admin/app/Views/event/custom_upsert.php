@@ -5,8 +5,11 @@
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベントカスタムフィールド登録</p>
+					<p class="header-title title ms-4 fs-4 fw-bold mb-0">カスタムフィールド登録</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -34,37 +37,38 @@
 												<label class="me-2">カテゴリ区分名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control">
+											<input type="text" name="" class="form-control" value="<?php if ($_GET['id']) { ?>イベント一般<?php } ?>">
 										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">項目名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control">
+											<input type="text" name="" class="form-control" value="<?php if ($_GET['id']) { ?>このイベントに参加するにあたりご要望等ありましたら教えてください<?php } ?>">
 										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">フィールド名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control">
+											<input type="text" name="" class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>"
+												<?php if ($_GET['id']) { ?>readonly <?php } ?> value="<?php if ($_GET['id']) { ?>request<?php } ?>">
 										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">表示順</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="number" name="" class="form-control">
+											<input type="number" name="" class="form-control" value=<?php if ($_GET['id']) { ?>1<?php } ?>>
 										</div>
 										<div class=" mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">フィールドタイプ</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<select name="" class="form-control mb-3">
+											<select name="" class="form-control mb-3 <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
 												<option value="text">テキスト</option>
-												<option value="textarea">テキストエリア</option>
+												<option <?php if ($_GET['id']) { ?>selected<?php } ?> value="textarea">テキストエリア</option>
 												<option value="checkbox">チェックボックス</option>
 												<option value="radio">ラジオ</option>
 												<option value="date">日付</option>
@@ -73,17 +77,15 @@
 											</select>
 										</div>
 										<div class="mb-5">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">選択肢 (カンマ区切り)</label>
-												<span class="badge bg-danger">必須</span>
-											</div>
-											<input type="text" name="" class="form-control">
+											<label class="me-2 form-label">選択肢 (カンマ区切り)</label>
+											<input type="text" name="" <?php if ($_GET['id']) { ?>readonly <?php } ?> class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
 										</div>
 									</div>
 									<hr>
 									<div class="d-flex">
 										<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
 									</div>
+									<button type="button" id="submit" class="mt-5 btn btn-primary ms-auto">登録</button>
 								</form>
 							</div>
 						</div>
@@ -159,12 +161,8 @@
 					</select>
 				</div>
 				<div class="mb-3">
-					<div class="form-label d-flex align-items-center">
-						<label class="me-2">選択肢 (カンマ区切り)</label>
-						<span class="badge bg-danger">必須</span>
-					</div>
+					<label class="me-2 form-label">選択肢 (カンマ区切り)</label>
 					<input type="text" name="" class="form-control">
-				</div>
 				</div>
 				<div class ="mb-3"><div class = "form-label mt-3 d-flex align-items-center">
 				<button type="button" class ="delete_btn btn btn-danger ms-auto me-0">削除</button></div></div><hr>
@@ -175,6 +173,13 @@
 		});
 		$(document).on('click', '.delete_btn', function() {
 			$(this).closest('.add_area').remove();
+		});
+		// モック用アラート　本番時は消してください
+		$('#submit').on('click', function(event) {
+			sessionStorage.setItem('alert', 'aaasss');
+			setTimeout(() => {
+				location.href = '/custom/admin/app/Views/survey/custom_index.php';
+			}, 50);
 		});
 	</script>
 </body>

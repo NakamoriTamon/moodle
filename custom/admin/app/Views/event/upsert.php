@@ -41,15 +41,18 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+					<i class="hamburger align-self-center"></i>
+				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title ms-4 fs-4 fw-bold mb-0">イベント登録</p>
+					<p class="title header-title ms-4 fs-4 fw-bold mb-0">イベント登録</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<div class="fs-5 me-4">システム管理者</div>
+								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="login.php">Log out</a>
+								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -135,6 +138,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['thumbnail_img']); ?></div>
 										<?php endif; ?>
 									</div>
+
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">講義形式</label>
@@ -171,6 +175,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3 onetime_area">
+									<div class="mb-3 onetime_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">開催日</label>
 											<span class="badge bg-danger">必須</span>
@@ -181,7 +186,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_date']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3">
+									<div class=" mb-3 sp-none">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">時間</label>
 											<span class="badge bg-danger">必須</span>
@@ -197,13 +202,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_hour']); ?></div>
 										<?php endif; ?>
 									</div>
-									<!-- <div class="mb-3">
+									<div class="mb-3 pc-none">
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">コンテンツ閲覧期間</label>
+											<label class="me-2">時間( 終了時間 )</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="end_hour" class="timepicker" type="number"><span class="ps-2 pe-2">日間</span>
-									</div> -->
+										<input name="start_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?php if ($id) { ?>13:00<?php } ?>">
+									</div>
 									<div class="mb-3">
 										<label class="form-label">交通アクセス</label>
 										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
@@ -427,6 +432,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3 onetime_area">
+									<div class="mb-3 onetime_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">申し込み締切日</label>
 											<span class="badge bg-danger">必須</span>
@@ -494,8 +500,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
 									</div>
-
-									<button type="submit" class="btn btn-primary">登録</button>
+									<button id="submit" type="button" class="btn btn-primary">登録</button>
 								</form>
 							</div>
 						</div>
