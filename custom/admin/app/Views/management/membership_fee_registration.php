@@ -25,14 +25,44 @@
 
             <main class="content">
                 <div class="col-12 col-lg-12">
-                    <div class="card min-70vh">
+                    <div class="card">
+                        <div class="card-body p-025 p-055">
+                            <div class="d-flex sp-block justify-content-between">
+                                <div class="mb-3 w-100">
+                                    <label class="form-label" for="notyf-message">会名</label>
+                                    <select name="category_id" class="form-control">
+                                        <option value=1>適塾記念会</option>
+                                        <!-- <option value=2>名誉教授会</option>
+                                        <option value=3>同窓会</option> -->
+                                    </select>
+                                </div>
+                                <div class="ms-3 sp-ms-0 mb-3 w-100">
+                                    <label class="form-label" for="notyf-message">支払年度</label>
+                                    <select name="category_id" class="form-control">
+                                        <option value=1>2025年</option>
+                                        <option value=1>2026年</option>
+                                        <option value=2>2027年</option>
+                                        <option value=3>2028年</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex sp-block justify-content-between">
+                                <div class="mb-4 sp-ms-0 w-100">
+                                    <label class="form-label" for="notyf-message">フリーワード</label>
+                                    <input id="notyf-message" name="notyf-message" type="text" class="form-control" placeholder="田中 翔太">
+                                </div>
+                                <div class="w-100"></div>
+                            </div>
+                            <!-- <hr> -->
+                            <div class="d-flex w-100">
+                                <button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card min-70vh search-area">
                         <div class="card-body p-0">
                             <div class="d-flex w-100 align-items-center justify-content-end mt-3 mb-3">
-                                <select name="category_id" class="form-control sp-w-50 w-25 search-select mt-3">
-                                    <option value=1>適塾記念会</option>
-                                    <option value=2>名誉教授会</option>
-                                    <option value=3>同窓会</option>
-                                </select>
+                                <div></div>
                                 <div class="d-flex ms-auto  button-div mr-025">
                                     <button class="btn btn-primary mt-3 d-flex justify-content-center align-items-center">
                                         <i class="align-middle me-1" data-feather="download"></i>CSV出力
@@ -140,7 +170,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
+                <div class="card search-area">
                     <div class="card-header ml-025">
                         <h5 class="card-title mb-0 mt-3">メール送信設定</h5>
                     </div>
@@ -186,6 +216,9 @@
 
 </html>
 <script>
+    $('#search-button').on('click', function(event) {
+        $('.search-area').css('display', 'block');
+    });
     // モック用アラート　本番時は消してください
     $('#submit').on('click', function(event) {
         sessionStorage.setItem('alert', 'mock');
