@@ -4,7 +4,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * バリデーション: 苗字
  */
-function validate_last_name($lastname) {
+function validate_last_name($lastname)
+{
     if (empty($lastname)) {
         return '苗字は必須です。';
     }
@@ -17,7 +18,8 @@ function validate_last_name($lastname) {
 /**
  * バリデーション: 名前
  */
-function validate_first_name($firstname) {
+function validate_first_name($firstname)
+{
     if (empty($firstname)) {
         return '名前は必須です。';
     }
@@ -30,7 +32,8 @@ function validate_first_name($firstname) {
 /**
  * バリデーション: メールアドレス
  */
-function validate_custom_email($email) {
+function validate_custom_email($email)
+{
     if (empty($email)) {
         return 'メールアドレスは必須です。';
     }
@@ -43,7 +46,8 @@ function validate_custom_email($email) {
 /**
  * バリデーション: パスワード
  */
-function validate_password($password) {
+function validate_password($password)
+{
     if (empty($password)) {
         return 'パスワードは必須です。';
     }
@@ -58,4 +62,42 @@ function validate_password($password) {
     }
     return null;
 }
-?>
+
+/**
+ * バリデーション: 画像
+ */
+function validate_image($image)
+{
+    if (empty($image) || $image['error'] === UPLOAD_ERR_NO_FILE) {
+        return '画像は必須です。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: 講師名
+ */
+function validate_tutor_name($tutor_name)
+{
+    if (empty($tutor_name)) {
+        return '講師名必須です。';
+    }
+    if (strlen($tutor_name) >= 50) {
+        return '講師名は50文字以下である必要があります。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: 講師概要
+ */
+function validate_tutor_overview($tutor_name)
+{
+    if (empty($tutor_name)) {
+        return '講師概要必須です。';
+    }
+    if (strlen($tutor_name) >= 500) {
+        return '講師概要は500文字以下である必要があります。';
+    }
+    return null;
+}
