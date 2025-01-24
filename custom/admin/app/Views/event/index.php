@@ -1,9 +1,9 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+<?php
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_controller.php');
 
-$event_status = require '/var/www/html/moodle/custom/path/to/event_status.php';
-$eventController = new EventController();
-$events = $eventController->index();
+$event_statuses = require '/var/www/html/moodle/custom/path/to/event_status.php';
+$old_input = $_SESSION['old_input'] ?? [];
 ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative d-block">
@@ -30,47 +30,53 @@ $events = $eventController->index();
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-025">
-							<div class="d-flex justify-content-between">
-								<div class="mb-3 w-100">
-									<label class="form-label" for="notyf-message">カテゴリー</label>
-									<select name="category_id" class="form-control">
+							<form method="POST" action="/custom/admin/app/Controllers/event/event_controller.php">
+								<input type="hidden" name="action" value="index">
+								<div class="d-flex justify-content-between">
+									<div class="mb-3 w-100">
+										<label class="form-label" for="notyf-message">カテゴリー</label>
+										<select name="category_id" class="form-control">
+											<option value="">すべて</option>
+											<?php foreach ($categorys as $category): ?>
+												<option value="<?= htmlspecialchars($category['id']) ?>"
+												<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
+													<?= htmlspecialchars($category['name']) ?>
+												</option>
+											<?php endforeach; ?>
+										</select>
+									</div>
+									<div class="ms-3 mb-3 w-100">
+										<label class="form-label" for="notyf-message">開催ステータス</label>
+										<select name="event_status" class="form-control">
+											<option value="">すべて</option>$
+											<?php foreach ($event_statuses as $id => $name): ?>
+												<option value="<?= htmlspecialchars($id) ?>"
+													<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
+														<?= htmlspecialchars($name) ?>
+												</option>
+											<?php endforeach; ?>
+										</select>
+									</div>
+								</div>
+								<div class="mb-4">
+									<label class="form-label" for="notyf-message">イベント名</label>
+									<select name="event_id" class="form-control">
 										<option value="">すべて</option>
-										<?php foreach ($categorys as $category): ?>
-											<option value="<?= htmlspecialchars($category['id']) ?>"
-											<?= in_array($category['id'], $old_input['category_id'] ?? []) ? 'selected' : '' ?>>
-												<?= htmlspecialchars($category['name']) ?>
+										<?php if(isset($events) && !empty($events)): ?>
+										<?php foreach ($events as $event): ?>
+											<option value="<?= htmlspecialchars($event['id']) ?>"
+											<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+												<?= htmlspecialchars($event['name']) ?>
 											</option>
 										<?php endforeach; ?>
+										<?php endif; ?>
 									</select>
 								</div>
-								<div class="ms-3 mb-3 w-100">
-									<label class="form-label" for="notyf-message">開催ステータス</label>
-									<select name="event_status" class="form-control">
-										<option value="">すべて</option>$
-										<?php foreach ($event_statuses as $key => $event_status): ?>
-											<option value="<?= htmlspecialchars($key) ?>"
-												<?= isset($old_input['event_status']) && $key == $old_input['event_status'] ? 'selected' : '' ?>>
-													<?= htmlspecialchars($event_status) ?>
-											</option>
-										<?php endforeach; ?>
-									</select>
+								<!-- <hr> -->
+								<div class="d-flex w-100">
+									<input type="submit" class="btn btn-primary mb-3 me-0 ms-auto" value="検索">
 								</div>
-							</div>
-							<div class="mb-4">
-								<label class="form-label" for="notyf-message">イベント名</label>
-								<select name="event_id" class="form-control">
-									<option value="">すべて</option>
-									<option value=1>タンパク質の精製技術の基礎</option>
-									<option value=2>AIと機械学習の基礎講座</option>
-									<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
-									<option value=4>気候変動と持続可能なエネルギーソリューション</option>
-									<option value=5>心理学で学ぶ意思決定と行動経済学</option>
-								</select>
-							</div>
-							<!-- <hr> -->
-							<div class="d-flex w-100">
-								<button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
-							</div>
+							</form>
 						</div>
 					</div>
 					<div class="col-12 col-lg-12">
@@ -94,11 +100,12 @@ $events = $eventController->index();
 											</tr>
 										</thead>
 										<tbody>
+											<?php if(isset($events) && !empty($events)): ?>
 											<?php foreach($events as $key => $event): ?>
 												<tr>
 													<td class="ps-4 pe-4"><?= htmlspecialchars($event['id']); ?></td>
 													<td class="ps-4 pe-4"><?= htmlspecialchars($event['name']); ?></td>
-													<td class="ps-4 pe-4">開催前</td>
+													<td class="ps-4 pe-4"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
 													<td class="ps-4 pe-4">
 														<?php foreach ($event['lecture_formats'] as $key => $lecture_format): ?>
 															<?php if ($key == 0): ?>
@@ -117,6 +124,7 @@ $events = $eventController->index();
 													</td>
 												</tr>
 											<?php endforeach; ?>
+											<?php endif; ?>
 										</tbody>
 									</table>
 								</div>
@@ -141,14 +149,15 @@ $events = $eventController->index();
 								<div class="d-flex">
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
 										<ul class="pagination">
-											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
-											<li class="paginate_button page-item active"><a href="#" aria-controls="datatables-buttons" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>
-											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="2" tabindex="0" class="page-link">2</a></li>
-											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="3" tabindex="0" class="page-link">3</a></li>
-											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="4" tabindex="0" class="page-link">4</a></li>
-											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="5" tabindex="0" class="page-link">5</a></li>
-											<li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="6" tabindex="0" class="page-link">6</a></li>
-											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li>
+											<?php if ($currentPage >= 1 && $totalCount > 1): ?>
+											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage)-1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+											<?php endif; ?>
+											<?php for ($i = 1; $i <= ceil($totalCount/10); $i++): ?>
+											<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+											<?php endfor; ?>
+											<?php if ($currentPage >= 0 && $totalCount > 1): ?>
+											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage)+1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+											<?php endif; ?>
 										</ul>
 									</div>
 								</div>
