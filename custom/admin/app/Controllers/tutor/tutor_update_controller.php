@@ -23,12 +23,18 @@ $updatedAt  = date('Y-m-d H:i:s');
 // 必要なバリデーションや処理を行う
 $tutor_name_error       = validate_tutor_name($name);
 $overview_error         = validate_tutor_overview($overview);
-$require_image          = empty($id) || (!empty($id) && isset($imagefile) && $imagefile['error'] !== UPLOAD_ERR_NO_FILE);
-$image_error            = $require_image ? validate_image($imagefile) : null;
+$user_removed_image     = (!empty($id) && empty($_POST['existing_image']));
+$require_image          = (empty($id) || $user_removed_image);
+$has_new_file           = ($imagefile && $imagefile['error'] !== UPLOAD_ERR_NO_FILE);
 $email_validate_error   = validate_custom_email($email);
 $email_duplicate_error  = is_email_duplicate($pdo, $email, $name, $id);
-$email_error            = ($email_duplicate_error ?? '') . ' ' . ($email_validate_error ?? '');
-$email_error            = trim($email_error) ?: null;
+$email_error = trim(($email_duplicate_error ?? '') . ' ' . ($email_validate_error ?? '')) ?: null;
+
+if ($require_image || $has_new_file) {
+    $image_error = validate_image($imagefile);
+} else {
+    $image_error = null;
+}
 
 if ($email_error || $tutor_name_error || $image_error || $overview_error) {
     $_SESSION['errors'] = [

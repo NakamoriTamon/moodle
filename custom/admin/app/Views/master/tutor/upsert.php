@@ -102,7 +102,7 @@ try {
 											<img
 												id="thumbnailPreview"
 												src="<?php echo htmlspecialchars($preview_path, ENT_QUOTES, 'UTF-8'); ?>"
-												alt="Thumbnail Preview"
+												alt="講師画像"
 												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
 											<button
 												type="button"
@@ -117,7 +117,7 @@ try {
 											<img
 												id="thumbnailPreview"
 												src=""
-												alt="Thumbnail Preview"
+												alt="講師画像"
 												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
 											<button
 												type="button"
@@ -194,6 +194,7 @@ try {
 			$("#thumbnailPreviewContainer").addClass("d-none");
 			$("#thumbnailInput").val("");
 			$("#customText").text("ファイルが選択されていません");
+			$('input[name="existing_image"]').val('');
 		});
 	});
 </script>

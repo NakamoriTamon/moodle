@@ -71,6 +71,11 @@ function validate_image($image)
     if (empty($image) || $image['error'] === UPLOAD_ERR_NO_FILE) {
         return '画像は必須です。';
     }
+    $allowed_extensions = ['jpg', 'jpeg', 'png'];
+    $file_extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+    if (!in_array($file_extension, $allowed_extensions)) {
+        return '許可されていない画像形式です。jpg, jpeg, pngのいずれかをアップロードしてください。';
+    }
     return null;
 }
 

@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 try {
-    $params = [1, $id];
+    $params = [1, uniqid('delete_tutor_'), $id];
     $pdo->beginTransaction();
-    $stmt = $pdo->prepare("UPDATE mdl_tutor SET is_delete = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE mdl_tutor SET is_delete = ?, email = ? WHERE id = ?");
     $stmt->execute($params);
     $pdo->commit();
     $_SESSION['message_success'] = '削除が完了しました';
