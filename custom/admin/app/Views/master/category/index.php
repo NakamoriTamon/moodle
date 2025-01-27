@@ -1,19 +1,29 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/CategoryController.php');
 
-<body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
+$categoryController = new CategoryController();
+$categories = $categoryController->getCategories();
+?>
+
+<body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
 	<div class="wrapper">
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
 			<nav class="navbar navbar-expand navbar-light navbar-bg">
 				<div class="navbar-collapse collapse">
+					<a class="sidebar-toggle js-sidebar-toggle">
+						<i class="hamburger align-self-center"></i>
+					</a>
+					<p class="title header-title ms-4 fs-4 fw-bold mb-0">管理者一覧</p>
 					<p class="title mb-0"></p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
-							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<img src="/custom/admin/public/img/avatars/avatar.jpg" class="avatar img-fluid rounded" alt="Charles Hall" />
+							<a class="nav-icon pe-md-0 dropdown-toggle d-flex" href="#" data-bs-toggle="dropdown">
+								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="login.php">Log out</a>
+								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
 							</div>
 						</li>
 					</ul>
@@ -22,174 +32,83 @@
 
 			<main class="content">
 				<div class="col-12 col-lg-12">
-					<div class="card">
+					<div class="card min-70vh">
 						<div class="card-body p-0">
-							<div class="d-flex w-100"><button class="btn btn-primary mt-3 mb-3 ms-auto me-3">新規登録</button></div>
-							<div class="card">
-								<table class="table">
+							<div class="d-flex w-100 mt-3">
+								<button onclick="window.location.href='/custom/admin/app/Views/master/category/upsert.php';" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
+							</div>
+							<div class="card m-auto mb-5 overflow-auto w-95">
+								<table class="table table-responsive table-striped table_list">
 									<thead>
 										<tr>
-											<th style="width:40%;">カテゴリーID</th>
-											<th style="width:25%">カテゴリー名</th>
-											<th>更新日</th>
-											<th>Actions</th>
-
+											<th class="ps-4 pe-4 min-130">カテゴリーID</th>
+											<th class="ps-4 pe-4 w-35">カテゴリー名</th>
+											<th class="text-center ps-4 pe-4">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr>
-											<td>Vanessa Tucker</td>
-											<td>864-348-0485</td>
-											<td class="d-none d-md-table-cell">June 21, 1961</td>
-											<td class="table-action">
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 align-middle">
-														<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-													</svg></a>
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle">
-														<polyline points="3 6 5 6 21 6"></polyline>
-														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-													</svg></a>
-											</td>
-										</tr>
-										<tr>
-											<td>William Harris</td>
-											<td>914-939-2458</td>
-											<td class="d-none d-md-table-cell">May 15, 1948</td>
-											<td class="table-action">
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 align-middle">
-														<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-													</svg></a>
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle">
-														<polyline points="3 6 5 6 21 6"></polyline>
-														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-													</svg></a>
-											</td>
-										</tr>
-										<tr>
-											<td>Sharon Lessman</td>
-											<td>704-993-5435</td>
-											<td class="d-none d-md-table-cell">September 14, 1965</td>
-											<td class="table-action">
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 align-middle">
-														<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-													</svg></a>
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle">
-														<polyline points="3 6 5 6 21 6"></polyline>
-														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-													</svg></a>
-											</td>
-										</tr>
-										<tr>
-											<td>Christina Mason</td>
-											<td>765-382-8195</td>
-											<td class="d-none d-md-table-cell">April 2, 1971</td>
-											<td class="table-action">
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 align-middle">
-														<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-													</svg></a>
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle">
-														<polyline points="3 6 5 6 21 6"></polyline>
-														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-													</svg></a>
-											</td>
-										</tr>
-										<tr>
-											<td>Robin Schneiders</td>
-											<td>202-672-1407</td>
-											<td class="d-none d-md-table-cell">October 12, 1966</td>
-											<td class="table-action">
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 align-middle">
-														<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-													</svg></a>
-												<a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash align-middle">
-														<polyline points="3 6 5 6 21 6"></polyline>
-														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-													</svg></a>
-											</td>
+											<?php foreach ($categories as $category) {
+												echo '<tr>';
+												echo '<td class="ps-4 pe-4">' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '</td>';
+												echo '<td class="ps-4 pe-4">' . htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') . '</td>';
+												echo '<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/category/upsert.php?id=' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '" data-name="' . htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') . '"><i class="align-middle" data-feather="trash"></i></a></td>';
+												echo '</tr>';
+											} ?>
 										</tr>
 									</tbody>
 								</table>
+							</div>
+							<!-- 削除確認モーダル -->
+							<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+								<div class="modal-dialog modal-dialog-centered">
+									<div class="modal-content">
+										<form id="deleteForm" action="/custom/admin/app/Controllers/category/category_delete_controller.php" method="POST">
+											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+											<input type="hidden" name="id" value="">
+											<div class="modal-header">
+												<h5 class="modal-title">削除確認</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body">
+												<p class="mt-3"><span id="deleteCategoryName"></span> を削除します。本当によろしいですか？</p>
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+												<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
+											</div>
+										</form>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</main>
-
-			<footer class=" footer">
-				<div class="container-fluid">
-					<div class="row text-muted">
-						<div class="col-6 text-start">
-							<p class="mb-0">
-								<a href="https://adminkit.io/" target="_blank" class="text-muted"><strong>AdminKit</strong></a> &copy;
-							</p>
-						</div>
-						<div class="col-6 text-end">
-							<ul class="list-inline">
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Support</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Help Center</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Privacy</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="#">Terms</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</footer>
 		</div>
 	</div>
-
-	<script src="/custom/admin/public/js/app.js"></script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			// Bar chart
-			new Chart(document.getElementById("chartjs-dashboard-bar"), {
-				type: "bar",
-				data: {
-					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-					datasets: [{
-						label: "This year",
-						backgroundColor: window.theme.primary,
-						borderColor: window.theme.primary,
-						hoverBackgroundColor: window.theme.primary,
-						hoverBorderColor: window.theme.primary,
-						data: [54, 67, 41, 55, 62, 45, 55, 73, 60, 76, 48, 79],
-						barPercentage: .75,
-						categoryPercentage: .5
-					}]
-				},
-				options: {
-					maintainAspectRatio: false,
-					legend: {
-						display: false
-					},
-					scales: {
-						yAxes: [{
-							gridLines: {
-								display: false
-							},
-							stacked: false,
-							ticks: {
-								stepSize: 20
-							}
-						}],
-						xAxes: [{
-							stacked: false,
-							gridLines: {
-								color: "transparent"
-							}
-						}]
-					}
-				}
-			});
-		});
-	</script>
 </body>
 
 </html>
+
+<script src="/custom/admin/public/js/app.js"></script>
+<script>
+	$(document).ready(function() {
+		let selectedId;
+		// 削除リンクがクリックされたとき
+		$('.delete-link').on('click', function(event) {
+			event.preventDefault();
+			selectedId = $(this).data('id');
+			let categoryName = $(this).data('name');
+
+			$('input[name="id"]').val(selectedId);
+			$('#deleteCategoryName').text(categoryName);
+			$('#confirmDeleteModal').modal('show');
+		});
+		// モーダル内の削除ボタンがクリックされたとき
+		$('#confirmDeleteButton').on('click', function() {
+			$('#confirmDeleteModal').modal('hide');
+			$('#deleteForm').submit();
+		});
+	});
+</script>
