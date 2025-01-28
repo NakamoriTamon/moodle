@@ -1,8 +1,8 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-$eventController = new EventController();
-$events = $eventController->index();
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/custom_controller.php');
+$custom_upsert_controller = new CustomController();
+$custom_list = $custom_upsert_controller->index();
 ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative show">

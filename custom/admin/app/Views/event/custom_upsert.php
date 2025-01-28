@@ -1,4 +1,9 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+
+$errors = $_SESSION['errors'] ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+?>
 
 <body id="" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
 	<div class="wrapper">
@@ -29,29 +34,33 @@
 						<div class="card-body p-0 min-70vh">
 							<p class="content_title p-3">イベントカスタムフィールド登録</p>
 							<div class="form-wrapper">
-								<form method="POST" action="">
-									<div class="field-container">
-										<input type="hidden" name="eventId">
+								<form method="POST" action="/custom/admin/app/Controllers/event/custom_upsert_controller.php">
+									<div class=" field-container">
+										<input type="hidden" name="id">
 										<div class="mb-4">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">カテゴリ区分名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control" value="<?php if ($_GET['id']) { ?>イベント一般<?php } ?>">
+											<input type="text" name="name" class="form-control" value="<?= htmlspecialchars($old_input['name'] ?? '') ?>">
+											<?php if (!empty($errors['name'])): ?>
+												<div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+											<?php endif; ?>
 										</div>
+										<input type="hidden" name="event_customfield_id[]">
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">項目名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control" value="<?php if ($_GET['id']) { ?>このイベントに参加するにあたりご要望等ありましたら教えてください<?php } ?>">
+											<input type="text" name="item_name[]" class="form-control" value="<?php if ($_GET['id']) { ?>このイベントに参加するにあたりご要望等ありましたら教えてください<?php } ?>">
 										</div>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">フィールド名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="" class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>"
+											<input type="text" name="field_name[]" class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>"
 												<?php if ($_GET['id']) { ?>readonly <?php } ?> value="<?php if ($_GET['id']) { ?>request<?php } ?>">
 										</div>
 										<div class="mb-3">
@@ -59,33 +68,31 @@
 												<label class="me-2">表示順</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="number" name="" class="form-control" value=<?php if ($_GET['id']) { ?>1<?php } ?>>
+											<input type="number" name="sort[]" class="form-control" value=<?php if ($_GET['id']) { ?>1<?php } ?>>
 										</div>
 										<div class=" mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">フィールドタイプ</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<select name="" class="form-control mb-3 <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
-												<option value="text">テキスト</option>
-												<option <?php if ($_GET['id']) { ?>selected<?php } ?> value="textarea">テキストエリア</option>
-												<option value="checkbox">チェックボックス</option>
-												<option value="radio">ラジオ</option>
-												<option value="date">日付</option>
-												<option value="file">ファイル</option>
-												<option value="video">動画</option>
+											<select name="field_type[]" class="form-control mb-3 <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
+												<option value=1>テキスト</option>
+												<option <?php if ($_GET['id']) { ?>selected<?php } ?> value=2>テキストエリア</option>
+												<option value=3>チェックボックス</option>
+												<option value=4>ラジオ</option>
+												<option value=5>日付</option>
 											</select>
 										</div>
 										<div class="mb-5">
 											<label class="me-2 form-label">選択肢 (カンマ区切り)</label>
-											<input type="text" name="" <?php if ($_GET['id']) { ?>readonly <?php } ?> class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
+											<input type="text" name="selection[]" <?php if ($_GET['id']) { ?>readonly <?php } ?> class="form-control <?php if ($_GET['id']) { ?>readonly-select<?php } ?>">
 										</div>
 									</div>
 									<hr>
 									<div class="d-flex">
 										<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
 									</div>
-									<button type="button" id="submit" class="mt-5 btn btn-primary ms-auto">登録</button>
+									<button type="submit" class="mt-5 btn btn-primary ms-auto">登録</button>
 								</form>
 							</div>
 						</div>
@@ -123,46 +130,44 @@
 			newField.classList.add('field-container', 'mt-5');
 			newField.innerHTML = ` 
 			    <div class="add_area">
-				<input type="hidden" name="eventId">
+				<input type="hidden" name="event_customfield_id[]">
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">
 						<label class="me-2">項目名</label>
 						<span class="badge bg-danger">必須</span>
 					</div>
-					<input type="text" name="" class="form-control">
+					<input type="text" name="item_name[]" class="form-control">
 				</div>
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">
 						<label class="me-2">フィールド名</label>
 						<span class="badge bg-danger">必須</span>
 					</div>
-					<input type="text" name="" class="form-control">
+					<input type="text" name="field_name[]" class="form-control">
 				</div>
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">
 						<label class="me-2">表示順</label>
 						<span class="badge bg-danger">必須</span>
 					</div>
-					<input type="number" name="" class="form-control">
+					<input type="number" name="sort[]" class="form-control">
 				</div>
 				<div class=" mb-3">
 					<div class="form-label d-flex align-items-center">
 						<label class="me-2">フィールドタイプ</label>
 						<span class="badge bg-danger">必須</span>
 					</div>
-					<select name="" class="form-control mb-3">
-						<option value="text">テキスト</option>
-						<option value="textarea">テキストエリア</option>
-						<option value="checkbox">チェックボックス</option>
-						<option value="radio">ラジオ</option>
-						<option value="date">日付</option>
-						<option value="file">ファイル</option>
-						<option value="video">動画</option>
+					<select name="field_type[]" class="form-control mb-3">
+						<option value=1>テキスト</option>
+						<option value=2>テキストエリア</option>
+						<option value=3>チェックボックス</option>
+						<option value=4>ラジオ</option>
+						<option value=5>日付</option>
 					</select>
 				</div>
 				<div class="mb-3">
 					<label class="me-2 form-label">選択肢 (カンマ区切り)</label>
-					<input type="text" name="" class="form-control">
+					<input type="text" name="selection[]" class="form-control">
 				</div>
 				<div class ="mb-3"><div class = "form-label mt-3 d-flex align-items-center">
 				<button type="button" class ="delete_btn btn btn-danger ms-auto me-0">削除</button></div></div><hr>
@@ -173,13 +178,6 @@
 		});
 		$(document).on('click', '.delete_btn', function() {
 			$(this).closest('.add_area').remove();
-		});
-		// モック用アラート　本番時は消してください
-		$('#submit').on('click', function(event) {
-			sessionStorage.setItem('alert', 'aaasss');
-			setTimeout(() => {
-				location.href = '/custom/admin/app/Views/survey/custom_index.php';
-			}, 50);
 		});
 	</script>
 </body>
