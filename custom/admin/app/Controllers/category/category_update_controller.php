@@ -50,6 +50,35 @@ if ($category_name_error || $image_error) {
         }
     }
 
+    try {
+        if (!empty($id)) {
+            $sql = "SELECT COUNT(*) FROM mdl_category WHERE name = ? AND is_delete = 0 AND id <> ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$name, $id]);
+        } else {
+            $sql = "SELECT COUNT(*) FROM mdl_category WHERE name = ? AND is_delete = 0";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$name]);
+        }
+        $count = (int) $stmt->fetchColumn();
+
+        if ($count > 0) {
+            $_SESSION['message_error'] = '同じ名前のデータが既に存在しています。';
+            $_SESSION['errors'] = ['name' => '同じ名前のカテゴリが存在します'];
+            $_SESSION['old_input'] = $_POST;
+            if (!empty($id)) {
+                header('Location: /custom/admin/app/Views/master/category/upsert.php?id=' . urlencode($id));
+            } else {
+                header('Location: /custom/admin/app/Views/master/category/upsert.php');
+            }
+            exit;
+        }
+    } catch (PDOException $e) {
+        $_SESSION['message_error'] = 'DBエラーが発生しました: ' . $e->getMessage();
+        header('Location: /custom/admin/app/Views/master/category/index.php');
+        exit;
+    }
+
     if (isset($_FILES['imagefile']) && $_FILES['imagefile']['error'] === UPLOAD_ERR_OK) {
         $tmp_name       = $_FILES['imagefile']['tmp_name'];
         $original_name  = $_FILES['imagefile']['name'];
