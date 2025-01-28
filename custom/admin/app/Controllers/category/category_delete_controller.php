@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 try {
-    $params = [1, uniqid('category_'), $id];
+    $params = [1, uniqid('delete_category_'), $id];
     $pdo->beginTransaction();
     $stmt = $pdo->prepare("UPDATE mdl_category SET is_delete = ?, name = ? WHERE id = ?");
     $stmt->execute($params);

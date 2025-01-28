@@ -58,7 +58,7 @@ try {
 									<input type="hidden" name="id" value="<?php echo htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
 
 									<div class="mb-3">
-										<label class="form-label">カテゴリー名</label>
+										<label class="form-label me-2">カテゴリー名</label>
 										<span class="badge bg-danger">必須</span>
 										<input name="name" class="form-control" type="text"
 											value="<?php echo htmlspecialchars($old_input['name'] ?? $categories['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
@@ -93,7 +93,7 @@ try {
 											<img
 												id="thumbnailPreview"
 												src="<?php echo htmlspecialchars($preview_path, ENT_QUOTES, 'UTF-8'); ?>"
-												alt="Thumbnail Preview"
+												alt="カテゴリ画像"
 												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
 											<button
 												type="button"
@@ -108,7 +108,7 @@ try {
 											<img
 												id="thumbnailPreview"
 												src=""
-												alt="Thumbnail Preview"
+												alt="カテゴリ画像"
 												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
 											<button
 												type="button"
