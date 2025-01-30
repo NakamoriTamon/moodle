@@ -1,14 +1,25 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.php');
 class CustomController
 {
+
+    private $customFieldModel;
+
+    public function __construct()
+    {
+        $this->customFieldModel = new EventCustomFieldCategoryModel();
+    }
+
     public function index()
     {
-        global $DB, $CFG;
-        $event_category_list = $DB->get_record('event_customfield_category', ['is_delete' => false]);
-        // var_dump($event_category_list);
+        $event_category_list = $this->customFieldModel->getCustomFieldCategory();
 
-        var_dump($event_category_list);
+        return $event_category_list;
+    }
+    public function edit($id = null)
+    {
+        return $id ? $this->customFieldModel->findCustomFieldCategory($id) : [];
     }
 }

@@ -62,17 +62,3 @@ function validate_password($password)
     }
     return null;
 }
-
-/**
- * バリデーション: カテゴリ区分名
- */
-function validate_custom_field_category_name($name)
-{
-    if (empty($name)) {
-        return 'カテゴリ区分名は必須です。';
-    }
-    if (strlen($name) > 500) {
-        return '500文字以下である必要があります。';
-    }
-    return null;
-}

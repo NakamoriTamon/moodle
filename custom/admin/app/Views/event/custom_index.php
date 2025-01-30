@@ -48,42 +48,24 @@ $custom_list = $custom_upsert_controller->index();
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>1</td>
-											<td>イベント一般</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">タンパク質の精製技術の基礎</a>、
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">AIと機械学習の基礎講座</a>
-											</td>
-											</td>
-											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td>適塾記念会イベント</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">量子コンピュータ入門: 次世代計算技術の扉を開く</a>
-											</td>
-											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
-										<tr>
-											<td>3</td>
-											<td>生命科学分野イベント</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">気候変動と持続可能なエネルギーソリューション</a>、
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">心理学で学ぶ意思決定と行動経済学</a>
-											</td>
-											<td class="text-center text-nowrap">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
+										<?php foreach ($custom_list as $custom) { ?>
+											<?php $last_key = array_key_last($custom['event']); ?>
+											<tr>
+												<td><?= htmlspecialchars($custom['id']) ?></td>
+												<td><?= htmlspecialchars($custom['name']) ?></td>
+												<td>
+													<?php foreach ($custom['event'] as $key => $event) { ?>
+														<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']) ?>" class="text-decoration-underline link-primary"><?= htmlspecialchars($event['name']) ?></a>
+														<?= ($key !== $last_key) ? '、' : '' ?>
+													<?php } ?>
+												</td>
+												</td>
+												<td class="text-center">
+													<a href='/custom/admin/app/Views/event/custom_upsert.php?id=<?= htmlspecialchars($custom['id']) ?>' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+													<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
+												</td>
+											</tr>
+										<?php } ?>
 									</tbody>
 								</table>
 							</div>

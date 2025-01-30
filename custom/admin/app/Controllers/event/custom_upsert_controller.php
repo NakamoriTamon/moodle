@@ -3,40 +3,67 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldModel.php');
+
+$customFieldModel = new EventCustomFieldModel();
 
 $id = $_POST['id'] ?? null;
 $name = $_POST['name'] ?? null;
+$sorts = $_POST['sort'] ?? null;
+$selections = $_POST['selection'] ?? null;
 $item_names = $_POST['item_name'] ?? null;
 $field_names = $_POST['field_name'] ?? null;
-$sorts = $_POST['sort'] ?? null;
 $field_types = $_POST['field_type'] ?? null;
-$selections = $_POST['selection'] ?? null;
+$event_customfield_ids = $_POST['event_customfield_id'] ?? [];
 
-$name_error = validate_custom_field_category_name($name);
-if ($name_error) {
-    // エラーメッセージをセッションに保存
-    $_SESSION['errors'] = ['name' => $name_error];
-    $_SESSION['old_input'] = $_POST;
-    header('Location: /custom/admin/app/Views/event/custom_upsert.php');
-    exit;
-} else {
-    global $DB, $CFG;
-    try {
-        $transaction = $DB->start_delegated_transaction();
-        $customfield_category = new stdClass();
+global $DB, $CFG;
+try {
+    $transaction = $DB->start_delegated_transaction();
+    $customfield_category = new stdClass();
+    if (!$id) {
         $customfield_category->name = $name;
         $customfield_category->created_at = date('Y-m-d H:i:s');
         $customfield_category->updated_at = date('Y-m-d H:i:s');
-        $customfield_category_id = $DB->insert_record('event_customfield_category', $customfield_category);
+        $id = $DB->insert_record('event_customfield_category', $customfield_category);
+    } else {
+        $customfield_category->id = $id;
+        $customfield_category->name = $name;
+        $customfield_category->updated_at = date('Y-m-d H:i:s');
+        $DB->update_record('event_customfield_category', $customfield_category);
+    }
 
-        // 各フィールドごとに登録
-        foreach ($field_names as $index => $field_name) {
-            $item_name = $item_names[$index] ?? null;
-            $sort = $sorts[$index] ?? null;
-            $field_type = $field_types[$index] ?? null;
-            $selection = $selections[$index] ?? null;
+    $customfield_list = $DB->get_records(
+        'event_customfield',
+        ['event_customfield_category_id' => $id, 'is_delete' => false]
+    );
 
-            $customfield = new stdClass();
+    // 削除対象のIDを取得
+    $missing_ids = [];
+    foreach ($customfield_list as $customfields) {
+        if (!in_array($customfields->id, $event_customfield_ids)) {
+            $missing_ids[] = $customfields->id;
+        }
+    }
+
+    if ($_SESSION['errors']) {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        $_SESSION['old_input'] = $_POST;
+        header('Location: /custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
+        exit;
+    }
+
+    // 各フィールドごとに登録
+    foreach ($item_names as $index => $item_name) {
+        $sort = $sorts[$index] ?? null;
+        $selection = $selections[$index] ?? null;
+        $field_type = $field_types[$index] ?? null;
+        $field_name = $field_names[$index] ?? null;
+        $event_customfield_id = $event_customfield_ids[$index] ?? null;
+
+        $target_list = ['field_name' => $field_name, 'sort' => $sort, 'item,_name' => $item_name];
+
+        $customfield = new stdClass();
+        if (!$event_customfield_id) {
             $customfield->created_at = date('Y-m-d H:i:s');
             $customfield->updated_at = date('Y-m-d H:i:s');
             $customfield->name = $item_name;
@@ -44,18 +71,36 @@ if ($name_error) {
             $customfield->sort = (int)$sort;
             $customfield->field_type = $field_type;
             $customfield->selection = $selection;
-            $customfield->event_customfield_category_id = $customfield_category_id;
-            $DB->insert_record('event_customfield', $customfield);
+            $customfield->event_customfield_category_id = $id;
+            $test = $DB->insert_record('event_customfield', $customfield);
+        } else {
+            $customfield->id = $event_customfield_id;
+            $customfield->updated_at = date('Y-m-d H:i:s');
+            $customfield->name = $item_name;
+            $customfield->sort = (int)$sort;
+            $DB->update_record('event_customfield', $customfield);
         }
-        $transaction->allow_commit();
-        $_SESSION['message_success'] = '登録が完了しました';
-        header('Location: /custom/admin/app/Views/event/custom_upsert.php');
-        exit;
-    } catch (PDOException $e) {
-        // var_dump($e);
+    }
+
+    // 削除カスタムフィールド
+    if (!empty($missing_ids)) {
+        foreach ($missing_ids as $id) {
+            $fields = ['is_delete' => true, 'updated_at' => date('Y-m-d H:i:s')];
+            foreach ($fields as $column => $value) $DB->set_field('event_customfield', $column, $value, ['id' => $id]);
+        }
+    }
+
+    $transaction->allow_commit();
+    $_SESSION['message_success'] = '登録が完了しました';
+    header('Location: /custom/admin/app/Views/event/custom_index.php');
+    exit;
+} catch (Exception $e) {
+    // ロールバック中に例外が再スローする事を防ぐ
+    try {
         $transaction->rollback($e);
+    } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';
-        header('Location: /custom/admin/app/Views/event/custom_upsert.php');
+        redirect('/custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
         exit;
     }
 }
