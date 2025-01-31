@@ -210,7 +210,10 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 		// 登録ボタン押下時
 		$("#form").on("submit", function(e) {
 			let isValid = true;
-			let values = {};
+			let values = {
+				"item_name[]": {},
+				"field_name[]": {}
+			};
 			$(".error-message").remove();
 
 			// 必須項目バリデーション
@@ -218,64 +221,58 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 				$(this).find("input[type='text'], input[type='number'], select").each(function() {
 					let $input = $(this);
 					const value = $input.val().trim();
+					const nameAttr = $input.attr("name");
 
 					// チェックボックスまたはラジオ選択時は選択肢を必須項目に
-					if ($input.attr("name") === "selection[]") {
+					if (nameAttr === "selection[]") {
 						const fieldType = $(this).closest('div').prev().find('select').val();
 						if ((fieldType === "3" || fieldType === "4") && value === "") {
 							let label = $(this).closest('div').find('label').text().trim();
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}は必須です</div>`;
 							$input.after(errorMsg);
-							console.log(errorMsg);
 							isValid = false;
 						}
 					}
 
 					// 他項目必須チェック
-					if ($input.attr("name") !== "selection[]" && $input.attr("name") !== "field_type[]") {
+					if (nameAttr !== "selection[]" && nameAttr !== "field_type[]") {
 						let label = $(this).closest('.mb-3').find('label').text().trim();
-						if ($input.attr("name") === "name") {
+						if (nameAttr === "name") {
 							label = $(this).closest('.mb-4').find('label').text().trim();
 						}
 						if (value === "") {
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}は必須です</div>`;
 							$input.after(errorMsg);
-							console.log(errorMsg);
 							isValid = false;
 						}
 					}
 
-					// 重複チェック
-					if ($input.attr("name") !== "selection[]" && $input.attr("name") !== "field_type[]" && $input.attr("name") !== "name") {
-						if (value !== "" && values[value]) {
+					// 同一項目名のみで重複チェック
+					if (values[nameAttr] !== undefined) {
+						if (value !== "" && values[nameAttr][value]) {
 							let label = $(this).closest('.mb-3').find('label').text().trim();
-							if ($input.attr("name") === "name") {
-								label = $(this).closest('.mb-4').find('label').text().trim();
-							}
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}が重複しています</div>`;
 							$input.after(errorMsg);
-							console.log(errorMsg);
 							isValid = false;
 						} else if (value !== "") {
-							values[value] = true;
+							values[nameAttr][value] = true;
 						}
 					}
 
-					if ($input.attr("name") === "item_name[]" || $input.attr("name") === "name") {
+					// 文字数制限
+					if (nameAttr === "item_name[]" || nameAttr === "name") {
 						if (value.length > 500) {
 							let label = $(this).closest('.mb-3').find('label').text().trim();
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}は500文字以内で入力してください</div>`;
 							$input.after(errorMsg);
-							console.log(errorMsg);
 							isValid = false;
 						}
 					}
-					if ($input.attr("name") === "field_name[]") {
+					if (nameAttr === "field_name[]") {
 						if (value.length > 100) {
 							let label = $(this).closest('.mb-3').find('label').text().trim();
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}は100文字以内で入力してください</div>`;
 							$input.after(errorMsg);
-							console.log(errorMsg);
 							isValid = false;
 						}
 					}
