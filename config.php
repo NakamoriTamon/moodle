@@ -47,5 +47,8 @@ $CFG->directorypermissions = 0777;
 
 require_once(__DIR__ . '/lib/setup.php');
 
+// 共通項目
+$customfield_select_list = [1 => 'テキスト', 2 => 'テキストエリア', 3 => 'チェックボックス', 4 => 'ラジオ', 5 => '日付'];
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

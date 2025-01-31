@@ -4,7 +4,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * バリデーション: 苗字
  */
-function validate_last_name($lastname) {
+function validate_last_name($lastname)
+{
     if (empty($lastname)) {
         return '苗字は必須です。';
     }
@@ -17,7 +18,8 @@ function validate_last_name($lastname) {
 /**
  * バリデーション: 名前
  */
-function validate_first_name($firstname) {
+function validate_first_name($firstname)
+{
     if (empty($firstname)) {
         return '名前は必須です。';
     }
@@ -30,7 +32,8 @@ function validate_first_name($firstname) {
 /**
  * バリデーション: メールアドレス
  */
-function validate_custom_email($email) {
+function validate_custom_email($email)
+{
     if (empty($email)) {
         return 'メールアドレスは必須です。';
     }
@@ -43,7 +46,8 @@ function validate_custom_email($email) {
 /**
  * バリデーション: パスワード
  */
-function validate_password($password) {
+function validate_password($password)
+{
     if (empty($password)) {
         return 'パスワードは必須です。';
     }
@@ -62,7 +66,8 @@ function validate_password($password) {
 /**
  * バリデーション: input type="text"
  */
-function validate_text($val, $title, $required) {
+function validate_text($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -72,7 +77,8 @@ function validate_text($val, $title, $required) {
     return null;
 }
 
-function validate_text_max225($val, $title, $required) {
+function validate_text_max225($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -82,7 +88,8 @@ function validate_text_max225($val, $title, $required) {
     return null;
 }
 
-function validate_text_max500($val, $title, $required) {
+function validate_text_max500($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -95,7 +102,8 @@ function validate_text_max500($val, $title, $required) {
 /**
  * バリデーション: textareaタグ
  */
-function validate_textarea($val, $title, $required) {
+function validate_textarea($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -108,7 +116,8 @@ function validate_textarea($val, $title, $required) {
 /**
  * バリデーション: selectタグ
  */
-function validate_select($val, $title, $required) {
+function validate_select($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -118,7 +127,8 @@ function validate_select($val, $title, $required) {
 /**
  * バリデーション: selectタグmultiple属性
  */
-function validate_select_multiple($val, $title, $required) {
+function validate_select_multiple($val, $title, $required)
+{
     if (empty($val)) {
         return $title . 'は必須です。';
     }
@@ -128,7 +138,8 @@ function validate_select_multiple($val, $title, $required) {
 /**
  * バリデーション: 整数チェック
  */
-function validate_int($val, $title, $required) {
+function validate_int($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
@@ -141,17 +152,18 @@ function validate_int($val, $title, $required) {
 /**
  * バリデーション: input type="date"
  */
-function validate_date($val, $title, $required) {
+function validate_date($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(empty($val) && !$required) {
+    } elseif (empty($val) && !$required) {
         return null;
     }
 
     $format = 'Y-m-d'; // 期待される日付フォーマット
     $d = DateTime::createFromFormat($format, $val);
     // フォーマットが正しいかつ、有効な日付であることを確認
-    if($d && $d->format($format) === $val) {
+    if ($d && $d->format($format) === $val) {
         return null;
     } else {
         return $title . "形式が違っています。";
@@ -161,15 +173,16 @@ function validate_date($val, $title, $required) {
 /**
  * バリデーション: HH:mm形式をチェック
  */
-function validate_time($val, $title, $required) {
+function validate_time($val, $title, $required)
+{
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(empty($val) && !$required) {
+    } elseif (empty($val) && !$required) {
         return null;
     }
 
     // 正規表現でHH:mm形式をチェック
-    if(preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $val)) {
+    if (preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $val)) {
         return null;
     } else {
         return $title . "形式が違っています。";
@@ -179,7 +192,8 @@ function validate_time($val, $title, $required) {
 /**
  * バリデーション: HH:mm形式をチェック
  */
-function validate_image_file($val, $title, $required) {
+function validate_image_file($val, $title, $required)
+{
     // ファイルアップロードのチェック
     if (!isset($val)) {
         return $title . 'は必須です。';
@@ -209,5 +223,3 @@ function validate_image_file($val, $title, $required) {
     }
     return null;
 }
-
-?>
