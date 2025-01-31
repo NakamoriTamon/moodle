@@ -67,6 +67,26 @@ class EventCustomFieldCategoryModel extends BaseModel
         return [];
     }
 
+    // 自身以外のカテゴリー情報を取得
+    public function getCustomFieldCategoryNotId($id = null)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_customfield_category WHERE id != $id AND is_delete = false");
+                $stmt->execute();
+                $custom_field_categorys = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $custom_field_categorys;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
     // カスタムフィールドカテゴリ区分IDに基づいてフィールド情報を取得
     private function getEventCustomField($id)
     {

@@ -47,6 +47,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 								<form id="form" method="POST" action="/custom/admin/app/Controllers/event/custom_upsert_controller.php">
 									<?php for ($i = 0; $i < $count; $i++) { ?>
 										<div class="field-container <?= ($i > 0) ? 'mt-5' : '' ?>">
+											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 											<input type="hidden" name="id" value="<?= htmlspecialchars($customs['id']) ?>">
 											<div class="mb-4 <?= ($i > 0) ? 'd-none' : '' ?>">
 												<div class="form-label d-flex align-items-center">
@@ -212,7 +213,8 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 			let isValid = true;
 			let values = {
 				"item_name[]": {},
-				"field_name[]": {}
+				"field_name[]": {},
+				"sort[]": {}
 			};
 			$(".error-message").remove();
 

@@ -4,8 +4,10 @@ require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.php');
 
-$customFieldModel = new EventCustomFieldModel();
+$EventCustomFieldModel = new EventCustomFieldModel();
+$EventCustomFieldCategoryModel = new EventCustomFieldCategoryModel();
 
 $id = $_POST['id'] ?? null;
 $name = $_POST['name'] ?? null;
@@ -18,6 +20,36 @@ $event_customfield_ids = $_POST['event_customfield_id'] ?? [];
 
 global $DB, $CFG;
 try {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            $_SESSION['message_error'] = '登録に失敗しました';
+            if ($id) {
+                header('Location: /custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
+            } else {
+                header('Location: /custom/admin/app/Views/event/custom_upsert.php');
+            }
+            exit;
+        }
+    }
+
+    // カテゴリ名重複チェック
+    if ($id) {
+        $customfield_category_list = $EventCustomFieldCategoryModel->getCustomFieldCategoryNotId($id);
+    } else {
+        $customfield_category_list = $DB->get_records(
+            'event_customfield_category',
+            ['is_delete' => false]
+        );
+    }
+
+    $category_names = array_column($customfield_category_list, 'name');
+    if (in_array($name, $category_names, true)) {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        $_SESSION['errors']['name'] = 'すでに登録されています';
+        header('Location: /custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
+        exit;
+    }
+
     $transaction = $DB->start_delegated_transaction();
     $customfield_category = new stdClass();
     if (!$id) {
@@ -43,13 +75,6 @@ try {
         if (!in_array($customfields->id, $event_customfield_ids)) {
             $missing_ids[] = $customfields->id;
         }
-    }
-
-    if ($_SESSION['errors']) {
-        $_SESSION['message_error'] = '登録に失敗しました';
-        $_SESSION['old_input'] = $_POST;
-        header('Location: /custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
-        exit;
     }
 
     // 各フィールドごとに登録
@@ -99,6 +124,7 @@ try {
     try {
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
+        $_SESSION['old_input'] = $_POST;
         $_SESSION['message_error'] = '登録に失敗しました';
         redirect('/custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
         exit;
