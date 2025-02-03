@@ -35,7 +35,7 @@ $tutors = $tutorController->getToturs();
                     <div class="card min-70vh">
                         <div class="card-body p-0">
                             <div class="d-flex w-100 mt-3">
-                                <button onclick="window.location.href='/custom/admin/app/Views/master/tutor/upsert.php';" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
+                                <button onclick="window.location.href='/custom/admin/app/Views/master/tutor/upsert.php'" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
                             </div>
                             <div class="card m-auto mb-5 overflow-auto w-95">
                                 <table class="table table-responsive table-striped table_list">
@@ -49,16 +49,15 @@ $tutors = $tutorController->getToturs();
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($tutors as $totur) {
-                                            echo '<tr>';
-                                            echo '<td class="ps-4 pe-4">' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '</td>';
-                                            echo '<td class="ps-4 pe-4">' . htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') . '</td>';
-                                            echo '<td class="ps-4 pe-4">' . htmlspecialchars($totur['email'], ENT_QUOTES, 'UTF-8') . '</td>';
-                                            $overviewShort = mb_strimwidth($totur['overview'], 0, 100, '...', 'UTF-8');
-                                            echo '<td class="ps-4 pe-4">' . htmlspecialchars($overviewShort, ENT_QUOTES, 'UTF-8') . '</td>';
-                                            echo '<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/tutor/upsert.php?id=' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '" data-name="' . htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') . '"><i class="align-middle" data-feather="trash"></i></a></td>';
-                                            echo '</tr>';
-                                        } ?>
+                                        <?php foreach ($tutors as $totur): ?>
+                                            <tr>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($totur['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars(mb_strimwidth($totur['overview'], 0, 100, '...', 'UTF-8')) ?></td>
+                                                <td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/tutor/upsert.php?id=<?= htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="<?= htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') ?>"><i class="align-middle" data-feather="trash"></i></a></td>
+                                            </tr>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>

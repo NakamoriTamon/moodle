@@ -7,8 +7,9 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 session_start();
 
 // 接続情報取得
+global $DB;
 $baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
+$pdo = $baseModel->getPdo(); // ※ PDO は個別利用する場合のみ。通常は $DB を利用します。
 
 // POSTデータの取得 (バリデーションは別途行う)
 $id         = $_POST['id'] ?? '';
@@ -27,7 +28,7 @@ $user_removed_image     = (!empty($id) && empty($_POST['existing_image']));
 $require_image          = (empty($id) || $user_removed_image);
 $has_new_file           = ($imagefile && $imagefile['error'] !== UPLOAD_ERR_NO_FILE);
 $email_validate_error   = validate_custom_email($email);
-$email_duplicate_error  = is_email_duplicate($pdo, $email, $name, $id);
+$email_duplicate_error = is_email_duplicate($DB, $email, $id);
 $email_error = trim(($email_duplicate_error ?? '') . ' ' . ($email_validate_error ?? '')) ?: null;
 
 if ($require_image || $has_new_file) {
@@ -55,7 +56,7 @@ if ($email_error || $tutor_name_error || $image_error || $overview_error) {
 } else {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            $_SESSION['message_error'] = 'トークンが不正です。';
+            $_SESSION['message_error'] = '登録に失敗しました';
             header('Location: /custom/admin/app/Views/master/tutor/index.php');
             exit;
         }
@@ -65,7 +66,6 @@ if ($email_error || $tutor_name_error || $image_error || $overview_error) {
         $tmp_name       = $_FILES['imagefile']['tmp_name'];
         $original_name  = $_FILES['imagefile']['name'];
         $ext            = pathinfo($original_name, PATHINFO_EXTENSION);
-
         $newfilename    = uniqid('tutor_') . '.' . $ext;
 
         $destination_dir = '/var/www/html/moodle/uploads/tutor';
@@ -77,66 +77,52 @@ if ($email_error || $tutor_name_error || $image_error || $overview_error) {
         if (move_uploaded_file($tmp_name, $destination)) {
             $path = $newfilename;
         } else {
-            $_SESSION['message_error'] = '画像アップロードに失敗しました。';
+            $_SESSION['message_error'] = '登録に失敗しました';
             header('Location: /custom/admin/app/Views/master/tutor/index.php');
             exit;
         }
     }
 
-    if (!empty($id)) {
-        $sql = "UPDATE mdl_tutor
-                SET
-                  name       = ?,
-                  email      = ?,
-                  path       = ?,
-                  overview   = ?,
-                  created_at = ?,
-                  updated_at = ?
-                WHERE id = ?";
-        $params = [$name, $email, $path, $overview, $createdAt, $updatedAt, $id];
-    } else {
-        $sql = "INSERT INTO mdl_tutor
-                  (name, email, path, overview, created_at, updated_at)
-                VALUES
-                  (?, ?, ?, ?, ?, ?)";
-        $params = [$name, $email, $path, $overview, $createdAt, $updatedAt];
+    $data = new stdClass();
+    $data->name       = $name;
+    $data->email      = $email;
+    $data->path       = $path;
+    $data->overview   = $overview;
+    $data->created_at = $createdAt;
+    $data->updated_at = $updatedAt;
+
+    if ($id) {
+        $data->id = $id;
     }
 
     try {
-        $pdo->beginTransaction();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $pdo->commit();
+        $transaction = $DB->start_delegated_transaction();
+        if ($id) {
+            $DB->update_record('tutor', $data);
+        } else {
+            $DB->insert_record('tutor', $data);
+        }
+        $transaction->allow_commit();
         $_SESSION['message_success'] = '登録が完了しました';
         header('Location: /custom/admin/app/Views/master/tutor/index.php');
         exit;
-    } catch (PDOException $e) {
-        $pdo->rollBack();
-        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+    } catch (Exception $e) {
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/master/tutor/index.php');
         exit;
     }
 }
 
-// メールアドレス重複チェック
-function is_email_duplicate($pdo, $email, $new_name, $current_id = null)
+function is_email_duplicate($DB, $email, $current_id = null)
 {
     if (!empty($current_id)) {
-        // 更新処理時
-        $stmt = $pdo->prepare("SELECT name FROM mdl_tutor WHERE email = :email AND id != :id");
-        $stmt->execute(['email' => $email, 'id' => $current_id]);
+        $sql = "SELECT id FROM {tutor} WHERE email = :email AND id != :id AND is_delete = 0";
+        $existing = $DB->get_records_sql($sql, ['email' => $email, 'id' => $current_id]);
     } else {
-        // 新規登録時
-        $stmt = $pdo->prepare("SELECT name FROM mdl_tutor WHERE email = :email");
-        $stmt->execute(['email' => $email]);
+        $sql = "SELECT id FROM {tutor} WHERE email = :email AND is_delete = 0";
+        $existing = $DB->get_records_sql($sql, ['email' => $email]);
     }
-    $existing_tutors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if (count($existing_tutors) > 0) {
-        foreach ($existing_tutors as $tutor) {
-            if ($tutor['name'] === $new_name) {
-                return false;
-            }
-        }
+    if ($existing) {
         return 'メールアドレスが重複しています。';
     }
     return false;
