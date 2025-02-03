@@ -1,0 +1,63 @@
+@charset "utf-8";
+/*  contact.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+#contact .contact_form {
+  margin-top: 60px;
+  padding: 80px 0;
+}
+#contact .contact_form .list li {
+  margin-bottom: 40px;
+}
+#contact .contact_form .list li:last-child {
+  margin-top: 60px;
+}
+#contact .contact_form .list li .list_label {
+  margin-bottom: 10px;
+}
+#contact .contact_form .list li .select {
+  width: 50%;
+}
+#contact .contact_form .agree {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  width: fit-content;
+  margin: 40px auto 60px;
+  padding: 20px;
+  background: #f5f5f5;
+}
+#contact .contact_form .agree label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+}
+#contact .contact_form .btn {
+  margin: 0 auto;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  #contact .contact_form {
+    margin-top: 40px;
+    padding: 50px 0;
+  }
+  #contact .contact_form .list li {
+    margin-bottom: 20px;
+  }
+  #contact .contact_form .list li:last-child {
+    margin-top: 30px;
+  }
+  #contact .contact_form .list li .select {
+    width: 80%;
+  }
+  #contact .contact_form .agree {
+    gap: 30px;
+    width: 100%;
+    margin: 30px auto 60px;
+  }
+}

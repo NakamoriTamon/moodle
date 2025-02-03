@@ -1,0 +1,164 @@
+@charset "utf-8";
+/*  quest.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+#quest .quest_head {
+  margin-bottom: 40px;
+  font-weight: 700;
+  font-size: 2.8rem;
+}
+#quest .quest_form .form_block .red {
+  position: relative;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ef7454;
+}
+#quest .quest_form .form_block.form03 .red {
+  margin-bottom: 30px;
+}
+#quest .quest_form .form_block .red span {
+  position: relative;
+  padding-right: 30px;
+  background: #fff;
+}
+#quest .quest_form .form_block .red::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #ccc;
+}
+#quest .quest_form .form_block .comment {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+#quest .quest_form .form_block.form02 > .comment {
+  margin: 20px 0 40px;
+}
+#quest .quest_form .form_block:not(:last-child),
+#quest .quest_form .form_block .list li:not(:last-child) {
+  margin-bottom: 60px;
+}
+#quest .quest_form .form_block .list li .sub_ttl {
+  margin-bottom: 30px;
+}
+#quest .quest_form .form_block .list li .sub_ttl .comment {
+  margin: 0 0 0 25px;
+}
+#quest .quest_form .form_block .list li .f_radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 30px;
+}
+#quest .quest_form .form_block .list li .f_radio label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#quest .quest_form .list .f_check > div {
+  margin-bottom: 30px;
+}
+#quest .quest_form .list .f_check .check_item label {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+#quest .quest_form .list .f_check .other_item {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+#quest .quest_form .list .f_check .other_item label {
+  white-space: nowrap;
+}
+#quest .quest_form .list .f_area {
+  display: flex;
+  gap: 40px;
+}
+#quest .quest_form .list .f_area > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#quest .quest_form .list .f_area > div label {
+  white-space: nowrap;
+}
+#quest .quest_form .list .f_area .area_item01 .select {
+  width: 160px;
+}
+#quest .quest_form .list .f_area .area_item02 {
+  width: 100%;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  #quest .quest_head {
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+  #quest .quest_form .form_block .red {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    font-size: 1.6rem;
+  }
+  #quest .quest_form .form_block.form03 .red {
+    margin-bottom: 20px;
+  }
+  #quest .quest_form .form_block .red span {
+    width: 80%;
+    padding-right: 0;
+  }
+  #quest .quest_form .form_block .red::after {
+    position: initial;
+    margin-top: 15px;
+    width: calc(20% - 20px);
+  }
+  #quest .quest_form .form_block .comment {
+    margin-top: 5px;
+    font-size: 1rem;
+  }
+  #quest .quest_form .form_block.form02 > .comment {
+    margin: 10px 0 30px;
+  }
+  #quest .quest_form .form_block:not(:last-child),
+  #quest .quest_form .form_block .list li:not(:last-child) {
+    margin-bottom: 40px;
+  }
+  #quest .quest_form .form_block .list li .sub_ttl {
+    margin-bottom: 20px;
+  }
+  #quest .quest_form .form_block .list li .sub_ttl .comment {
+    margin: 0 0 0 10px;
+  }
+  #quest .quest_form .list .f_check > div {
+    margin-bottom: 20px;
+  }
+  #quest .quest_form .list .f_check .check_item label {
+    gap: 10px;
+  }
+  #quest .quest_form .list .f_check .other_item {
+    gap: 10px;
+  }
+  #quest .quest_form .list .f_area {
+    flex-direction: column;
+    gap: 20px;
+  }
+  #quest .quest_form .list .f_area > div {
+    gap: 0;
+  }
+  #quest .quest_form .list .f_area > div label {
+    width: 80px;
+  }
+  #quest .quest_form .list .f_area .area_item01 .select,
+  #quest .quest_form .list .f_area .area_item02 input {
+    width: calc(100% - 80px);
+  }
+}

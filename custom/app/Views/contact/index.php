@@ -1,91 +1,76 @@
 <?php
-require_once('/var/www/html/moodle/custom/app/Controllers/SurveyCustomFieldController.php');
-$eventId = 2;
-$surveyCustomFieldController = new SurveyCustomFieldController();
-$responce = $surveyCustomFieldController->getSurveyCustomField($eventId);
+  include('../layouts/header.php');
 ?>
+<link rel="stylesheet" type="text/css" href="/custom/public/css/contact.css" />
+    <main id="subpage">
+        <section id="heading" class="inner_l">
+            <h2 class="head_ttl" data-en="CONTACT">お問い合わせ</h2>
+        </section>
 
-<!DOCTYPE html>
-<html lang="ja">
+        <div class="inner_l">
+            <section id="contact">
+                <p class="sent">
+                ご相談やお問い合わせがありましたら、以下のフォームより必要事項を送信ください。<br />
+                内容を確認後、担当者よりご連絡をさせていただき、直接ご相談を承ります。<br />
+                なお、内容によっては、ご連絡までお時間がかかるものがございますので、あらかじめご了承ください。
+                </p>
+                <form method="" action="" class="whitebox contact_form">
+                <div class="inner_s">
+                    <ul class="list">
+                    <li>
+                        <p class="list_label">お名前</p>
+                        <div class="list_field f_txt">
+                        <input type="text" />
+                        </div>
+                    </li>
+                    <li>
+                        <p class="list_label">メールアドレス</p>
+                        <div class="list_field f_txt">
+                        <input type="email" />
+                        </div>
+                    </li>
+                    <li>
+                        <p class="list_label">メールアドレス（確認用）</p>
+                        <div class="list_field f_txt">
+                        <input type="email" />
+                        </div>
+                    </li>
+                    <li>
+                        <p class="list_label">お問い合わせの項目</p>
+                        <div class="list_field f_select select">
+                        <select>
+                            <option value="" disabled selected>選択してください</option>
+                            <option></option>
+                        </select>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="list_label">お問い合わせ内容</p>
+                        <div class="list_field f_txtarea">
+                        <textarea></textarea>
+                        </div>
+                    </li>
+                    </ul>
+                    <div class="agree">
+                    <p class="agree_txt">個人情報の取扱いについて</p>
+                    <label for="agree"><input type="checkbox" id="agree" />同意する</label>
+                    </div>
+                    <input type="submit" class="btn btn_red" value="入力内容の確認" />
+                </div>
+                </form>
+            </section>
+        </div>
+    </main>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お問い合わせ</title>
-    <link rel="stylesheet" href="/front/style.css" type="text/css">
-    <!-- スタイルは完全仮の状態なのでとりえず直書きする 後で個別ファイルに記述する -->
-    <style>
-        form label {
-            margin-bottom: 10px;
-        }
+    <ul id="pankuzu" class="inner_l">
+      <li><a href="/custom/app/Views/index.php">トップページ</a></li>
+      <li>お問い合わせ</li>
+    </ul>
 
-        form input,
-        form textarea,
-        form select {
-            display: block;
-            margin-bottom: 2rem;
-        }
-
-        form input,
-        select {
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        .label_d_flex {
-            display: flex;
-        }
-
-        .label_d_flex input {
-            margin-bottom: 10px;
-        }
-
-        .container {
-            margin-top: 80px;
-        }
-
-        h2 {
-            color: #08153A;
-        }
-
-        body {
-            padding: 3rem;
-        }
-    </style>
-</head>
-
-<body>
-    <header>
-        <p>大阪大学 動画プラットフォーム</p>
-        <?php if ($_SESSION['USER']->id == 0) {  ?>
-            <button class="login-button" onclick="window.location.href='/login/index.php'">ログイン</button>
-        <?php } else { ?>
-            <P class="user_header_p"><?php echo $_SESSION['USER']->lastname . ' ' . $_SESSION['USER']->firstname ?></P>
-            <P class="user_header_p"><?php echo $_SESSION['USER']->email ?></P>
-            <button class="login-button" onclick="window.location.href='/login/logout.php'">ログアウト</button>
-        <?php } ?>
-    </header>
-    <div class="container">
-        <h2>お問い合わせ</h2>
-        <form action="complete.php" method="post">
-            <label for="name">名前:</label>
-            <input type="hidden" name="event_id" value="<?php echo $eventId ?>">
-            <input type="text" id="name" readonly name="name" value="<?php echo $_SESSION['USER']->lastname . ' ' . $_SESSION['USER']->firstname ?>" required>
-            <label for="email">メールアドレス:</label>
-            <input type="email" id="email" readonly name="email" value="<?php echo $_SESSION['USER']->email ?>" required>
-            <label for="email">お問い合わせの項目について:</label>
-            <select name="heading">
-                <option>募集中・開始前のイベントAについて</option>
-                <option>募集中・開始前のイベントBについて</option>
-                <option>募集中・開始前のイベントCについて</option>
-                <option>会員登録前のご質問</option>
-                <option>その他一般的なお問い合わせ</option>
-            </select>
-            <label for="email">お問い合わせ内容:</label>
-            <textarea name="hostlist" cols="40" rows="20"><?php echo $trusted_hosts; ?></textarea>
-            <button type="submit">送信</button>
-        </form>
-    </div>
-</body>
-
+<?php
+  include('../layouts/footer.php');
+?>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    <script src="../assets/common/js/common.js"></script>
 </html>
