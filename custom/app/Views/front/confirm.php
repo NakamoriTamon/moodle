@@ -1,20 +1,34 @@
 <?php
 require_once('/var/www/html/moodle/custom/app/Controllers/EventCustomFieldController.php');
 
+unset($SESSION->formdata); // セッションをクリア
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $eventId = htmlspecialchars($_POST['event_id'], ENT_QUOTES, 'UTF-8');
-    $name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
-    $kana = htmlspecialchars($_POST['kana'], ENT_QUOTES, 'UTF-8');
-    $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
-    $eventName = htmlspecialchars($_POST['event_name'], ENT_QUOTES, 'UTF-8');
-    $ticket = htmlspecialchars($_POST['ticket'], ENT_QUOTES, 'UTF-8');
-    $price =  $_POST['price'];
-    $triggerOther = htmlspecialchars($_POST['trigger_othier'], ENT_QUOTES, 'UTF-8'); // スペルミス
-    $payMethod = htmlspecialchars($_POST['pay_method'], ENT_QUOTES, 'UTF-8');
-    $aspiration = htmlspecialchars($_POST['aspiration'], ENT_QUOTES, 'UTF-8');
-    $note = htmlspecialchars($_POST['note'], ENT_QUOTES, 'UTF-8');
-    $otherMails = !empty($_POST['other_mails']) ? implode(',', $_POST['other_mails']) : [];
-    $opportunityOther = !empty($_POST['trigger']) ? implode(',', $_POST['trigger']) : [];
+    $eventId = htmlspecialchars(required_param('event_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+    $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $eventName = htmlspecialchars(required_param('event_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
+    $price =  required_param('price', PARAM_INT);
+    $triggerOther = htmlspecialchars(required_param('trigger_othier', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $payMethod = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
+    $request_mail_kbn = htmlspecialchars(required_param('request_mail_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
+    $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $companionMails = optional_param_array('companion_mails', [], PARAM_EMAIL);
+    if(!empty($companionMails)) {
+        $companionMailsString = implode(',', $companionMails);
+    } else {
+        $companionMailsString = '';
+    }
+    $triggers = optional_param_array('trigger', [], PARAM_INT);
+    $triggersString = implode(',', $triggers);
+    $applicant_kbn = optional_param('applicant_kbn', '', PARAM_INT);
+    $event_customfield_id = optional_param('event_customfield_id', '', PARAM_TEXT);
+    $guardian_kbn = optional_param('guardian_kbn', 0, PARAM_INT);
+    $guardian_name = optional_param('guardian_name', '', PARAM_TEXT);
+    $guardian_kana = optional_param('guardian_kana', '', PARAM_TEXT);
+    $guardian_email = optional_param('guardian_email', '', PARAM_TEXT);
 } else {
     header("Location: register.php");
     exit;
@@ -22,6 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $eventCustomFieldModel = new eventCustomFieldModel();
 $eventCustomFieldList = $eventCustomFieldModel->getEventsCustomFieldByEventId($eventId);
+$cognitionModel = new cognitionModel();
+$cognitions = $cognitionModel->getCognitionByIds($triggers);
+$paymentTypeModel = new paymentTypeModel();
+$paymentType = $paymentTypeModel->getPaymentTypesById($payMethod);
+
+// mdl_cognition
 
 $passages = '';
 foreach ($eventCustomFieldList as $eventCustomField) {
@@ -83,45 +103,61 @@ foreach ($eventCustomFieldList as $eventCustomField) {
         <p><strong>メールアドレス</strong><br> <?php echo $email; ?></p>
         <p><strong>チケット名称</strong><br> <?php echo $eventName; ?></p>
         <p><strong>チケット枚数</strong><br> <?php echo $ticket . '枚'; ?></p>
-        <p><strong>金額</strong><br> <?php echo $price . '円'; ?></p>
+        <p><strong>金額</strong><br> <?php echo number_format($price) . '円'; ?></p>
         <p><strong>本イベントのことはどうやってお知りになりましたか。（複数選択可）</strong><br>
             <?php
-            if (is_array($_POST['trigger'])) {
-                foreach ($_POST['trigger'] as $trigger) {
-                    echo htmlspecialchars($trigger, ENT_QUOTES, 'UTF-8') . "<br>";
+            if (is_array($triggers)) {
+                foreach ($cognitions as $cognition) {
+                    if(in_array($cognition['id'], $triggers))
+                    echo htmlspecialchars($cognition["name"], ENT_QUOTES, 'UTF-8') . "<br>";
                 }
             }
             ?>
         <p><strong>その他</strong> <br><?php echo $triggerOther; ?></p>
-        <p><strong>支払方法</strong> <br><?php echo $payMethod; ?></p>
-        <p><strong>今後、大阪大学からメールによるイベントのご案内を希望されますか</strong><br><?php echo $aspiration; ?></p>
-        <p><strong>複数チケット申し込み者の場合、お連れ様のメールアドレス</strong><br>
-            <?php
-            if (is_array($_POST['other_mails'])) {
-                foreach ($_POST['other_mails'] as $otherMail) {
-                    echo htmlspecialchars($otherMail, ENT_QUOTES, 'UTF-8') . "<br>";
+        <p><strong>支払方法</strong> <br><?php echo $paymentType['name'] ?? ''; ?></p>
+        <p><strong>今後、大阪大学からメールによるイベントのご案内を希望されますか</strong><br><?php echo $request_mail_kbn == 1 ? "はい" : "いいえ"; ?></p>
+        <?php if (count($companionMails) > 0): ?>
+            <p><strong>複数チケット申し込み者の場合、お連れ様のメールアドレス</strong><br>
+                <?php
+                if (is_array($companionMails)) {
+                    foreach ($companionMails as $companionMail) {
+                        echo htmlspecialchars($companionMail, ENT_QUOTES, 'UTF-8') . "<br>";
+                    }
                 }
-            }
-            ?>
+                ?>
+            </p>
+        <?php endif ?>
+        <?php if(!empty($applicant_kbn)): ?>
+            <p><strong>この申し込みは保護者の許可を得ています</strong><br>
+                <?php if(!empty($applicant_kbn)): ?>許可済<?php else: ?>不許可<?php endif; ?>
+            </p>
+        <?php endif ?>
         <p><strong>備考欄</strong><br><?php echo $note; ?></p>
         <?php echo $passages ?>
     </div>
-
-    <form action="event_application_insert.php" method="post">
-        <input type="hidden" name="event_id" value="<?php echo $eventId ?>">
-        <input type="hidden" name="name" value="<?php echo $name; ?>">
-        <input type="hidden" name="kana" value="<?php echo $kana; ?>">
-        <input type="hidden" name="email" value="<?php echo $email; ?>">
-        <input type="hidden" name="ticket" value="<?php echo $ticket; ?>">
-        <input type="hidden" name="price" value="<?php echo $price; ?>">
-        <input type="hidden" name="opportunity" value="<?php echo $opportunityOther; ?>">
-        <input type="hidden" name="opportunity_other" value="<?php echo $_POST['opportunity_other']; ?>">
-        <input type="hidden" name="pay_method" value="<?php echo $_POST['pay_method']; ?>">
-        <input type="hidden" name="is_send" value="<?php echo $_POST['is_send']; ?>">
-        <input type="hidden" name="other_mail_adress" value="<?php echo $otherMails; ?>">
-        <input type="hidden" name="note" value="<?php echo $_POST['note']; ?>">
-        <button type="submit">登録する</button>
-        <button type="submit" disabled>修正する</button>
+    <form action="/custom/app/Controllers/event/EventApplicationInsertController.php" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+        <input type="hidden" name="action" value="insert">
+        <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($eventId) ?>">
+        <input type="hidden" name="name" value="<?php echo htmlspecialchars($name); ?>">
+        <input type="hidden" name="kana" value="<?php echo htmlspecialchars($kana); ?>">
+        <input type="hidden" name="email" value="<?php echo htmlspecialchars($email); ?>">
+        <input type="hidden" name="ticket" value="<?php echo htmlspecialchars($ticket); ?>">
+        <input type="hidden" name="price" value="<?php echo htmlspecialchars($price); ?>">
+        <input type="hidden" name="triggers" value="<?php echo htmlspecialchars($triggersString); ?>">
+        <input type="hidden" name="trigger_other" value="<?php echo htmlspecialchars($triggerOther); ?>">
+        <input type="hidden" name="pay_method" value="<?php echo htmlspecialchars($payMethod); ?>">
+        <input type="hidden" name="applicant_kbn" value="<?php echo htmlspecialchars($applicant_kbn); ?>">
+        <input type="hidden" name="request_mail_kbn" value="<?php echo htmlspecialchars($request_mail_kbn); ?>">
+        <input type="hidden" name="companion_mails" value="<?php echo htmlspecialchars($companionMailsString); ?>">
+        <input type="hidden" name="note" value="<?php echo htmlspecialchars($note); ?>">
+        <input type="hidden" name="event_customfield_id" value="<?php echo htmlspecialchars($event_customfield_id); ?>">
+        <input type="hidden" name="guardian_kbn" value="<?php echo htmlspecialchars($guardian_kbn); ?>">
+        <input type="hidden" name="guardian_name" value="<?php echo htmlspecialchars($guardian_name); ?>">
+        <input type="hidden" name="guardian_kana" value="<?php echo htmlspecialchars($guardian_kana); ?>">
+        <input type="hidden" name="guardian_email" value="<?php echo htmlspecialchars($guardian_email); ?>">
+        <button type="submit" name="action" value="register">登録する</button>
+        <button type="submit" name="action" value="edit">修正する</button>
     </form>
 </div>
 </body>
