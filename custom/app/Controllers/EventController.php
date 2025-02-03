@@ -18,4 +18,11 @@ class EventController
 
         return $event;
     }
+
+    public function getEvents()
+    {
+        $event = $this->EventModel->getEvents();
+
+        return $event;
+    }
 }
