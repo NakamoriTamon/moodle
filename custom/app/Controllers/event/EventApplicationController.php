@@ -38,19 +38,19 @@ class EventApplicationController {
         foreach ($fieldList as $fields) {
             $passage .= '<label class="label_name" for="name">' . $fields['field_name'] . '</label>';
             if ($fields['field_type'] == 3 || $fields['field_type'] == 4) {
+                $passage .= '<div class="radio-group">';
                 $options = explode(",", $fields['selection']);
                 foreach ($options as $i => $option) {
                     $name = "";
                     if ($fields['field_type'] == 4) {
-                        $passage .= '<div class="radio-group">';
                         // $checked = ($i == 0) ? 'checked' : '';
                         $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
                     } else {
-                        $passage .= '<div class="checkbox-group">';
                         $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '[]';
                     }
-                    $passage .= '<label class="label_d_flex"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $i+1 . '"' . $checked . '>' . $option . '</label></div>';
+                    $passage .= '<label class="label_d_flex"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $i+1 . '"' . $checked . '>' . $option . '</label>';
                 }
+                $passage .= '</div>';
                 continue;
             }
             if ($fields['field_type'] == 2) {
