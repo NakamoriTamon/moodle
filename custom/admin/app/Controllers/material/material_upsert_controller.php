@@ -22,14 +22,14 @@ if ($validate_material_file) {
         'pdf_files' => $validate_material_file,
     ];
     $_SESSION['old_input'] = $_POST;
-    $_SESSION['message_error'] = '登録に失敗しましたtt';
+    $_SESSION['message_error'] = '登録に失敗しました';
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = '登録に失敗しました33';
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/event/material.php');
         exit;
     }
@@ -67,7 +67,7 @@ try {
             $dbstorepath = 'uploads/material';
 
             if (!move_uploaded_file($tmp_name, $destination)) {
-                $_SESSION['message_error'] = '登録に失敗しましたaa';
+                $_SESSION['message_error'] = '登録に失敗しました';
                 header('Location: /custom/admin/app/Views/event/material.php');
                 exit;
             }
@@ -95,7 +95,7 @@ try {
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
 } catch (Exception $e) {
-    $_SESSION['message_error'] = '登録に失敗しましたwww' . $e->getMessage();
+    $_SESSION['message_error'] = '登録に失敗しました';
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
 }
