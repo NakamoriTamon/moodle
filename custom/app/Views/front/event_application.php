@@ -27,6 +27,13 @@ $request_mail_kbn = null;
 $note = "";
 $triggersArray = [];
 $mailsArray = [];
+$deadline = $responce['event']['deadline'];
+// 値をDateTimeオブジェクトに変換
+$day = new DateTime($deadline);
+$dayDate = $day->format('Y-m-d');
+// 現在の日付
+$now = new DateTime();
+$nowDate = $now->format('Y-m-d');
 if (isset($SESSION->formdata)) {
     $formdata = $SESSION->formdata;
     $payMethod = $formdata['pay_method'];
@@ -73,99 +80,113 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 <link rel="stylesheet" href="/custom/public/css/event.css" type="text/css">
 <div class="container">
     <h2>お申込みフォーム</h2>
-    <form id="form" action="/custom/app/Views/front/confirm.php" method="post">
-        <?php if (!isloggedin()): ?>
+    <?php if($deadline != null && $dayDate < $nowDate): ?>
+        <form>
             <div>
-                <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
+                <label class="label_name" for="name"><span id="warning">申し込みの受付を終了致しました。</span></label>
             </div>
-        <?php endif; ?>
-        <input type="hidden" name="event_id" value="<?= $eventId ?>">
-        <input type="hidden" name="event_customfield_category_id" value="<?= $event_customfield_category_id ?>">
-        <input type="hidden" id="guardian_kbn" name="guardian_kbn" value="<?= $guardian_kbn ?>">
-        <input type="hidden" id="participation_fee" name="participation_fee" value="<?= $participation_fee ?>">
-        <input type="hidden" id="hidden_price" name="hidden_price" value="<?= $participation_fee ?>">
-        <label class="label_name" for="name">名前</label>
-        <input type="text" id="name" readonly name="name" value="<?= $name ?>" required>
-        <label class="label_name" for="kana">フリガナ</label>
-        <input type="text" id="kana" readonly name="kana" value="<?= $kana ?>" required>
-        <label class="label_name" for="email">メールアドレス</label>
-        <input type="email" id="email" readonly name="email" value="<?= $email ?>" required>
-        <label class="label_name" for="event_name">チケット名称</label>
-        <input type="event_name" name="event_name" value="<?php echo $event_name ?>">
-        <label class="label_name" for="ticket">チケット枚数(空き枠：<?= $aki_ticket ?>)</label>
-        <input type="hidden" id="aki_ticket" value="<?= $aki_ticket ?>">
-        <input type="number" id="ticket" name="ticket" min="1" max="<?= $aki_ticket ?>" value="<?= $ticket ?>">
-        <div id="warning" style="color: red; display: none;">0以上、空き枠数以下の数字を入力してください。</div>
-        <span class="error-msg" id="ticket-error"></span>
-        <label class="label_name" for="price">金額</label>
-        <input type="text" name="price" readonly value="<?php number_format($participation_fee) ?>">
-        <label class="label_name" for="trigger">本イベントのことはどうやってお知りになりましたか</label>
-        <div class="error-msg" id="trigger-error"></div>
-        <div class="checkbox-group">
-            <?php foreach($responce['cognitions'] as $cognition): ?>
-                <label>
-                    <input type="checkbox" name="trigger[]" value="<?= $cognition['id'] ?>" <?php echo in_array($cognition['id'], $triggersArray) ? 'checked' : ''; ?>><span><?= htmlspecialchars($cognition['name']) ?></span>
-                </label><br>
-            <?php endforeach; ?>
-        </div>
-        <label class="label_name" for="trigger_othier">その他</label>
-        <textarea row="20px" name="trigger_othier"><?= htmlspecialchars($triggerOthier) ?></textarea>
-        <label class="label_name" style="width: 100%" for="pay_method">支払方法</label>
-        <span class="error-msg" id="pay_method-error"></span>
-        <div class="radio-group">
-            <?php foreach($responce['paymentTypes'] as $paymentType): ?>
-                <label>
-                    <input type="radio" name="pay_method" value="<?= $paymentType['id'] ?>" <?php if($paymentType['id'] == $payMethod): ?>checked<?php endif; ?>><?= $paymentType['name'] ?>
-                </label><br>
-            <?php endforeach ?>
-        </div>
-        <label class="label_name" style="width: 100%" for="request_mail_kbn">今後大阪大学からメールによるイベントのご案内を希望されますか</label>
-        <div class="radio-group">
-            <label>
-                <input type="radio" checked name="request_mail_kbn" value="1">はい
-            </label><br>
-            <label>
-                <input type="radio" <?php if(1 == $request_mail_kbn): ?>checked<?php endif; ?> name="request_mail_kbn" value="0">いいえ
-            </label><br>
-        </div>
-        <span id="other_mails_tag">
-            <label class="label_name" for="other_mails">複数チケット申し込み者の場合、お連れ様のメールアドレス</label>
-            <div id="input_emails">
-                <span class="error-msg" id="companion-mails-error"></span>
-                <?php if(empty($mailsArray)): ?>
-                <?php foreach($mailsArray as $key => $mail): ?>
-                    <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key+1 ?>";>
+        </form>
+    <?php elseif($aki_ticket <= 0): ?>
+        <form>
+            <div>
+                <label class="label_name" for="name"><span id="warning">定員数に達したため受付を終了致しました。</span></label>
+            </div>
+        </form>
+    <?php else: ?>
+        <form id="form" action="/custom/app/Views/front/confirm.php" method="post">
+            <?php if (!isloggedin()): ?>
+                <div>
+                    <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
+                </div>
+            <?php endif; ?>
+            <input type="hidden" name="event_id" value="<?= $eventId ?>">
+            <input type="hidden" name="event_customfield_category_id" value="<?= $event_customfield_category_id ?>">
+            <input type="hidden" id="guardian_kbn" name="guardian_kbn" value="<?= $guardian_kbn ?>">
+            <input type="hidden" id="participation_fee" name="participation_fee" value="<?= $participation_fee ?>">
+            <input type="hidden" id="hidden_price" name="hidden_price" value="<?= $participation_fee ?>">
+            <label class="label_name" for="name">名前</label>
+            <input type="text" id="name" readonly name="name" value="<?= $name ?>" required>
+            <label class="label_name" for="kana">フリガナ</label>
+            <input type="text" id="kana" readonly name="kana" value="<?= $kana ?>" required>
+            <label class="label_name" for="email">メールアドレス</label>
+            <input type="email" id="email" readonly name="email" value="<?= $email ?>" required>
+            <label class="label_name" for="event_name">チケット名称</label>
+            <input type="event_name" name="event_name" value="<?php echo $event_name ?>">
+            <label class="label_name" for="ticket">チケット枚数(空き枠：<?= $aki_ticket ?>)</label>
+            <input type="hidden" id="aki_ticket" value="<?= $aki_ticket ?>">
+            <input type="number" id="ticket" name="ticket" min="1" max="<?= $aki_ticket ?>" value="<?= $ticket ?>">
+            <div id="warning" style="color: red; display: none;">0以上、空き枠数以下の数字を入力してください。</div>
+            <span class="error-msg" id="ticket-error"></span>
+            <label class="label_name" for="price">金額</label>
+            <input type="text" name="price" readonly value="<?php number_format($participation_fee) ?>">
+            <label class="label_name" for="trigger">本イベントのことはどうやってお知りになりましたか</label>
+            <div class="error-msg" id="trigger-error"></div>
+            <div class="checkbox-group">
+                <?php foreach($responce['cognitions'] as $cognition): ?>
+                    <label>
+                        <input type="checkbox" name="trigger[]" value="<?= $cognition['id'] ?>" <?php echo in_array($cognition['id'], $triggersArray) ? 'checked' : ''; ?>><span><?= htmlspecialchars($cognition['name']) ?></span>
+                    </label><br>
                 <?php endforeach; ?>
-                <?php endif; ?>
             </div>
-        </span>
-        <label id="note" class="label_name" for="note">備考欄</label>
-        <textarea row="20px" name="note"><?= htmlspecialchars($note) ?></textarea>
-        <?php echo $responce['passage'] ?><br>
-        <?php if($guardian_kbn): ?>
-        <div class="radio-group">
-            <label>
-                <input id="applicant_check" type="checkbox" name="applicant_check" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
-            </label><br>
-        </div>
-        <label class="label_name" for="name">保護者名</label>
-        <div class="error-msg" id="guardian_name-error"></div>
-        <input type="text" id="guardian_name" name="guardian_name" value="<?= $guardian_name ?>" required>
-        <label class="label_name" for="kana">保護者名フリガナ</label>
-        <div class="error-msg" id="guardian_kana-error"></div>
-        <input type="text" id="guardian_kana" name="guardian_kana" value="<?= $guardian_kana ?>" required>
-        <label class="label_name" for="email">保護者連絡先メールアドレス</label>
-        <div class="error-msg" id="guardian_email-error"></div>
-        <input type="email" id="guardian_email" name="guardian_email" value="<?= $guardian_email ?>" required>
-        <?php endif; ?>
-        <?php if (isloggedin()): ?>
-            <button id="entry_btn" type="submit">確認画面へ</button>
-        <?php else: ?>
-            <div>
-                <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
+            <label class="label_name" for="trigger_othier">その他</label>
+            <textarea row="20px" name="trigger_othier"><?= htmlspecialchars($triggerOthier) ?></textarea>
+            <label class="label_name" style="width: 100%" for="pay_method">支払方法</label>
+            <span class="error-msg" id="pay_method-error"></span>
+            <div class="radio-group">
+                <?php foreach($responce['paymentTypes'] as $paymentType): ?>
+                    <label>
+                        <input type="radio" name="pay_method" value="<?= $paymentType['id'] ?>" <?php if($paymentType['id'] == $payMethod): ?>checked<?php endif; ?>><?= $paymentType['name'] ?>
+                    </label><br>
+                <?php endforeach ?>
             </div>
-        <?php endif; ?>
-    </form>
+            <label class="label_name" style="width: 100%" for="request_mail_kbn">今後大阪大学からメールによるイベントのご案内を希望されますか</label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" checked name="request_mail_kbn" value="1">はい
+                </label><br>
+                <label>
+                    <input type="radio" <?php if(1 == $request_mail_kbn): ?>checked<?php endif; ?> name="request_mail_kbn" value="0">いいえ
+                </label><br>
+            </div>
+            <span id="other_mails_tag">
+                <label class="label_name" for="other_mails">複数チケット申し込み者の場合、お連れ様のメールアドレス</label>
+                <div id="input_emails">
+                    <span class="error-msg" id="companion-mails-error"></span>
+                    <?php if(empty($mailsArray)): ?>
+                    <?php foreach($mailsArray as $key => $mail): ?>
+                        <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key+1 ?>";>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </span>
+            <label id="note" class="label_name" for="note">備考欄</label>
+            <textarea row="20px" name="note"><?= htmlspecialchars($note) ?></textarea>
+            <?php echo $responce['passage'] ?><br>
+            <?php if($guardian_kbn): ?>
+            <div class="radio-group">
+                <label>
+                    <input id="applicant_check" type="checkbox" name="applicant_check" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
+                </label><br>
+            </div>
+            <label class="label_name" for="name">保護者名</label>
+            <div class="error-msg" id="guardian_name-error"></div>
+            <input type="text" id="guardian_name" name="guardian_name" value="<?= $guardian_name ?>" required>
+            <label class="label_name" for="kana">保護者名フリガナ</label>
+            <div class="error-msg" id="guardian_kana-error"></div>
+            <input type="text" id="guardian_kana" name="guardian_kana" value="<?= $guardian_kana ?>" required>
+            <label class="label_name" for="email">保護者連絡先メールアドレス</label>
+            <div class="error-msg" id="guardian_email-error"></div>
+            <input type="email" id="guardian_email" name="guardian_email" value="<?= $guardian_email ?>" required>
+            <?php endif; ?>
+            <?php if (isloggedin()): ?>
+                <button id="entry_btn" type="submit">確認画面へ</button>
+            <?php else: ?>
+                <div>
+                    <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
+                </div>
+            <?php endif; ?>
+        </form>
+    <?php endif; ?>
 </div>
 </body>
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>

@@ -27,7 +27,7 @@ class EventApplicationController {
     public function getEvenApplication($eventId) {
         $event = $this->eventModel->getEventById($eventId);
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
-        $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)[0]['event_date'] ?? 0;
+        $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)[0]['sum_ticket_count'] ?? 0;
 
         $cognitions = $this->cognitionModel->getCognition();
         $paymentTypes = $this->paymentTypeModel->getPaymentTypes();
