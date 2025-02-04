@@ -11,7 +11,7 @@ global $DB;
 try {
 	$tutor = $DB->get_record('tutor', ['id' => $id]);
 } catch (dml_exception $e) {
-	$_SESSION['message_error'] = 'エラーが発生しました: ' . $e->getMessage();
+	$_SESSION['message_error'] = 'エラーが発生しました';
 }
 ?>
 
@@ -121,7 +121,6 @@ try {
 			fileLinkContainer.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
 
 			const link = document.createElement('a');
-			// URL が "blob:" で始まる、または "http://" / "https://" で始まる場合はそのまま使う
 			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
 				link.href = fileUrl;
 			} else if (fileUrl.charAt(0) === '/') {
@@ -136,13 +135,10 @@ try {
         <span class="fileName text-primary">${fileName}</span>
     `;
 			fileLinkContainer.appendChild(link);
-			// アイコンの置換はリンク生成後にまとめて実施
 			feather.replace();
 			return fileLinkContainer;
 		}
 
-
-		// 既存のファイルがあれば初期表示する
 		(function initExistingFiles() {
 			const existingTutor = <?= json_encode($tutor, JSON_UNESCAPED_UNICODE) ?>;
 			if (existingTutor.path) {
@@ -150,13 +146,11 @@ try {
 				if (!row) return;
 				const fileInfo = row.querySelector('.fileInfo');
 				if (!fileInfo) return;
-				// ファイルパスからファイル名のみを抽出
 				const fileName = existingTutor.path.split('/').pop() || 'ファイル';
 				const fileUrl = existingTutor.path;
 				const linkElem = createFileLink(fileName, fileUrl);
 				fileInfo.appendChild(linkElem);
 				fileInfo.classList.remove('d-none');
-				// すべてのリンク生成が完了した後にアイコンを置換
 				feather.replace();
 			}
 		})();
@@ -180,7 +174,6 @@ try {
 			});
 
 			fileInfo.classList.toggle('d-none', files.length === 0);
-			// ファイルが追加された後にアイコンを置換
 			feather.replace();
 		}
 

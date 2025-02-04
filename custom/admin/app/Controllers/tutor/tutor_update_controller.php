@@ -8,8 +8,6 @@ session_start();
 
 // 接続情報取得
 global $DB;
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo(); // ※ PDO は個別利用する場合のみ。通常は $DB を利用します。
 
 // POSTデータの取得 (バリデーションは別途行う)
 $id         = $_POST['id'] ?? '';
