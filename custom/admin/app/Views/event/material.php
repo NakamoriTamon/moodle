@@ -1,35 +1,30 @@
 <?php
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
-
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
 session_start();
 
 // バリデーションエラー
-$errors = $_SESSION['errors'] ?? [];
+$errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 
 $eventController = new EventController();
 $events = $eventController->index();
 
-// PDO 取得
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
-$courses = [];
+global $DB;
+$materials = [];
 
 if (isset($_GET['search'])) {
 	try {
-		$sql = "SELECT * FROM mdl_course_material WHERE is_delete = 0";
-		$stmt = $pdo->prepare($sql);
-		$stmt->execute();
-		$courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-	} catch (PDOException $e) {
+		$sql = "SELECT * FROM {course_material} WHERE is_delete = :is_delete";
+		$materials = $DB->get_records_sql($sql, ['is_delete' => 0]);
+		$materials = array_values($materials);
+	} catch (Exception $e) {
 		$_SESSION['message_error'] = 'エラーが発生しました: ' . $e->getMessage();
 	}
-
-	if (empty($courses)) {
-		$courses[] = [
+	if (empty($materials)) {
+		$materials[] = (object)[
 			'id'        => 0,
 			'name'      => '',
 			'file_name' => '',
@@ -106,7 +101,7 @@ if (isset($_GET['search'])) {
 					</div>
 				</div>
 
-				<?php if (!empty($courses)): ?>
+				<?php if (!empty($materials)): ?>
 					<div class="search-area col-12 col-lg-12">
 						<div class="card">
 							<div class="card-body">
@@ -117,10 +112,10 @@ if (isset($_GET['search'])) {
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="event_id" value="<?= htmlspecialchars($_GET['event_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="round" value="<?= htmlspecialchars($_GET['round']   ?? '', ENT_QUOTES, 'UTF-8') ?>">
-									<?php foreach ($courses as $index => $course): ?>
-										<div class="course-container mb-4" data-course-id="<?= htmlspecialchars($course['id'], ENT_QUOTES, 'UTF-8') ?>">
-											<input type="hidden" name="ids[<?= $index ?>]" value="<?= !empty($course['id']) ? (int)$course['id'] : 0 ?>">
-											<h5><?= htmlspecialchars($course['name'], ENT_QUOTES, 'UTF-8') ?></h5>
+									<?php foreach ($materials as $index => $material): ?>
+										<div class="material-container mb-4" data-material-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>">
+											<input type="hidden" name="ids[<?= $index ?>]" value="<?= !empty($material->id) ? (int)$material->id : 0 ?>">
+											<h5><?= htmlspecialchars($material->name, ENT_QUOTES, 'UTF-8') ?></h5>
 											<div class="fields-container">
 												<div class="uploadRow">
 													<div class="add_field mb-3 d-flex align-items-center">
@@ -131,9 +126,9 @@ if (isset($_GET['search'])) {
 															name="pdf_files[<?= $index ?>][]"
 															multiple accept="application/pdf">
 														<a type="button" class="trash ms-2 btn btn-danger btn-sm delete-link"
-															data-id="<?= htmlspecialchars($course['id'], ENT_QUOTES, 'UTF-8') ?>"
-															data-name="<?= htmlspecialchars(!empty($course['file_name']) ? $course['file_name'] : $course['name'], ENT_QUOTES, 'UTF-8') ?>"
-															data-has-file="<?= !empty($course['file_name']) ? '1' : '0' ?>">
+															data-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>"
+															data-name="<?= htmlspecialchars(!empty($material->file_name) ? $material->file_name : $material->name, ENT_QUOTES, 'UTF-8') ?>"
+															data-has-file="<?= !empty($material->file_name) ? '1' : '0' ?>">
 															<i data-feather="trash"></i>
 														</a>
 													</div>
@@ -141,9 +136,9 @@ if (isset($_GET['search'])) {
 												</div>
 											</div>
 										</div>
-										<?php if (!empty($errors['pdf_files'][$course['id']])): ?>
+										<?php if (!empty($errors['pdf_files'][$material->id])): ?>
 											<div class="text-danger">
-												<?= htmlspecialchars($errors['pdf_files'][$course['id']], ENT_QUOTES, 'UTF-8') ?>
+												<?= htmlspecialchars($errors['pdf_files'][$material->id], ENT_QUOTES, 'UTF-8') ?>
 											</div>
 										<?php endif; ?>
 									<?php endforeach; ?>
@@ -158,7 +153,7 @@ if (isset($_GET['search'])) {
 								<div class="modal-dialog modal-dialog-centered">
 									<div class="modal-content">
 										<form id="deleteForm" action="/custom/admin/app/Controllers/material/material_delete_controller.php" method="POST">
-											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+											<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 											<input type="hidden" name="id" value="">
 
 											<div class="modal-header">
@@ -230,10 +225,12 @@ if (isset($_GET['search'])) {
 
 			const link = document.createElement('a');
 			// fileUrl の先頭が "/" で始まっていなければ、先頭に "/" を付加してリンク先を構築する
-			if (fileUrl.charAt(0) === '/') {
+			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+				link.href = fileUrl;
+			} else if (fileUrl.charAt(0) === '/') {
 				link.href = fileUrl;
 			} else {
-				link.href = '/' + fileUrl;
+				link.href = '/uploads/material/' + fileUrl;
 			}
 			link.target = '_blank';
 			link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
@@ -272,14 +269,15 @@ if (isset($_GET['search'])) {
 		});
 
 		<?php if (isset($_GET['search'])): ?>(function initExistingFiles() {
-				const existingCourses = <?= json_encode($courses, JSON_UNESCAPED_UNICODE) ?>;
-				existingCourses.forEach(course => {
-					const courseId = course.id;
-					const fileName = course.file_name;
-					const fileUrl = course.file_path;
+				const existingMaterials = <?= json_encode($materials, JSON_UNESCAPED_UNICODE) ?>;
+				console.log(existingMaterials);
+				existingMaterials.forEach(material => {
+					const materialId = material.id;
+					const fileName = material.file_name;
+					const fileUrl = material.file_path;
 
 					if (fileUrl) {
-						const container = document.querySelector(`.course-container[data-course-id="${courseId}"]`);
+						const container = document.querySelector(`.material-container[data-material-id="${materialId}"]`);
 						if (!container) return;
 
 						const row = container.querySelector('.uploadRow');
@@ -304,17 +302,17 @@ if (isset($_GET['search'])) {
 					alert('テンプレートが見つかりません。');
 					return;
 				}
-				const courseContainers = document.querySelectorAll('.course-container');
-				if (courseContainers.length === 0) {
+				const materialContainers = document.querySelectorAll('.material-container');
+				if (materialContainers.length === 0) {
 					alert('コースコンテナが見つかりません。');
 					return;
 				}
-				const courseContainer = courseContainers[courseContainers.length - 1];
-				const fieldsContainer = courseContainer.querySelector('.fields-container');
+				const materialContainer = materialContainers[materialContainers.length - 1];
+				const fieldsContainer = materialContainer.querySelector('.fields-container');
 				if (!fieldsContainer) return;
 
 				let index = 0;
-				const existingInput = courseContainer.querySelector('.fileUpload');
+				const existingInput = materialContainer.querySelector('.fileUpload');
 				if (existingInput && existingInput.name) {
 					const match = existingInput.name.match(/^pdf_files\[(\d+)\]\[\]$/);
 					if (match) {

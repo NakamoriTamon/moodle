@@ -3,10 +3,10 @@ require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 
+// セッション開始
 session_start();
 
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
+// 接続情報取得
 global $DB;
 
 $ids        = $_POST['ids']       ?? [];
@@ -22,21 +22,21 @@ if ($validate_material_file) {
         'pdf_files' => $validate_material_file,
     ];
     $_SESSION['old_input'] = $_POST;
-    $_SESSION['message_error'] = '登録に失敗しました: ' . $validate_material_file;
+    $_SESSION['message_error'] = '登録に失敗しましたtt';
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = 'トークンが不正です。';
+        $_SESSION['message_error'] = '登録に失敗しました33';
         header('Location: /custom/admin/app/Views/event/material.php');
         exit;
     }
 }
 
 try {
-    $pdo->beginTransaction();
+    $transaction = $DB->start_delegated_transaction();
     $destination_dir = '/var/www/html/moodle/uploads/material';
     if (!file_exists($destination_dir)) {
         mkdir($destination_dir, 0777, true);
@@ -56,54 +56,46 @@ try {
             $exists = $DB->record_exists_sql("SELECT 1 FROM {course_material} WHERE file_name = ? AND is_delete = ?", [$original_name, 0]);
 
             if ($exists) {
-                $pdo->rollBack();
-                $_SESSION['message_error'] = '同じファイルがあります: ' . $original_name;
+                $_SESSION['message_error'] = '同じ名前の資料が既に存在します';
                 header('Location: /custom/admin/app/Views/event/material.php');
                 exit;
             }
 
             $ext         = pathinfo($original_name, PATHINFO_EXTENSION);
             $newfilename = uniqid('material_') . '.' . $ext;
-            $destination = rtrim($destination_dir, '/') . '/' . $newfilename;
+            $destination = $destination_dir . '/' . $newfilename;
             $dbstorepath = 'uploads/material';
-            $dbpath      = $dbstorepath . '/' . $newfilename;
 
             if (!move_uploaded_file($tmp_name, $destination)) {
-                $pdo->rollBack();
-                $_SESSION['message_error'] = 'ファイルアップロードに失敗しました。';
+                $_SESSION['message_error'] = '登録に失敗しましたaa';
                 header('Location: /custom/admin/app/Views/event/material.php');
                 exit;
             }
 
+            $data = new stdClass();
+            $data->file_name  = $original_name;
+            $data->file_path  = $newfilename;
+            $data->created_at = $createdAt;
+            $data->updated_at = $updatedAt;
+
             if ($idOfThisCourse > 0 && $i == 0) {
-                $sql = "UPDATE mdl_course_material
-               SET file_name = ?, 
-                   file_path = ?, 
-                   created_at = ?, 
-                   updated_at = ?
-             WHERE id = ?";
-                $params = [$original_name, $dbpath, $createdAt, $updatedAt, $idOfThisCourse];
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute($params);
+                $data->id = $idOfThisCourse;
+            }
+
+            if ($idOfThisCourse > 0 && $i == 0) {
+                $DB->update_record('course_material', $data);
             } else {
-                $sql = "INSERT INTO mdl_course_material
-                (file_name, file_path, created_at, updated_at)
-            VALUES
-                (?, ?, ?, ?)";
-                $params = [$original_name, $dbpath, $createdAt, $updatedAt];
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute($params);
+                $DB->insert_record('course_material', $data);
             }
         }
     }
 
-    $pdo->commit();
+    $transaction->allow_commit();
     $_SESSION['message_success'] = '登録が完了しました';
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
-} catch (PDOException $e) {
-    $pdo->rollBack();
-    $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+} catch (Exception $e) {
+    $_SESSION['message_error'] = '登録に失敗しましたwww' . $e->getMessage();
     header('Location: /custom/admin/app/Views/event/material.php');
     exit;
 }
