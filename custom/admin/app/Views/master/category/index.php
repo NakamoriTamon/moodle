@@ -47,15 +47,13 @@ $categories = $categoryController->getCategories();
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<?php foreach ($categories as $category) {
-												echo '<tr>';
-												echo '<td class="ps-4 pe-4">' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '</td>';
-												echo '<td class="ps-4 pe-4">' . htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') . '</td>';
-												echo '<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/category/upsert.php?id=' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="' . htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') . '" data-name="' . htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') . '"><i class="align-middle" data-feather="trash"></i></a></td>';
-												echo '</tr>';
-											} ?>
-										</tr>
+										<?php foreach ($categories as $category): ?>
+											<tr>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/category/upsert.php?id=<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?>"><i class="align-middle" data-feather="trash"></i></a></td>
+											</tr>
+										<?php endforeach; ?>
 									</tbody>
 								</table>
 							</div>

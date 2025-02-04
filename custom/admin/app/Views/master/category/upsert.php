@@ -1,6 +1,6 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/config.php');
 
 // バリデーションエラー
 $errors = $_SESSION['errors'] ?? [];
@@ -8,19 +8,11 @@ $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 $id = $_GET['id'];
 
-// IDでカテゴリ詳細取得
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
+global $DB;
 try {
-	$pdo->beginTransaction();
-	$stmt = $pdo->prepare("SELECT * FROM mdl_category WHERE id = :id");
-	$stmt->execute(['id' => $id]);
-	$categories = $stmt->fetch();
-	$pdo->commit();
-} catch (PDOException $e) {
-	$pdo->rollBack();
-	var_dump($e->getMessage());
-	$_SESSION['message_error'] = 'エラーが発生しました: ' . $e->getMessage();
+	$categories = $DB->get_record('category', ['id' => $id]);
+} catch (dml_exception $e) {
+	$_SESSION['message_error'] = 'エラーが発生しました';
 }
 ?>
 
@@ -61,64 +53,30 @@ try {
 										<label class="form-label me-2">カテゴリー名</label>
 										<span class="badge bg-danger">必須</span>
 										<input name="name" class="form-control" type="text"
-											value="<?php echo htmlspecialchars($old_input['name'] ?? $categories['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+											value="<?php echo htmlspecialchars($old_input['name'] ?? $categories->name ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 										<?php if (!empty($errors['name'])): ?>
 											<div class="text-danger mt-2">
 												<?= htmlspecialchars($errors['name']); ?>
 											</div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3">
+									<div class="mb-3 uploadRow">
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">カテゴリー画像</label>
+											<label class="me-2">講師画像</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<div class="custom-file-input">
-											<button type="button" id="customButton" class="btn btn-secondary">ファイルを選択</button>
-											<span id="customText">ファイルが選択されていません</span>
-											<input id="thumbnailInput" name="imagefile" class="form-control d-none" type="file" accept=".png,.jpeg,.jpg">
-										</div>
-										<input type="hidden" id="PreviewInput" name="existing_image" value="<?php echo htmlspecialchars($categories['path'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+
+										<input type="hidden" class="hiddenField" name="image_file" value="">
+										<input type="file" class="form-control fileUpload" name="image_file" accept=".png,.jpeg,.jpg">
+										<div class="fileInfo mt-2 d-none"></div>
+
+										<input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($categories->path ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 										<?php if (!empty($errors['imagefile'])): ?>
 											<div class="text-danger mt-2">
 												<?= htmlspecialchars($errors['imagefile']); ?>
 											</div>
 										<?php endif; ?>
 									</div>
-									<?php if (!empty($categories['path']) || !empty($old_input['existing_image'])): ?>
-										<div id="thumbnailPreviewContainer" class="position-relative mb-3">
-											<?php
-											$preview_path = "/uploads/category/" . htmlspecialchars($categories['path'] ?? $old_input['existing_image'], ENT_QUOTES, 'UTF-8');
-											?>
-											<img
-												id="thumbnailPreview"
-												src="<?php echo htmlspecialchars($preview_path, ENT_QUOTES, 'UTF-8'); ?>"
-												alt="カテゴリ画像"
-												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
-											<button
-												type="button"
-												id="removeThumbnailButton"
-												class="btn btn-danger position-absolute"
-												style="top: 10px; right: 10px;">
-												×
-											</button>
-										</div>
-									<?php else: ?>
-										<div id="thumbnailPreviewContainer" class="position-relative mb-3 d-none">
-											<img
-												id="thumbnailPreview"
-												src=""
-												alt="カテゴリ画像"
-												style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
-											<button
-												type="button"
-												id="removeThumbnailButton"
-												class="btn btn-danger position-absolute"
-												style="top: 10px; right: 10px;">
-												×
-											</button>
-										</div>
-									<?php endif; ?>
 									<button type="submit" class="btn btn-primary">登録</button>
 								</form>
 							</div>
@@ -135,45 +93,72 @@ try {
 </html>
 <script>
 	$(document).ready(function() {
-		function updateCustomText() {
-			const previewSrc = $("#thumbnailPreview").attr("src");
-			if (previewSrc && previewSrc !== "") {
-				$("#customText").text("選択されています");
+		function createFileLink(fileName, fileUrl) {
+			const fileLinkContainer = document.createElement('div');
+			fileLinkContainer.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
+
+			const link = document.createElement('a');
+			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+				link.href = fileUrl;
+			} else if (fileUrl.charAt(0) === '/') {
+				link.href = fileUrl;
 			} else {
-				$("#customText").text("ファイルが選択されていません");
+				link.href = '/uploads/category/' + fileUrl;
 			}
+			link.target = '_blank';
+			link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
+			link.innerHTML = `
+        <i data-feather="file-text" class="me-2"></i>
+        <span class="fileName text-primary">${fileName}</span>
+    `;
+			fileLinkContainer.appendChild(link);
+			// アイコンの置換はリンク生成後にまとめて実施
+			feather.replace();
+			return fileLinkContainer;
 		}
 
-		updateCustomText();
 
-		$("#customButton").on("click", function() {
-			$("#thumbnailInput").click();
-		});
-
-		$("#thumbnailInput").on("change", function(event) {
-			const file = event.target.files[0];
-			if (file) {
-				$("#customText").text(file.name);
-				const reader = new FileReader();
-				reader.onload = function(e) {
-					$("#thumbnailPreview").attr("src", e.target.result);
-					$("#thumbnailPreviewContainer").removeClass("d-none");
-				};
-				reader.readAsDataURL(file);
-			} else {
-				$("#customText").text("ファイルが選択されていません");
-				$("#thumbnailPreview").attr("src", "");
-				$("#thumbnailPreviewContainer").addClass("d-none");
+		// 既存のファイルがあれば初期表示する
+		(function initExistingFiles() {
+			const existingCategory = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
+			if (existingCategory.path) {
+				const row = document.querySelector('.uploadRow');
+				if (!row) return;
+				const fileInfo = row.querySelector('.fileInfo');
+				if (!fileInfo) return;
+				// ファイルパスからファイル名のみを抽出
+				const fileName = existingCategory.path.split('/').pop() || 'ファイル';
+				const fileUrl = existingCategory.path;
+				const linkElem = createFileLink(fileName, fileUrl);
+				fileInfo.appendChild(linkElem);
+				fileInfo.classList.remove('d-none');
+				// すべてのリンク生成が完了した後にアイコンを置換
+				feather.replace();
 			}
-		});
+		})();
 
-		$("#removeThumbnailButton").on("click", function(event) {
-			event.preventDefault();
-			$("#thumbnailPreview").attr("src", "");
-			$("#thumbnailPreviewContainer").addClass("d-none");
-			$("#thumbnailInput").val("");
-			$("#PreviewInput").val("");
-			$("#customText").text("ファイルが選択されていません");
-		});
+		function handleFileChange(e) {
+			const files = e.target.files;
+			const row = e.target.closest('.uploadRow');
+			const fileInfo = row.querySelector('.fileInfo');
+			fileInfo.innerHTML = '';
+
+			Array.from(files).forEach(file => {
+				const allowedExtensions = ['.png', '.jpeg', '.jpg'];
+				const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+				if (allowedExtensions.includes(fileExtension)) {
+					const objectURL = URL.createObjectURL(file);
+					const linkElement = createFileLink(file.name, objectURL);
+					fileInfo.appendChild(linkElement);
+				} else {
+					alert('jpg, jpeg, pngファイルのみアップロードできます。');
+				}
+			});
+
+			fileInfo.classList.toggle('d-none', files.length === 0);
+			feather.replace();
+		}
+
+		$('.fileUpload').on('change', handleFileChange);
 	});
 </script>
