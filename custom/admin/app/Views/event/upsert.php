@@ -1,4 +1,5 @@
 <?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_edit_controller.php');
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
@@ -32,7 +33,7 @@ for($i = 1; $i < 10; $i++){
 	}
 }
 
-$event_kbns = require '/var/www/html/moodle/custom/path/to/event_kbn.php';
+$event_kbns = EVENT_KBN_LIST;
 unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削除
  ?>
 
@@ -127,7 +128,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span class="badge bg-danger">必須</span>
 										</div>
 										<div class="mb-3">
-											<input type="file" name="thumbnail_img" class="form-control" accept=".png,.jpeg,.jpg">
+											<input type="file" name="thumbnail_img" id="thumbnail_img" class="form-control" accept=".png,.jpeg,.jpg">
+										</div>
+										<div id="image-preview" class="mb-3">
+											<!-- プレビュー画像がここに表示されます -->
 										</div>
 										<?php if(isset($eventData['thumbnail_img'])): ?>
 												<img class="fit-picture"
@@ -477,11 +481,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">イベントカスタム区分</label>
-										<select id="event_custom_id" class=" form-control mb-3" name="event_custom_id">
+										<select id="event_customfield_category_id" class=" form-control mb-3" name="event_customfield_category_id">
 											<option value="">未選択</option>
-											<option value=1>イベント一般</option>
-											<option value=2>適塾記念会イベント</option>
-											<option value=3>生命科学分野イベント</option>
+											<?php foreach ($event_category_list as $key => $event_category): ?>
+												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if($event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
+											<?php endforeach ?>
 										</select>
 									</div>
 									<div class="mb-3">
@@ -500,7 +504,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
 									</div>
-									<button id="submit" type="button" class="btn btn-primary">登録</button>
+									<input type="submit" id="submit" class="btn btn-primary" value="登録">
 								</form>
 							</div>
 						</div>
@@ -648,4 +652,27 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			$(`#${targetId}`).remove(); // 対象の要素を削除
 		});
 	});
+
+	$(document).ready(function () {
+            $('#thumbnail_img').on('change', function (event) {
+                const file = event.target.files[0]; // 選択されたファイルを取得
+
+                // ファイルが画像であるか確認
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader(); // FileReader のインスタンスを作成
+
+                    // ファイルの読み込みが完了したらプレビューを表示
+                    reader.onload = function (e) {
+                        $('#image-preview').html(
+                            `<img src="${e.target.result}" alt="プレビュー" class="preview">`
+                        );
+                    };
+
+                    reader.readAsDataURL(file); // ファイルを読み込む
+                } else {
+                    alert('画像ファイルを選択してください。');
+                    $('#image-preview').html(''); // プレビューをクリア
+                }
+            });
+        });
 </script>

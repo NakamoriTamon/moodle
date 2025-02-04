@@ -19,7 +19,7 @@ function isChoicesSelected($value, $currentValue, $oldValue)
 {
     $result = false;
     if (!empty($oldValue)) {
-        $result = in_array($value, $old_input);
+        $result = in_array($value, $oldValue);
     } else if (!empty($currentValue)) {
         $result = in_array($value, $currentValue);
     }

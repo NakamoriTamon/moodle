@@ -4,14 +4,17 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.php');
 
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $tutorModel = new TutorModel();
+$customFieldCategoryModel = new EventCustomFieldCategoryModel();
 
 $categorys = $categoryModel->getCategorys();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $tutors = $tutorModel->getTutors();
+$event_category_list = $customFieldCategoryModel->getCustomFieldCategory();
 
 class EventEditController {
 

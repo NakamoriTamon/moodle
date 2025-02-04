@@ -16,7 +16,7 @@ $guardian_kbn = null;
 $guardian_name = "";
 $guardian_kana = "";
 $guardian_email = "";
-$event_custom_field_id = $responce['event']['event_custom_field_id'];
+$event_customfield_category_id = $responce['event']['event_customfield_category_id'];
 $participation_fee = $responce['event']['participation_fee'];
 $price = $participation_fee;
 $event_name = $responce['event']['name'];
@@ -51,10 +51,10 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $guardian_firstname = $userData->guardian_firstname ?? '';
     $guardian_lastname_kana = $userData->guardian_lastname_kana ?? '';
     $guardian_firstname_kana = $userData->guardian_firstname_kana ?? '';
-    $name = $_SESSION['USER']->lastname . ' ' . $_SESSION['USER']->firstname;
-    $kana = $lastname_kana . ' ' . $firstname_kana;
-    $guardian_name = $guardian_lastname . ' ' . $guardian_firstname;
-    $guardian_kana = $guardian_lastname_kana . ' ' . $guardian_firstname_kana;
+    $name = $_SESSION['USER']->lastname . $_SESSION['USER']->firstname;
+    $kana = $lastname_kana . $firstname_kana;
+    $guardian_name = $guardian_lastname . $guardian_firstname;
+    $guardian_kana = $guardian_lastname_kana . $guardian_firstname_kana;
     $email = $_SESSION['USER']->email;
     $guardian_kbn = $userData->guardian_kbn;
     $guardian_email = $userData->guardian_email;
@@ -80,18 +80,19 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             </div>
         <?php endif; ?>
         <input type="hidden" name="event_id" value="<?= $eventId ?>">
-        <input type="hidden" name="event_custom_field_id" value="<?= $event_custom_field_id ?>">
+        <input type="hidden" name="event_customfield_category_id" value="<?= $event_customfield_category_id ?>">
         <input type="hidden" id="guardian_kbn" name="guardian_kbn" value="<?= $guardian_kbn ?>">
         <input type="hidden" id="participation_fee" name="participation_fee" value="<?= $participation_fee ?>">
+        <input type="hidden" id="hidden_price" name="hidden_price" value="<?= $participation_fee ?>">
         <label class="label_name" for="name">名前</label>
         <input type="text" id="name" readonly name="name" value="<?= $name ?>" required>
         <label class="label_name" for="kana">フリガナ</label>
         <input type="text" id="kana" readonly name="kana" value="<?= $kana ?>" required>
         <label class="label_name" for="email">メールアドレス</label>
         <input type="email" id="email" readonly name="email" value="<?= $email ?>" required>
-        <label class="label_name" for="email">チケット名称</label>
+        <label class="label_name" for="event_name">チケット名称</label>
         <input type="event_name" name="event_name" value="<?php echo $event_name ?>">
-        <label class="label_name" for="email">チケット枚数(空き枠：<?= $aki_ticket ?>)</label>
+        <label class="label_name" for="ticket">チケット枚数(空き枠：<?= $aki_ticket ?>)</label>
         <input type="hidden" id="aki_ticket" value="<?= $aki_ticket ?>">
         <input type="number" id="ticket" name="ticket" min="1" max="<?= $aki_ticket ?>" value="<?= $ticket ?>">
         <div id="warning" style="color: red; display: none;">0以上、空き枠数以下の数字を入力してください。</div>
@@ -144,18 +145,21 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         <?php if($guardian_kbn): ?>
         <div class="radio-group">
             <label>
-                <input id="applicant_kbn" type="checkbox" name="applicant_kbn" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
+                <input id="applicant_check" type="checkbox" name="applicant_check" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
             </label><br>
-            <label class="label_name" for="name">保護者名</label>
-            <input type="text" id="guardian_name" name="guardian_name" value="<?= $guardian_name ?>" required>
-            <label class="label_name" for="kana">保護者名フリガナ</label>
-            <input type="text" id="guardian_kana" name="guardian_kana" value="<?= $guardian_kana ?>" required>
-            <label class="label_name" for="email">保護者連絡先メールアドレス</label>
-            <input type="email" id="guardian_email" name="guardian_email" value="<?= $$guardian_email ?>" required>
         </div>
+        <label class="label_name" for="name">保護者名</label>
+        <div class="error-msg" id="guardian_name-error"></div>
+        <input type="text" id="guardian_name" name="guardian_name" value="<?= $guardian_name ?>" required>
+        <label class="label_name" for="kana">保護者名フリガナ</label>
+        <div class="error-msg" id="guardian_kana-error"></div>
+        <input type="text" id="guardian_kana" name="guardian_kana" value="<?= $guardian_kana ?>" required>
+        <label class="label_name" for="email">保護者連絡先メールアドレス</label>
+        <div class="error-msg" id="guardian_email-error"></div>
+        <input type="email" id="guardian_email" name="guardian_email" value="<?= $guardian_email ?>" required>
         <?php endif; ?>
         <?php if (isloggedin()): ?>
-            <button id="entry_btn" disabled type="submit">確認画面へ</button>
+            <button id="entry_btn" type="submit">確認画面へ</button>
         <?php else: ?>
             <div>
                 <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
@@ -171,8 +175,9 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     const participation_fee = $('#participation_fee').val();
     // ブラウザバック対応
     $(window).on('pageshow', function() {
-        if ($('#applicant_kbn').length > 0) {
-            $('#applicant_kbn').prop('checked', false);
+        if ($('#applicant_check').length > 0) {
+            $('#applicant_check').prop('checked', false);
+            $('#entry_btn').css('background-color', '#5b5b5b');
             $('#entry_btn').prop('disabled', true);
         } else {
             $('#entry_btn').css('background-color', '#2D287F');
@@ -180,17 +185,19 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         }
         const price = participation_fee * $('input[name="ticket"]').val();
         $('input[name="price"]').val(price.toLocaleString());
+        $('#hidden_price').val(price);
     });
     $('input[name="ticket"]').on('change', function() {
         const price = participation_fee * $(this).val();
         $('input[name="price"]').val(price.toLocaleString());
+        $('#hidden_price').val(price);
     });
     $('#add_email').on('click', function() {
         event.preventDefault();
         const elem = '<input type="mail" name="companion_mails[]" value="">';
         $("#note").before(elem);
     });
-    $('#applicant_kbn').change(function() {
+    $('#applicant_check').change(function() {
         if ($(this).prop('checked')) {
             $('#entry_btn').css('background-color', '#2D287F');
             $('#entry_btn').prop('disabled', false);
@@ -254,12 +261,13 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         const triggers = document.getElementsByName('trigger[]');
         const paymentMethods = document.getElementsByName('pay_method');
         const submitButton = document.getElementById('entry_btn');
+        const emailContainer = document.getElementById('input_emails'); // メール入力欄を追加するコンテナ
+        const other_mails_tag = document.getElementById('other_mails_tag');
+        const guardian_kbn = document.getElementById('guardian_kbn');
 
         const ticketError = document.getElementById('ticket-error');
         const triggerError = document.getElementById('trigger-error');
         const payMethodError = document.getElementById('pay_method-error');
-        const emailContainer = document.getElementById('input_emails'); // メール入力欄を追加するコンテナ
-        const other_mails_tag = document.getElementById('other_mails_tag');
         const companionMailsError = document.getElementById('companion-mails-error');
         
         other_mails_tag.style.display = 'none';
@@ -307,6 +315,50 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                 isValid = false;
             } else {
                 payMethodError.textContent = '';
+            }
+
+            if(guardian_kbn.value == 1) {
+                const guardian_name = document.getElementById('guardian_name');
+                const guardian_name_val = guardian_name.value.trim();
+                const guardian_kana = document.getElementById('guardian_kana');
+                const guardian_kana_val = guardian_kana.value.trim();
+                const guardian_email = document.getElementById('guardian_email');
+                const guardian_email_val = guardian_email.value.trim();
+                const email = document.getElementById('email');
+                const guardianNameError = document.getElementById('guardian_name-error');
+                const guardianKanaError = document.getElementById('guardian_kana-error');
+                const guardianEmailError = document.getElementById('guardian_email-error');
+
+                // 保護者名
+                if(guardian_name_val === '') {
+                    guardianNameError.textContent = '保護者名を入力してください。';
+                    isValid = false;
+                } else {
+                    guardianNameError.textContent = '';
+                }
+                // 保護者名フリガナ
+                if(guardian_kana_val === '') {
+                    guardianKanaError.textContent = '保護者名フリガナを入力してください。';
+                    isValid = false;
+                } else if(!guardian_kana_val.match(/^[ァ-ンヴー]*$/)) {
+                    guardianKanaError.textContent = 'カタカナで入力してください。';
+                    isValid = false;
+                } else {
+                    guardianKanaError.textContent = '';
+                }
+                // 保護者連絡先メールアドレス
+                if(guardian_email_val === '') {
+                    guardianEmailError.textContent = '保護者連絡先メールアドレスを入力してください。';
+                    isValid = false;
+                } else if(guardian_email_val == email.value) {
+                    guardianEmailError.textContent = '保護者の方のメールアドレスを入力してください。';
+                    isValid = false;
+                } else if(!guardian_email_val.match(/.+@.+\..+/)) {
+                    guardianEmailError.textContent = '形式が違います。メールアドレスを入力してください。';
+                    isValid = false;
+                } else {
+                    guardianEmailError.textContent = '';
+                }
             }
 
             // バリデーションチェックの結果

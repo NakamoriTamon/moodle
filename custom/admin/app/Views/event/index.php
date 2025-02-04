@@ -1,8 +1,9 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_controller.php');
 
-$event_statuses = require '/var/www/html/moodle/custom/path/to/event_status.php';
+$event_statuses = EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
 ?>
 

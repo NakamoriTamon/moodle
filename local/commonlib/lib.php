@@ -194,6 +194,9 @@ function validate_time($val, $title, $required)
  */
 function validate_image_file($val, $title, $required)
 {
+    if(empty($val['name']) && !$required) {
+        return null;
+    }
     // ファイルアップロードのチェック
     if (!isset($val)) {
         return $title . 'は必須です。';

@@ -6,7 +6,7 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
-$event_kbns = require '/var/www/html/moodle/custom/path/to/event_kbn.php';
+$event_kbns = EVENT_KBN_LIST;
 // フォームからのデータを受け取る
 $id = $_POST['id'] ?? null;
 $event_kbn = $_POST['event_kbn'] ?? null; // イベント区分
@@ -70,8 +70,8 @@ $archive_streaming_period = empty($_POST['archive_streaming_period']) ? 0 : $_PO
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
 $is_double_speed = $_POST['is_double_speed'] == null ? 0 : 1; // 動画倍速機能
 $is_apply_btn = $_POST['is_apply_btn'] == null ? 0 : 1; // 申込みボタンを表示する
-$event_custom_id = empty($_POST['event_custom_id']) ? 0 : $_POST['event_custom_id']; // イベントカスタム区分
-$_SESSION['errors']['event_custom_id'] = validate_select($event_custom_id, 'イベントカスタム区分', false); // バリデーションチェック
+$event_customfield_category_id = empty($_POST['event_customfield_category_id']) ? 0 : $_POST['event_customfield_category_id']; // イベントカスタム区分
+$_SESSION['errors']['event_customfield_category_id'] = validate_select($event_customfield_category_id, 'イベントカスタム区分', false); // バリデーションチェック
 $survey_custom_id = empty($_POST['survey_custom_id']) ? 0 : $_POST['survey_custom_id']; // アンケートカスタム区分
 $_SESSION['errors']['survey_custom_id'] = validate_select($survey_custom_id, 'アンケートカスタム区分', false); // バリデーションチェック
 $note = $_POST['note'] ?? null; // その他
@@ -179,7 +179,7 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['participation_fee']
     || $_SESSION['errors']['deadline']
     || $_SESSION['errors']['archive_streaming_period']
-    || $_SESSION['errors']['event_custom_id']
+    || $_SESSION['errors']['event_customfield_category_id']
     || $_SESSION['errors']['survey_custom_id']
     || $_SESSION['errors']['note']
     || $error_flg) {
@@ -238,7 +238,7 @@ try {
                 is_double_speed = :is_double_speed,
                 note = :note,
                 event_kbn = :event_kbn,
-                event_custom_id = :event_custom_id,
+                event_customfield_category_id = :event_customfield_category_id,
                 survey_custom_id = :survey_custom_id,
                 is_apply_btn = :is_apply_btn,
                 updated_at = CURRENT_TIMESTAMP
@@ -269,7 +269,7 @@ try {
             ':is_double_speed' => $is_double_speed,
             ':note' => $note,
             ':event_kbn' => $event_kbn,
-            ':event_custom_id' => $event_custom_id,
+            ':event_customfield_category_id' => $event_customfield_category_id,
             ':survey_custom_id' => $survey_custom_id,
             ':is_apply_btn' => $is_apply_btn,
             ':id' => $id // 一意の識別子をWHERE条件として設定
@@ -283,14 +283,14 @@ try {
                 , event_date, start_hour, end_hour, target, venue_name, access
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
-                , created_at, updated_at, event_kbn, event_custom_id, survey_custom_id, is_apply_btn
+                , created_at, updated_at, event_kbn, event_customfield_category_id, survey_custom_id, is_apply_btn
             ) 
             VALUES (
                 :name, :description
                 , :event_date, :start_hour, :end_hour, :target, :venue_name, :access
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
-                , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_custom_id, :survey_custom_id, :is_apply_btn
+                , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :survey_custom_id, :is_apply_btn
             )
         ");
     
@@ -319,96 +319,106 @@ try {
             , ':note' => $note
             , ':thumbnail_img' => ""
             , ':event_kbn' => $event_kbn
-            , ':event_custom_id' => $event_custom_id
+            , ':event_customfield_category_id' => $event_customfield_category_id
             , ':survey_custom_id' => $survey_custom_id
             , ':is_apply_btn' => $is_apply_btn
         ]);
     
         // mdl_eventの挿入IDを取得
         $eventId = $pdo->lastInsertId();
-    }if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
-        // 一時ファイルと元のファイル情報を取得
-        $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
-        $originalName = pathinfo($thumbnail_img['name'], PATHINFO_FILENAME); // 元のファイル名
-        $extension = pathinfo($thumbnail_img['name'], PATHINFO_EXTENSION);  // 拡張子
-    
-        // 保存先ディレクトリの設定
-        $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
-        $uploadsDir = $moodleDir . '/uploads';
-        $thumbnailsDir = $uploadsDir . '/thumbnails';
-        $eventDir = $thumbnailsDir . '/' . $eventId;
-
-        // 1. 保存先ディレクトリの全ファイルを取得
-        $allFiles = scandir($eventDir);
-    
-        // 必要なディレクトリを順番に作成
-        if (!file_exists($uploadsDir)) {
-            if (!mkdir($uploadsDir, 0755, true)) {
-                $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                header('Location: /custom/admin/app/Views/event/upsert.php');
-            }
-        }
-    
-        if (!file_exists($thumbnailsDir)) {
-            if (!mkdir($thumbnailsDir, 0755, true)) {
-                $_SESSION['message_error'] = 'thumbnailsディレクトリの作成に失敗しました';
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                header('Location: /custom/admin/app/Views/event/upsert.php');
-            }
-        }
-    
-        if (!file_exists($eventDir)) {
-            if (!mkdir($eventDir, 0755, true)) {
-                $_SESSION['message_error'] = "イベント用ディレクトリの作成に失敗しました: $eventDir";
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                header('Location: /custom/admin/app/Views/event/upsert.php');
-            }
-        }
-    
-        // 保存先ファイルパスを生成
-        $timestamp = date('YmdHis');
-        $newFileName = "thumbnail_{$timestamp}.{$extension}";
-        $destination = $eventDir . '/' . $newFileName;
-    
-        // ファイルを保存
-        if (move_uploaded_file($tmpName, $destination)) {
-    
-            // ファイルURLを取得
-            $relativePath = '/uploads/thumbnails/' . $eventId . '/' . $newFileName;
-            $fileUrl = new moodle_url($relativePath);
-
-            foreach ($allFiles as $file) {
-                if ($file === '.' || $file === '..') {
-                    continue; // カレントディレクトリと親ディレクトリをスキップ
-                }
-                if ($eventDir . $file != $relativePath) {
-                    unlink($eventDir .  '/' . $file); // ファイルを削除
+    }
+    if(empty($eventId) || (!empty($eventId) && !empty($thumbnail_img['name']))) {
+        if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
+            $originalName = pathinfo($thumbnail_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $extension = pathinfo($thumbnail_img['name'], PATHINFO_EXTENSION);  // 拡張子
+        
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/thumbnails';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+        
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
                 }
             }
-    
-            // データベースに保存する場合
-            $stmt = $pdo->prepare("
-                UPDATE mdl_event
-                SET 
-                    thumbnail_img = :thumbnail_img,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = :id
-            ");
-    
-            $stmt->execute([
-                ':thumbnail_img' => $fileUrl, // ファイルURLを保存
-                ':id' => $eventId // イベントID
-            ]);
+        
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'thumbnailsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+        
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "イベント用ディレクトリの作成に失敗しました: $eventDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($eventDir);
+        
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $newFileName = "thumbnail_{$timestamp}.{$extension}";
+            $destination = $eventDir . '/' . $newFileName;
+        
+            // ファイルを保存
+            if (move_uploaded_file($tmpName, $destination)) {
+        
+                // ファイルURLを取得
+                $relativePath = '/uploads/thumbnails/' . $eventId . '/' . $newFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($eventDir . $file != $relativePath) {
+                        unlink($eventDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+        
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        thumbnail_img = :thumbnail_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+        
+                $stmt->execute([
+                    ':thumbnail_img' => $fileUrl, // ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                header('Location: /custom/admin/app/Views/event/upsert.php');
+                return;
+            }
         } else {
-            $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+            $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
             $_SESSION['old_input'] = $_POST; // 入力内容も保持
             header('Location: /custom/admin/app/Views/event/upsert.php');
         }
-    } else {
-        $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
-        $_SESSION['old_input'] = $_POST; // 入力内容も保持
-        header('Location: /custom/admin/app/Views/event/upsert.php');
     }
 
     // $eventIdに紐づくデータを削除

@@ -4,6 +4,7 @@ require_once('/var/www/html/moodle/lib/moodlelib.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventCustomFieldModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
 $action = required_param('action', PARAM_TEXT);
@@ -27,8 +28,50 @@ $applicant_kbn = optional_param('applicant_kbn', '', PARAM_INT);
 $event_customfield_id = optional_param('event_customfield_id', 0, PARAM_INT);
 $contact_phone = optional_param('contact_phone', '', PARAM_TEXT);
 $guardian_name = optional_param('guardian_name', '', PARAM_TEXT);
-$guardian_name_kana = optional_param('guardian_name_kana', '', PARAM_TEXT);
+$guardian_kana = optional_param('guardian_kana', '', PARAM_TEXT);
 $guardian_email = optional_param('guardian_email', '', PARAM_TEXT);
+$event_customfield_category_id =  htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+$eventCustomFieldModel = new eventCustomFieldModel();
+$fieldList = [];
+$fieldInputDataList = [];
+if(!empty($event_customfield_category_id)) {
+    $fieldList = $eventCustomFieldModel->getCustomFieldById($event_customfield_category_id);
+    foreach ($fieldList as $fields) {
+        $input_value = null;
+        $tag_name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+        if ($fields['field_type'] == 3) {
+            $input_data = optional_param($tag_name, '', PARAM_TEXT);
+            $input_data = explode(",", $input_data);
+            $options = explode(",", $fields['selection']);
+            
+            foreach ($options as $i => $option) {
+                if(in_array($i+1, $input_data)) {
+                    if($i == 0) {
+                        $input_value = $option;
+                        continue;
+                    }
+                    $input_value .= ',' . $option;
+                }
+            }
+        } elseif ($fields['field_type'] == 4) {
+            $input_value = optional_param($tag_name, 0, PARAM_INT);
+            $options = explode(",", $fields['selection']);
+            foreach ($options as $i => $option) {
+                if($i+1 == $input_value) {
+                    $input_value = $option;
+                    break;
+                }
+            }
+        } else {
+            $input_value = optional_param($tag_name, '', PARAM_TEXT);
+        }
+
+        if(!empty($input_value)) {
+            $fieldInputDataList[] = ['event_customfield_id' => $fields['id'], 'field_type' => $fields['field_type'], 'input_data' => $input_value];
+        }
+    }
+}
+
 if ($action === 'register') {
     // 申込登録処理
     try {
@@ -56,7 +99,7 @@ if ($action === 'register') {
         $stmt->execute([
             ':event_id' => $eventId
             , ':user_id' => $user_id
-            , ':event_custom_field_id' => $event_customfield_id
+            , ':event_custom_field_id' => $event_customfield_category_id
             , ':field_value' => ''
             , ':name' => $name
             , ':name_kana' => $kana
@@ -69,10 +112,14 @@ if ($action === 'register') {
             , ':note' => $note
             , ':contact_phone' => $contact_phone
             , ':guardian_name' => $guardian_name
-            , ':guardian_name_kana' => $guardian_name_kana
+            , ':guardian_name_kana' => $guardian_kana
             , ':guardian_email' => $guardian_email
             , ':companion_mails' => $companion_mails
         ]);
+
+        
+        // mdl_eventの挿入IDを取得
+        $eventApplicationId = $pdo->lastInsertId();
 
         // 知った経由　mdl_event_application_cognition
         $stmt2 = $pdo->prepare("
@@ -81,14 +128,28 @@ if ($action === 'register') {
         ");
         foreach ($triggerArray as $cognition_id) {
             $stmt2->execute([
-                ':event_application_id' => $eventId,
+                ':event_application_id' => $eventApplicationId,
                 ':cognition_id' => trim($cognition_id), // 空白を除去
                 ':note' => $trigger_other
             ]);
         }
         
         // カスタムフィールドがある場合
-
+        if(!empty($event_customfield_category_id)) {
+            foreach($fieldInputDataList as $fieldInputData) {
+                $stmt3 = $pdo->prepare("
+                    INSERT INTO mdl_event_application_customfield (created_at, updated_at, event_application_id, event_customfield_id, field_type, input_data) 
+                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_application_id, :event_customfield_id, :field_type, :input_data)
+                ");
+                $stmt3->execute([
+                    ':event_application_id' => $eventApplicationId,
+                    ':event_customfield_id' => $fieldInputData['event_customfield_id'],
+                    ':field_type' => $fieldInputData['field_type'],
+                    ':input_data' => $fieldInputData['input_data']
+                ]);
+            }
+        }
+        
         $pdo->commit();
 
         // API

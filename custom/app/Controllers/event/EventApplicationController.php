@@ -1,4 +1,5 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
@@ -25,36 +26,41 @@ class EventApplicationController {
     
     public function getEvenApplication($eventId) {
         $event = $this->eventModel->getEventById($eventId);
-        $fieldList = $this->eventCustomFieldModel->getEventsCustomFieldByEventId($event['event_custom_field_id']);
+        $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
         $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)[0]['event_date'] ?? 0;
 
         $cognitions = $this->cognitionModel->getCognition();
         $paymentTypes = $this->paymentTypeModel->getPaymentTypes();
         
         $passage = '';
+        $checked = '';
+        $customfield_type_list = CUSTOMFIELD_TYPE_LIST;
         foreach ($fieldList as $fields) {
             $passage .= '<label class="label_name" for="name">' . $fields['field_name'] . '</label>';
-            if ($fields['field_type'] == 'checkbox' || $fields['field_type'] == 'radio') {
-                $options = explode(",", $fields['field_options']);
+            if ($fields['field_type'] == 3 || $fields['field_type'] == 4) {
+                $options = explode(",", $fields['selection']);
                 foreach ($options as $i => $option) {
-                    if ($fields['field_type'] == 'radio') {
+                    $name = "";
+                    if ($fields['field_type'] == 4) {
                         $passage .= '<div class="radio-group">';
-                        $checked = ($i == 0) ? 'checked' : '';
+                        // $checked = ($i == 0) ? 'checked' : '';
+                        $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
                     } else {
                         $passage .= '<div class="checkbox-group">';
+                        $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '[]';
                     }
-                    $passage .= '<label class="label_d_flex"><input type="' . $fields['field_type'] . '" name="' . $fields['name'] . '" value="' . $option . '"' . $checked . '>' . $option . '</label></div>';
+                    $passage .= '<label class="label_d_flex"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $i+1 . '"' . $checked . '>' . $option . '</label></div>';
                 }
                 continue;
             }
-            if ($fields['field_type'] == 'textarea') {
-                $passage .= '<textarea name="' . $fields['name'] . '" rows="4" cols="50"></textarea>';
+            if ($fields['field_type'] == 2) {
+                $passage .= '<textarea name="' . $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '" rows="4" cols="50"></textarea>';
                 continue;
             }
-            $passage .= '<input type="' . $fields['field_type'] . '" name="' . $fields['name'] . '">';
-            $passage .= '<input type="hidden" name="event_customfield_id" value="' . $fields['id'] . '">';
-        }
-        if(empty($fieldList)){
+            if ($fields['field_type'] == 1 || $fields['field_type'] == 5) {
+                $passage .= '<input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '">';
+                continue;
+            }
         }
 
         return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'sum_ticket_count' => $sum_ticket_count];
