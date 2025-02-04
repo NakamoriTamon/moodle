@@ -1,6 +1,6 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/config.php');
 
 // バリデーションエラー
 $errors = $_SESSION['errors'] ?? [];
@@ -8,19 +8,11 @@ $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 $id = $_GET['id'];
 
-// IDでカテゴリ詳細取得
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
+global $DB;
 try {
-	$pdo->beginTransaction();
-	$stmt = $pdo->prepare("SELECT * FROM mdl_target WHERE id = :id");
-	$stmt->execute(['id' => $id]);
-	$targets = $stmt->fetch();
-	$pdo->commit();
-} catch (PDOException $e) {
-	$pdo->rollBack();
-	var_dump($e->getMessage());
-	$_SESSION['message_error'] = 'エラーが発生しました: ' . $e->getMessage();
+	$targets = $DB->get_record('target', ['id' => $id]);
+} catch (dml_exception $e) {
+	$_SESSION['message_error'] = 'エラーが発生しました';
 }
 ?>
 
@@ -62,7 +54,7 @@ try {
 										<label class="form-label me-2">対象者名</label>
 										<span class="badge bg-danger">必須</span>
 										<input name="name" class="form-control" type="text"
-											value="<?php echo htmlspecialchars($old_input['name'] ?? $targets['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+											value="<?php echo htmlspecialchars($old_input['name'] ?? $targets->name ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 										<?php if (!empty($errors['name'])): ?>
 											<div class="text-danger mt-2">
 												<?= htmlspecialchars($errors['name']); ?>

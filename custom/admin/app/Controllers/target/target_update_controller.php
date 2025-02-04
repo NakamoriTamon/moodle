@@ -3,11 +3,11 @@ require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 
+// セッション開始
 session_start();
 
 // 接続情報取得
-$baseModel = new BaseModel();
-$pdo = $baseModel->getPdo();
+global $DB;
 
 // POSTデータの取得 (バリデーションは別途行う)
 $id         = $_POST['id'] ?? '';
@@ -34,7 +34,7 @@ if ($target_name_error) {
 } else {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            $_SESSION['message_error'] = 'トークンが不正です。';
+            $_SESSION['message_error'] = '登録に失敗しました';
             header('Location: /custom/admin/app/Views/master/target/index.php');
             exit;
         }
@@ -42,19 +42,14 @@ if ($target_name_error) {
 
     try {
         if (!empty($id)) {
-            $sql = "SELECT COUNT(*) FROM mdl_target WHERE name = ? AND is_delete = 0 AND id <> ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$name, $id]);
+            $count = $DB->count_records_select('target', "name = ? AND is_delete = 0 AND id <> ?", [$name, $id]);
         } else {
-            $sql = "SELECT COUNT(*) FROM mdl_target WHERE name = ? AND is_delete = 0";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$name]);
+            $count = $DB->count_records_select('target', "name = ? AND is_delete = 0", [$name]);
         }
-        $count = (int) $stmt->fetchColumn();
 
         if ($count > 0) {
-            $_SESSION['message_error'] = '同じ名前のデータが既に存在しています。';
-            $_SESSION['errors'] = ['name' => '同じ名前のカテゴリが存在します'];
+            $_SESSION['message_error'] = '登録に失敗しました';
+            $_SESSION['errors'] = ['name' => '同じ名前の対象が存在します'];
             $_SESSION['old_input'] = $_POST;
             if (!empty($id)) {
                 header('Location: /custom/admin/app/Views/master/target/upsert.php?id=' . urlencode($id));
@@ -64,38 +59,34 @@ if ($target_name_error) {
             exit;
         }
     } catch (PDOException $e) {
-        $_SESSION['message_error'] = 'DBエラーが発生しました: ' . $e->getMessage();
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/master/target/index.php');
         exit;
     }
 
-    if (!empty($id)) {
-        $sql = "UPDATE mdl_target
-                SET
-                  name       = ?,
-                  created_at = ?,
-                  updated_at = ?
-                WHERE id = ?";
-        $params = [$name, $createdAt, $updatedAt, $id];
-    } else {
-        $sql = "INSERT INTO mdl_target
-                  (name, created_at, updated_at)
-                VALUES
-                  (?, ?, ?)";
-        $params = [$name, $createdAt, $updatedAt];
+    $data = new stdClass();
+    $data->name       = $name;
+    $data->created_at = $createdAt;
+    $data->updated_at = $updatedAt;
+
+    if ($id) {
+        $data->id = $id;
     }
 
     try {
-        $pdo->beginTransaction();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $pdo->commit();
+        $transaction = $DB->start_delegated_transaction();
+        if ($id) {
+            $DB->update_record('target', $data);
+        } else {
+            $DB->insert_record('target', $data);
+        }
+        $transaction->allow_commit();
         $_SESSION['message_success'] = '登録が完了しました';
         header('Location: /custom/admin/app/Views/master/target/index.php');
         exit;
     } catch (PDOException $e) {
         $pdo->rollBack();
-        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/master/target/index.php');
         exit;
     }

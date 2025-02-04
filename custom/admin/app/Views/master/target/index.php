@@ -47,13 +47,13 @@ $targets = $targetController->getTargets();
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ($targets as $totur) {
-											echo '<tr>';
-											echo '<td class="ps-4 pe-4">' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '</td>';
-											echo '<td class="ps-4 pe-4">' . htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') . '</td>';
-											echo '<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/target/upsert.php?id=' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="' . htmlspecialchars($totur['id'], ENT_QUOTES, 'UTF-8') . '" data-name="' . htmlspecialchars($totur['name'], ENT_QUOTES, 'UTF-8') . '"><i class="align-middle" data-feather="trash"></i></a></td>';
-											echo '</tr>';
-										} ?>
+										<?php foreach ($targets as $target): ?>
+											<tr>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($target['name'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/target/upsert.php?id=<?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="<?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($target['name'], ENT_QUOTES, 'UTF-8') ?>"><i class="align-middle" data-feather="trash"></i></a></td>
+											</tr>
+										<?php endforeach; ?>
 									</tbody>
 								</table>
 							</div>
