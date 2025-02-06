@@ -1,5 +1,5 @@
 <?php
-  include('../layouts/header.php');
+   include('/var/www/html/moodle/custom/app/Views/layouts/header.php');
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/css/event.css" />
     <main id="subpage">
@@ -163,6 +163,123 @@
         <section id="result">
           <h3 class="ttl_event">検索結果 ○○○○</h3>
           <ul class="result_list" id="event">
+            <?php foreach($eventList as $event) { ?>
+              <li class="event_item">
+                <a href="/custom/public/view/eventdetail.php?eventId=<?php echo htmlspecialchars($event['id']); ?>">
+                  <figure class="img"><img src="/custom/public/images/<?php echo htmlspecialchars($event['thumbnail_img']); ?>" alt="" /></figure>
+                  <div class="event_info">
+                    <ul class="event_status">
+                      <li class="no">開催前</li>
+                      <li class="no">申し込み不要</li>
+                      <!-- ここのステータスがDBのどこにあたるか不明 -->
+                    </ul>
+                    <p class="event_ttl"><?php echo htmlspecialchars($event['name']); ?></p>
+                    <div class="event_sched">
+                      <p class="term">開催日</p>
+                      <div class="date">
+                        <p class="dt01"><?php echo htmlspecialchars($event['event_date_formatted']); ?></p>
+                        <p class="dt02"><?php echo htmlspecialchars($event['time_range']); ?></p>
+                      </div>
+                    </div>
+                    <ul class="event_category">
+                      <li>医療・健康</li>
+                      <li>生活・福祉</li>
+                      <!-- ↑ たぶんmdl_categoryを使う？ -->
+                    </ul>
+                  </div>
+                </a>
+              </li>
+            <?php } ?>
+            <!-- <li class="event_item">
+              <a href="/custom/app/Views/event/detail.php">
+                <figure class="img"><img src="/custom/public/images/event02.jpg" alt="" /></figure>
+                <div class="event_info">
+                  <ul class="event_status">
+                    <li class="end">開催終了</li>
+                    <li class="end">受付終了</li>
+                  </ul>
+                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                    </div>
+                  </div>
+                  <ul class="event_category">
+                    <li>医療・健康</li>
+                    <li>生活・福祉</li>
+                  </ul>
+                </div>
+              </a>
+            </li>
+            <li class="event_item">
+              <a href="/custom/app/Views/event/detail.php">
+                <figure class="img"><img src="/custom/public/images/event03.jpg" alt="" /></figure>
+                <div class="event_info">
+                  <ul class="event_status">
+                    <li class="no">開催前</li>
+                    <li class="active">受付中</li>
+                  </ul>
+                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                    </div>
+                  </div>
+                  <ul class="event_category">
+                    <li>その他</li>
+                  </ul>
+                </div>
+              </a>
+            </li>
+            <li class="event_item">
+              <a href="/custom/app/Views/event/detail.php">
+                <figure class="img"><img src="/custom/public/images/event04.jpg" alt="" /></figure>
+                <div class="event_info">
+                  <ul class="event_status">
+                    <li class="active">開催中</li>
+                    <li class="active">受付中</li>
+                  </ul>
+                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                    </div>
+                  </div>
+                  <ul class="event_category">
+                    <li>自然・環境</li>
+                    <li>社会・経済</li>
+                  </ul>
+                </div>
+              </a>
+            </li>
+            <li class="event_item">
+              <a href="/custom/app/Views/event/detail.php">
+                <figure class="img"><img src="/custom/public/images/event05.jpg" alt="" /></figure>
+                <div class="event_info">
+                  <ul class="event_status">
+                    <li class="active">受付中</li>
+                    <li class="end">受付終了</li>
+                  </ul>
+                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                    </div>
+                  </div>
+                  <ul class="event_category">
+                    <li>社会・経済</li>
+                  </ul>
+                </div>
+              </a>
+            </li>
             <li class="event_item">
               <a href="/custom/app/Views/event/detail.php">
                 <figure class="img"><img src="/custom/public/images/event01.jpg" alt="" /></figure>
@@ -319,127 +436,18 @@
                   </ul>
                 </div>
               </a>
-            </li>
-            <li class="event_item">
-              <a href="/custom/app/Views/event/detail.php">
-                <figure class="img"><img src="/custom/public/images/event03.jpg" alt="" /></figure>
-                <div class="event_info">
-                  <ul class="event_status">
-                    <li class="no">開催前</li>
-                    <li class="active">受付中</li>
-                  </ul>
-                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                  <div class="event_sched">
-                    <p class="term">開催日</p>
-                    <div class="date">
-                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                    </div>
-                  </div>
-                  <ul class="event_category">
-                    <li>その他</li>
-                  </ul>
-                </div>
-              </a>
-            </li>
-            <li class="event_item">
-              <a href="/custom/app/Views/event/detail.php">
-                <figure class="img"><img src="/custom/public/images/event04.jpg" alt="" /></figure>
-                <div class="event_info">
-                  <ul class="event_status">
-                    <li class="active">開催中</li>
-                    <li class="active">受付中</li>
-                  </ul>
-                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                  <div class="event_sched">
-                    <p class="term">開催日</p>
-                    <div class="date">
-                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                    </div>
-                  </div>
-                  <ul class="event_category">
-                    <li>自然・環境</li>
-                    <li>社会・経済</li>
-                  </ul>
-                </div>
-              </a>
-            </li>
-            <li class="event_item">
-              <a href="/custom/app/Views/event/detail.php">
-                <figure class="img"><img src="/custom/public/images/event05.jpg" alt="" /></figure>
-                <div class="event_info">
-                  <ul class="event_status">
-                    <li class="active">受付中</li>
-                    <li class="end">受付終了</li>
-                  </ul>
-                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                  <div class="event_sched">
-                    <p class="term">開催日</p>
-                    <div class="date">
-                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                    </div>
-                  </div>
-                  <ul class="event_category">
-                    <li>社会・経済</li>
-                  </ul>
-                </div>
-              </a>
-            </li>
-            <li class="event_item">
-              <a href="/custom/app/Views/event/detail.php">
-                <figure class="img"><img src="/custom/public/images/event01.jpg" alt="" /></figure>
-                <div class="event_info">
-                  <ul class="event_status">
-                    <li class="no">開催前</li>
-                    <li class="no">申し込み不要</li>
-                  </ul>
-                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                  <div class="event_sched">
-                    <p class="term">開催日</p>
-                    <div class="date">
-                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                    </div>
-                  </div>
-                  <ul class="event_category">
-                    <li>文化・芸術</li>
-                  </ul>
-                </div>
-              </a>
-            </li>
-            <li class="event_item">
-              <a href="/custom/app/Views/event/detail.php">
-                <figure class="img"><img src="/custom/public/images/event02.jpg" alt="" /></figure>
-                <div class="event_info">
-                  <ul class="event_status">
-                    <li class="end">開催終了</li>
-                    <li class="end">受付終了</li>
-                  </ul>
-                  <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                  <div class="event_sched">
-                    <p class="term">開催日</p>
-                    <div class="date">
-                      <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                      <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                    </div>
-                  </div>
-                  <ul class="event_category">
-                    <li>医療・健康</li>
-                    <li>生活・福祉</li>
-                  </ul>
-                </div>
-              </a>
-            </li>
+            </li> -->
           </ul>
           <ul class="result_pg">
             <li><a href="" class="prev"></a></li>
-            <li><a href="" class="num active">1</a></li>
-            <li><a href="" class="num">2</a></li>
-            <li><a href="" class="num">3</a></li>
-            <li><a href="" class="num">4</a></li>
-            <li><a href="" class="num">5</a></li>
+            <?php $page = 1;
+              while($page <= $totalPages) { ?>              
+            <li>
+              <a href="" class="num <?php echo ($page == $currentPage ? 'active' : ''); ?>">
+              <?php echo htmlspecialchars($page); ?>
+              </a>
+            </li>
+            <?php $page++; } ?>
             <li><a href="" class="next"></a></li>
           </ul>
         </section>
@@ -452,7 +460,7 @@
     </ul>
 
 <?php
-  include('../layouts/footer.php');
+  include('/var/www/html/moodle/custom/app/Views/layouts/footer.php');
 ?>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>

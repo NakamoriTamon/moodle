@@ -4,7 +4,6 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 
 class FrontController
 {
-
     private $eventModel;
 
     public function __construct()
@@ -15,8 +14,18 @@ class FrontController
     public function index()
     {
         $eventList = $this->eventModel->getEvents();
+        return $eventList;
+    }
 
-        return ['eventList' => $eventList];
+    public function render($category, $viewName, $data)
+    {
+        extract($data);
+        
+        if($category == null) {
+            include "/var/www/html/moodle/custom/app/Views/{$viewName}.php";
+        } else {
+            include "/var/www/html/moodle/custom/app/Views/{$category}/{$viewName}.php";
+        }
     }
 
     // イベント一覧画面
@@ -38,6 +47,7 @@ class FrontController
                 'totalPages' => $totalPages,
             ]
         ];
+        return $eventList;
     }
 
     public function detail($eventId)

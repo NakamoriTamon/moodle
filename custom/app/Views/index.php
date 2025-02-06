@@ -56,22 +56,29 @@
       </div>
       <div class="swiper new_swiper">
         <ul class="swiper-wrapper" id="event">
-          <li class="swiper-slide event_item">
-            <a href="/custom/app/Views/event/detail.php">
-              <figure class="img"><img src="/custom/public/images/event01.jpg" alt="" /></figure>
-              <div class="event_info">
-                <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-                <div class="event_sched">
-                  <p class="term">開催日</p>
-                  <div class="date">
-                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+          <?php foreach($eventList as $event) { ?>
+            <li class="swiper-slide event_item">
+              <a href="/custom/app/Views/event/detail.php">
+                <figure class="img"><img src="/custom/public/images/<?php echo htmlspecialchars($event['thumbnail_img']); ?>" alt="" /></figure>
+                <div class="event_info">
+                  <p class="event_ttl"><?php echo htmlspecialchars($event['name']); ?></p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <p class="dt01"><?php echo htmlspecialchars($event['event_date_formatted']); ?></p>
+                      <p class="dt02"><?php echo htmlspecialchars($event['time_range']); ?></p>
+                    </div>
                   </div>
+                  <!-- <ul class="event_category">
+                    <li>医療・健康</li>
+                    <li>生活・福祉</li>
+                    ↑たぶんmdl_categoryを使う？
+                  </ul> -->
                 </div>
-              </div>
-            </a>
-          </li>
-          <li class="swiper-slide event_item">
+              </a>
+            </li>
+          <?php } ?>
+          <!-- <li class="swiper-slide event_item">
             <a href="/custom/app/Views/event/detail.php">
               <figure class="img"><img src="/custom/public/images/event02.jpg" alt="" /></figure>
               <div class="event_info">
@@ -156,7 +163,7 @@
                 </ul>
               </div>
             </a>
-          </li>
+          </li> -->
         </ul>
         <div class="new_btns">
           <div class="swiper-button-prev"></div>

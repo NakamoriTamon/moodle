@@ -4,7 +4,6 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 
 class EventController
 {
-
     private $eventModel;
 
     public function __construct()
