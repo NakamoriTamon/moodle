@@ -12,7 +12,7 @@ $id = $_POST['id'] ?? null;
 $event_kbn = $_POST['event_kbn'] ?? null; // イベント区分
 $_SESSION['errors']['event_kbn'] = validate_select($event_kbn, 'イベント区分', true); // バリデーションチェック
 $name = $_POST['name'] ?? null; // イベントタイトル　必須
-$_SESSION['errors']['name'] = validate_text($name, 'イベントタイトル', true); // バリデーションチェック
+$_SESSION['errors']['name'] = validate_text($name, 'イベントタイトル', 225, true); // バリデーションチェック
 $description = $_POST['description'] ?? null; // 説明文　必須
 $_SESSION['errors']['description'] = validate_textarea($description, '説明文', true); // バリデーションチェック
 $selectedCategories = $_POST['category_id'] ?? []; // カテゴリー　必須
@@ -23,9 +23,9 @@ $_SESSION['errors']['thumbnail_img'] = validate_image_file($thumbnail_img, 'サ�
 $lecture_format_ids = $_POST['lecture_format_id'] ?? []; // 講義形式　必須
 $_SESSION['errors']['lecture_format_id'] = validate_select_multiple($lecture_format_ids, '講義形式', true); // バリデーションチェック
 $venue_name = $_POST['venue_name'] ?? null; // 会場名
-$_SESSION['errors']['venue_name'] = validate_text_max225($venue_name, '会場名', false); // バリデーションチェック
+$_SESSION['errors']['venue_name'] = validate_text($venue_name, '会場名', 225, false); // バリデーションチェック
 $target = $_POST['target'] ?? null; // 対象
-$_SESSION['errors']['target'] = validate_text_max225($target, '対象', false); // バリデーションチェック
+$_SESSION['errors']['target'] = validate_text($target, '対象', 225, false); // バリデーションチェック
 $event_date = empty($_POST['event_date']) ? null : $_POST['event_date']; // 開催日
 if ($event_kbn == 1) {
     $_SESSION['errors']['event_date'] = validate_date($event_date, '開催日', true);
@@ -37,21 +37,21 @@ $_SESSION['errors']['start_hour'] = validate_time($start_hour, '開始時間', t
 $end_hour = $_POST['end_hour'] ?? null; // 終了時間　必須
 $_SESSION['errors']['end_hour'] = validate_time($end_hour, '終了時間', true);
 $access = $_POST['access'] ?? null; // 交通アクセス
-$_SESSION['errors']['access'] = validate_text_max500($access, '交通アクセス', false); // バリデーションチェック
+$_SESSION['errors']['access'] = validate_text($access, '交通アクセス', 500, false); // バリデーションチェック
 $google_map = $_POST['google_map'] ?? null; // Google Map
 $is_top = $_POST['is_top'] == null ? 0 : 1; // トップに固定
 $program = $_POST['program'] ?? null; // プログラム
-$_SESSION['errors']['program'] = validate_text_max500($program, 'プログラム', false); // バリデーションチェック
+$_SESSION['errors']['program'] = validate_text($program, 'プログラム', 500, false); // バリデーションチェック
 $sponsor = $_POST['sponsor'] ?? null; // 主催
-$_SESSION['errors']['sponsor'] = validate_text_max225($sponsor, '主催', false); // バリデーションチェック
+$_SESSION['errors']['sponsor'] = validate_text($sponsor, '主催', 225, false); // バリデーションチェック
 $co_host = $_POST['co_host'] ?? null; // 共催
-$_SESSION['errors']['co_host'] = validate_text_max225($co_host, '共催', false); // バリデーションチェック
+$_SESSION['errors']['co_host'] = validate_text($co_host, '共催', 225, false); // バリデーションチェック
 $sponsorship = $_POST['sponsorship'] ?? null; // 後援
-$_SESSION['errors']['sponsorship'] = validate_text_max225($sponsorship, '後援', false); // バリデーションチェック
+$_SESSION['errors']['sponsorship'] = validate_text($sponsorship, '後援', 225, false); // バリデーションチェック
 $cooperation = $_POST['cooperation'] ?? null; // 協力
-$_SESSION['errors']['cooperation'] = validate_text_max225($cooperation, '協力', false); // バリデーションチェック
+$_SESSION['errors']['cooperation'] = validate_text($cooperation, '協力', 225, false); // バリデーションチェック
 $plan = $_POST['plan'] ?? null; // 企画
-$_SESSION['errors']['plan'] = validate_text_max225($plan, '企画', false); // バリデーションチェック
+$_SESSION['errors']['plan'] = validate_text($plan, '企画', 225, false); // バリデーションチェック
 $capacity = $_POST['capacity'] ?? null; // 定員
 $_SESSION['errors']['capacity'] = validate_int($capacity, '定員', true); // バリデーションチェック
 // 複数回シリーズのイベント　の場合
@@ -89,7 +89,7 @@ if ($event_kbn == 1) {
             $lectureNumber = $matches[1]; // 講座番号
 
             $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', true); // バリデーションチェック;
-            $_SESSION['errors']["lecture_name_{$lectureNumber}"] = validate_text_max225($_POST["lecture_name_{$lectureNumber}"], '講義名', true); // バリデーションチェック;
+            $_SESSION['errors']["lecture_name_{$lectureNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}"], '講義名', 225, true); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}"] = validate_textarea($_POST["program_{$lectureNumber}"], '講義概要', true); // バリデーションチェック;
 
             if(!$error_flg 
@@ -134,7 +134,7 @@ if ($event_kbn == 1) {
 
             $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_select($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;
             $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", $required_flg); // バリデーションチェック;
-            $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"] = validate_text_max225($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"], "講義名", $required_flg); // バリデーションチェック;
+            $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"], "講義名", 225, $required_flg); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"] = validate_textarea($_POST["program_{$lectureNumber}_{$itemNumber}"], "講義概要", $required_flg); // バリデーションチェック;
 
             if(!$error_flg 
@@ -204,7 +204,8 @@ $updatedAt = date('Y-m-d H:i:s');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
-        header('Location: /custom/admin/app/Views/index.php');
+        header('Location: /custom/admin/app/Views/event/index.php');
+        return;
     }
 }
 
@@ -576,7 +577,6 @@ try {
     header('Location: /custom/admin/app/Views/event/index.php');
 } catch (PDOException $e) {
     $pdo->rollBack();
-    var_dump($e->getMessage());
     $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
     header('Location: /custom/admin/app/Views/event/index.php');
 }

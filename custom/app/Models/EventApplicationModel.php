@@ -36,6 +36,48 @@ class EventApplicationModel extends BaseModel
 
         return [];
     }
+    
+    // ユーザIDからイベントを取得
+    public function getEventApplicationByUserId($userId = null)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT ea.*, e.id as eventid, e.name as event_name , e.* FROM mdl_event_application ea
+                LEFT JOIN mdl_event e ON e.id = ea.event_id 
+                WHERE user_id = ?
+                AND DATE(e.event_date) >= CURDATE()");
+                $stmt->execute([$userId]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+    
+    // ユーザIDからイベントを取得
+    public function getOldEventApplicationByUserId($userId = null)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT ea.*, e.id as eventid, e.name as event_name , e.* FROM mdl_event_application ea
+                LEFT JOIN mdl_event e ON e.id = ea.event_id 
+                WHERE user_id = ?
+                AND DATE(e.event_date) < CURDATE()");
+                $stmt->execute([$userId]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 
     // カスタムフィールド登録
     public function insertEventCustomField($eventId, $fieldName, $name, $sort, $fieldType, $fieldOptions) {}
