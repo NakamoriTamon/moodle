@@ -484,7 +484,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<select id="event_customfield_category_id" class=" form-control mb-3" name="event_customfield_category_id">
 											<option value="">未選択</option>
 											<?php foreach ($event_category_list as $key => $event_category): ?>
-												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if($event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
+												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if(isset($eventData['event_customfield_category_id']) && $event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
 											<?php endforeach ?>
 										</select>
 									</div>

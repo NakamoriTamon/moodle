@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $eventName = htmlspecialchars(required_param('event_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
     $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
     $price =  required_param('hidden_price', PARAM_INT);
-    $triggerOther = htmlspecialchars(required_param('trigger_othier', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $triggerOther = htmlspecialchars(required_param('trigger_other', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
     $payMethod = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
     $request_mail_kbn = htmlspecialchars(required_param('request_mail_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
     $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8');

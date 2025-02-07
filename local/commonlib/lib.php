@@ -32,10 +32,10 @@ function validate_first_name($firstname)
 /**
  * バリデーション: メールアドレス
  */
-function validate_custom_email($email)
+function validate_custom_email($email, $text = "")
 {
     if (empty($email)) {
-        return 'メールアドレスは必須です。';
+        return $text . 'メールアドレスは必須です。';
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return '無効なメールアドレスです。';
@@ -51,11 +51,12 @@ function validate_password($password)
     if (empty($password)) {
         return 'パスワードは必須です。';
     }
-    if (strlen($password) < 8) {
+    if (strlen($password) < 8 && strlen($password) > 21) {
         return 'パスワードは8文字以上である必要があります。';
     }
-    if (!preg_match('/[A-Z]/', $password)) {
-        return 'パスワードには大文字が含まれている必要があります。';
+    // 英字（大文字・小文字）と数字の使用必須
+    if (!preg_match('/[A-Za-z]/', $password)) {
+        return 'パスワードにはアルファベットが含まれている必要があります。';
     }
     if (!preg_match('/[0-9]/', $password)) {
         return 'パスワードには数字が含まれている必要があります。';
@@ -66,35 +67,27 @@ function validate_password($password)
 /**
  * バリデーション: input type="text"
  */
-function validate_text($val, $title, $required)
+function validate_text($val, $title, $size, $required = false)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) > 255) {
-        return $title . 'は255文字以上である必要があります。';
+    if (strlen($val) > $size) {
+        return $title . 'は' . $size . '文字以上である必要があります。';
     }
     return null;
 }
 
-function validate_text_max225($val, $title, $required)
+/**
+ * バリデーション: input type="text"
+ */
+function validate_phone($val, $title, $required = false)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) > 225) {
-        return $title . 'は225文字以下である必要があります。';
-    }
-    return null;
-}
-
-function validate_text_max500($val, $title, $required)
-{
-    if (empty($val) && $required) {
-        return $title . 'は必須です。';
-    }
-    if (strlen($val) > 500) {
-        return $title . 'は500文字以下である必要があります。';
+    if (strlen($val) > 20) {
+        return $title . 'は20文字以上である必要があります。';
     }
     return null;
 }
@@ -168,6 +161,7 @@ function validate_date($val, $title, $required)
     } else {
         return $title . "形式が違っています。";
     }
+    return null;
 }
 
 /**
@@ -187,6 +181,7 @@ function validate_time($val, $title, $required)
     } else {
         return $title . "形式が違っています。";
     }
+    return null;
 }
 
 /**
@@ -224,5 +219,17 @@ function validate_image_file($val, $title, $required)
     if (!@getimagesize($val['tmp_name'])) {
         return $title . 'のアップロードされたファイルは画像ではありません。';
     }
+    return null;
+}
+
+/**
+ * バリデーション: HH:mm形式をチェック
+ */
+function validate_array($array, $title, $required)
+{
+    if (empty($array) && $required) {
+        return $title . 'は必須です。';
+    }
+
     return null;
 }

@@ -1,4 +1,5 @@
 <?php
+require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/event/EventApplicationController.php');
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 if (isset($SESSION->formdata) && is_null($eventId)) {
@@ -20,7 +21,7 @@ $event_customfield_category_id = $responce['event']['event_customfield_category_
 $participation_fee = $responce['event']['participation_fee'];
 $price = $participation_fee;
 $event_name = $responce['event']['name'];
-$triggerOthier = "";
+$triggerOther = "";
 $payMethod = null;
 $ticket = 1;
 $request_mail_kbn = null;
@@ -38,7 +39,7 @@ if (isset($SESSION->formdata)) {
     $formdata = $SESSION->formdata;
     $payMethod = $formdata['pay_method'];
     $ticket = $formdata['ticket'];
-    $triggerOthier = $formdata['trigger_othier'];
+    $triggerOther = $formdata['trigger_other'];
     $note = $formdata['note'];
     $triggers = $formdata['triggers'];
     $triggersArray = explode(',', $triggers); // 配列に変換
@@ -62,9 +63,9 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $kana = $lastname_kana . $firstname_kana;
     $guardian_name = $guardian_lastname . $guardian_firstname;
     $guardian_kana = $guardian_lastname_kana . $guardian_firstname_kana;
-    $email = $_SESSION['USER']->email;
-    $guardian_kbn = $userData->guardian_kbn;
-    $guardian_email = $userData->guardian_email;
+    $email = $_SESSION['USER']->email ?? "";
+    $guardian_kbn = $userData->guardian_kbn ?? "";
+    $guardian_email = $userData->guardian_email ?? "";
 }
 ?>
 
@@ -99,22 +100,22 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                     <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
                 </div>
             <?php endif; ?>
-            <input type="hidden" name="event_id" value="<?= $eventId ?>">
-            <input type="hidden" name="event_customfield_category_id" value="<?= $event_customfield_category_id ?>">
-            <input type="hidden" id="guardian_kbn" name="guardian_kbn" value="<?= $guardian_kbn ?>">
-            <input type="hidden" id="participation_fee" name="participation_fee" value="<?= $participation_fee ?>">
-            <input type="hidden" id="hidden_price" name="hidden_price" value="<?= $participation_fee ?>">
+            <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+            <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id) ?>">
+            <input type="hidden" id="guardian_kbn" name="guardian_kbn" value="<?= htmlspecialchars($guardian_kbn) ?>">
+            <input type="hidden" id="participation_fee" name="participation_fee" value="<?= htmlspecialchars($participation_fee) ?>">
+            <input type="hidden" id="hidden_price" name="hidden_price" value="<?= htmlspecialchars($participation_fee) ?>">
             <label class="label_name" for="name">名前</label>
-            <input type="text" id="name" readonly name="name" value="<?= $name ?>" required>
+            <input type="text" id="name" readonly name="name" value="<?= htmlspecialchars($name) ?>" required>
             <label class="label_name" for="kana">フリガナ</label>
-            <input type="text" id="kana" readonly name="kana" value="<?= $kana ?>" required>
+            <input type="text" id="kana" readonly name="kana" value="<?= htmlspecialchars($kana) ?>" required>
             <label class="label_name" for="email">メールアドレス</label>
-            <input type="email" id="email" readonly name="email" value="<?= $email ?>" required>
+            <input type="email" id="email" readonly name="email" value="<?= htmlspecialchars($email) ?>" required>
             <label class="label_name" for="event_name">チケット名称</label>
-            <input type="event_name" name="event_name" value="<?php echo $event_name ?>">
-            <label class="label_name" for="ticket">チケット枚数(空き枠：<?= $aki_ticket ?>)</label>
-            <input type="hidden" id="aki_ticket" value="<?= $aki_ticket ?>">
-            <input type="number" id="ticket" name="ticket" min="1" max="<?= $aki_ticket ?>" value="<?= $ticket ?>">
+            <input type="event_name" name="event_name" value="<?= htmlspecialchars($event_name) ?>">
+            <label class="label_name" for="ticket">チケット枚数(空き枠：<?= htmlspecialchars($aki_ticket) ?>)</label>
+            <input type="hidden" id="aki_ticket" value="<?= htmlspecialchars($aki_ticket) ?>">
+            <input type="number" id="ticket" name="ticket" min="1" max="<?= htmlspecialchars($aki_ticket) ?>" value="<?= htmlspecialchars(isSetValue($ticket, $old_input['ticket'] ?? '')) ?>">
             <div id="warning" style="color: red; display: none;">0以上、空き枠数以下の数字を入力してください。</div>
             <span class="error-msg" id="ticket-error"></span>
             <label class="label_name" for="price">金額</label>
@@ -128,8 +129,8 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                     </label><br>
                 <?php endforeach; ?>
             </div>
-            <label class="label_name" for="trigger_othier">その他</label>
-            <textarea row="20px" name="trigger_othier"><?= htmlspecialchars($triggerOthier) ?></textarea>
+            <label class="label_name" for="trigger_other">その他</label>
+            <textarea row="20px" name="trigger_other"><?= htmlspecialchars($triggerOther) ?></textarea>
             <label class="label_name" style="width: 100%" for="pay_method">支払方法</label>
             <span class="error-msg" id="pay_method-error"></span>
             <div class="radio-group">
@@ -165,18 +166,18 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             <?php if($guardian_kbn): ?>
             <div class="radio-group">
                 <label>
-                    <input id="applicant_check" type="checkbox" name="applicant_check" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
+                    <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
                 </label><br>
             </div>
             <label class="label_name" for="name">保護者名</label>
             <div class="error-msg" id="guardian_name-error"></div>
-            <input type="text" id="guardian_name" name="guardian_name" value="<?= $guardian_name ?>" required>
+            <input type="text" id="guardian_name" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" required>
             <label class="label_name" for="kana">保護者名フリガナ</label>
             <div class="error-msg" id="guardian_kana-error"></div>
-            <input type="text" id="guardian_kana" name="guardian_kana" value="<?= $guardian_kana ?>" required>
+            <input type="text" id="guardian_kana" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" required>
             <label class="label_name" for="email">保護者連絡先メールアドレス</label>
             <div class="error-msg" id="guardian_email-error"></div>
-            <input type="email" id="guardian_email" name="guardian_email" value="<?= $guardian_email ?>" required>
+            <input type="email" id="guardian_email" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>" required>
             <?php endif; ?>
             <?php if (isloggedin()): ?>
                 <button id="entry_btn" type="submit">確認画面へ</button>
