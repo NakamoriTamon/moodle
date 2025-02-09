@@ -1090,3 +1090,10 @@ select {
     left: 15px;
   }
 }
+.slick-next:before, .slick-prev:before{
+    opacity: 100 !important;
+    font-size: 43px !important;
+}
+.error-msg {
+    color: red;
+}
