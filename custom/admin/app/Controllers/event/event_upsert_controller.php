@@ -419,6 +419,7 @@ try {
             $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
             $_SESSION['old_input'] = $_POST; // 入力内容も保持
             header('Location: /custom/admin/app/Views/event/upsert.php');
+            return;
         }
     }
 
