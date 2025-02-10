@@ -1,9 +1,9 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/CategoryController.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/category/category_controller.php');
 
 $categoryController = new CategoryController();
-$categories = $categoryController->getCategories();
+$category_list = $categoryController->index();
 ?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -47,11 +47,18 @@ $categories = $categoryController->getCategories();
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ($categories as $category): ?>
+										<?php foreach ($category_list as $category): ?>
 											<tr>
 												<td class="ps-4 pe-4"><?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?></td>
 												<td class="ps-4 pe-4"><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></td>
-												<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/category/upsert.php?id=<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?>"><i class="align-middle" data-feather="trash"></i></a></td>
+												<td class="text-center ps-4 pe-4 text-nowrap">
+													<a href="/custom/admin/app/Views/master/category/upsert.php?id=<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3">
+														<i class="align-middle" data-feather="edit-2"></i>
+													</a>
+													<a class="delete-link" data-id="<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?>">
+														<i class="align-middle" data-feather="trash"></i>
+													</a>
+												</td>
 											</tr>
 										<?php endforeach; ?>
 									</tbody>

@@ -69,9 +69,9 @@ function validate_password($password)
 function validate_category_name($category_name)
 {
     if (empty($category_name)) {
-        return 'カテゴリー名必須です。';
+        return 'カテゴリー名は必須です。';
     }
-    if (strlen($category_name) >= 50) {
+    if (strlen($category_name) > 50) {
         return 'カテゴリー名は50文字以下である必要があります。';
     }
     return null;
@@ -85,10 +85,10 @@ function validate_image($image)
     if (empty($image) || $image['error'] === UPLOAD_ERR_NO_FILE) {
         return '画像は必須です。';
     }
-    $allowed_extensions = ['jpg', 'jpeg', 'png'];
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'svg'];
     $file_extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
     if (!in_array($file_extension, $allowed_extensions)) {
-        return '許可されていない画像形式です。jpg, jpeg, pngのいずれかをアップロードしてください。';
+        return '許可されていない画像形式です。jpg, jpeg, png, svgのいずれかをアップロードしてください。';
     }
     return null;
 }

@@ -1,7 +1,7 @@
 <?php
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
-
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/CategoryModel.php');
 class CategoryController
 {
 
@@ -12,17 +12,15 @@ class CategoryController
         $this->categoryModel = new CategoryModel();
     }
 
-    public function getCategoryDetails($categoryId)
+    public function index()
     {
-        $category = $this->categoryModel->getCategoryDetails($categoryId);
+        $category_list = $this->categoryModel->getCategories();
 
-        return $category;
+        return $category_list;
     }
 
-    public function getCategories()
+    public function edit($id = null)
     {
-        $category = $this->categoryModel->getCategories();
-
-        return $category;
+        return $id ? $this->categoryModel->find($id) : [];
     }
 }

@@ -46,7 +46,7 @@ if (isset($_SESSION['message_success'])) {
 }
 if (isset($_SESSION['message_error'])) {
     echo '<div class="alert alert-danger max-650 alert-dismissible position-fixed" role="alert" id="error-alert">
-                <div class="alert-message text-center">' . $_SESSION['message_error'] . '</div>
+                <div class="alert-message text-danger text-center">' . $_SESSION['message_error'] . '</div>
             </div>';
     unset($_SESSION['message_error']);
 }

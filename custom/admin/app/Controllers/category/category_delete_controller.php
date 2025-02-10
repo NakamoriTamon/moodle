@@ -6,7 +6,7 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 global $DB;
 
 // POSTデータの取得 (バリデーションは別途行う)
-$id       = $_POST['id'] ?? '';
+$id = $_POST['id'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -33,13 +33,12 @@ try {
     $DB->update_record('category', $data);
     $transaction->allow_commit();
     $_SESSION['message_success'] = '削除が完了しました';
-    header('Location: /custom/admin/app/Views/master/category/index.php');
-    exit;
 } catch (Exception $e) {
-    if (isset($transaction)) {
+    try {
         $transaction->rollback($e);
+    } catch (Exception $rollbackException) {
+        $_SESSION['message_error'] = '削除に失敗しました';
     }
-    $_SESSION['message_error'] = '削除に失敗しました';
-    header('Location: /custom/admin/app/Views/master/category/index.php');
-    exit;
 }
+header('Location: /custom/admin/app/Views/master/category/index.php');
+exit;

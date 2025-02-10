@@ -1,22 +1,17 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/config.php');
+include('/var/www/html/moodle/custom/admin/app/Controllers/category/category_controller.php');
 
 // バリデーションエラー
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
-$id = $_GET['id'];
 
-global $DB;
-try {
-	$categories = $DB->get_record('category', ['id' => $id]);
-} catch (dml_exception $e) {
-	$_SESSION['message_error'] = 'エラーが発生しました';
-}
+$category_controller = new CategoryController();
+$categories = $category_controller->edit($_GET['id']);
 ?>
 
-<body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
+<body id="master" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
 	<div class="wrapper">
 		<?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
 		<div class="main">
@@ -45,38 +40,40 @@ try {
 						<div class="card-body p-0">
 							<p class="content_title p-3">カテゴリー登録</p>
 							<div class="form-wrapper">
-								<form method="POST" action="/custom/admin/app/Controllers/category/category_update_controller.php" enctype="multipart/form-data">
+								<form method="POST" action="/custom/admin/app/Controllers/category/category_upsert_controller.php"
+									enctype="multipart/form-data" onkeydown="if(event.key==='Enter') event.preventDefault();">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-									<input type="hidden" name="id" value="<?php echo htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
-
+									<input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>">
 									<div class="mb-3">
 										<label class="form-label me-2">カテゴリー名</label>
 										<span class="badge bg-danger">必須</span>
 										<input name="name" class="form-control" type="text"
-											value="<?php echo htmlspecialchars($old_input['name'] ?? $categories->name ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+											value="<?php echo htmlspecialchars($old_input['name'] ?? $categories['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 										<?php if (!empty($errors['name'])): ?>
 											<div class="text-danger mt-2">
 												<?= htmlspecialchars($errors['name']); ?>
 											</div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3 uploadRow">
+									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">講師画像</label>
+											<label class="me-2">カテゴリー画像</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-
-										<input type="hidden" class="hiddenField" name="image_file" value="">
-										<input type="file" class="form-control fileUpload" name="image_file" accept=".png,.jpeg,.jpg">
-										<div class="fileInfo mt-2 d-none"></div>
-
-										<input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($categories->path ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-										<?php if (!empty($errors['imagefile'])): ?>
+										<input type="file" class="form-control" name="image_file" accept="image/*">
+										<?php if (!empty($errors['image_file'])): ?>
 											<div class="text-danger mt-2">
-												<?= htmlspecialchars($errors['imagefile']); ?>
+												<?= htmlspecialchars($errors['image_file']); ?>
 											</div>
 										<?php endif; ?>
 									</div>
+									<div id="category_preview_container" class="position-relative d-none mb-3">
+										<img id="category_preview"
+											src="<?php if ($categories['path']) { ?> /uploads/category/<?= htmlspecialchars($categories['path']) ?><?php } ?>"
+											alt="カテゴリー画像" />
+										<button id="category_img_button" class="btn btn-danger position-absolute">×</button>
+									</div>
+									<input type="hidden" name="is_deleted">
 									<button type="submit" class="btn btn-primary">登録</button>
 								</form>
 							</div>
@@ -86,79 +83,36 @@ try {
 			</main>
 		</div>
 	</div>
-
 	<script src="/custom/admin/public/js/app.js"></script>
 </body>
 
 </html>
 <script>
 	$(document).ready(function() {
-		function createFileLink(fileName, fileUrl) {
-			const fileLinkContainer = document.createElement('div');
-			fileLinkContainer.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
-
-			const link = document.createElement('a');
-			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-				link.href = fileUrl;
-			} else if (fileUrl.charAt(0) === '/') {
-				link.href = fileUrl;
-			} else {
-				link.href = '/uploads/category/' + fileUrl;
-			}
-			link.target = '_blank';
-			link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
-			link.innerHTML = `
-        <i data-feather="file-text" class="me-2"></i>
-        <span class="fileName text-primary">${fileName}</span>
-    `;
-			fileLinkContainer.appendChild(link);
-			// アイコンの置換はリンク生成後にまとめて実施
-			feather.replace();
-			return fileLinkContainer;
+		// 編集時は画像データを表示させる
+		const src = $('#category_preview').attr('src');
+		if (src && src.trim() !== '') {
+			$('#category_preview_container').removeClass('d-none');
 		}
-
-
-		// 既存のファイルがあれば初期表示する
-		(function initExistingFiles() {
-			const existingCategory = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
-			if (existingCategory.path) {
-				const row = document.querySelector('.uploadRow');
-				if (!row) return;
-				const fileInfo = row.querySelector('.fileInfo');
-				if (!fileInfo) return;
-				// ファイルパスからファイル名のみを抽出
-				const fileName = existingCategory.path.split('/').pop() || 'ファイル';
-				const fileUrl = existingCategory.path;
-				const linkElem = createFileLink(fileName, fileUrl);
-				fileInfo.appendChild(linkElem);
-				fileInfo.classList.remove('d-none');
-				// すべてのリンク生成が完了した後にアイコンを置換
-				feather.replace();
+		// 入力時画像データを表示させる
+		$('input[name="image_file"]').on('change', function(event) {
+			const file = event.target.files[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					$('#category_preview').attr('src', e.target.result);
+					$('#category_preview_container').removeClass('d-none');
+				};
+				reader.readAsDataURL(file);
 			}
-		})();
-
-		function handleFileChange(e) {
-			const files = e.target.files;
-			const row = e.target.closest('.uploadRow');
-			const fileInfo = row.querySelector('.fileInfo');
-			fileInfo.innerHTML = '';
-
-			Array.from(files).forEach(file => {
-				const allowedExtensions = ['.png', '.jpeg', '.jpg'];
-				const fileExtension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-				if (allowedExtensions.includes(fileExtension)) {
-					const objectURL = URL.createObjectURL(file);
-					const linkElement = createFileLink(file.name, objectURL);
-					fileInfo.appendChild(linkElement);
-				} else {
-					alert('jpg, jpeg, pngファイルのみアップロードできます。');
-				}
-			});
-
-			fileInfo.classList.toggle('d-none', files.length === 0);
-			feather.replace();
-		}
-
-		$('.fileUpload').on('change', handleFileChange);
+		});
+		// 画像削除ボタン押下
+		$('#category_img_button').on('click', function() {
+			event.preventDefault();
+			$('#category_preview').attr('src', "");
+			$('#category_preview_container').addClass('d-none');
+			$('input[name="is_deleted"]').val('true');
+			$('input[name="image_file"]').val("");
+		});
 	});
 </script>
