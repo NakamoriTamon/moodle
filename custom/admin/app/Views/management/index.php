@@ -31,35 +31,53 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                 <div class="col-12 col-lg-12">
                     <div class="card min-70vh">
                         <div class="card-body p-0">
-                            <div class="d-flex w-100 mt-3"><button id="submit" class=" btn btn-primary mt-3 mb-3 ms-auto">更新</button></div>
-                            <div class="card m-auto mb-5 w-95">
-                                <table class="table table-responsive table-striped table_list" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="ps-4 pe-4 min-130">ID</th>
-                                            <th class="ps-4 pe-4 w-35">担当者名</th>
-                                            <th class="ps-4 pe-4 w-35">メールアドレス</th>
-                                            <th class="ps-4 pe-4 min-140">権限</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach($admins as $admin): ?>
+                            <form method="POST" action="/custom/admin/app/Controllers/management/RoleUpdateController.php" onsubmit="return confirmUpdate()">
+                                <div class="d-flex w-100 mt-3"><button id="submit" class=" btn btn-primary mt-3 mb-3 ms-auto">更新</button></div>
+                                <div class="card m-auto mb-5 w-95">
+                                    <table class="table table-responsive table-striped table_list" style="width:100%">
+                                        <thead>
                                             <tr>
-                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['id']) ?></td>
-                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['lastname'] . $admin['firstname']) ?></td>
-                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['email']) ?></td>
-                                                <td class="ps-4 pe-4">
-                                                    <select name="category_id" class="form-control">
-                                                        <?php foreach(ROLES as $key => $role): ?>
-                                                            <option value=<?= htmlspecialchars($key) ?> <?php if($key == $admin['role_id']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
-                                                        <?php endforeach ?>
-                                                    </select>
-                                                </td>
+                                                <th class="ps-4 pe-4 min-130">ID</th>
+                                                <th class="ps-4 pe-4 w-35">担当者名</th>
+                                                <th class="ps-4 pe-4 w-35">メールアドレス</th>
+                                                <th class="ps-4 pe-4 min-140">権限</th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach($admins as $index => $admin): ?>
+                                                <tr>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['id']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['lastname'] . ' ' . $admin['firstname']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['email']) ?></td>
+                                                    <td class="ps-4 pe-4">
+                                                        <input type="hidden" name="users[<?= $index ?>][id]" value="<?= htmlspecialchars($admin['id']) ?>">
+                                                        <select name="users[<?= $index ?>][role_id]" class="form-control">
+                                                            <?php foreach(ROLES as $key => $role): ?>
+                                                                <option value=<?= htmlspecialchars($key) ?> <?php if($key == $admin['role_id']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
+                                                            <?php endforeach ?>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                        <ul class="pagination">
+                                            <?php if ($currentPage >= 1 && $totalCount > 10): ?>
+                                            <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage)-1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+                                            <?php endif; ?>
+                                            <?php for ($i = 1; $i <= ceil($totalCount/10); $i++): ?>
+                                            <li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+                                            <?php endfor; ?>
+                                            <?php if ($currentPage >= 0 && $totalCount > 10): ?>
+                                            <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage)+1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -72,6 +90,10 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
 </html>
 
 <script>
+    function confirmUpdate() {
+        return confirm("権限を更新します。本当によろしいですか？");
+    }
+    
     // モック用アラート　本番時は消してください
     $('#submit').on('click', function(event) {
         sessionStorage.setItem('alert', 'aaasss');

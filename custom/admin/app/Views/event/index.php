@@ -153,13 +153,13 @@ $old_input = $_SESSION['old_input'] ?? [];
 								<div class="d-flex">
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
 										<ul class="pagination">
-											<?php if ($currentPage >= 1 && $totalCount > 1): ?>
+											<?php if ($currentPage >= 1 && $totalCount > 10): ?>
 											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage)-1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
 											<?php endif; ?>
 											<?php for ($i = 1; $i <= ceil($totalCount/10); $i++): ?>
 											<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
 											<?php endfor; ?>
-											<?php if ($currentPage >= 0 && $totalCount > 1): ?>
+											<?php if ($currentPage >= 0 && $totalCount > 10): ?>
 											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage)+1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
 											<?php endif; ?>
 										</ul>
