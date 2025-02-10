@@ -49,7 +49,7 @@ if ($lastname_error || $firstname_error || $email_error || $password_error) {
             $user_id = $DB->insert_record('user', $new_user);
 
             // 管理者ロールを割り当てる
-            $admin_role = $DB->get_record('role', ['shortname' => 'manager']); // もしくは 'admin'
+            $admin_role = $DB->get_record('role', ['shortname' => 'coursecreator']); // もしくは 'admin'
             $context = context_system::instance(); // システムコンテキスト
             role_assign($admin_role->id, $user_id, $context->id);
 

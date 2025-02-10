@@ -23,6 +23,23 @@ class LoginController
         $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0], '*');
 
         if ($user && validate_internal_user_password($user, $password)) {
+
+            // ユーザーのロールを取得
+            $userRoles = $DB->get_records_sql("
+                SELECT r.shortname 
+                FROM {role_assignments} ra
+                JOIN {role} r ON ra.roleid = r.id
+                WHERE ra.userid = ?
+            ", [$user->id]);
+            
+            $roles = array_map(fn($role) => $role->shortname, $userRoles);
+            
+            // `user` ロール (ID:7) は `/custom/admin` にアクセス不可
+            if (in_array('user', $roles)) {
+                redirect('/custom/app/Views/front/index.php'); // 一般画面へリダイレクト
+                exit;
+            }
+            
             // 管理者チェック
             if (is_siteadmin($user->id)) {
                 // 認証成功: ユーザーをログインさせる

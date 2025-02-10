@@ -1,4 +1,7 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/ManagementController.php');
+?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
     <div class="wrapper">
@@ -40,39 +43,20 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td class="ps-4 pe-4">1</td>
-                                            <td class="ps-4 pe-4">21世紀懐徳堂</td>
-                                            <td class="ps-4 pe-4">example01@gmail.com</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1 selected="">管理者</option>
-                                                    <option value=2>担当者</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">2</td>
-                                            <td class="ps-4 pe-4">理学部</td>
-                                            <td class="ps-4 pe-4">example02@gmail.com</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>管理者</option>
-                                                    <option value=2 selected>担当者</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">3</td>
-                                            <td class="ps-4 pe-4">博・適事務室</td>
-                                            <td class="ps-4 pe-4">example03@gmail.com</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>管理者</option>
-                                                    <option value=2 selected>担当者</option>
-                                                </select>
-                                            </td>
-                                        </tr>
+                                        <?php foreach($admins as $admin): ?>
+                                            <tr>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['id']) ?></td>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['lastname'] . $admin['firstname']) ?></td>
+                                                <td class="ps-4 pe-4"><?= htmlspecialchars($admin['email']) ?></td>
+                                                <td class="ps-4 pe-4">
+                                                    <select name="category_id" class="form-control">
+                                                        <?php foreach(ROLES as $key => $role): ?>
+                                                            <option value=<?= htmlspecialchars($key) ?> <?php if($key == $admin['role_id']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
+                                                        <?php endforeach ?>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>

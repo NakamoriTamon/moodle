@@ -112,5 +112,11 @@ $prefectures = [
 ];
 define('PREFECTURES', $prefectures);
 
+$roles = [
+  '2' => '部門管理者',
+  '10' => 'システム管理者'
+];
+define('ROLES', $roles);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

@@ -11,6 +11,21 @@ if ($email) {
     $user = $DB->get_record('user', ['email' => $email]);
 
     if ($user) {
+        $userRoles = $DB->get_records_sql("
+                SELECT r.shortname 
+                FROM {role_assignments} ra
+                JOIN {role} r ON ra.roleid = r.id
+                WHERE ra.userid = ?
+            ", [$user->id]);
+
+        $roles = array_map(fn($role) => $role->shortname, $userRoles);
+        // 権限がadminかcoursecreatorでない場合
+        if(!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
+            $_SESSION['result_message'] = '入力したメールアドレスは存在しません。';
+            header('Location: /custom/admin/app/Views/login/result.php');
+            return;
+        }
+
         // 現在時刻を取得
         $current_time = time();
 
