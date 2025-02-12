@@ -267,3 +267,20 @@ function validate_max_text($val, $title, $size, $required = false)
     }
     return null;
 }
+
+/*
+ * バリデーション: 電話番号
+ */
+function validate_tel_number($tel_number)
+{
+    if (empty($tel_number)) {
+        return '電話番号は必須です。';
+    }
+    if (strlen($tel_number) >= 5) {
+        return '無効な電話番号です。';
+    }
+    if (!preg_match('/^\d+$/', $tel_number)) {
+        return '無効な電話番号です。';
+    }
+    return null;
+}
