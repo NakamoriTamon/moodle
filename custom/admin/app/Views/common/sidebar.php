@@ -61,15 +61,14 @@
 						<i class="align-middle" data-feather="log-out"></i> <span class="align-middle">Log out</span>
 					</a>
 				</li>
-				<!-- <li class="sidebar-item">
+				<li class="sidebar-item">
 					<a href="#master" data-bs-toggle="collapse" class="sidebar-link collapsed">
 						<i class="align-middle" data-feather="table"></i> <span class="align-middle">各種マスタ</span>
 					</a>
 					<ul id="master" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/category/index.php">カテゴリーマスタ</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="pages-404.html">講師マスタ</a></li>
 					</ul>
-				</li> -->
+				</li>
 			</ul>
 		</div>
 	</nav>
@@ -87,6 +86,11 @@
 			if (currentPath == "/custom/admin/app/Views/event/custom_upsert.php") {
 				currentPath = "/custom/admin/app/Views/event/custom_index.php";
 			}
+			// マスタ
+			if (currentPath == "/custom/admin/app/Views/master/category/upsert.php") {
+				currentPath = "/custom/admin/app/Views/master/category/index.php";
+			}
+
 			const sidebarLinks = $(".sidebar-link");
 
 			sidebarLinks.each(function() {

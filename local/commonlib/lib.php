@@ -189,7 +189,7 @@ function validate_time($val, $title, $required)
  */
 function validate_image_file($val, $title, $required)
 {
-    if(empty($val['name']) && !$required) {
+    if (empty($val['name']) && !$required) {
         return null;
     }
     // ファイルアップロードのチェック
@@ -231,5 +231,21 @@ function validate_array($array, $title, $required)
         return $title . 'は必須です。';
     }
 
+    return null;
+}
+
+/*
+ * バリデーション: 画像
+ */
+function validate_image($image)
+{
+    if (empty($image) || $image['error'] === UPLOAD_ERR_NO_FILE) {
+        return '画像は必須です。';
+    }
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'svg'];
+    $file_extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+    if (!in_array($file_extension, $allowed_extensions)) {
+        return '許可されていない画像形式です。jpg, jpeg, png, svgのいずれかをアップロードしてください。';
+    }
     return null;
 }

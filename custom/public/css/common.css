@@ -1,98 +1,165 @@
-*{
-    margin: 0;
-    padding: 0;
-}
-body{
-    overflow-x: hidden;
+/** @format */
+
+@charset "utf-8";
+
+/*  common.css
+---------------------------------------------- */
+
+/*  リセット
+---------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
 }
 
-/** header **/
-.header_title_area{
-    width: 50vw;
-    margin-left: 3rem;
-}
-header p{
-    font-size: 30px;
-    font-weight: bold;
-    color: #2D287F;
-}
-.header_title{
-    font-size: 33px;
-}
-.header_sub_title{
-    font-size: 10px;
-}
-.sec_header{
-    background: #2D287F;
-    height: 7vh;
-}
-.header_flex{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0 1rem 0;
-}
-button {
-    width: 200px;
-    margin-right: 1rem; 
-    background-color: #2D287F;
-    color: #fff;
-    border: 1px solid #2D287F;
-    border-radius: 4px;
-    text-align: center;
-    height: 45px;
-    cursor: pointer;
-}
-button:hover {
-    background-color: #0c1e4a; 
-}
-.login_button {
-    width: 200px;
-    margin-right: 1rem; 
-    background-color: #1f1f21;
-    color: #fff;
-    border: 1px solid #1f1f21;
-    border-radius: 4px;
-    text-align: center;
-    height: 45px;
-    cursor: pointer;
-}
-.login_button:hover {
-    background-color: #000000; 
-}
-.sec_header {
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 3rem; 
-    background-color: #2D287F; 
-}
-.sec_header a {
-    text-decoration: none; 
-    color: #fff; 
-    cursor: pointer;
-}
-.sec_header input{
-    padding: .7rem;
-    width: 10rem;
-    border-radius: 15px;
-    border: 1px solid #fff;
+/*  Android用調整
+---------------------------------------------- */
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: none;
 }
 
-/* Slider */
-.slider {
-    margin-inline: auto;
-    width: 100%;
+/*  clearfix
+---------------------------------------------- */
+.cf {
+  zoom: 1;
 }
-.slider-img {
-    margin: 1.5vw;
+.cf:before,
+.cf:after {
+  content: "";
+  display: table;
 }
-.slider-img img {
-    height: auto;
-    width: 100%;
+.cf:after {
+  clear: both;
 }
-footer{
-    margin-top: 17vh;
-    background: #2D287F;
-    height: 20vh;
+
+/*  基本設定
+---------------------------------------------- */
+html {
+  overflow-y: scroll;
+  height: 100%;
+  font-size: 62.5%;
+}
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Noto Sans JP", serif;
+  font-weight: 400;
+  /*font-family : "Times New Roman", 
+        "游明朝", 
+        YuMincho,
+        "ヒラギノ明朝 Pr6 W6",
+        "Hiragino Mincho Pro", 
+        "HGS明朝E",
+        "メイリオ", 
+        "ＭＳ Ｐ明朝",
+        "MS PMincho",
+        Meiryo, 
+        serif;
+    font-family: "Helvetica Neue",
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;*/
+  color: #373737;
+}
+html,
+body,
+select,
+option,
+optgroup {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  empty-cells: show;
+}
+table caption {
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: bold;
+}
+table th {
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+table td {
+  text-align: left;
+  vertical-align: top;
+}
+table td.n {
+  text-align: right;
+}
+a:link {
+  text-decoration: none;
+}
+a:visited {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+img {
+  border: none;
+  vertical-align: middle;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+p {
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+ul {
+  list-style-type: none;
+}
+address {
+  font-style: normal;
+}
+h1 {
+  font-size: 3.8rem;
+  font-weight: normal;
+}
+h2 {
+  font-size: 3.2rem;
+  font-weight: normal;
+}
+h3 {
+  font-size: 2.8rem;
+  font-weight: normal;
+}
+h4 {
+  font-size: 2rem;
+  font-weight: normal;
+}
+h5 {
+  font-size: 1.8rem;
+  font-weight: normal;
+}
+
+.nopc {
+  display: none !important;
+}
+
+/*  modile smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  html {
+    font-size: 2vw;
+  }
+  .nopc {
+    display: block !important;
+  }
+  .nosp {
+    display: none !important;
+  }
 }

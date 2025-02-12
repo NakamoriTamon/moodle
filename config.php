@@ -118,5 +118,10 @@ $roles = [
 ];
 define('ROLES', $roles);
 
+// 決済情報
+$komoju_api_key = 'sk_test_6nhd2x41v77mupxnbjl9nwlk'; // テスト用秘密鍵
+$komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エンドポイント
+$payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

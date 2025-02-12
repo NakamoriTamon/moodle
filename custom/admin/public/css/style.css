@@ -235,6 +235,21 @@ video#qr-video {
     height: 400px;
 }
 
+/* カテゴリーマスタ */
+#category_preview_container{
+    width: 100%;
+    max-width: 300px;
+}
+#category_preview{
+    width: 100%; 
+    height: auto; 
+    object-fit: cover;
+}
+#category_img_button{
+    top: 10px; 
+    right: 10px;
+}
+
 /* レスポンシブ  QR*/
 @media (min-width: 600px) {
     video#qr-video {
