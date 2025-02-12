@@ -20,7 +20,7 @@ $existing_path = $DB->get_record('category', ['id' => $id])->path;
 if (empty($id) || (!empty($id) && $is_deleted) || $imagefile['size'] > 0) {
     $image_error = validate_image($imagefile);
 }
-$category_name_error = validate_text($name, 'カテゴリー名', 50, true);
+$category_name_error = validate_max_text($name, 'カテゴリー名', 50, true);
 
 // カテゴリ名重複チェック
 $where = !empty($id) ? "name = ? AND is_delete = 0 AND id <> ?" : "name = ? AND is_delete = 0";

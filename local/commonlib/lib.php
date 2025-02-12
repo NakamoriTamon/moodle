@@ -235,7 +235,7 @@ function validate_array($array, $title, $required)
 }
 
 /*
- * バリデーション: 画像
+ * バリデーション: マスタ画像
  */
 function validate_image($image)
 {
@@ -246,6 +246,24 @@ function validate_image($image)
     $file_extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
     if (!in_array($file_extension, $allowed_extensions)) {
         return '許可されていない画像形式です。jpg, jpeg, png, svgのいずれかをアップロードしてください。';
+    }
+    $maxFileSize = 10 * 1024 * 1024; // 最大ファイルサイズ (10MB)
+    if ($image['size'] > $maxFileSize) {
+        return '画像サイズが2MBを超えています。';
+    }
+    return null;
+}
+
+/*
+ * バリデーション: 文字数制限
+ */
+function validate_max_text($val, $title, $size, $required = false)
+{
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    }
+    if (strlen($val) >= $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }
