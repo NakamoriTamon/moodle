@@ -95,10 +95,10 @@ $payment_mehod_list = PAYMENT_SELECT_LIST;
 </div>
 <div class="area">
     <input class="checkbox_input" type="checkbox" disabled name="is_subscription" <?php if ($values['is_subscription'] === '1') { ?>checked <?php } ?>>
-    <label class="checkbox_label">氏名掲載を許可します</label>
+    <label class="checkbox_label">定額課金プランを利用する</label>
 </div>
 
 <button type="button" onclick="location.href='/custom/app/Controllers/tekijuku/tekijuku_upsert_contoroller.php';">登録する</button>
-<button type="button" onclick="location.href='/custom/app/Views/tekijuku/registrate.php';">定額課金プランを利用する</button>
+<button type="button" onclick="location.href='/custom/app/Views/tekijuku/registrate.php';">登録内容を変更する</button>
 
 </html>

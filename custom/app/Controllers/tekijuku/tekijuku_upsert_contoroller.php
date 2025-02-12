@@ -86,6 +86,7 @@ try {
     // セッションURLが取得できたらリダイレクト
     if (isset($result['session_url'])) {
         $transaction->allow_commit();
+        unset($_SESSION['old_input']);
         header("Location: " . $result['session_url']);
         exit;
     } else {
