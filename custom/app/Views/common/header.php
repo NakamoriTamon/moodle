@@ -9,49 +9,101 @@ if (empty($_SESSION['csrf_token'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow"> <!-- releaseまではnoindex設定 !-->
-    <link rel="stylesheet" href="/custom/public/css/style.css" type="text/css">
-    <link rel="stylesheet" href="/custom/public/css/common.css" type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/l10n/ja.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-    <title>イベント一覧</title>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title></title>
+    <link rel="shortcut icon" href="/common/img/favicon.ico" />
+    <!-- ogp -->
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:locale" content="ja_JP" />
+    <!-- stylesheet -->
+    <link rel="stylesheet" type="text/css" href="/custom/public/assets/common/css/import.css" />
+    <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.0/css/all.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap"
+        rel="stylesheet" />
 </head>
 
-<body>
-    <header>
-        <div class="header_flex">
-            <div class="header_title_area">
-                <p class="header_title">大阪大学</p>
-                <p class="header_sub_title">OSAKA UNIVERSITY</p>
+<body id="home">
+    <header id="header">
+        <h1 class="header_logo">
+            <a href="index.html"><img src="/custom/public/assets/common/img/logo_header.svg" alt="知の広場ハンダイ市民講座" />
+            </a>
+        </h1>
+        <nav>
+            <ul class="header_menu">
+                <li>
+                    <a href="event/index.html">
+                        <img src="/custom/public/assets/common/img/icon_menu01.svg" alt="講座一覧" />
+                        <p class="txt">イベント一覧</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="guide/index.html">
+                        <img src="/custom/public/assets/common/img/icon_menu02.svg" alt="受講ガイド" />
+                        <p class="txt">受講ガイド</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="quest/index.html">
+                        <img src="/custom/public/assets/common/img/icon_menu03.svg" alt="よくある質問" />
+                        <p class="txt">よくある質問</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="contact/index.html">
+                        <img src="/custom/public/assets/common/img/icon_menu04.svg" alt="お問い合わせ" />
+                        <p class="txt">お問い合わせ</p>
+                    </a>
+                </li>
+            </ul>
+            <div class="header_tool">
+                <a href="user/index.html" class="btn_h btn_user">
+                    <p>ユーザー登録</p>
+                </a>
+                <a href="login/index.html" class="btn_h btn_login">
+                    <p>ログイン<span>（マイページ）</span></p>
+                </a>
+                <form action="" class="search">
+                    <button type="submit" aria-label="検索"></button>
+                    <label>
+                        <input type="text" placeholder="イベントを検索する" />
+                    </label>
+                </form>
             </div>
-            <div>
-                <?php if ($_SESSION['USER']->id == 0) {  ?>
-                    <button>会員登録</button>
-                    <button class="login_button" onclick="window.location.href='/login/index.php'">ログイン</button>
-                <?php } else { ?>
-                    <button onclick="window.location.href='/custom/app/Views/mypage/index.php'">マイページ</button>
-                    <button class="login_button" onclick="window.location.href='/login/logout.php'">ログアウト</button>
-                <?php } ?>
-            </div>
+        </nav>
+        <div class="header_hbg nopc">
+            <ul class="hbg">
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+            <span class="txt">MENU</span>
         </div>
-        <div class="sec_header">
-            <a class="login-button" onclick="window.location.href='/login/index.php'">講座一覧</a>
-            <a>ご利用方法</a>
-            <a>よくある質問</a>
-            <a>お知らせ</a>
-            <a onclick="window.location.href='/custom/app/Views/contact/index.php'">お問い合わせ</a>
-            <input type="text" name="keyword" placeholder="講座を検索する">
+        <div class="header_bottom nopc">
+            <a href="user/index.html" class="btn_h btn_user">
+                <p>ユーザー登録</p>
+            </a>
+            <a href="login/index.html" class="btn_h btn_login">
+                <p>ログイン<span>（マイページ）</span></p>
+            </a>
         </div>
     </header>
+    <!-- header -->
