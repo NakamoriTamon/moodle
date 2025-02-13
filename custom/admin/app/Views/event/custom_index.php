@@ -1,8 +1,8 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-$eventController = new EventController();
-$events = $eventController->index();
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/custom_controller.php');
+$custom_upsert_controller = new CustomController();
+$custom_list = $custom_upsert_controller->index();
 ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative show">
@@ -48,62 +48,52 @@ $events = $eventController->index();
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>1</td>
-											<td>イベント一般</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">タンパク質の精製技術の基礎</a>、
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">AIと機械学習の基礎講座</a>
-											</td>
-											</td>
-											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td>適塾記念会イベント</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">量子コンピュータ入門: 次世代計算技術の扉を開く</a>
-											</td>
-											<td class="text-center">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class="align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
-										<tr>
-											<td>3</td>
-											<td>生命科学分野イベント</td>
-											<td>
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">気候変動と持続可能なエネルギーソリューション</a>、
-												<a href="/custom/admin/app/Views/event/upsert.php?id=1" class="text-decoration-underline link-primary">心理学で学ぶ意思決定と行動経済学</a>
-											</td>
-											<td class="text-center text-nowrap">
-												<a href='/custom/admin/app/Views/event/custom_upsert.php?id=edit' class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-												<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
-											</td>
-										</tr>
+										<?php foreach ($custom_list as $custom) { ?>
+											<?php $last_key = array_key_last($custom['event']); ?>
+											<tr>
+												<td><?= htmlspecialchars($custom['id']) ?></td>
+												<td><?= htmlspecialchars($custom['name']) ?></td>
+												<td>
+													<?php foreach ($custom['event'] as $key => $event) { ?>
+														<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']) ?>" class="text-decoration-underline link-primary"><?= htmlspecialchars($event['name']) ?></a>
+														<?= ($key !== $last_key) ? '、' : '' ?>
+													<?php } ?>
+												</td>
+												<td class="text-center">
+													<a href='/custom/admin/app/Views/event/custom_upsert.php?id=<?= htmlspecialchars($custom['id']) ?>' class="me-3">
+														<i class="align-middle" data-feather="edit-2"></i>
+													</a>
+													<a class="delete-link" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?= htmlspecialchars($custom['id']) ?>">
+														<i class="align-middle" data-feather="trash"></i>
+													</a>
+												</td>
+											</tr>
+
+											<!-- 削除確認モーダル -->
+											<div class="modal fade" id="confirmDeleteModal-<?= htmlspecialchars($custom['id']) ?>" tabindex="-1" aria-hidden="true">
+												<div class="modal-dialog modal-dialog-centered">
+													<form method="POST" action="/custom/admin/app/Controllers/event/custom_delete_controller.php">
+														<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+														<input type="hidden" name="id" value="<?= htmlspecialchars($custom['id']) ?>">
+														<div class="modal-content">
+															<div class="modal-header">
+																<h5 class="modal-title">削除確認</h5>
+																<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+															</div>
+															<div class="modal-body">
+																<p class="mt-3">「<?= htmlspecialchars($custom['name']) ?>」を削除します。本当によろしいですか？</p>
+															</div>
+															<div class="modal-footer">
+																<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+																<button type="submit" class="btn btn-danger">削除</button>
+															</div>
+														</div>
+													</form>
+												</div>
+											</div>
+										<?php } ?>
 									</tbody>
 								</table>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- 削除確認モーダル -->
-				<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-					<div class="modal-dialog modal-dialog-centered">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title">削除確認</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body">
-								<p class="mt-3">「イベントカテゴリ区分名」を削除します。本当によろしいですか</p>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-								<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
 							</div>
 						</div>
 					</div>

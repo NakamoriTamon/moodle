@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42">
+  <style  type="text/css">
+    #icon_path.active path {
+      fill: #81BFDA;
+    }
+  </style>
+  <g id="icon_cat" data-name="category05" transform="translate(-667 -3781)">
+    <rect id="長方形_560" data-name="長方形 560" width="42" height="42" rx="21" transform="translate(667 3781)" fill="#fff"/>
+    <g id="icon_path" data-name="グループ 5483" transform="translate(676 3790)">
+      <path id="パス_803" data-name="パス 803" d="M0,0V24.5H23.758V21.777H2.64V0Z" fill="#b2d8e9"/>
+      <path id="パス_804" data-name="パス 804" d="M86.916,101.541l1.528,1.52-4.587,4.564L79.2,102.992l-7.139,7.1,2.107,2.1,5.032-5.006,4.657,4.633,6.694-6.66,1.528,1.521,1.033-6.165Z" transform="translate(-68.612 -95.704)" fill="#b2d8e9"/>
+    </g>
+  </g>
+</svg>

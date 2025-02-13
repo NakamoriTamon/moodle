@@ -1,5 +1,41 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
-<?php $id = $_GET['id']; ?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_edit_controller.php');
+require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
+
+// id を取得
+$id = isset($_GET['id']) ? intval($_GET['id']) : null;
+
+// コントローラに id を渡す
+$controller = new EventEditController();
+$eventData = $controller->getEventData($id);
+
+// セッションからエラーメッセージを取得
+$errors = $_SESSION['errors'] ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+
+$details = array();
+for($i = 1; $i < 10; $i++){
+    if (!empty($old_input)) {
+		$j = 0;
+		$n = 1;
+		while (isset($old_input["tutor_id_{$i}_{$n}"])) {
+			$details[$i][$j] = [
+				'tutor_id' => $old_input["tutor_id_{$i}_{$n}"] ?? null,
+				'name' =>  $old_input["lecture_name_{$i}_{$n}"] ?? null,
+				'program' => $old_input["program_{$i}_{$n}"] ?? null,
+			];
+			$j++;
+			$n++;
+		}
+    } else {
+		$details[$i] = $eventData['select_course'][$i]['details'] ?? [[]];
+	}
+}
+
+$event_kbns = EVENT_KBN_LIST;
+unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削除
+ ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
 	<div class="wrapper">
@@ -30,71 +66,81 @@
 						<div class="card-body p-0">
 							<p class="content_title p-3">イベント登録</p>
 							<div class="form-wrapper">
-								<form method="POST" action="/custom/admin/app/Controllers/EventUpsertController.php">
+								<form method="POST" action="/custom/admin/app/Controllers/event/event_upsert_controller.php" enctype="multipart/form-data">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-									<input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
+									<input type="hidden" name="action" value="createUpdate">
+									<input type="hidden" name="id" value="<?= $id ?? '' ?>">
 									<div class=" mb-3">
 										<label class="form-label">イベント区分</label>
 										<select name="event_kbn" class="form-control mb-3">
-											<option value=1>1度きりのイベント</option>
-											<option <?php if ($id) { ?> selected <?php } ?> value=2>複数回シリーズのイベント</option>
+											<?php foreach ($event_kbns as $kbn_id => $name): ?>
+												<option value="<?= htmlspecialchars($kbn_id) ?>"
+        											<?= isSelected($kbn_id, $eventData['event_kbn'] ?? null, $old_input['event_kbn'] ?? null) ? 'selected' : '' ?>>
+														<?= htmlspecialchars($name) ?>
+													</option>
+											<?php endforeach; ?>
 										</select>
+										<?php if (!empty($errors['event_kbn'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_kbn']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">イベントタイトル</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input type="name" name="name" class="form-control" placeholder="" value="<?php if ($id) { ?>細胞生物学 <?php } ?>">
+										<input type="name" name="name" class="form-control" placeholder=""
+                                            value="<?= htmlspecialchars(isSetValue($eventData['name'] ?? '', ($old_input['name'] ?? ''))) ?>" />
+										<?php if (!empty($errors['name'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">説明文</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<textarea name="description" class=" form-control" rows="5"><?php if ($id) { ?>細胞の構造と機能、相互作用を多角的に探求する学問です。 体験コーナーも用意しております。集ってご参加ください。<?php } ?>
-										</textarea>
+										<textarea name="description" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['description'] ?? '', ($old_input['description'] ?? ''))) ?></textarea>
+										<?php if (!empty($errors['description'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">カテゴリー</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<select id="category_id" name="category_id" class="form-control choices-multiple mb-3" multiple>
-											<optgroup label="">
-												<option value=1>未選択</option>
-												<option value=2>医療・健康</option>
-												<option value=3 <?php if ($id) { ?>selected<?php } ?>>科学・技術</option>
-												<option value=4>生活・福祉</option>
-												<option value=5>文化・芸術</option>
-												<option value=6>社会・経済</option>
-												<option value=7 <?php if ($id) { ?>selected<?php } ?>>自然・環境</option>
-												<option value=8>子ども・教育</option>
-												<option value=9>国際・言語</option>
-												<option value=10>その他</option>
-											</optgroup>
+										<select id="category_id" name="category_id[]" class="form-control choices-multiple mb-3" multiple>
+											<?php foreach ($categorys as $category): ?>
+												<option value="<?= htmlspecialchars($category['id']) ?>"
+        											<?= isChoicesSelected($category['id'], $eventData['select_categorys'] ?? null, $old_input['category_id'] ?? null) ? 'selected' : '' ?>>
+													<?= htmlspecialchars($category['name']) ?>
+												</option>
+											<?php endforeach; ?>
 										</select>
+										<?php if (!empty($errors['category_id'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['category_id']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">サムネール画像</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input id="thumbnailInput" name=" thumbnail_img_name" class="form-control" type="file" accept=".png,.jpeg,.jpg">
-									</div>
-
-									<div id="thumbnailPreviewContainer" class="position-relative d-none mb-3">
-										<img
-											id="thumbnailPreview"
-											src=""
-											alt="Thumbnail Preview"
-											style="width: 100%; max-width:497px; height: auto; object-fit: cover;" />
-										<button
-											id="removeThumbnailButton"
-											class="btn btn-danger position-absolute"
-											style="top: 10px; right: 10px;">
-											×
-										</button>
+										<div class="mb-3">
+											<input type="file" name="thumbnail_img" id="thumbnail_img" class="form-control" accept=".png,.jpeg,.jpg">
+										</div>
+										<div id="image-preview" class="mb-3">
+											<!-- プレビュー画像がここに表示されます -->
+										</div>
+										<?php if(isset($eventData['thumbnail_img'])): ?>
+												<img class="fit-picture"
+													src="<?= htmlspecialchars($eventData['thumbnail_img']) ?>"
+													width="300" />
+										<?php endif; ?>
+										<?php if (!empty($errors['thumbnail_img'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['thumbnail_img']); ?></div>
+										<?php endif; ?>
 									</div>
 
 									<div class="mb-3">
@@ -102,44 +148,63 @@
 											<label class="me-2">講義形式</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<select id="venue_id" class=" form-control choices-multiple mb-3" multiple>
+										<select id="lecture_format_id" name="lecture_format_id[]" class=" form-control choices-multiple mb-3" multiple>
 											<optgroup label="">
-												<option selected value=1 <?php if ($id) { ?>selected<?php } ?>>会場</option>
-												<option value=2>会場(オンデマンドあり)</option>
-												<option value=3 <?php if ($id) { ?>selected<?php } ?>>オンライン</option>
-												<option value=4>ハイブリッド</option>
+												<?php foreach ($lectureFormats as $lectureFormat): ?>
+													<option value="<?= htmlspecialchars($lectureFormat['id']) ?>"
+        											<?= isChoicesSelected($lectureFormat['id'], $eventData['select_lecture_formats'] ?? null, $old_input['lecture_format_id'] ?? null) ? 'selected' : '' ?>>
+														<?= htmlspecialchars($lectureFormat['name']) ?>
+													</option>
+												<?php endforeach; ?>
 											</optgroup>
 										</select>
+										<?php if (!empty($errors['lecture_format_id'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_format_id']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">会場名</label>
-										<input name="venue_name" class=" form-control" type="text" value="<?php if ($id) { ?>大阪大学適授記念センター講堂<?php } ?>">
+										<input name="venue_name" class=" form-control" type="text"
+                                            value="<?= htmlspecialchars(isSetValue($eventData['venue_name'] ?? '', ($old_input['venue_name'] ?? ''))) ?>" />
+										<?php if (!empty($errors['venue_name'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['venue_name']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">対象</label>
-										<input name="target" class=" form-control" type="text">
+										<input name="target" class=" form-control" type="text"
+                                            value="<?= htmlspecialchars(isSetValue($eventData['target'] ?? '', ($old_input['target'] ?? ''))) ?>" />
+										<?php if (!empty($errors['target'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['target']); ?></div>
+										<?php endif; ?>
 									</div>
+									<div class="mb-3 onetime_area">
 									<div class="mb-3 onetime_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">開催日</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="event_date" class="form-control" type="date" value=<?php if ($id) { ?>2025-01-28 <?php } ?>>
+										<input type="date" name="event_date" class="form-control"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>" />
+										<?php if (!empty($errors['event_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_date']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class=" mb-3 sp-none">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">時間</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="start_hour" class="timepicker sp-w-50" type="text" placeholder="12:00" value="<?php if ($id) { ?>10:30<?php } ?>"> <span class="ps-2 pe-2">～</span>
-										<input name="end_hour" class="timepicker" type="text" placeholder="12:00" value="<?php if ($id) { ?>13:00<?php } ?>">
-									</div>
-									<div class="mb-3 pc-none">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">時間( 開始時間 )</label>
-											<span class="badge bg-danger">必須</span>
-										</div>
-										<input name="start_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?php if ($id) { ?>10:30<?php } ?>">
+										<input name="start_hour" class="timepicker" type="text" placeholder="12:00"
+											value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>" /> <span class="ps-2 pe-2">～</span>
+										<input name="end_hour" class="timepicker" type="text" placeholder="12:00"
+											value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>" />
+										<?php if (!empty($errors['start_hour'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_hour']); ?></div>
+										<?php endif; ?>
+										<?php if (!empty($errors['end_hour'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_hour']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3 pc-none">
 										<div class="form-label d-flex align-items-center">
@@ -150,472 +215,257 @@
 									</div>
 									<div class="mb-3">
 										<label class="form-label">交通アクセス</label>
-										<textarea name="access" class=" form-control" rows="5"><?php if ($id) { ?>〇〇駅下車徒歩〇〇分<?php } ?></textarea>
+										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
+										<?php if (!empty($errors['access'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['access']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">Google Map</label>
-										<textarea name="google_map" class="form-control" rows="5"><?php if ($id) { ?><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3275.36086817243!2d135.52189267623!3d34.82201827669303!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6000fb60db96a653%3A0xf584717b6ac7c9ef!2sOsaka%20University!5e0!3m2!1sen!2sjp!4v1737100714180!5m2!1sen!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><?php } ?>
-										</textarea>
+										<div class="form-label d-flex align-items-center">
+											<label class="form-label">Google Map&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.google.co.jp/maps/?hl=ja" target="_blank">Google Mapを開く</a></label>
+										</div>
+										<div class="mb-3">
+											<input name="google_map" class=" form-control" type="text"
+												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
+										</div>
+										<div class="mb-3">
+											<?php if (!is_null($eventData)): ?><?= $eventData['google_map'] ?? '' ?><?php endif; ?>
+										</div>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input name="is_top" type="checkbox" checked class="form-check-input">
+											<input name="is_top" type="checkbox" value="1" checked class="form-check-input">
 											<span class="form-check-label">トップに固定する</span>
 										</label>
 									</div>
 									<div class="mb-3 onetime_area">
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
+									<?php foreach ($details[1] as $key => $detail): ?>
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">講師</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
+										<select id="tutor_id_<?= $key+1 ?>" class=" form-control mb-3" name="tutor_id_<?= $key+1 ?>">
 											<optgroup label="">
-												<option value=1>海道 尊</option>
-												<option value=2>川上 潤</option>
+												<option value="">選択してください</option>
+												<?php foreach ($tutors as $tutor): ?>
+													<option value="<?= htmlspecialchars($tutor['id']) ?>"
+												<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key+1] ?? null) ? 'selected' : '' ?>>
+														<?= htmlspecialchars($tutor['name']) ?>
+													</option>
+												<?php endforeach; ?>
 											</optgroup>
 										</select>
+										<?php if (!empty($errors['tutor_id_' . $key+1])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key+1]); ?></div>
+										<?php endif; ?>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">講義名</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="name" name="name" class="form-control" placeholder="">
+											<input type="text" name="lecture_name_<?= $key+1 ?>" class="form-control" placeholder=""
+												value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key+1] ?? '')) ?>" />
+											<?php if (!empty($errors['lecture_name_' . $key+1])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key+1]); ?></div>
+											<?php endif; ?>
 										</div>
 										<div class="mb-5">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">講義概要</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
+											<textarea name="program_<?= $key+1 ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key+1] ?? '')) ?></textarea>
+											<?php if (!empty($errors['program_' . $key+1])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key+1]); ?></div>
+											<?php endif; ?>
 										</div>
 										<hr>
+									<?php endforeach; ?>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
+												<button type="button" class="add_colum btn btn-primary ms-auto me-0" data-target="">項目追加</button>
 											</div>
 										</div>
 									</div>
 
 									<div class="repeatedly_area">
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第1講座</P>
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">開催日</label>
-												<span class="badge bg-danger">必須</span>
-											</div>
-											<input name="event_date" class="form-control" type="date" value=<?php if ($id) { ?>2025-01-28<?php } ?>>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>未選択</option>
-													<option value=1 <?php if ($id) { ?>selected<?php } ?>>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">講義名</label>
-												<span class="badge bg-danger">必須</span>
-											</div>
-											<input type="name" name="name" class="form-control" placeholder="" value="<?php if ($id) { ?>細胞内輸送とシグナル伝達<?php } ?>">
-										</div>
-										<div class="mb-5">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">講義概要</label>
-												<span class="badge bg-danger">必須</span>
-											</div>
-											<textarea name="program" class=" form-control" rows="5"><?php if ($id) { ?>細胞内での物質輸送や情報伝達のメカニズムを解説します。<?php } ?></textarea>
-										</div>
-										<hr>
-										<?php if ($id) { ?>
+										<?php for($i = 1; $i < 10; $i++): ?>
 											<div class="mb-3">
-												<label class="form-label">講師</label>
-												<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-													<optgroup label="">
-														<option value=1>未選択</option>
-														<option value=1>大野 葵</option>
-														<option value=2 <?php if ($id) { ?>selected<?php } ?>>川上 潤</option>
-													</optgroup>
-												</select>
+												<P class="fs-5 fw-bold">第<?= $i ?>講座</P>
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">開催日</label>
+													<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
+												</div>
+												<input name="course_date_<?= $i ?>" class="form-control" type="date"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][$i]['course_date'] ?? '', $old_input['course_date_' . $i] ?? '')) ?>" />
+														<?php if (!empty($errors['course_date_' . $i])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['course_date_' . $i]); ?></div>
+														<?php endif; ?>
 											</div>
+											<?php foreach ($details[$i] as $key => $detail): ?>
+												<div id="area_<?= $i ?>_<?= $key+1 ?>">
+													<div class="mb-3">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講師</label>
+															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
+														</div>
+														<select id="tutor_id_<?= $i ?>_<?= $key+1 ?>" class="form-control mb-3" name="tutor_id_<?= $i ?>_<?= $key+1 ?>">
+															<option value="">選択してください</option>
+															<?php foreach ($tutors as $tutor): ?>
+																<option value="<?= htmlspecialchars($tutor['id']) ?>"
+																	<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, null) ? 'selected' : '' ?>>
+																	<?= htmlspecialchars($tutor['name']) ?>
+																</option>
+															<?php endforeach; ?>
+														</select>
+														<?php if (!empty($errors['tutor_id_' . $i . '_' . $key+1])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $i . '_' . $key+1]); ?></div>
+														<?php endif; ?>
+													</div>
+													<div class="mb-3">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講義名</label>
+															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
+														</div>
+														<input type="text" name="lecture_name_<?= $i ?>_<?= $key+1 ?>" class="form-control"
+															value="<?= htmlspecialchars($detail['name'] ?? '') ?>">
+														<?php if (!empty($errors['lecture_name_' . $i . '_' . $key+1])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $i . '_' . $key+1]); ?></div>
+														<?php endif; ?>
+													</div>
+													<div class="mb-3">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講義概要</label>
+															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
+														</div>
+														<textarea name="program_<?= $i ?>_<?= $key+1 ?>" class="form-control"><?= htmlspecialchars($detail['program'] ?? '') ?></textarea>
+														<?php if (!empty($errors['program_' . $i . '_' . $key+1])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $i . '_' . $key+1]); ?></div>
+														<?php endif; ?>
+													</div>
+												</div>
+												<hr>
+											<?php endforeach; ?>
 											<div class="mb-3">
 												<div class="form-label d-flex align-items-center">
-													<label class="me-2">講義名</label>
-													<span class="badge bg-danger">必須</span>
-												</div>
-												<input type="name" name="name" class="form-control" placeholder="" value="<?php if ($id) { ?>遺伝子発現制御<?php } ?>">
-											</div>
-											<div class="mb-3">
-												<div class="form-label d-flex align-items-center">
-													<label class="me-2">講義概要</label>
-													<span class="badge bg-danger">必須</span>
-												</div>
-												<textarea name="program" class=" form-control" rows="5"><?php if ($id) { ?>遺伝子がどのように転写・翻訳されるか、その過程と調節機構を探ります。<?php } ?></textarea>
-											</div>
-											<div class="mb-3">
-												<div class="form-label mt-3 d-flex align-items-center">
-													<button type="button" class="delete_btn btn btn-danger ms-auto me-0">削除</button>
+													<button type="button" class="add_colum_lecture btn btn-primary ms-auto me-0" data-target="<?= $i ?>">項目追加</button>
 												</div>
 											</div>
-											<hr>
-										<?php } ?>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第2講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date" value=<?php if ($id) { ?>2025-02-07<?php } ?>>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="" value=<?php if ($id) { ?>2500<?php } ?>>
-										</div>
-										<div class=" mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>未選択</option>
-													<option value=1>海道 尊</option>
-													<option value=2 <?php if ($id) { ?>selected<?php } ?>>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="" value="<?php if ($id) { ?>細胞周期とアポトーシス<?php } ?>">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"><?php if ($id) { ?>細胞の分裂、成長、死の過程を分子レベルで理解します。必要に応じて内容を詳細化できます！<?php } ?></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第3講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>未選択</option>
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第4講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>未選択</option>
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第5講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第6講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第7講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第8講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2 form-label">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
-										<div class="mb-3">
-											<P class="fs-5 fw-bold">第9講座</P>
-											<label class="me-2 form-label">開催日</label>
-											<input name="event_date" class="form-control" type="date">
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">割引後料金</label>
-											<input type="number" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-3">
-											<label class="form-label">講師</label>
-											<select id="tutor_id" class=" form-control mb-3" name="tutor_id">
-												<optgroup label="">
-													<option value=1>海道 尊</option>
-													<option value=2>川上 潤</option>
-												</optgroup>
-											</select>
-										</div>
-										<div class="mb-3">
-											<label class="me-2 form-label">講義名</label>
-											<input type="name" name="name" class="form-control" placeholder="">
-										</div>
-										<div class="mb-5">
-											<label class="me-2">講義概要</label>
-											<textarea name="program" class=" form-control" rows="5"></textarea>
-										</div>
-										<hr>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<button type="button" class="add_colum btn btn-primary ms-auto me-0">項目追加</button>
-											</div>
-										</div>
-
+										<?php endfor; ?>
 									</div>
 									<!-- <div class="mb-3">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">プログラム</label>
-											<span class="badge bg-danger">必須</span>
-										</div>
-										<textarea name="program" class=" form-control" rows="5"></textarea>
+										<label class="form-label">講義名</label>
+										<input name="lecture_name" class=" form-control" type="text">
+									</div>
+									<div class="mb-3">
+										<label class="form-label">講義概要</label>
+										<textarea name="lecture_outline" class="form-control" rows="5"></textarea>
 									</div> -->
 									<div class="mb-3">
+										<label class="form-label">プログラム</label>
+										<textarea name="program" class=" form-control" rows="5"><?= htmlspecialchars($eventData['program'] ?? ($old_input['program'] ?? '')) ?></textarea>
+										<?php if (!empty($errors['program'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['program']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
 										<label class="form-label">主催</label>
-										<input name="sponsor" class=" form-control" type="text" value="<?php if ($id) { ?>大阪大学適塾記念センター<?php } ?>">
+										<input name="sponsor" class=" form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['sponsor'] ?? ($old_input['sponsor'] ?? '')) ?>" />
+										<?php if (!empty($errors['sponsor'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['sponsor']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">共催</label>
-										<input name="co_host" class="form-control" type="text">
+										<input name="co_host" class="form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['co_host'] ?? ($old_input['co_host'] ?? '')) ?>" />
+										<?php if (!empty($errors['co_host'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['co_host']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">後援</label>
-										<input name="sponsorship" class="form-control" type="text">
+										<input name="sponsorship" class="form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['sponsorship'] ?? ($old_input['sponsorship'] ?? '')) ?>" />
+										<?php if (!empty($errors['sponsorship'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['sponsorship']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">協力</label>
-										<input name="cooperation" class=" form-control" type="text" value="<?php if ($id) { ?>株式会社PHP研究所 大阪大学生活協同組合<?php } ?>">
+										<input name="cooperation" class=" form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['cooperation'] ?? ($old_input['cooperation'] ?? '')) ?>" />
+										<?php if (!empty($errors['cooperation'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['cooperation']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">企画</label>
-										<input name="plan" class="form-control" type="text">
+										<input name="plan" class="form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['plan'] ?? ($old_input['plan'] ?? '')) ?>" />
+										<?php if (!empty($errors['plan'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['plan']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">お問い合わせ窓口</label>
-										<input name="plan" class="form-control" type="email">
+										<label class="form-label">定員</label>
+										<span class="badge bg-danger">必須</span>
+										<input name="capacity" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
+										<?php if (!empty($errors['capacity'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['capacity']); ?></div>
+										<?php endif; ?>
 									</div>
-									<div class="mb-3">
-										<label class="form-label me-2">定員</label>
-										<input name="capacity" class=" form-control" min="0" type="number" value=<?php if ($id) { ?>300<?php } ?>>
-									</div>
-									<div class="mb-3">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">参加費</label>
-											<span class="badge bg-danger">必須</span>
-										</div>
-										<input name="participation_fee" class=" form-control" min="0" type="number" value=<?php if ($id) { ?>5000<?php } ?>>
+									<div class="mb-3 onetime_area">
+										<label class="form-label">参加費</label>
+										<span class="badge bg-danger">必須</span>
+										<input name="participation_fee" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>" />
+										<?php if (!empty($errors['participation_fee'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3 repeatedly_area">
 										<label class="form-label">参加費( 全て受講 )</label>
-										<input id="" name="all_participation_fee" class="form-control" min="0" type="number" value=<?php if ($id) { ?>42000<?php } ?>>
+										<span class="badge bg-danger">必須</span>
+										<input id="all_participation_fee" name="all_participation_fee" class="form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['all_participation_fee'] ?? '')) ?>" />
+										<?php if (!empty($errors['participation_fee'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
+										<?php endif; ?>
 									</div>
-									<div class="mb-3 repeatedly_area">
-										<label class="form-label">割引後料金( 全て受講 )</label>
-										<input id="" name="all_participation_fee" class="form-control" min="0" type="number" value=<?php if ($id) { ?>5000<?php } ?>>
-									</div>
+									<div class="mb-3 onetime_area">
 									<div class="mb-3 onetime_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">申し込み締切日</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="deadline" class=" form-control" type="date">
-									</div>
-									<div class="mb-3 repeatedly_area">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">各回申し込み締切日</label>
-											<span class="badge bg-danger">必須</span>
-										</div>
-										<input name="deadline" class=" form-control" type="number" value=<?php if ($id) { ?>5<?php } ?>>
+										<input name="deadline" class=" form-control" type="date"
+                                            value="<?= explode (' ', htmlspecialchars($eventData['deadline'] ?? ($old_input['deadline'] ?? '')))[0] ?>" />
+										<?php if (!empty($errors['deadline'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3 repeatedly_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">申し込み締切日( 全て受講 )</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="deadline" class="repeatedly_area form-control" type="date" value=<?php if ($id) { ?>2025-01-20<?php } ?>>
+										<input name="all_deadline" class="form-control" type="date"
+                                            value="<?= explode (' ', htmlspecialchars($eventData['deadline'] ?? ($old_input['all_deadline'] ?? '')))[0] ?>" />
+										<?php if (!empty($errors['deadline'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">アーカイブ配信期間</label>
-										<input name="archive_streaming_period" class=" form-control" min="0" type="number" value=<?php if ($id) { ?>10<?php } ?>>
+										<span class="badge bg-danger">必須</span>
+										<input name="archive_streaming_period" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['archive_streaming_period'] ?? ($old_input['archive_streaming_period'] ?? '')) ?>" />
+										<?php if (!empty($errors['archive_streaming_period'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['archive_streaming_period']); ?></div>
+										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
@@ -625,16 +475,17 @@
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input type="checkbox" checked name="is_double_speed" class="form-check-input">
-											<span name="is_double_speed" class=" form-check-label">申込みボタンを表示する</span>
+											<input type="checkbox" checked name="is_apply_btn" class="form-check-input">
+											<span name="is_apply_btn" class=" form-check-label">申込みボタンを表示する</span>
 										</label>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">イベントカスタム区分</label>
-										<select id="event_custom_id" class=" form-control mb-3" name="event_custom_id">
+										<select id="event_customfield_category_id" class=" form-control mb-3" name="event_customfield_category_id">
 											<option value="">未選択</option>
-											<option value=2>適塾記念会イベント</option>
-											<option value=3>生命科学分野イベント</option>
+											<?php foreach ($event_category_list as $key => $event_category): ?>
+												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if(isset($eventData['event_customfield_category_id']) && $event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
+											<?php endforeach ?>
 										</select>
 									</div>
 									<div class="mb-3">
@@ -648,9 +499,12 @@
 									</div>
 									<div class="mb-3">
 										<label class="form-label">その他</label>
-										<textarea name="note" class="form-control" rows="5"></textarea>
+										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars($eventData['note'] ?? ($old_input['note'] ?? '')) ?></textarea>
+										<?php if (!empty($errors['note'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+										<?php endif; ?>
 									</div>
-									<button id="submit" type="button" class="btn btn-primary">登録</button>
+									<input type="submit" id="submit" class="btn btn-primary" value="登録">
 								</form>
 							</div>
 						</div>
@@ -666,7 +520,17 @@
 </html>
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
-		const ids = ['venue_id', 'category_id'];
+		const eventKbnElement = document.querySelector('select[name="event_kbn"]');
+		const repeatedlyArea =$('.repeatedly_area');
+		const onetimeArea = $('.onetime_area');
+
+		// 初期表示で value="2" の場合は表示
+		if (eventKbnElement.value == '2') {
+			onetimeArea.css('display', 'none');
+			repeatedlyArea.css('display', 'block');
+		}
+		
+		const ids = ['lecture_format_id', 'category_id'];
 		ids.forEach((id) => {
 			const element = document.getElementById(id);
 			if (element) {
@@ -677,84 +541,138 @@
 				});
 			}
 		});
-	});
-	$(document).ready(function() {
-		if ($('select[name="event_kbn"]').val() == 2) {
-			$('.onetime_area').css('display', 'none');
-			$('.repeatedly_area').css('display', 'block');
-		} else {
-			$('.onetime_area').css('display', 'block');
-			$('.repeatedly_area').css('display', 'none');
-		}
-
 		// select要素が変更された時にアラートを表示
 		$('select[name="event_kbn"]').on('change', function() {
 			if ($(this).val() == 2) {
-				$('.onetime_area').css('display', 'none');
-				$('.repeatedly_area').css('display', 'block');
+				onetimeArea.css('display', 'none');
+				repeatedlyArea.css('display', 'block');
 			} else {
-				$('.onetime_area').css('display', 'block');
-				$('.repeatedly_area').css('display', 'none');
+				onetimeArea.css('display', 'block');
+				repeatedlyArea.css('display', 'none');
 			}
 		});
-	});
-	$(document).ready(function() {
+		let itemCount = 1; // 初期値として1を設定
 		// select要素が変更された時にアラートを表示
 		$('.add_colum').on('click', function() {
-			const element =
-				'<div class="add_area">' +
-				'<div class="mb-3 add_area mt-4 ">' +
-				'<label class="form-label me-2">講師</label>' +
-				'<select id="tutor_id" class="form-control mb-3" name="tutor_id">' +
-				'<optgroup label="">' +
-				'<option value="1">海道 尊</option>' +
-				'<option value="2">川上 潤</option>' +
-				'</optgroup>' +
-				'</select>' +
-				'</div>' +
-				'<div class="mb-3">' +
-				'<label class="me-2 form-label">講義名</label>' +
-				'<input type="name" name="name" class="form-control" placeholder=""></div>' +
-				'<div class="mb-3">' +
-				'<label class="me-2 form-label">講義概要</label>' +
-				'<textarea name="program" class="form-control" rows="5"></textarea></div>' +
-				'<div class ="mb-3"><div class = "form-label mt-3 d-flex align-items-center">' +
-				'<button type="button" class ="delete_btn btn btn-danger ms-auto me-0">削除</button></div></div><hr>';
+			const targetId = $(this).data('target'); // 削除対象のIDを取得
+			itemCount++; // 番号をインクリメント
+
+			const element = `
+			<div id="area_${itemCount}" class="add_area">
+				<div class="mb-3 mt-4">
+				<div class="form-label d-flex align-items-center">
+					<label class="me-2">講師</label>
+					<span class="badge bg-danger">必須</span>
+				</div>
+				<select id="tutor_id_${itemCount}" class="form-control mb-3" name="tutor_id_${itemCount}">
+					<optgroup label="">
+					<option value="1">海道 尊</option>
+					<option value="2">川上 潤</option>
+					</optgroup>
+				</select>
+				</div>
+				<div class="mb-3">
+				<div class="form-label align-items-center">
+					<label class="me-2">講義名</label>
+					<span class="badge bg-danger">必須</span>
+				</div>
+				<input type="text" name="lecture_name_${itemCount}" class="form-control" placeholder="">
+				</div>
+				<div class="mb-3">
+				<div class="form-label d-flex align-items-center">
+					<label class="me-2">講義概要</label>
+					<span class="badge bg-danger">必須</span>
+				</div>
+				<textarea name="program_${itemCount}" class="form-control" rows="5"></textarea>
+				</div>
+				<div class="mb-3">
+				<div class="form-label mt-3 d-flex align-items-center">
+					<button type="button" class="delete_btn btn btn-danger ms-auto me-0" data-target="${itemCount}">削除</button>
+				</div>
+				</div>
+				<hr>
+			</div>
+			`;
 
 			$(this).parent().parent().before(element);
 		});
-		$(document).on('click', '.delete_btn', function() {
-			$(this).closest('.add_area').remove();
-		});
-	});
 
-	// モック用アラート　本番時は消してください
-	$('#submit').on('click', function(event) {
-		sessionStorage.setItem('alert', 'aaasss');
-		setTimeout(() => {
-			location.href = '/custom/admin/app/Views/event/index.php';
-		}, 50);
-	});
-</script>
-<script>
-	$(document).ready(function() {
-		$("#thumbnailInput").on("change", function(event) {
-			const file = event.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				reader.onload = function(e) {
-					$("#thumbnailPreview").attr("src", e.target.result);
-					$("#thumbnailPreviewContainer").removeClass("d-none");
-				};
-				reader.readAsDataURL(file);
+		// 各講座における項目数を管理するオブジェクト
+		const lectureCounts = {};
+
+		// 項目追加ボタンのクリックイベント
+		$('.add_colum_lecture').on('click', function () {
+			const targetLecture = $(this).data('target'); // 対象の講座番号を取得
+			if (!lectureCounts[targetLecture]) {
+			lectureCounts[targetLecture] = 1; // 初期化
 			}
+			lectureCounts[targetLecture]++; // 番号をインクリメント
+
+			const newItemCount = lectureCounts[targetLecture];
+
+			// 新しい項目のHTMLを生成
+			const element = `
+			<div id="area_${targetLecture}_${newItemCount}">
+				<div class="mb-3">
+					<label class="form-label">講師</label>
+					<select id="tutor_id_${targetLecture}_${newItemCount}" class="form-control mb-3" name="tutor_id_${targetLecture}_${newItemCount}">
+					<optgroup label="">
+						<option value="1">海道 尊</option>
+						<option value="2">川上 潤</option>
+					</optgroup>
+					</select>
+				</div>
+				<div class="mb-3">
+					<div class="form-label d-flex align-items-center">
+					<label class="me-2">講義名</label>
+					<span class="badge bg-danger">必須</span>
+					</div>
+					<input type="text" name="lecture_name_${targetLecture}_${newItemCount}" class="form-control" placeholder="">
+				</div>
+				<div class="mb-5">
+					<div class="form-label d-flex align-items-center">
+					<label class="me-2">講義概要</label>
+					<span class="badge bg-danger">必須</span>
+					</div>
+					<textarea name="program_${targetLecture}_${newItemCount}" class="form-control" rows="5"></textarea>
+				</div>
+				<div class="mb-3">
+					<div class="form-label mt-3 d-flex align-items-center">
+						<button type="button" class="delete_btn btn btn-danger ms-auto me-0" data-target="${targetLecture}_${newItemCount}">削除</button>
+					</div>
+				</div>
+				<hr>
+			</div>`;
+			// ボタンの直前に新しい項目を挿入
+			$(this).closest('.mb-3').before(element);
 		});
 
-		$("#removeThumbnailButton").on("click", function() {
-			event.preventDefault();
-			$("#thumbnailPreview").attr("src", "");
-			$("#thumbnailPreviewContainer").addClass("d-none");
-			$("#thumbnailInput").val(""); // ファイル入力のリセット
+		$(document).on('click', '.delete_btn', function() {
+			const targetId = "area_" + $(this).data('target'); // 削除対象のIDを取得
+			$(`#${targetId}`).remove(); // 対象の要素を削除
 		});
 	});
+
+	$(document).ready(function () {
+            $('#thumbnail_img').on('change', function (event) {
+                const file = event.target.files[0]; // 選択されたファイルを取得
+
+                // ファイルが画像であるか確認
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader(); // FileReader のインスタンスを作成
+
+                    // ファイルの読み込みが完了したらプレビューを表示
+                    reader.onload = function (e) {
+                        $('#image-preview').html(
+                            `<img src="${e.target.result}" alt="プレビュー" class="preview">`
+                        );
+                    };
+
+                    reader.readAsDataURL(file); // ファイルを読み込む
+                } else {
+                    alert('画像ファイルを選択してください。');
+                    $('#image-preview').html(''); // プレビューをクリア
+                }
+            });
+        });
 </script>

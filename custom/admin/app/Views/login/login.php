@@ -1,4 +1,4 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php'); ?>
 
 <body id="login" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
     <main class="d-flex w-100 h-100">

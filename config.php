@@ -47,5 +47,83 @@ $CFG->directorypermissions = 0777;
 
 require_once(__DIR__ . '/lib/setup.php');
 
+// 共通項目
+$customfield_select_list = [1 => 'テキスト', 2 => 'テキストエリア', 3 => 'チェックボックス', 4 => 'ラジオ', 5 => '日付'];
+$customfield_type_list = [1 => 'text', 2 => 'textarea', 3 => 'checkbox', 4 => 'radio', 5 => 'date'];
+define('CUSTOMFIELD_TYPE_LIST', $customfield_type_list);
+$event_kbn_list = [1 => '1度きりのイベント', 2 => '複数回シリーズのイベント'];
+define('EVENT_KBN_LIST', $event_kbn_list);
+$event_status_list = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+define('EVENT_STATUS_LIST', $event_status_list);
+$lang_default = "jp";
+define('LANG_DEFAULT', $lang_default);
+$guardian_kbn_default = 0;
+define('GUARDIAN_KBN_DEFAULT', $guardian_kbn_default);
+$payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込'];
+define('PAYMENT_SELECT_LIST', $payment_select_list);
+// 都道府県プルダウン
+$prefectures = [
+  '' => '選択してください',
+  '北海道' => '北海道',
+  '青森県' => '青森県',
+  '岩手県' => '岩手県',
+  '宮城県' => '宮城県',
+  '秋田県' => '秋田県',
+  '山形県' => '山形県',
+  '福島県' => '福島県',
+  '茨城県' => '茨城県',
+  '栃木県' => '栃木県',
+  '群馬県' => '群馬県',
+  '埼玉県' => '埼玉県',
+  '千葉県' => '千葉県',
+  '東京都' => '東京都',
+  '神奈川県' => '神奈川県',
+  '新潟県' => '新潟県',
+  '富山県' => '富山県',
+  '石川県' => '石川県',
+  '福井県' => '福井県',
+  '山梨県' => '山梨県',
+  '長野県' => '長野県',
+  '岐阜県' => '岐阜県',
+  '静岡県' => '静岡県',
+  '愛知県' => '愛知県',
+  '三重県' => '三重県',
+  '滋賀県' => '滋賀県',
+  '京都府' => '京都府',
+  '大阪府' => '大阪府',
+  '兵庫県' => '兵庫県',
+  '奈良県' => '奈良県',
+  '和歌山県' => '和歌山県',
+  '鳥取県' => '鳥取県',
+  '島根県' => '島根県',
+  '岡山県' => '岡山県',
+  '広島県' => '広島県',
+  '山口県' => '山口県',
+  '徳島県' => '徳島県',
+  '香川県' => '香川県',
+  '愛媛県' => '愛媛県',
+  '高知県' => '高知県',
+  '福岡県' => '福岡県',
+  '佐賀県' => '佐賀県',
+  '長崎県' => '長崎県',
+  '熊本県' => '熊本県',
+  '大分県' => '大分県',
+  '宮崎県' => '宮崎県',
+  '鹿児島県' => '鹿児島県',
+  '沖縄県' => '沖縄県'
+];
+define('PREFECTURES', $prefectures);
+
+$roles = [
+  '2' => '部門管理者',
+  '10' => 'システム管理者'
+];
+define('ROLES', $roles);
+
+// 決済情報
+$komoju_api_key = 'sk_test_6nhd2x41v77mupxnbjl9nwlk'; // テスト用秘密鍵
+$komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エンドポイント
+$payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

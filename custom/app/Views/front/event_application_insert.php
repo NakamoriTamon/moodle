@@ -17,13 +17,14 @@ $dotenv->load();
 $eventId = $_POST['event_id'];
 $userId = $_SESSION['USER']->id;
 $count = (int)$_POST['ticket'];
+$event_customfield_category_id = $_POST['event_customfield_category_id'];
 
 $baseModel = new BaseModel();
 $eventModel = new EventModel();
 $eventPaymentUserModel = new eventPaymentUserModel();
 $eventCustomFieldModel = new EventCustomFieldModel();
 $pdo = $baseModel->getPdo();
-$fieldIds = $eventCustomFieldModel->getEventsCustomFieldByEventId($eventId);
+// $fieldIds = $eventCustomFieldModel->getCustomFieldById($event_customfield_category_id);
 
 // QR生成
 $qrCode = new QrCode('https://example.com');
@@ -77,7 +78,7 @@ try {
     //     $fieldName= str_replace(['[', ']'], '', $fieldId['name']);
     //     $fieldValue = $_POST[$fieldName];
     //     try {
-    //         $stmt = $pdo->prepare("INSERT INTO mdl_event_application (event_id, user_id, event_custom_field_id, field_value) VALUES (?, ?, ?, ?)");
+    //         $stmt = $pdo->prepare("INSERT INTO mdl_event_application (event_id, user_id, event_customfield_category_id, field_value) VALUES (?, ?, ?, ?)");
     //         $stmt->execute([$eventId, $userId, $eventCustomFieldId, $fieldValue]);
     //     } catch (PDOException $e) {
     //         echo '登録に失敗しました: ' . $e->getMessage();

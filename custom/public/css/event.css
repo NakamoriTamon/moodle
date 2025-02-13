@@ -1,0 +1,78 @@
+form label {
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+form input,
+form textarea,
+form select {
+    display: block;
+    margin-bottom: 20px;
+    width: 50%;
+}
+
+form input,
+form select {
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.label_d_flex {
+    display: flex;
+}
+
+.label_d_flex input {
+    margin-bottom: 10px;
+}
+
+.container {
+    margin-top: 80px;
+}
+
+h2 {
+    color: #2D287F;
+}
+
+.label_name {
+    color: #2D287F;
+    font-weight: bold;
+}
+
+form {
+    padding: 3rem
+}
+
+h2 {
+    padding-left: 3rem;
+    margin-top: 80px;
+    color: #2D287F;
+}
+
+form textarea {
+    height: 10vh;
+}
+
+.radio-group {
+    display: flex;
+}
+
+.radio-group label {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.checkbox-group label {
+    display: inline-block;
+    margin-bottom: 0px;
+}
+
+.checkbox-group input,
+.radio-group input {
+    display: initial;
+    width: initial;
+    margin-right: .5rem;
+}
+
+#submit {
+    background-color: #5b5b5b;
+}

@@ -1,5 +1,5 @@
 <?php
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php');
 
 // メッセージが設定されていない場合のデフォルトメッセージ
 $result_message = $_SESSION['result_message'] ?? '不明なエラーが発生しました。';

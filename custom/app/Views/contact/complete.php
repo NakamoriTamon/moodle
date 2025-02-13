@@ -1,45 +1,37 @@
-<?php
-require_once('/var/www/html/moodle/config.php');
-$eventId = $_POST['event_id'];
-?>
-<!DOCTYPE html>
-<html lang="ja">
+<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($event['name']); ?></title>
-    <link rel="stylesheet" href="/front/style.css" type="text/css">
-</head>
-<!-- スタイルは完全仮の状態なのでとりえず直書きする 後で個別ファイルに記述する -->
-<style>
-    body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: Arial, sans-serif;
-    }
+<main id="subpage">
+    <section id="heading" class="inner_l">
+        <h2 class="head_ttl" data-en="CONTACT">お問い合わせ</h2>
+    </section>
+    <!-- heading -->
 
-    div {
-        text-align: center;
-    }
-</style>
-
-<body>
-    <header>
-        <p>大阪大学 動画プラットフォーム</p>
-        <?php if ($_SESSION['USER']->id == 0) {  ?>
-            <button class="login-button" onclick="window.location.href='/login/index.php'">ログイン</button>
-        <?php } else { ?>
-            <P class="user_header_p"><?php echo $_SESSION['USER']->lastname . ' ' . $_SESSION['USER']->firstname ?></P>
-            <P class="user_header_p"><?php echo $_SESSION['USER']->email ?></P>
-            <button class="login-button" onclick="window.location.href='/login/logout.php'">ログアウト</button>
-        <?php } ?>
-    </header>
-    <div>
-        <p>お問い合わせいただきありがとうございました</p>
-        <a style="margin-top: 2vh; display: inline-block" href="/custom/app/Views/front/index.php">トップページへ戻る</a>
+    <div class="inner_l">
+        <section id="form" class="contact complete">
+            <ul id="flow">
+                <li>入力</li>
+                <li>確認</li>
+                <li class="active">完了</li>
+            </ul>
+            <div class="whitebox form_cont">
+                <p class="cpt_txt">お問い合わせありがとうございます</p>
+                <p class="sent">
+                    いただいた内容を確認後、返信いたします。<br />
+                    返信が無い場合は、メールが不着になっている<br class="pc" />可能性があります。<br />
+                    お心当たりの方はお手数ですが直接お電話 <br class="pc" />(代表:
+                    00-0000-0000)までご連絡を頂けますと幸いです。
+                </p>
+            </div>
+            <a href="../index.php" class="btn btn_blue arrow box_bottom_btn">TOPへ戻る</a>
+        </section>
+        <!-- contact -->
     </div>
-</body>
+</main>
+
+<ul id="pankuzu" class="inner_l">
+    <li><a href="../index.php">トップページ</a></li>
+    <li>お問い合わせ</li>
+</ul>
+
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>

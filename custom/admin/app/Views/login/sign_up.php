@@ -1,4 +1,4 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php');
 
 // セッションからエラーメッセージを取得
 $errors = $_SESSION['errors'] ?? [];

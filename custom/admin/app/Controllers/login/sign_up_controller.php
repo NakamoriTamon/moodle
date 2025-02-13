@@ -45,10 +45,11 @@ if ($lastname_error || $firstname_error || $email_error || $password_error) {
             $new_user->password = password_hash($password, PASSWORD_DEFAULT);
             $new_user->timecreated = time();
             $new_user->timemodified = time();
+            $new_user->lang = LANG_DEFAULT;
             $user_id = $DB->insert_record('user', $new_user);
 
             // 管理者ロールを割り当てる
-            $admin_role = $DB->get_record('role', ['shortname' => 'manager']); // もしくは 'admin'
+            $admin_role = $DB->get_record('role', ['shortname' => 'coursecreator']); // もしくは 'admin'
             $context = context_system::instance(); // システムコンテキスト
             role_assign($admin_role->id, $user_id, $context->id);
 

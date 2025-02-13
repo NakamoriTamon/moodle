@@ -1,161 +1,238 @@
-<?php
-require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/FrontController.php');
+<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
-$eventId = $_GET['id'];
-$frontController = new FrontController();
-$responce = $frontController->index($eventId);
+<main id="subpage">
+    <section id="heading" class="inner_l">
+        <h2 class="head_ttl" data-en="MEMBER'S PAGE">マイページ</h2>
+    </section>
+    <!-- heading -->
 
-?>
-
-<!DOCTYPE html>
-<html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/custom/public/css/style.css" type="text/css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>イベント一覧</title>
-</head>
-
-<!-- スタイルは完全仮の状態なのでとりえず直書きする 後で個別ファイルに記述する -->
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 0px;
-        max-width: 1000px;
-    }
-
-    th,
-    td {
-        border: 1px solid black;
-        text-align: left;
-        /* 左寄せに変更 */
-        padding: 8px;
-    }
-
-    th {
-        background-color: #f2f2f2;
-        /* ヘッダー部分に背景色を追加 */
-        width: 30%;
-    }
-
-    td {
-        width: 70%;
-    }
-
-    .table_area {
-        margin: 120px auto auto auto;
-        width: 60%;
-    }
-
-    input {
-        width: 90%;
-        padding: .5rem;
-    }
-
-    .submit_button {
-        display: flex;
-        margin-top: 2vh;
-        justify-content: center;
-    }
-
-    .card {
-        width: 300px;
-        height: 150px;
-        background-image: linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);
-        border: 1px solid #0aa6cbad;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        font-family: 'Arial', sans-serif;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-    }
-
-    .card:hover {
-        transform: translateY(4px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .name {
-        font-size: 24px;
-        font-weight: bold;
-        color: #ffffff;
-    }
-
-    .sub-text {
-        font-size: 13px;
-        color: #ffffff;
-        margin-top: 8px;
-    }
-
-    .card_area {
-        display: flex;
-        justify-content: center;
-    }
-</style>
-
-<body>
-    <header>
-        <p>大阪大学 動画プラットフォーム</p>
-        <?php if ($_SESSION['USER']->id == 0) {  ?>
-            <button class="login-button mypage_button">会員登録</button>
-            <button class="login-button" onclick="window.location.href='/login/index.php'">ログイン</button>
-        <?php } else { ?>
-            <button class="login-button mypage_button" onclick="window.location.href='/custom/app/Views/mypage/index.php'">マイページ</button>
-            <button class="login-button" onclick="window.location.href='/login/logout.php'">ログアウト</button>
-        <?php } ?>
-    </header>
-
-    <div class="table_area">
-        <h2>ユーザー情報</h2>
-        <table>
-            <tr>
-                <th>氏名</th>
-                <td><input type="text" name="city" value="<?php echo $_SESSION['USER']->lastname . ' ' . $_SESSION['USER']->firstname;  ?>" </td>
-            </tr>
-            <tr>
-                <th>フリガナ</th>
-                <td><input type="text" name="kana" value="ナカモリ タモン"></input></td>
-            </tr>
-            <tr>
-                <th>都道府県</th>
-                <td><input type="text" name="city" value="<?php echo $_SESSION['USER']->city ?>"></input></td>
-            </tr>
-            <tr>
-                <th>メールアドレス</th>
-                <td><input type="text" name="email" value="<?php echo $_SESSION['USER']->email ?>"></input></td>
-            </tr>
-            <tr>
-                <th>電話番号</th>
-                <td><input type="text" name="email" value="000-0000-0000"></input></td>
-            </tr>
-            <tr>
-                <th>ハスワード</th>
-                <td><input type="password" name="email" value="password"></input></td>
-            </tr>
-        </table>
-        <div class="submit_button">
-            <button type="submit">編集する</button>
-        </div>
-
-        <h2 style="text-align: center; margin-top: 5rem">会員証</h2>
-        <div class="card_area">
-            <div class="card">
-                <div class="name">Nakamori Tamon</div>
-                <div class="sub-text">会員番号: 121 1235 1234</div>
+    <section id="mypage" class="inner_l">
+        <div id="card">
+            <p class="card_head">適塾記念会デジタル会員証</p>
+            <p class="card_year">○○年度の<br class="nopc" />本会会員ということを証明する</p>
+            <p class="card_name">阪大 花子</p>
+            <p class="card_id">0000000000000</p>
+            <ul class="card_desc">
+                <li>・本会員証は他人への貸与や譲渡はできません。</li>
+                <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
+            </ul>
+            <div class="card_pres">
+                <p class="card_pres_pos">適塾記念会会長</p>
+                <p class="card_pres_name">熊ノ郷 淳</p>
             </div>
         </div>
+
+        <div id="form" class="mypage_cont">
+            <h3 class="mypage_head">知の広場 会員情報</h3>
+            <form method="" action="">
+                <div class="whitebox form_cont">
+                    <div class="inner_m">
+                        <ul class="list">
+                            <li class="list_item01">
+                                <p class="list_label">ユーザーID</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" value="00000000" />
+                                </div>
+                            </li>
+                            <li class="list_item02">
+                                <p class="list_label">氏名</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" value="阪大太郎" />
+                                </div>
+                            </li>
+                            <li class="list_item03">
+                                <p class="list_label">フリガナ</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" value="ハンダイタロウ" />
+                                </div>
+                            </li>
+                            <li class="list_item04">
+                                <p class="list_label">生年月日</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" value="0000/00/00" />
+                                </div>
+                            </li>
+                            <li class="list_item05">
+                                <p class="list_label">住所</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" value="都道府県" />
+                                </div>
+                            </li>
+                            <li class="list_item06">
+                                <p class="list_label">メールアドレス</p>
+                                <div class="list_field f_txt">
+                                    <input type="email" value="abcdefg@gmail.com" />
+                                </div>
+                            </li>
+                            <li class="list_item07">
+                                <p class="list_label">電話番号</p>
+                                <div class="list_field f_txt">
+                                    <input type="tel" value="000-0000-0000" />
+                                </div>
+                            </li>
+                            <li class="list_item08">
+                                <p class="list_label">パスワード</p>
+                                <div class="list_field f_txt">
+                                    <input type="password" value="●●●●●●●●●" />
+                                </div>
+                            </li>
+                            <li class="list_item08 long_item">
+                                <p class="list_label">備考</p>
+                                <div class="list_field f_txtarea">
+                                    <textarea>
+テキストが入ります。テキストが入りますテキストが入りますテキストが入りますテキストが入りますテキストが入りますテキストが入りますテキストが入ります
+                        </textarea>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form_btn">
+                    <input type="submit" class="btn btn_blue box_bottom_btn" value="変更を確定する" />
+                </div>
+            </form>
+        </div>
+
+        <div class="mypage_cont reserve">
+            <h3 class="mypage_head">予約情報</h3>
+            <div class="info_wrap js_pay">
+                <a href="" class="info_wrap_cont">
+                    <p class="date">0000/00/00</p>
+                    <div class="txt">
+                        <p class="txt_ttl">
+                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                        </p>
+                        <ul class="txt_other">
+                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                            <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
+                            <li>【決済】<span class="txt_other_pay">決済済</span></li>
+                        </ul>
+                    </div>
+                </a>
+                <a href="" class="info_wrap_qr">
+                    <object
+                        type="image/svg+xml"
+                        data="../assets/common/img/icon_qr_pay.svg"
+                        class="obj obj_pay"></object>
+                    <object
+                        type="image/svg+xml"
+                        data="../assets/common/img/icon_qr.svg"
+                        class="obj obj_no"></object>
+                    <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
+                </a>
+            </div>
+            <div class="info_wrap">
+                <a href="" class="info_wrap_cont">
+                    <p class="date">0000/00/00</p>
+                    <div class="txt">
+                        <p class="txt_ttl">
+                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                        </p>
+                        <ul class="txt_other">
+                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                            <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
+                            <li>【決済】<span class="txt_other_pay">未決済</span></li>
+                        </ul>
+                    </div>
+                </a>
+                <a href="" class="info_wrap_qr">
+                    <object
+                        type="image/svg+xml"
+                        data="../assets/common/img/icon_qr_pay.svg"
+                        class="obj obj_pay"></object>
+                    <object
+                        type="image/svg+xml"
+                        data="../assets/common/img/icon_qr.svg"
+                        class="obj obj_no"></object>
+                    <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="mypage_cont history">
+            <h3 class="mypage_head">イベント履歴</h3>
+            <div class="info_wrap">
+                <a href="" class="info_wrap_cont">
+                    <p class="date">0000/00/00</p>
+                    <div class="txt">
+                        <p class="txt_ttl">
+                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                        </p>
+                        <ul class="txt_other">
+                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                        </ul>
+                    </div>
+                </a>
+            </div>
+            <div class="info_wrap">
+                <a href="" class="info_wrap_cont">
+                    <p class="date">0000/00/00</p>
+                    <div class="txt">
+                        <p class="txt_ttl">
+                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                        </p>
+                        <ul class="txt_other">
+                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                        </ul>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="mypage_cont setting">
+            <h3 class="mypage_head">お知らせメール設定</h3>
+            <p class="sent">
+                ご登録いただいたアドレス宛にイベントの最新情報やメールマガジンをお送りいたします。<br />
+                こちらで受信の設定が可能です。不要な方はチェックを外してください。
+            </p>
+            <label class="set_check"><input type="checkbox" />受け取る</label>
+            <a href="" class="btn btn_blue box_bottom_btn arrow">前へ戻る</a>
+        </div>
+    </section>
+</main>
+
+<ul id="pankuzu" class="inner_l">
+    <li><a href="../index.php">トップページ</a></li>
+    <li>マイページ</li>
+</ul>
+
+<div id="modal" class="modal_ticket">
+    <div class="modal_bg js_close"></div>
+    <div class="modal_cont">
+        <!-- <span class="cross js_close"></span> -->
+        <p class="ticket_date">2025/00/00（金）</p>
+        <p class="ticket_ttl">中之島芸術センター 演劇公演<br />『中之島デリバティブⅢ』</p>
+        <div class="ticket_qr"><img src="/custom/public/assets/common/img/qr_dummy.png" alt="" /></div>
+        <p class="ticket_txt">こちらの画面を受付でご提示ください。</p>
     </div>
+</div>
 
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
-
-</body>
-
-</html>
+<script>
+    $(".info_wrap_qr").on("click", function() {
+        srlpos = $(window).scrollTop();
+        $("#modal").fadeIn();
+        $("body").addClass("modal_fix").css({
+            top: -srlpos
+        });
+        return false;
+    });
+    $(".js_close").on("click", function() {
+        $("#modal").fadeOut();
+        $("body").removeClass("modal_fix").css({
+            top: 0
+        });
+        $(window).scrollTop(srlpos);
+    });
+</script>

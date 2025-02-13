@@ -1,4 +1,4 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php');
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/lib/moodlelib.php');
 

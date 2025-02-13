@@ -9,8 +9,8 @@ function validate_last_name($lastname)
     if (empty($lastname)) {
         return '苗字は必須です。';
     }
-    if (strlen($lastname) < 255) {
-        return '苗字は255文字以上である必要があります。';
+    if (strlen($lastname) >= 101) {
+        return '苗字は100文字以下である必要があります。';
     }
     return null;
 }
@@ -23,8 +23,8 @@ function validate_first_name($firstname)
     if (empty($firstname)) {
         return '名前は必須です。';
     }
-    if (strlen($firstname) < 255) {
-        return '名前は255文字以上である必要があります。';
+    if (strlen($firstname) >= 101) {
+        return '名前は100文字以下である必要があります。';
     }
     return null;
 }
@@ -32,10 +32,10 @@ function validate_first_name($firstname)
 /**
  * バリデーション: メールアドレス
  */
-function validate_custom_email($email)
+function validate_custom_email($email, $text = "")
 {
     if (empty($email)) {
-        return 'メールアドレスは必須です。';
+        return $text . 'メールアドレスは必須です。';
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return '無効なメールアドレスです。';
@@ -51,11 +51,12 @@ function validate_password($password)
     if (empty($password)) {
         return 'パスワードは必須です。';
     }
-    if (strlen($password) < 8) {
+    if (strlen($password) < 8 && strlen($password) > 21) {
         return 'パスワードは8文字以上である必要があります。';
     }
-    if (!preg_match('/[A-Z]/', $password)) {
-        return 'パスワードには大文字が含まれている必要があります。';
+    // 英字（大文字・小文字）と数字の使用必須
+    if (!preg_match('/[A-Za-z]/', $password)) {
+        return 'パスワードにはアルファベットが含まれている必要があります。';
     }
     if (!preg_match('/[0-9]/', $password)) {
         return 'パスワードには数字が含まれている必要があります。';
@@ -74,181 +75,225 @@ function validate_signup_name($name)
     if (strlen($name) > 50) {
         return '氏名は50文字以内である必要があります。';
     }
-    return null;
 }
 
-/**
- * バリデーション: ユーザ登録 フリガナ
+/*
+ * バリデーション: input type="text"
  */
-function validate_signup_kana($kana)
+function validate_text($val, $title, $size, $required = false)
 {
-    if (empty($kana)) {
-        return 'フリガナは必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
     }
-    if (strlen($kana) > 50) {
-        return 'フリガナは50文字以内である必要があります。';
-    }
-    if (!preg_match('/^[ア-ンー]+$/u', $kana)) {
-        return 'フリガナは全角カタカナで入力してください。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: ユーザ登録 都道府県
- */
-function validate_signup_prefecture($prefecture)
-{
-    if (empty($prefecture)) {
-        return '都道府県は必須です。';
+    if (strlen($val) > $size) {
+        return $title . 'は' . $size . '文字以上である必要があります。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 メールアドレス
+ * バリデーション: input type="text"
  */
-function validate_signup_email($email)
+function validate_phone($val, $title, $required = false)
 {
-    if (empty($email)) {
-        return 'メールアドレスは必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
     }
-    if (strlen($email) > 255) {
-        return 'メールアドレスは255文字以内である必要があります。';
+    if (strlen($val) > 20) {
+        return $title . 'は20文字以上である必要があります。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 メールアドレス（確認用）
+ * バリデーション: textareaタグ
  */
-function validate_signup_email_confirm($email_confirm, $email)
+function validate_textarea($val, $title, $required)
 {
-    if (empty($email_confirm)) {
-        return 'メールアドレス（確認用）は必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
     }
-    if (strlen($email_confirm) > 255) {
-        return 'メールアドレス（確認用）は255文字以内である必要があります。';
-    }
-    if ($email_confirm !== $email) {
-        return 'メールアドレスとメールアドレス（確認用）が一致していません。';
+    if (strlen($val) > 10000) {
+        return $title . 'は10000文字以下である必要があります。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 パスワード
- *
- * ルール:
- * - 8文字以上20文字以内であること
- * - 英字（A-Z, a-z）と数字（0-9）を各1文字以上含むこと
- * - 使用できる記号は !"#$%&'()*+,-./:;<=>?@[]\^_`{|}~ のみ（英数字と併せた全体のみ許容）
- *
- * @param string $password
- * @return string|null エラーメッセージ。問題なければ null を返す。
+ * バリデーション: selectタグ
  */
-function validate_signup_password($password)
+function validate_select($val, $title, $required)
 {
-    // 空の場合
-    if (empty($password)) {
-        return 'パスワードは必須です。';
-    }
-
-    // 文字数チェック（※英数字・記号のみの場合は strlen で問題ありません）
-    $len = strlen($password);
-    if ($len < 8) {
-        return 'パスワードは8文字以上である必要があります。';
-    }
-    if ($len > 20) {
-        return 'パスワードは20文字以内である必要があります。';
-    }
-
-    // 英字と数字をそれぞれ1文字以上含むかチェック
-    if (!preg_match('/(?=.*[A-Za-z])(?=.*\d)/', $password)) {
-        return 'パスワードは数字とアルファベットの両方を含む必要があります。';
-    }
-
-    // 使用可能な文字は、英数字および下記記号のみとする
-    // 許容する記号: !"#$%&'()*+,-./:;<=>?@[]\^_`{|}~
-    // 正規表現では以下のようにエスケープする必要があります。
-    $pattern = '/^[A-Za-z\d!"#$%&\'()*+,\-\.\/:;<=>?@\[\]\\\^_`\{\|\}~]+$/';
-    if (!preg_match($pattern, $password)) {
-        return 'パスワードに使用できない記号が含まれています。';
-    }
-
-    return null;
-}
-
-/**
- * バリデーション: ユーザ登録 パスワード（確認用）
- */
-function validate_signup_password_confirm($password_confirm, $password)
-{
-    if (empty($password_confirm)) {
-        return 'パスワード（確認用）は必須です。';
-    }
-    if ($password_confirm !== $password) {
-        return 'パスワードとパスワード（確認用）が一致していません。';
-    }
-    return null;
-}
-/**
- * バリデーション: ユーザ登録 生年月日
- */
-function validate_signup_birthdate($birthdate)
-{
-    if (empty($birthdate)) {
-        return '生年月日は必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 プライバシーポリシー
+ * バリデーション: selectタグmultiple属性
  */
-function validate_signup_policy_agreement($policy_agreement)
+function validate_select_multiple($val, $title, $required)
 {
-    if (empty($policy_agreement)) {
-        return 'プライバシーポリシーの同意は必須です。';
+    if (empty($val)) {
+        return $title . 'は必須です。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 保護者の氏名
+ * バリデーション: 整数チェック
  */
-function validate_signup_guardian_name($guardian_name)
+function validate_int($val, $title, $required)
 {
-    if (empty($guardian_name)) {
-        return '保護者の氏名は必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
     }
-    if (strlen($guardian_name) > 50) {
-        return '保護者の氏名は50文字以内である必要があります。';
+    if (is_int($val)) {
+        return $title . 'は数字を入力してください。';
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 保護者連絡先
+ * バリデーション: input type="date"
  */
-function validate_signup_guardian_contact($guardian_contact)
+function validate_date($val, $title, $required)
 {
-    if (empty($guardian_contact)) {
-        return '保護者連絡先は必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    } elseif (empty($val) && !$required) {
+        return null;
     }
-    if (strlen($guardian_contact) > 50) {
-        return '保護者連絡先は50文字以内である必要があります。';
+
+    $format = 'Y-m-d'; // 期待される日付フォーマット
+    $d = DateTime::createFromFormat($format, $val);
+    // フォーマットが正しいかつ、有効な日付であることを確認
+    if ($d && $d->format($format) === $val) {
+        return null;
+    } else {
+        return $title . "形式が違っています。";
     }
     return null;
 }
 
 /**
- * バリデーション: ユーザ登録 保護者の同意
+ * バリデーション: HH:mm形式をチェック
  */
-function validate_signup_guardian_consent($guardian_consent)
+function validate_time($val, $title, $required)
 {
-    if (empty($guardian_consent)) {
-        return '保護者の同意は必須です。';
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    } elseif (empty($val) && !$required) {
+        return null;
+    }
+
+    // 正規表現でHH:mm形式をチェック
+    if (preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $val)) {
+        return null;
+    } else {
+        return $title . "形式が違っています。";
+    }
+    return null;
+}
+
+/**
+ * バリデーション: HH:mm形式をチェック
+ */
+function validate_image_file($val, $title, $required)
+{
+    if (empty($val['name']) && !$required) {
+        return null;
+    }
+    // ファイルアップロードのチェック
+    if (!isset($val)) {
+        return $title . 'は必須です。';
+    }
+    if ($val['error'] != UPLOAD_ERR_OK) {
+        return $title . 'はファイルのアップロードに失敗しました。';
+    }
+
+    // アップロードされたファイル情報を取得
+    $allowedExtensions = ['png', 'jpeg', 'jpg']; // 許可する拡張子
+    $maxFileSize = 2 * 1024 * 1024; // 最大ファイルサイズ (2MB)
+
+    // ファイルサイズチェック
+    if ($val['size'] > $maxFileSize) {
+        return $title . 'のファイルサイズが2MBを超えています。';
+    }
+
+    // 拡張子チェック
+    $fileExtension = strtolower(pathinfo($val['name'], PATHINFO_EXTENSION));
+    if (!in_array($fileExtension, $allowedExtensions)) {
+        return $title . 'が許可されていないファイル形式です。PNG、JPEG、JPGのみ対応しています。';
+    }
+
+    // ファイルが画像かどうかをチェック
+    if (!@getimagesize($val['tmp_name'])) {
+        return $title . 'のアップロードされたファイルは画像ではありません。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: HH:mm形式をチェック
+ */
+function validate_array($array, $title, $required)
+{
+    if (empty($array) && $required) {
+        return $title . 'は必須です。';
+    }
+
+    return null;
+}
+
+/*
+ * バリデーション: マスタ画像
+ */
+function validate_image($image)
+{
+    if (empty($image) || $image['error'] === UPLOAD_ERR_NO_FILE) {
+        return '画像は必須です。';
+    }
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'svg'];
+    $file_extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+    if (!in_array($file_extension, $allowed_extensions)) {
+        return '許可されていない画像形式です。jpg, jpeg, png, svgのいずれかをアップロードしてください。';
+    }
+    $maxFileSize = 10 * 1024 * 1024; // 最大ファイルサイズ (10MB)
+    if ($image['size'] > $maxFileSize) {
+        return '画像サイズが2MBを超えています。';
+    }
+    return null;
+}
+
+/*
+ * バリデーション: 文字数制限
+ */
+function validate_max_text($val, $title, $size, $required = false)
+{
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    }
+    if (strlen($val) >= $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
+    }
+    return null;
+}
+
+/*
+ * バリデーション: 電話番号
+ */
+function validate_tel_number($tel_number)
+{
+    if (empty($tel_number)) {
+        return '電話番号は必須です。';
+    }
+    if (strlen($tel_number) >= 5) {
+        return '無効な電話番号です。';
+    }
+    if (!preg_match('/^\d+$/', $tel_number)) {
+        return '無効な電話番号です。';
     }
     return null;
 }

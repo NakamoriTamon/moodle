@@ -1,5 +1,5 @@
 <?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_controller.php');
 $eventController = new EventController();
 $events = $eventController->index();
 ?>

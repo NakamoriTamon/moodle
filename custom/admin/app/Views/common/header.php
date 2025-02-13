@@ -1,5 +1,5 @@
 <?php
-require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/login/RoleController.php');
 
 // CSRF動的トークン生成
 if (empty($_SESSION['csrf_token'])) {
@@ -46,23 +46,11 @@ if (isset($_SESSION['message_success'])) {
 }
 if (isset($_SESSION['message_error'])) {
     echo '<div class="alert alert-danger max-650 alert-dismissible position-fixed" role="alert" id="error-alert">
-                <div class="alert-message text-center">' . $_SESSION['message_error'] . '</div>
+                <div class="alert-message text-center text-danger">' . $_SESSION['message_error'] . '</div>
             </div>';
     unset($_SESSION['message_error']);
 }
 ?>
-
-<!-- モック用アラート表示 本番では消します -->
-<script>
-    $(document).ready(function() {
-        if (sessionStorage.getItem('alert')) {
-            const element = '<div class="alert alert-success max-650 fs-5 alert-dismissible position-fixed" role="alert" id="success-alert">' +
-                '<div class="alert-message text-center">登録が完了しました</div></div>';
-            $('body').after(element);
-            sessionStorage.removeItem('alert');
-        }
-    });
-</script>
 
 <script>
     $(document).ready(function() {

@@ -3,17 +3,23 @@
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventCustomFieldModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/CognitionModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
 
 class EventCustomFieldController
 {
 
     private $eventModel;
     private $eventCustomFieldModel;
+    private $cognitionModel;
+    private $paymentTypeModel;
 
     public function __construct()
     {
         $this->eventCustomFieldModel = new eventCustomFieldModel();
         $this->eventModel = new eventModel();
+        $this->cognitionModel = new cognitionModel();
+        $this->paymentTypeModel = new paymentTypeModel();
     }
 
     public function getEventCustomField($eventId)
