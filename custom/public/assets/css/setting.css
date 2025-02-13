@@ -1,0 +1,102 @@
+@charset "utf-8";
+/*  setting.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+
+/*-------------------------------------
+ setting
+ -------------------------------------*/
+#setting .set_form {
+  padding: 80px 0;
+}
+#setting .set_form .set_inner {
+  max-width: 580px;
+  margin: 0 auto;
+}
+#setting .set_form .set_inner .sent {
+  margin-bottom: 40px;
+  text-align: center;
+}
+#setting .set_form .list li:not(:last-child) {
+  margin-bottom: 40px;
+}
+#setting .set_form .list li .list_label {
+  margin-bottom: 10px;
+}
+#setting .set_form .list li .list_note {
+  padding-left: 1em;
+  font-size: 1.4rem;
+  color: #a1a1a1;
+  line-height: 1.8;
+  text-indent: -1em;
+}
+#setting .set_form .list li .list_note:not(:last-child) {
+  margin-top: 20px;
+}
+#setting .set_form .list li .list_note::before {
+  content: "※";
+}
+#setting .set_form .pass_rink {
+  margin-top: 10px;
+  font-size: 1.4rem;
+  color: #a1a1a1;
+  text-decoration: underline;
+}
+#setting .set_form .btn_red {
+  margin: 40px auto 0;
+}
+#setting .set_form .new_rink {
+  margin-top: 45px;
+  text-align: center;
+  color: #a1a1a1;
+}
+#setting .set_form .new_rink a {
+  display: inline;
+  text-decoration: underline;
+}
+
+/*-------------------------------------
+ login
+ -------------------------------------*/
+.login .set_form {
+  padding: 100px 0 !important;
+}
+.login .set_form .set_inner {
+  max-width: 500px !important;
+}
+
+/*-------------------------------------
+ pass_mail
+ -------------------------------------*/
+.pass_mail .set_form .btn_red {
+  margin-top: 60px !important;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /*-------------------------------------
+ setting
+ -------------------------------------*/
+  #setting .set_form {
+    padding: 50px 0 !important;
+  }
+  #setting .set_form .set_inner {
+    width: 90%;
+  }
+  #setting .set_form .list li:not(:last-child) {
+    margin-bottom: 20px;
+  }
+  #setting .set_form .list li .list_label {
+    margin-bottom: 5px;
+  }
+
+  #setting .set_form .btn_red {
+    margin: 40px auto 0 !important;
+  }
+  #setting .set_form .new_rink {
+    margin-top: 30px;
+  }
+}

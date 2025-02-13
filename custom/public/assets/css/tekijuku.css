@@ -1,0 +1,63 @@
+@charset "utf-8";
+/*  juku.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+/*-------------------------------------
+ juku 
+ -------------------------------------*/
+#juku .juku_about {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 5%;
+  margin-bottom: 40px;
+}
+#juku .juku_about .desc {
+  padding-top: 20px;
+}
+#juku .juku_about .desc a {
+  display: inline;
+  color: #81bfda;
+  text-decoration: underline;
+}
+#juku .juku_about img {
+  width: 44%;
+}
+#juku .juku_block {
+  margin-bottom: 80px;
+}
+#juku .juku_block .juku_list li::before {
+  content: "■";
+  margin-right: 5px;
+  color: #81bfda;
+}
+#juku .juku_block .memb_list {
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 2;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /*-------------------------------------
+ juku 
+ -------------------------------------*/
+  #juku .juku_about {
+    display: block;
+  }
+  #juku .juku_about .desc {
+    padding-top: 0;
+  }
+  #juku .juku_about img {
+    margin: 30px auto 0;
+    width: 200px;
+  }
+  #juku .juku_block .memb_list {
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+  }
+}

@@ -3,24 +3,25 @@
 
 <main id="subpage">
     <section id="heading" class="inner_l">
-        <h2 class="head_ttl" data-en="CONTACT">お問い合わせ</h2>
+        <h2 class="head_ttl" data-en="PROVISIONAL REGISTRATION">仮登録完了</h2>
     </section>
     <!-- heading -->
 
     <div class="inner_l">
-        <section id="form" class="contact complete">
+        <section id="form" class="complete">
             <ul id="flow">
                 <li>入力</li>
-                <li>確認</li>
                 <li class="active">完了</li>
             </ul>
             <div class="whitebox form_cont">
-                <p class="cpt_txt">お問い合わせありがとうございます</p>
+                <p class="cpt_txt">仮登録が完了いたしました。</p>
                 <p class="sent">
-                    いただいた内容を確認後、返信いたします。<br />
-                    返信が無い場合は、メールが不着になっている<br class="pc" />可能性があります。<br />
-                    お心当たりの方はお手数ですが直接お電話 <br class="pc" />(代表:
-                    00-0000-0000)までご連絡を頂けますと幸いです。
+                    ご入力いただきましたメールアドレス宛に本登録を行う為のURLを送信しております。<br />
+                    メールのURLより本登録画面へお進み頂き、<br class="pc" />本登録をお願いいたします。
+                </p>
+                <p class="sent red">
+                    ※仮登録受付完了メールが届かない場合、ご入力いただきましたメールアドレスが間違っている可能性があります。<br />
+                    再度、お手数ですがユーザー情報入力を行ってください。
                 </p>
             </div>
             <a href="../index.php" class="btn btn_blue arrow box_bottom_btn">TOPへ戻る</a>

@@ -21,7 +21,7 @@
                         <div class="event_btns">
                             <a href="" class="btn_pdf">PDF資料</a>
                             <a href="movie.php" class="btn_movie">イベント動画</a>
-                            <a href="" class="btn_answer">アンケートに回答する</a>
+                            <a href="../survey/index.php" class="btn_answer">アンケートに回答する</a>
                         </div>
                         <p class="event_term">閲覧期間<span>～2000年00月00日まで</span></p>
                     </div>
@@ -33,7 +33,7 @@
                         <div class="event_btns">
                             <a href="" class="btn_pdf">PDF資料</a>
                             <a href="movie.php" class="btn_movie">イベント動画</a>
-                            <a href="" class="btn_answer">アンケートに回答する</a>
+                            <a href="../survey/index.php" class="btn_answer">アンケートに回答する</a>
                         </div>
                         <p class="event_term">閲覧期間<span>～2000年00月00日まで</span></p>
                     </div>
@@ -45,7 +45,7 @@
                         <div class="event_btns">
                             <a href="" class="btn_pdf">PDF資料</a>
                             <a href="movie.php" class="btn_movie">イベント動画</a>
-                            <a href="" class="btn_answer">アンケートに回答する</a>
+                            <a href="../survey/index.php" class="btn_answer">アンケートに回答する</a>
                         </div>
                         <p class="event_term">閲覧期間<span>～2000年00月00日まで</span></p>
                     </div>

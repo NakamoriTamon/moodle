@@ -30,7 +30,6 @@ if (empty($_SESSION['csrf_token'])) {
     <meta property="og:locale" content="ja_JP" />
     <!-- stylesheet -->
     <link rel="stylesheet" type="text/css" href="/custom/public/assets/common/css/import.css" />
-    <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
     <!-- fontawesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.0/css/all.css" />
@@ -56,29 +55,29 @@ if (empty($_SESSION['csrf_token'])) {
                     </a>
                 </li>
                 <li>
-                    <a href="guide/index.html">
+                    <a href="/custom/app/Views/guide/index.php">
                         <img src="/custom/public/assets/common/img/icon_menu02.svg" alt="受講ガイド" />
                         <p class="txt">受講ガイド</p>
                     </a>
                 </li>
                 <li>
-                    <a href="quest/index.html">
+                    <a href="/custom/app/Views/faq/index.php">
                         <img src="/custom/public/assets/common/img/icon_menu03.svg" alt="よくある質問" />
                         <p class="txt">よくある質問</p>
                     </a>
                 </li>
                 <li>
-                    <a href="contact/index.html">
+                    <a href="/custom/app/Views/contact/index.php">
                         <img src="/custom/public/assets/common/img/icon_menu04.svg" alt="お問い合わせ" />
                         <p class="txt">お問い合わせ</p>
                     </a>
                 </li>
             </ul>
             <div class="header_tool">
-                <a href="user/index.html" class="btn_h btn_user">
+                <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
                     <p>ユーザー登録</p>
                 </a>
-                <a href="login/index.html" class="btn_h btn_login">
+                <a href="/custom/app/Views/login/index.php" class="btn_h btn_login">
                     <p>ログイン<span>（マイページ）</span></p>
                 </a>
                 <form action="" class="search">
@@ -98,10 +97,10 @@ if (empty($_SESSION['csrf_token'])) {
             <span class="txt">MENU</span>
         </div>
         <div class="header_bottom nopc">
-            <a href="user/index.html" class="btn_h btn_user">
+            <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
                 <p>ユーザー登録</p>
             </a>
-            <a href="login/index.html" class="btn_h btn_login">
+            <a href="/custom/app/Views/login/index.php" class="btn_h btn_login">
                 <p>ログイン<span>（マイページ）</span></p>
             </a>
         </div>

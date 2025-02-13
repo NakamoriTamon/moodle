@@ -52,7 +52,7 @@
         <span class="en">NEW ARRIVAL</span>
         新着イベント
       </h2>
-      <a href="event/index.html" class="btn btn_blue arrow nosp">全てのイベントを見る</a>
+      <a href="event/index.php" class="btn btn_blue arrow nosp">全てのイベントを見る</a>
     </div>
     <div class="swiper new_swiper">
       <ul class="swiper-wrapper" id="event">
@@ -72,7 +72,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="">
+          <a href="event/detail.php">
             <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -94,7 +94,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="">
+          <a href="event/detail.php">
             <figure class="img"><img src="/custom/public/assets/img/event/event03.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -115,7 +115,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="">
+          <a href="event/detail.php">
             <figure class="img"><img src="/custom/public/assets/img/event/event04.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -137,7 +137,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="">
+          <a href="event/detail.php">
             <figure class="img"><img src="/custom/public/assets/img/event/event05.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -344,14 +344,14 @@
           適塾記念センターでは、一般の方もご参加いただけるイベントを開催しております。<br />
           適塾に何度でも参観できたり、会員のみが参加できるイベントに参加できたり等の特典があります。
         </p>
-        <a href="juku/index.html" class="btn btn_blue arrow">詳しくはこちら</a>
+        <a href="tekijuku/index.php" class="btn btn_blue arrow">詳しくはこちら</a>
       </div>
     </div>
   </section>
   <!-- juku -->
 </main>
 
-<a href="" id="mascot"><img src="/custom/public/assets/img/home/mascot.png" alt="" /></a>
+<a href="/custom/app/Views/user/index.php" id="mascot"><img src="/custom/public/assets/img/home/mascot.png" alt="" /></a>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script src="/custom/public/assets/js/home.js"></script>
