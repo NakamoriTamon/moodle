@@ -8,8 +8,8 @@
             </p>
             <div class="menu">
                 <ul class="menu_top">
-                    <li><a href="index.html">ホーム</a></li>
-                    <li><a href="event/index.html">イベント一覧</a></li>
+                    <li><a href="/custom/app/Views/index.php">ホーム</a></li>
+                    <li><a href="/custom/app/Views/event/index.php">イベント一覧</a></li>
                     <li><a href="guide/index.html">受講ガイド</a></li>
                     <li><a href="faq/index.html">よくある質問</a></li>
                     <li><a href="juku/index.html">適塾記念会について</a></li>

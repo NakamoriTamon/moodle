@@ -172,7 +172,8 @@
       <span class="en">SEARCH</span>
       イベント検索
     </h2>
-    <form method="" action="" id="search_cont" class="whitebox">
+    <!-- とりあえずイベント一覧へ飛ばします！！ -->
+    <form method="POST" action="/custom/app/Views/event/index.php" id="search_cont" class="whitebox">
       <div class="inner_s">
         <ul class="search_list">
           <li>

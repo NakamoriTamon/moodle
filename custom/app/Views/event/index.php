@@ -1,130 +1,464 @@
-<?php
-require_once('/var/www/html/moodle/custom/app/Controllers/EventController.php');
-
-$eventId = $_GET['id'];
-$eventController = new EventController();
-$event = $eventController->getEventDetails($eventId);
-$detail = reset($event['details']);
-?>
-
-<!DOCTYPE html>
-<html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($event['name']); ?></title>
-</head>
-
-<!-- スタイルは完全仮の状態なのでとりえず直書きする 後で個別ファイルに記述する -->
-<style>
-    h2 {
-        margin-top: 80px;
-        margin-bottom: 3rem;
-        text-align: center;
-        color: #08153A;
-    }
-
-    .event_detail {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        margin: auto;
-    }
-
-    .event_detail div {
-        width: 45%;
-        border: 1px solid #bbbbbb;
-        padding: 3rem;
-        border-radius: 20px;
-        margin-bottom: 3rem;
-    }
-
-    .event_detail .title {
-        font-size: 20px;
-        margin-bottom: 1rem;
-    }
-
-    img {
-        width: 50px;
-    }
-
-    .siryou {
-        text-align: center;
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-
-    .siryou:hover {
-        box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2),
-            0px 4px 6px rgba(0, 0, 0, 0.15);
-        transform: translateY(-5px);
-    }
-
-    .siryou a {
-        display: flex;
-        align-items: center;
-        color: black;
-        text-decoration: none;
-    }
-
-    ul {
-        padding-left: 0px;
-    }
-
-    .download {
-        margin-bottom: 10px;
-    }
-
-    .button_area {
-        display: flex;
-        justify-content: space-evenly;
-    }
-</style>
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
-<h2><?php echo htmlspecialchars($responce['event']['name']); ?></h2>
-<div class="event_detail">
-    <?php if ($detail['files_name']) { ?>
-        <div>
-            <P class="title">講義資料</P>
-            <P class="download">クリックしてダウンロードされないようにします</P>
-            <div class="siryou">
-                <a target="_blank" href="/custom/upload/file/<?php echo urlencode($detail['files_name']); ?>">
-                    <img src="/custom/public/images/note_hoso.svg">
-                    <span style="margin-left: 5px;"><?php echo htmlspecialchars($detail['files_name']) ?></span>
-                </a>
-            </div>
-        </div>
-    <?php } else {
-        echo "<p>資料はまだアップロードされていません。</p>";
-    } ?>
-    <div>
-        <P class="title">講義動画</P>
-        <?php if ($detail['movie_name']) { ?>
-            <ul>
-                <video width="100%" height="360" controls>
-                    <source src="/custom/upload/movie/<?php echo urlencode($detail['movie_name']); ?>" type="video/mp4">
-                    このブラウザでは動画を再生できません。
-                </video>
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
+
+<main id="subpage">
+    <section id="heading" class="inner_l">
+        <h2 class="head_ttl" data-en="EVENT LIST">イベント一覧</h2>
+    </section>
+    <!-- heading -->
+    <div class="inner_l">
+        <section id="search">
+            <h3 class="ttl_event">絞り込み検索</h3>
+            <form method="" action="" id="search_cont" class="whitebox">
+                <div class="inner_s">
+                    <ul class="search_list">
+                        <li>
+                            <p class="term">開催ステータス</p>
+                            <div class="field f_check">
+                                <label><input type="checkbox" id="" />開催前</label>
+                                <label><input type="checkbox" id="" />開催中</label>
+                                <label><input type="checkbox" id="" />開催終了</label>
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">
+                                申し込み<br />
+                                ステータス
+                            </p>
+                            <div class="field f_check">
+                                <label><input type="checkbox" id="" />受付前</label>
+                                <label><input type="checkbox" id="" />受付中</label>
+                                <label><input type="checkbox" id="" />受付終了</label>
+                                <label><input type="checkbox" id="" />申し込み不要</label>
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">イベント形式</p>
+                            <div class="field f_check">
+                                <label><input type="checkbox" id="" />会場（対面）</label>
+                                <label><input type="checkbox" id="" />会場（オンデマンドあり）</label>
+                                <label><input type="checkbox" id="" />オンライン</label>
+                                <label><input type="checkbox" id="" />ハイブリッド</label>
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">対象</p>
+                            <div class="field f_select select">
+                                <select>
+                                    <option value="" disabled selected>選択してください</option>
+                                    <option></option>
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">キーワード</p>
+                            <div class="field f_txt">
+                                <input type="text" placeholder="検索するキーワードを入力" />
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">開催日時</p>
+                            <div class="field f_date">
+                                <p class="date_wrap">
+                                    <input type="text" placeholder="年/月/日" />
+                                </p>
+                                <span>～</span>
+                                <p class="date_wrap">
+                                    <input type="text" placeholder="年/月/日" />
+                                </p>
+                            </div>
+                        </li>
+                        <li>
+                            <p class="term">カテゴリー</p>
+                            <div class="field" id="category">
+                                <div class="cat_item category01">
+                                    <input type="checkbox" id="cat01" name="" />
+                                    <label for="cat01" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat01.svg"
+                                            class="obj"></object>
+                                        <p class="txt">医療・健康</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category02">
+                                    <input type="checkbox" id="cat02" name="" />
+                                    <label for="cat02" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat02.svg"
+                                            class="obj"></object>
+                                        <p class="txt">科学・技術</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category03">
+                                    <input type="checkbox" id="cat03" name="" />
+                                    <label for="cat03" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat03.svg"
+                                            class="obj"></object>
+                                        <p class="txt">生活・福祉</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category04">
+                                    <input type="checkbox" id="cat04" name="" />
+                                    <label for="cat04" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat04.svg"
+                                            class="obj"></object>
+                                        <p class="txt">文化・芸術</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category05">
+                                    <input type="checkbox" id="cat05" name="" />
+                                    <label for="cat05" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat05.svg"
+                                            class="obj"></object>
+                                        <p class="txt">社会・経済</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category06">
+                                    <input type="checkbox" id="cat06" name="" />
+                                    <label for="cat06" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat06.svg"
+                                            class="obj"></object>
+                                        <p class="txt">自然・環境</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category07">
+                                    <input type="checkbox" id="cat07" name="" />
+                                    <label for="cat07" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat07.svg"
+                                            class="obj"></object>
+                                        <p class="txt">子ども・教育</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category08">
+                                    <input type="checkbox" id="cat08" name="" />
+                                    <label for="cat08" class="cat_btn">
+                                        <object
+                                            type="image/svg+xml"
+                                            data="/custom/public/assets/common/img/icon_cat08.svg"
+                                            class="obj"></object>
+                                        <p class="txt">国際・言語</p>
+                                    </label>
+                                </div>
+                                <div class="cat_item category09">
+                                    <input type="checkbox" id="cat09" name="" />
+                                    <label for="cat09" class="cat_btn">
+                                        <p class="txt">その他</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="search_btn">
+                        <button type="button" class="btn btn_clear">クリア</button>
+                        <button type="submit" class="btn btn_red">検索する</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <!-- search -->
+
+        <section id="result">
+            <h3 class="ttl_event">検索結果 12件</h3>
+            <ul class="result_list" id="event">
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="no">開催前</li>
+                                <li class="no">申し込み不要</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>文化・芸術</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="end">開催終了</li>
+                                <li class="end">受付終了</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>医療・健康</li>
+                                <li>生活・福祉</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event03.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="no">開催前</li>
+                                <li class="active">受付中</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>その他</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event04.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="active">開催中</li>
+                                <li class="active">受付中</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>自然・環境</li>
+                                <li>社会・経済</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event05.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="active">受付中</li>
+                                <li class="end">受付終了</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>社会・経済</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="no">開催前</li>
+                                <li class="no">申し込み不要</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>文化・芸術</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="end">開催終了</li>
+                                <li class="end">受付終了</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>医療・健康</li>
+                                <li>生活・福祉</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event03.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="no">開催前</li>
+                                <li class="active">受付中</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>その他</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event04.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="active">開催中</li>
+                                <li class="active">受付中</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>自然・環境</li>
+                                <li>社会・経済</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event05.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="active">受付中</li>
+                                <li class="end">受付終了</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>社会・経済</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="no">開催前</li>
+                                <li class="no">申し込み不要</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>文化・芸術</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
+                <li class="event_item">
+                    <a href="detail.php">
+                        <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
+                        <div class="event_info">
+                            <ul class="event_status">
+                                <li class="end">開催終了</li>
+                                <li class="end">受付終了</li>
+                            </ul>
+                            <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
+                            <div class="event_sched">
+                                <p class="term">開催日</p>
+                                <div class="date">
+                                    <p class="dt01">1回目：2024年12月3日～12月11日</p>
+                                    <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                                </div>
+                            </div>
+                            <ul class="event_category">
+                                <li>医療・健康</li>
+                                <li>生活・福祉</li>
+                            </ul>
+                        </div>
+                    </a>
+                </li>
             </ul>
-        <?php } else {
-            echo "このイベントに動画はありません。";
-        }
-        ?>
+            <ul class="result_pg">
+                <li><a href="" class="prev"></a></li>
+                <li><a href="" class="num active">1</a></li>
+                <li><a href="" class="num">2</a></li>
+                <li><a href="" class="num">3</a></li>
+                <li><a href="" class="num">4</a></li>
+                <li><a href="" class="num">5</a></li>
+                <li><a href="" class="next"></a></li>
+            </ul>
+        </section>
+        <!-- result -->
     </div>
-</div>
+</main>
 
+<ul id="pankuzu" class="inner_l">
+    <li><a href="../index.php">トップページ</a></li>
+    <li>イベント一覧</li>
+</ul>
 
-<div class="button_area">
-    <div><button onclick="window.location.href='/custom/app/Views/survey/survey_application.php?id=<?php echo $eventId; ?>'">アンケートに回答する</button></div>
-</div>
-<div style="margin-top: 5vh; text-align: center">
-    <a href="/custom/app/Views/event/upsert.php?id=<?php echo $eventId ?>">イベント登録</a>
-    <a href="/custom/event/file_upload.php?id=<?php echo $eventId ?>">資料アップロード</a>
-    <a href="/custom/event/video_upload.php?id=<?php echo $eventId ?>">動画アップロード</a>
-    <a href="/custom/app/Views/event/event_customfield.php?id=<?php echo $eventId ?>">イベントカスタムフィールド作成</a>
-    <a href="/custom/app/Views/survey/survey_customfield.php?id=<?php echo $eventId ?>">アンケートカスタムフィールド作成</a>
-</div>
-</body>
-
-</html>
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>

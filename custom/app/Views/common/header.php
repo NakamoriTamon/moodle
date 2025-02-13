@@ -50,7 +50,7 @@ if (empty($_SESSION['csrf_token'])) {
         <nav>
             <ul class="header_menu">
                 <li>
-                    <a href="event/index.html">
+                    <a href="/custom/app/Views/index.php">
                         <img src="/custom/public/assets/common/img/icon_menu01.svg" alt="講座一覧" />
                         <p class="txt">イベント一覧</p>
                     </a>
