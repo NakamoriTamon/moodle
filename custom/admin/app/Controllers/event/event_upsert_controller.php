@@ -60,11 +60,13 @@ if($event_kbn == 2) {
     $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参加費( 全て受講 )', false); // バリデーションチェック
     $deadline = $_POST['all_deadline'] ?? null; // 申し込み締切日　必須
     $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日( 全て受講 )', true);
+    $deadline = $_POST['all_deadline'] . ' 23:59:59';
 } else {
     $participation_fee = $_POST['participation_fee'] ?? null; // 参加費
     $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参加費', false); // バリデーションチェック
     $deadline = $_POST['deadline'] ?? null; // 申し込み締切日　必須
     $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', true);
+    $deadline = $_POST['deadline'] . ' 23:59:59';
 }
 $archive_streaming_period = empty($_POST['archive_streaming_period']) ? 0 : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック

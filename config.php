@@ -126,5 +126,11 @@ $komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エ�
 $payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
 $komoju_webhook_secret_key = 'secret_key_y7scduh5di2edddcfah6e58c6'; // テスト用秘密鍵
 
+$deadline_list = [
+  '1' => '受付中',
+  '2' => '受付終了'
+];
+define('DEADLINE_LIST', $deadline_list);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

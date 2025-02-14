@@ -69,7 +69,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 								<form method="POST" action="/custom/admin/app/Controllers/event/event_upsert_controller.php" enctype="multipart/form-data">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 									<input type="hidden" name="action" value="createUpdate">
-									<input type="hidden" name="id" value="<?= $id ?? '' ?>">
+									<input type="hidden" id="event_id" name="id" value="<?= $id ?? '' ?>">
 									<div class=" mb-3">
 										<label class="form-label">イベント区分</label>
 										<select name="event_kbn" class="form-control mb-3">
@@ -178,7 +178,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['target']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3 onetime_area">
 									<div class="mb-3 onetime_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">開催日</label>
@@ -523,9 +522,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const eventKbnElement = document.querySelector('select[name="event_kbn"]');
 		const repeatedlyArea =$('.repeatedly_area');
 		const onetimeArea = $('.onetime_area');
+		const event_id = $('#event_id').val();
 
 		// 初期表示で value="2" の場合は表示
-		if (eventKbnElement.value == '2') {
+		if (eventKbnElement.value == '2' && event_id == '') {
 			onetimeArea.css('display', 'none');
 			repeatedlyArea.css('display', 'block');
 		}

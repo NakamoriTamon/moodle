@@ -13,7 +13,11 @@ class EventModel extends BaseModel
                             WHEN CURRENT_DATE < MIN(ci.course_date) THEN 1 -- 開催前
                             WHEN CURRENT_DATE >= MIN(ci.course_date) AND CURRENT_DATE <= MAX(ci.course_date) THEN 2 -- 開催中
                             WHEN CURRENT_DATE > MAX(ci.course_date) THEN 3 -- 開催終了
-                        END AS event_status
+                        END AS event_status,
+                        CASE
+                            WHEN CURRENT_DATE <= e.deadline THEN 1
+                            WHEN CURRENT_DATE > e.deadline THEN 2
+                        END AS deadline_status
                     FROM mdl_event e
                     LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
                     LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id';
