@@ -1,0 +1,123 @@
+@charset "utf-8";
+/*  faq.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+#faq .faq_tab {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 100px;
+}
+#faq .faq_tab li a {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  background: #81bfda;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 60px;
+}
+#faq .faq_tab li a::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: url(../common/img/icon_arrow.svg) no-repeat center / contain;
+  transform: rotate(90deg);
+}
+#faq .faq_block {
+  margin-bottom: 120px;
+}
+#faq .faq_block .list li {
+  margin-bottom: 30px;
+  padding: 30px 40px 30px 20px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 8px 12px 24px rgba(133, 133, 133, 0.2);
+  letter-spacing: 0.01em;
+  line-height: 1.8;
+}
+#faq .faq_block .list li .l_quest {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+#faq .faq_block .list li .l_quest::before {
+  content: "Q";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: baseline;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #81bfda;
+  color: #fff;
+  font-family: "Arial";
+  font-size: 24px;
+}
+#faq .faq_block .list li .l_quest::after {
+  content: "";
+  flex: 0 0 auto;
+  margin: 0 0 0 auto;
+  width: 20px;
+  height: 20px;
+  background: url(../common/img/icon_arrow-faq.svg) no-repeat center / contain;
+}
+#faq .faq_block .list li.active .l_quest::after {
+  transform: scale(1, -1);
+}
+#faq .faq_block .list li .l_answer {
+  display: none;
+  padding: 20px 0 0 42px;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  #faq .faq_tab {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 80px;
+  }
+  #faq .faq_tab li {
+    width: 100%;
+  }
+  #faq .faq_tab li a {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+  }
+  #faq .faq_block {
+    margin-bottom: 80px;
+  }
+  #faq .faq_block .list li {
+    padding: 20px 20px 20px 15px;
+    line-height: 1.6;
+  }
+  #faq .faq_block .list li .l_quest {
+    font-size: 1.8rem;
+  }
+  #faq .faq_block .list li .l_quest::before {
+    margin-top: 5px;
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+  }
+  #faq .faq_block .list li .l_quest::after {
+    width: 15px;
+    height: 15px;
+  }
+  #faq .faq_block .list li .l_answer {
+    padding: 20px 0 0 35px;
+  }
+}

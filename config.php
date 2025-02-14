@@ -59,6 +59,8 @@ $lang_default = "jp";
 define('LANG_DEFAULT', $lang_default);
 $guardian_kbn_default = 0;
 define('GUARDIAN_KBN_DEFAULT', $guardian_kbn_default);
+$payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込'];
+define('PAYMENT_SELECT_LIST', $payment_select_list);
 // 都道府県プルダウン
 $prefectures = [
   '' => '選択してください',

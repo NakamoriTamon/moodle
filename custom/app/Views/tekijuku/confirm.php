@@ -1,11 +1,10 @@
 <?php
 session_start();
-$_SESSION['old_input'] = $_POST;
-$values = $_POST;
-// config等に最終的にまとめる
+require_once('/var/www/html/moodle/config.php');
+$values = $_SESSION['old_input'];
 $type_code_list = [1 => "普通会員", 2 => "賛助会員"];
 $sex_list = [1 => "男性", 2 => "女性", 3 => "その他"];
-$payment_mehod_list = [1 => "口座振替", 2 => "クレジット", 3 => "銀行振込"];
+$payment_mehod_list = PAYMENT_SELECT_LIST;
 ?>
 <html>
 <style>
@@ -76,7 +75,7 @@ $payment_mehod_list = [1 => "口座振替", 2 => "クレジット", 3 => "銀行
 </div>
 <div class="area">
     <label>電話番号</label>
-    <p><?= htmlspecialchars($values['tell_number']) ?></p>
+    <p><?= htmlspecialchars($values['combine_tell_number']) ?></p>
 </div>
 <div class="area">
     <label>メールアドレス</label>
@@ -88,15 +87,18 @@ $payment_mehod_list = [1 => "口座振替", 2 => "クレジット", 3 => "銀行
 </div>
 <div class="area">
     <label>備考</label>
-    <textarea name="note" rows=5><?= htmlspecialchars($values['note']) ?></textarea>
+    <p><?= htmlspecialchars($values['note']) ?></p>
 </div>
-
 <div class="area">
-    <input class="checkbox_input" type="checkbox" name="is_published" <?php if ($values['is_published']) { ?>checked <?php } ?>>
+    <input class="checkbox_input" type="checkbox" disabled name="is_published" <?php if ($values['is_published'] === '1') { ?>checked <?php } ?>>
     <label class="checkbox_label">氏名掲載を許可します</label>
+</div>
+<div class="area">
+    <input class="checkbox_input" type="checkbox" disabled name="is_subscription" <?php if ($values['is_subscription'] === '1') { ?>checked <?php } ?>>
+    <label class="checkbox_label">定額課金プランを利用する</label>
 </div>
 
 <button type="button" onclick="location.href='/custom/app/Controllers/tekijuku/tekijuku_upsert_contoroller.php';">登録する</button>
-
+<button type="button" onclick="location.href='/custom/app/Views/tekijuku/registrate.php';">登録内容を変更する</button>
 
 </html>

@@ -1,0 +1,376 @@
+@charset "utf-8";
+/*  form.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+
+/*-------------------------------------
+ flow
+ -------------------------------------*/
+#flow {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto 80px;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  counter-reset: number;
+}
+#flow::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #ccc;
+}
+#flow li {
+  counter-increment: number;
+  color: #cccccc;
+  text-align: center;
+}
+#flow li::before {
+  content: counter(number, decimal-leading-zero);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  font-weight: 700;
+  border: 1px solid #cccccc;
+  border-radius: 50%;
+}
+#flow li.active {
+  color: #373737;
+}
+#flow li.active::before {
+  color: #fff;
+  background: #81bfda;
+  border: none;
+}
+
+/*-------------------------------------
+ form
+ -------------------------------------*/
+#form .form_cont {
+  padding: 80px 0;
+}
+#form .form_cont .list li {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+#form .form_cont .list li.long_item {
+  align-items: flex-start;
+}
+#form .form_cont .list li .list_label {
+  width: 260px;
+  font-weight: 700;
+}
+#form .form_cont .list li .list_label span {
+  display: block;
+  margin-top: 10px;
+  font-weight: 400;
+}
+#form .form_cont .list li.req .list_label::after {
+  content: "必須";
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 8px;
+  background: #cc0000;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+#form .form_cont .list li .list_field {
+  width: calc(95% - 260px);
+}
+#form .form_cont .list li .list_field .note {
+  padding-left: 1em;
+  font-size: 1.4rem;
+  color: #a1a1a1;
+  line-height: 1.8;
+  text-indent: -1em;
+}
+#form .form_cont .list li .list_field .note:first-of-type {
+  margin-top: 15px;
+}
+#form .form_cont .list li .list_field .note::before {
+  content: "※";
+}
+#form .form_cont .list li .select {
+  max-width: 470px;
+}
+#form .form_cont .list li .list_row {
+  display: flex;
+  gap: 30px;
+}
+#form .form_cont .list li .list_row .f_radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form .form_cont .list li .list_col .f_check {
+  margin-bottom: 30px;
+}
+#form .form_cont .list li .list_col .f_check label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+#form .form_cont .list li .list_col .f_check .comment {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.4rem;
+}
+#form .form_cont .list li .list_col .f_other {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+#form .form_cont .agree {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  width: fit-content;
+  margin: 60px auto 0;
+  padding: 20px;
+  background: #f5f5f5;
+}
+#form .form_cont .agree .agree_txt {
+  flex: 1;
+}
+#form .form_cont .agree .agree_txt a {
+  display: inline;
+  text-decoration: underline;
+}
+#form .form_cont .agree .agree_txt a:hover {
+  text-decoration: none;
+}
+#form .form_cont .agree label {
+  flex: 0 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+}
+#form .form_cont .cancel {
+  margin: 40px auto 0;
+  padding: 10px 0;
+  width: 50%;
+  color: #cc0000;
+  border: 1px solid #cccccc;
+  text-align: center;
+}
+#form .form_cont .form_btn {
+  margin: 60px auto 0;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+#form .form_cont .form_btn .btn {
+  width: 300px;
+  height: 60px;
+}
+
+/*-------------------------------------
+ confirm
+ -------------------------------------*/
+#form.confirm .form_cont .list li {
+  margin-bottom: 50px;
+}
+#form.confirm .form_cont .list li.long_item {
+  margin-top: 0;
+}
+
+/*-------------------------------------
+ complete
+ -------------------------------------*/
+#form.complete .form_cont > p {
+  text-align: center;
+}
+#form.complete .form_cont .cpt_txt {
+  margin-bottom: 40px;
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+#form.complete .form_cont .red {
+  margin-top: 10px;
+}
+
+/*-------------------------------------
+ user
+ -------------------------------------*/
+#form.user .form_cont .list .list_item03 .select {
+  width: 36%;
+  min-width: 270px;
+}
+#form.user .form_cont .agree {
+  gap: 0 40px;
+  max-width: 600px;
+  margin: 40px 0 0 320px;
+  padding: 30px;
+}
+#form.user .form_cont .agree .agree_txt {
+  font-size: 1.4rem;
+  line-height: 1.8;
+}
+
+/*-------------------------------------
+ event
+ -------------------------------------*/
+#form.event .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.event .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.event .form_cont .list li .f_num input[type="text"] {
+  width: 90px;
+}
+
+/*-------------------------------------
+ mypage
+ -------------------------------------*/
+#form.mypage_cont .form_cont li {
+  margin-bottom: 30px;
+}
+#form.mypage_cont .box_bottom_btn {
+  margin-top: 60px;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /*-------------------------------------
+ flow
+ -------------------------------------*/
+  #flow {
+    margin: 0 auto 40px;
+  }
+  #flow li::before {
+    width: 50px;
+    height: 50px;
+  }
+
+  /*-------------------------------------
+ form
+ -------------------------------------*/
+  #form .form_cont {
+    padding: 50px 0;
+  }
+  #form .form_cont .list li {
+    margin-bottom: 20px;
+    display: block;
+  }
+  #form .form_cont .list li .list_label {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  #form .form_cont .list li.req .list_label::after {
+    font-size: 1.2rem;
+  }
+  #form .form_cont .list li .list_label span {
+    margin-top: 0;
+  }
+  #form .form_cont .list li .list_field {
+    width: 100%;
+  }
+  #form .form_cont .list li .list_field .note:first-of-type {
+    margin-top: 10px;
+  }
+  #form .form_cont .list li .select {
+    width: 80%;
+  }
+  #form .form_cont .list li .list_row {
+    flex-wrap: wrap;
+    gap: 10px 30px;
+  }
+  #form .form_cont .list li .list_col .f_check {
+    margin-bottom: 10px;
+  }
+  #form .form_cont .list li .list_col .f_check label {
+    gap: 10px;
+  }
+  #form .form_cont .list li .list_col .f_check .comment {
+    margin-top: 5px;
+  }
+  #form .form_cont .list li .list_col .f_other {
+    gap: 10px;
+  }
+  #form .form_cont .cancel {
+    width: 100%;
+  }
+  #form .form_cont .agree {
+    gap: 30px;
+    width: 100%;
+  }
+  #form .form_cont .form_btn {
+    margin: 40px auto 0;
+    gap: 3%;
+  }
+  #form .form_cont .form_btn .btn {
+    height: 50px;
+  }
+
+  /*-------------------------------------
+ confirm
+ -------------------------------------*/
+  #form.confirm .form_cont .list li {
+    margin-bottom: 20px;
+  }
+
+  /*-------------------------------------
+ complete
+ -------------------------------------*/
+  #form.complete .form_cont {
+    padding-right: 5%;
+    padding-left: 5%;
+  }
+  #form.complete .form_cont .cpt_txt {
+    margin-bottom: 20px;
+    font-size: 2.2rem;
+    font-weight: 700;
+  }
+
+  /*-------------------------------------
+ user
+ -------------------------------------*/
+  #form.user .form_cont .list .list_item03 .select {
+    width: 80%;
+    min-width: inherit;
+  }
+  #form.user .form_cont .agree {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: none;
+    margin: 40px 0 0 0;
+    padding: 20px;
+  }
+
+  /*-------------------------------------
+ mypage
+ -------------------------------------*/
+  #form.mypage_cont .box_bottom_btn {
+    margin-top: 40px;
+  }
+}

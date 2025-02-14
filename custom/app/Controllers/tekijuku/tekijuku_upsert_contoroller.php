@@ -14,15 +14,15 @@ $kana = $values['kana'];
 $sex = (int)$values['sex'];
 $post_code = (int)$values['post_code'];
 $address = $values['address'];
-$tell_number = (int)$values['tell_number'];
+$tell_number = $values['combine_tell_number'];
 $email = $values['email'];
 $payment_method = (int)$values['payment_method'];
 $note = $values['note'];
 $is_published = (int)$values['is_published'];
+$is_subscription = (int)$values['is_subscription'];
 
 try {
-
-    // 将来的にはユニークにするので下記製薬は不要となる(確認中)
+    // 将来的にはユニークにするので下記制約は不要となる(確認中)
     $max_number = $DB->get_record_sql("
         SELECT number FROM {tekijuku_commemoration} 
         ORDER BY number DESC 
@@ -45,6 +45,7 @@ try {
     $tekijuku_commemoration->payment_method = $payment_method;
     $tekijuku_commemoration->note = $note;
     $tekijuku_commemoration->is_published = $is_published;
+    $tekijuku_commemoration->is_subscription = $is_subscription;
 
     $id = $DB->insert_record('tekijuku_commemoration', $tekijuku_commemoration);
     $amount = $type_code === 1 ? 2000 : 10000;
@@ -85,6 +86,7 @@ try {
     // セッションURLが取得できたらリダイレクト
     if (isset($result['session_url'])) {
         $transaction->allow_commit();
+        unset($_SESSION['old_input']);
         header("Location: " . $result['session_url']);
         exit;
     } else {
@@ -96,7 +98,7 @@ try {
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';
-        redirect('/custom/admin/app/Views/management/tekijuku_registration.php');
+        redirect('/custom/app/Views/tekijuku/registrate.php');
         exit;
     }
 }

@@ -1,0 +1,165 @@
+/** @format */
+
+@charset "utf-8";
+
+/*  common.css
+---------------------------------------------- */
+
+/*  リセット
+---------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*  Android用調整
+---------------------------------------------- */
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/*  clearfix
+---------------------------------------------- */
+.cf {
+  zoom: 1;
+}
+.cf:before,
+.cf:after {
+  content: "";
+  display: table;
+}
+.cf:after {
+  clear: both;
+}
+
+/*  基本設定
+---------------------------------------------- */
+html {
+  overflow-y: scroll;
+  height: 100%;
+  font-size: 62.5%;
+}
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Noto Sans JP", serif;
+  font-weight: 400;
+  /*font-family : "Times New Roman", 
+        "游明朝", 
+        YuMincho,
+        "ヒラギノ明朝 Pr6 W6",
+        "Hiragino Mincho Pro", 
+        "HGS明朝E",
+        "メイリオ", 
+        "ＭＳ Ｐ明朝",
+        "MS PMincho",
+        Meiryo, 
+        serif;
+    font-family: "Helvetica Neue",
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;*/
+  color: #373737;
+}
+html,
+body,
+select,
+option,
+optgroup {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  empty-cells: show;
+}
+table caption {
+  margin-bottom: 8px;
+  text-align: left;
+  font-weight: bold;
+}
+table th {
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+table td {
+  text-align: left;
+  vertical-align: top;
+}
+table td.n {
+  text-align: right;
+}
+a:link {
+  text-decoration: none;
+}
+a:visited {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+img {
+  border: none;
+  vertical-align: middle;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+p {
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+ul {
+  list-style-type: none;
+}
+address {
+  font-style: normal;
+}
+h1 {
+  font-size: 3.8rem;
+  font-weight: normal;
+}
+h2 {
+  font-size: 3.2rem;
+  font-weight: normal;
+}
+h3 {
+  font-size: 2.8rem;
+  font-weight: normal;
+}
+h4 {
+  font-size: 2rem;
+  font-weight: normal;
+}
+h5 {
+  font-size: 1.8rem;
+  font-weight: normal;
+}
+
+.nopc {
+  display: none !important;
+}
+
+/*  modile smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  html {
+    font-size: 2vw;
+  }
+  .nopc {
+    display: block !important;
+  }
+  .nosp {
+    display: none !important;
+  }
+}
