@@ -1,39 +1,40 @@
 <?php
 require_once('/var/www/html/moodle/custom/app/Controllers/EventCustomFieldController.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/event/EventApplicationConfirmController.php');
 
-unset($SESSION->formdata); // セッションをクリア
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $eventId = htmlspecialchars(required_param('event_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-    $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $eventName = htmlspecialchars(required_param('event_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
-    $price =  required_param('hidden_price', PARAM_INT);
-    $triggerOther = htmlspecialchars(required_param('trigger_other', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $payMethod = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
-    $request_mail_kbn = htmlspecialchars(required_param('request_mail_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
-    $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $companionMails = optional_param_array('companion_mails', [], PARAM_EMAIL);
-    if(!empty($companionMails)) {
-        $companionMailsString = implode(',', $companionMails);
-    } else {
-        $companionMailsString = '';
-    }
-    $triggers = optional_param_array('trigger', [], PARAM_INT);
-    $triggersString = implode(',', $triggers);
-    $applicant_kbn = optional_param('applicant_kbn', '', PARAM_INT);
-    $event_customfield_id = optional_param('event_customfield_id', '', PARAM_TEXT);
-    $guardian_kbn = optional_param('guardian_kbn', 0, PARAM_INT);
-    $guardian_name = optional_param('guardian_name', '', PARAM_TEXT);
-    $guardian_kana = optional_param('guardian_kana', '', PARAM_TEXT);
-    $guardian_email = optional_param('guardian_email', '', PARAM_TEXT);
-    $event_customfield_category_id = htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-} else {
-    header("Location: register.php");
-    exit;
-}
+// if ($_SERVER["REQUEST_METHOD"] === "POST") {
+//     $eventId = htmlspecialchars(required_param('event_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+//     $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $eventName = htmlspecialchars(required_param('event_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
+//     $price =  required_param('hidden_price', PARAM_INT);
+//     $triggerOther = htmlspecialchars(required_param('trigger_other', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $payMethod = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
+//     $notification_kbn = htmlspecialchars(required_param('notification_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
+//     $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+//     $companionMails = optional_param_array('companion_mails', [], PARAM_EMAIL);
+//     if(!empty($companionMails)) {
+//         $companionMailsString = implode(',', $companionMails);
+//     } else {
+//         $companionMailsString = '';
+//     }
+//     $triggers = optional_param_array('trigger', [], PARAM_INT);
+//     $triggersString = implode(',', $triggers);
+//     $applicant_kbn = optional_param('applicant_kbn', '', PARAM_INT);
+//     $event_customfield_id = optional_param('event_customfield_id', '', PARAM_TEXT);
+//     $guardian_kbn = optional_param('guardian_kbn', 0, PARAM_INT);
+//     $guardian_name = optional_param('guardian_name', '', PARAM_TEXT);
+//     $guardian_kana = optional_param('guardian_kana', '', PARAM_TEXT);
+//     $guardian_email = optional_param('guardian_email', '', PARAM_TEXT);
+//     $event_customfield_category_id = htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+// } else {
+//     $_SESSION['message_error'] = '登録に失敗しました。お手数ですが、再度お申し込みをお願い致します。';
+//     header('Location: /custom/app/Views/front/index.php');
+//     exit;
+// }
 
 $eventCustomFieldModel = new eventCustomFieldModel();
 $eventCustomFieldList = $eventCustomFieldModel->getCustomFieldById($event_customfield_category_id);
@@ -152,7 +153,7 @@ foreach ($eventCustomFieldList as $eventCustomField) {
             ?>
         <p><strong>その他</strong> <br><?= htmlspecialchars($triggerOther); ?></p>
         <p><strong>支払方法</strong> <br><?= htmlspecialchars($paymentType['name']) ?? ''; ?></p>
-        <p><strong>今後、大阪大学からメールによるイベントのご案内を希望されますか</strong><br><?= htmlspecialchars($request_mail_kbn) == 1 ? "はい" : "いいえ"; ?></p>
+        <p><strong>今後、大阪大学からメールによるイベントのご案内を希望されますか</strong><br><?= htmlspecialchars($notification_kbn) == 1 ? "はい" : "いいえ"; ?></p>
         <?php if (count($companionMails) > 0): ?>
             <p><strong>複数チケット申し込み者の場合、お連れ様のメールアドレス</strong><br>
                 <?php if (is_array($companionMails)): ?>
@@ -177,7 +178,7 @@ foreach ($eventCustomFieldList as $eventCustomField) {
     </div>
     <form action="/custom/app/Controllers/event/EventApplicationInsertController.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-        <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
+        <input type="hidden" id="event_id" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
         <input type="hidden" name="name" value="<?= htmlspecialchars($name); ?>">
         <input type="hidden" name="kana" value="<?= htmlspecialchars($kana); ?>">
         <input type="hidden" name="email" value="<?= htmlspecialchars($email); ?>">
@@ -186,15 +187,16 @@ foreach ($eventCustomFieldList as $eventCustomField) {
         <input type="hidden" name="triggers" value="<?= htmlspecialchars($triggersString); ?>">
         <input type="hidden" name="trigger_other" value="<?= htmlspecialchars($triggerOther); ?>">
         <input type="hidden" name="pay_method" value="<?= htmlspecialchars($payMethod); ?>">
-        <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
-        <input type="hidden" name="request_mail_kbn" value="<?= htmlspecialchars($request_mail_kbn); ?>">
+        <input type="hidden" name="notification_kbn" value="<?= htmlspecialchars($notification_kbn); ?>">
         <input type="hidden" name="companion_mails" value="<?= htmlspecialchars($companionMailsString); ?>">
         <input type="hidden" name="note" value="<?= htmlspecialchars($note); ?>">
         <input type="hidden" name="event_customfield_id" value="<?= htmlspecialchars($event_customfield_id); ?>">
-        <input type="hidden" name="guardian_kbn" value="<?= htmlspecialchars($guardian_kbn); ?>">
+        <?php if($guardian_kbn == 1): ?>
+        <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
         <input type="hidden" name="guardian_name" value="<?= htmlspecialchars($guardian_name); ?>">
         <input type="hidden" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana); ?>">
         <input type="hidden" name="guardian_email" value="<?= htmlspecialchars($guardian_email); ?>">
+        <?php endif ?>
         <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id); ?>">
         <button type="submit" name="action" value="register">登録する</button>
         <button type="submit" name="action" value="edit">修正する</button>
@@ -205,3 +207,11 @@ foreach ($eventCustomFieldList as $eventCustomField) {
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 </html>
+<script>
+window.history.pushState(null, null, window.location.href);
+window.onpopstate = function() {
+    window.history.pushState(null, null, window.location.href);
+    const event_id = document.getElementById('event_id');
+    window.location.href = './custom/app/Views/front/event_application.php?id=' + event_id;  // 入力画面にリダイレクト
+};
+</script>

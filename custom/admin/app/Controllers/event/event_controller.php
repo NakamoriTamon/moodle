@@ -8,7 +8,7 @@ $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 
-$categorys = $categoryModel->getCategorys();
+$categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 
 $currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）

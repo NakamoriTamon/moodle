@@ -26,7 +26,7 @@ class EventApplicationModel extends BaseModel
             try {
                 $stmt = $this->pdo->prepare("SELECT SUM(ticket_count) as sum_ticket_count FROM mdl_event_application WHERE event_id = ?");
                 $stmt->execute([$eventId]);
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }

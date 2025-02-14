@@ -111,7 +111,8 @@ try{
                     guardian_firstname = :guardian_firstname,
                     guardian_lastname_kana = :guardian_lastname_kana,
                     guardian_firstname_kana = :guardian_firstname_kana,
-                    guardian_email = :guardian_email
+                    guardian_email = :guardian_email,
+                    notification_kbn = :notification_kbn
                 WHERE id = :id
             ");
 
@@ -131,6 +132,7 @@ try{
                 ':guardian_lastname_kana' => $guardian_lastname_kana,
                 ':guardian_firstname_kana' => $guardian_firstname_kana,
                 ':guardian_email' => $guardian_email,
+                ':notification_kbn' => $notification_kbn,
                 ':id' => $user_id // 一意の識別子をWHERE条件として設定
             ]);
         } else {
@@ -150,7 +152,8 @@ try{
                     guardian_firstname = :guardian_firstname,
                     guardian_lastname_kana = :guardian_lastname_kana,
                     guardian_firstname_kana = :guardian_firstname_kana,
-                    guardian_email = :guardian_email
+                    guardian_email = :guardian_email,
+                    notification_kbn = :notification_kbn
                 WHERE id = :id
             ");
 
@@ -169,6 +172,7 @@ try{
                 ':guardian_lastname_kana' => $guardian_lastname_kana,
                 ':guardian_firstname_kana' => $guardian_firstname_kana,
                 ':guardian_email' => $guardian_email,
+                ':notification_kbn' => $notification_kbn,
                 ':id' => $user_id // 一意の識別子をWHERE条件として設定
             ]);
         }

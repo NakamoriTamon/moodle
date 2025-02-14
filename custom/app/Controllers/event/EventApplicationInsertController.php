@@ -6,6 +6,7 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventCustomFieldModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
 // ログイン判定
@@ -50,7 +51,6 @@ $trigger_other = htmlspecialchars(required_param('trigger_other', PARAM_TEXT), E
 $_SESSION['errors']['trigger_other'] = validate_textarea($trigger_other, 'その他', false);
 $pay_method = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['pay_method'] = validate_select($pay_method, '支払方法', true); // バリデーションチェック
-$request_mail_kbn = htmlspecialchars(optional_param('request_mail_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $note = htmlspecialchars(optional_param('note', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['note'] = validate_textarea($note, '備考欄', false);
 $companion_mails = array_map('htmlspecialchars', optional_param_array('companion_mails', [], PARAM_RAW));
@@ -60,13 +60,15 @@ foreach($companion_mails as $companion_mail) {
     $_SESSION['errors']['companion_mails'] = validate_custom_email($email) ? "受講する人のメールアドレスを入力してください。" : null;
     break;
 }
-$applicant_kbn = htmlspecialchars(optional_param('applicant_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $event_customfield_id = htmlspecialchars(optional_param('event_customfield_id', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $guardian_kbn = htmlspecialchars(optional_param('guardian_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $contact_phone = $_SESSION['USER']->phone1;
+$applicant_kbn = htmlspecialchars(optional_param('applicant_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $guardian_name = htmlspecialchars(optional_param('guardian_name', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $guardian_kana = htmlspecialchars(optional_param('guardian_kana', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $guardian_email = htmlspecialchars(optional_param('guardian_email', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+$notification_kbn = htmlspecialchars(optional_param('notification_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
+
 if(empty($guardian_kbn)) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_kana'] = validate_text($guardian_kana, '保護者名フリガナ', 225, true);
@@ -185,7 +187,7 @@ if ($action === 'register' || $result) {
                 , ':ticket_count' => $ticket
                 , ':price' => $price
                 , ':pay_method' => $pay_method
-                , ':request_mail_kbn' => $request_mail_kbn
+                , ':request_mail_kbn' => $notification_kbn
                 , ':applicant_kbn' => $applicant_kbn
                 , ':note' => $note
                 , ':contact_phone' => $contact_phone
@@ -228,27 +230,86 @@ if ($action === 'register' || $result) {
                 }
             }
             
-            $pdo->commit();
+            $stmt = $pdo->prepare("
+                UPDATE mdl_user
+                SET 
+                    notification_kbn = :notification_kbn
+                WHERE id = :id
+            ");
+
+            $stmt->execute([
+                ':notification_kbn' => $notification_kbn,
+                ':id' => $user_id // 一意の識別子をWHERE条件として設定
+            ]);
+
+            $paymentTypeModel = new PaymentTypeModel();
+            $paymentType = $paymentTypeModel->getPaymentTypesById($pay_method);
+            $type = $paymentType['payment_type'];
+            
+            // 決済データ（サンプル）
+            $data = [
+                'payment_types' => [$type], // 利用可能な決済手段
+                'amount' => $price,
+                'currency' => 'JPY',
+                'external_order_num' => uniqid(),
+                'return_url' => $CFG->wwwroot . '/custom/app/Views/front/event_application.php?id=' . $eventId, // 決済成功後のリダイレクトURL
+                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/front/event_application.php?id=' . $eventId, // キャンセル時のリダイレクトURL
+                'metadata' => [
+                    'event_application_id' => $eventApplicationId,
+                ],
+            ];
+
+            // ヘッダーの設定
+            $headers = [
+                'Authorization: Basic ' . base64_encode($komoju_api_key),
+                'Content-Type: application/json',
+            ];
+
+            // cURLオプションの設定
+            $ch = curl_init($komoju_endpoint);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // レスポンスを文字列で返す
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // ヘッダーを設定
+            curl_setopt($ch, CURLOPT_POST, true); // POSTメソッド
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // POSTデータ
+
+            // 結果を取得
+            $response = curl_exec($ch);
+
+            // ステータスコードの取得
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response) {
+                $result = json_decode($response, true);
+            }
+
+            // セッションURLが取得できたらリダイレクト
+            if (isset($result['session_url'])) {
+                $pdo->commit();
+                // header("Location: " . $result['session_url']);
+                $redirect_url = $result['session_url'];
+
+                echo "<script>window.location.href='$redirect_url';</script>";
+                exit;
+            } else {
+                throw new Exception("決済ページ取得に失敗しました");
+            }
         } else {
             // 定員超過時はロールバック
             $pdo->rollBack();
             $_SESSION['message_error'] = '定員を超えているため、申込できません。';
             header('Location: /custom/app/Views/front/event_application.php?id=' . $eventId);
-            return;
+            exit;
         }
-
-        // API
-        $_SESSION['message_success'] = '登録が完了しました';
-        header('Location: /custom/app/Views/front/event_application.php?id=' . $eventId);
-        return;
     } catch (PDOException $e) {
         $pdo->rollBack();
         $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
         header('Location: /custom/app/Views/front/event_application.php?id=' . $eventId);
-        return;
+        exit;
     }
 
 } else {
+    $_SESSION['message_error'] = '登録に失敗しました。再度情報を入力してください。: ' . $e->getMessage();
     // 修正(申込登録画面に戻る)
     // 入力画面に戻る
     $SESSION->formdata = [
@@ -256,7 +317,7 @@ if ($action === 'register' || $result) {
         , 'ticket' => $ticket
         , 'trigger_other' => $trigger_other
         , 'pay_method' => $pay_method
-        , 'request_mail_kbn' => $request_mail_kbn
+        , 'request_mail_kbn' => $notification_kbn
         , 'triggers' => $triggers
         , 'note' => $note
         , 'guardian_name' => $guardian_name

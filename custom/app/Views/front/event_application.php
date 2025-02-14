@@ -67,6 +67,11 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $guardian_kbn = $userData->guardian_kbn ?? "";
     $guardian_email = $userData->guardian_email ?? "";
 }
+
+// セッションからエラーメッセージを取得
+$errors = $_SESSION['errors'] ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削除
 ?>
 
 <!DOCTYPE html>
@@ -99,6 +104,10 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                 <div>
                     <label class="label_name" for="name"><span id="warning" class="error-msg">ログインしてください。</span></label>
                 </div>
+            <?php elseif(!empty($errors['message_error'])): ?>
+                <div>
+                    <label class="label_name" for="name"><span id="warning" class="error-msg"><?= htmlspecialchars($errors['message_error']); ?></span></label>
+                </div>
             <?php endif; ?>
             <input type="hidden" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
             <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id) ?>">
@@ -116,12 +125,12 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             <label class="label_name" for="ticket">チケット枚数(空き枠：<?= htmlspecialchars($aki_ticket) ?>)</label>
             <input type="hidden" id="aki_ticket" value="<?= htmlspecialchars($aki_ticket) ?>">
             <input type="number" id="ticket" name="ticket" min="1" max="<?= htmlspecialchars($aki_ticket) ?>" value="<?= htmlspecialchars(isSetValue($ticket, $old_input['ticket'] ?? '')) ?>">
-            <div id="warning" style="color: red; display: none;">0以上、空き枠数以下の数字を入力してください。</div>
-            <span class="error-msg" id="ticket-error"></span>
+            <div id="warning" class="error-msg" style="display: none;">0以上、空き枠数以下の数字を入力してください。</div>
+            <span class="error-msg" id="ticket-error"><?php if (!empty($errors['ticket'])): ?><?= htmlspecialchars($errors['ticket']); ?><?php endif; ?></span>
             <label class="label_name" for="price">金額</label>
             <input type="text" name="price" readonly value="<?php number_format($participation_fee) ?>">
             <label class="label_name" for="trigger">本イベントのことはどうやってお知りになりましたか</label>
-            <div class="error-msg" id="trigger-error"></div>
+            <div class="error-msg" id="trigger-error"><?php if (!empty($errors['trigger'])): ?><?= htmlspecialchars($errors['trigger']); ?><?php endif; ?></div>
             <div class="checkbox-group">
                 <?php foreach($responce['cognitions'] as $cognition): ?>
                     <label>
@@ -131,8 +140,9 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             </div>
             <label class="label_name" for="trigger_other">その他</label>
             <textarea row="20px" name="trigger_other"><?= htmlspecialchars($triggerOther) ?></textarea>
+            <div class="error-msg"><?php if (!empty($errors['trigger_other'])): ?><?= htmlspecialchars($errors['trigger_other']); ?><?php endif; ?></div>
             <label class="label_name" style="width: 100%" for="pay_method">支払方法</label>
-            <span class="error-msg" id="pay_method-error"></span>
+            <span class="error-msg" id="pay_method-error"><?php if (!empty($errors['pay_method'])): ?><?= htmlspecialchars($errors['pay_method']); ?><?php endif; ?></span>
             <div class="radio-group">
                 <?php foreach($responce['paymentTypes'] as $paymentType): ?>
                     <label>
@@ -140,13 +150,14 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                     </label><br>
                 <?php endforeach ?>
             </div>
-            <label class="label_name" style="width: 100%" for="request_mail_kbn">今後大阪大学からメールによるイベントのご案内を希望されますか</label>
+            <label class="label_name" style="width: 100%" for="notification_kbn">今後大阪大学からメールによるイベントのご案内を希望されますか</label>
+            <div class="error-msg"><?php if (!empty($errors['notification_kbn'])): ?><?= htmlspecialchars($errors['notification_kbn']); ?><?php endif; ?></div>
             <div class="radio-group">
                 <label>
-                    <input type="radio" checked name="request_mail_kbn" value="1">はい
+                    <input type="radio" checked name="notification_kbn" value="1">はい
                 </label><br>
                 <label>
-                    <input type="radio" <?php if(1 == $request_mail_kbn): ?>checked<?php endif; ?> name="request_mail_kbn" value="0">いいえ
+                    <input type="radio" <?php if(1 == $request_mail_kbn): ?>checked<?php endif; ?> name="notification_kbn" value="0">いいえ
                 </label><br>
             </div>
             <span id="other_mails_tag">
@@ -162,21 +173,29 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             </span>
             <label id="note" class="label_name" for="note">備考欄</label>
             <textarea row="20px" name="note"><?= htmlspecialchars($note) ?></textarea>
+            <?php if(!empty($errors['passage'])): ?>
+                <?php foreach($errors['passage'] as $key => $message): ?>
+                    <?php if(!empty($message)): ?>
+                        <div class="error-msg"><?= htmlspecialchars($message); ?></div><br>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
             <?php echo $responce['passage'] ?><br>
             <?php if($guardian_kbn): ?>
+            <div class="error-msg"><?php if (!empty($errors['applicant_kbn'])): ?><?= htmlspecialchars($errors['applicant_kbn']); ?><?php endif; ?></div>
             <div class="radio-group">
                 <label>
                     <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1"><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
                 </label><br>
             </div>
             <label class="label_name" for="name">保護者名</label>
-            <div class="error-msg" id="guardian_name-error"></div>
+            <div class="error-msg" id="guardian_name-error"><?php if (!empty($errors['guardian_name'])): ?><?= htmlspecialchars($errors['guardian_name']); ?><?php endif; ?></div>
             <input type="text" id="guardian_name" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" required>
             <label class="label_name" for="kana">保護者名フリガナ</label>
-            <div class="error-msg" id="guardian_kana-error"></div>
+            <div class="error-msg" id="guardian_kana-error"><?php if (!empty($errors['guardian_kana'])): ?><?= htmlspecialchars($errors['guardian_kana']); ?><?php endif; ?></div>
             <input type="text" id="guardian_kana" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" required>
             <label class="label_name" for="email">保護者連絡先メールアドレス</label>
-            <div class="error-msg" id="guardian_email-error"></div>
+            <div class="error-msg" id="guardian_email-error"><?php if (!empty($errors['guardian_email'])): ?><?= htmlspecialchars($errors['guardian_email']); ?><?php endif; ?></div>
             <input type="email" id="guardian_email" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>" required>
             <?php endif; ?>
             <?php if (isloggedin()): ?>
@@ -388,11 +407,11 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         }
 
         // ボタンをクリックした際にサブミット
-        form.addEventListener('submit', function (event) {
-            var isValid = validateForm();
-            if (!isValid) {
-                event.preventDefault(); // 送信をキャンセル
-            }
-        });
+        // form.addEventListener('submit', function (event) {
+        //     var isValid = validateForm();
+        //     if (!isValid) {
+        //         event.preventDefault(); // 送信をキャンセル
+        //     }
+        // });
     });
 </script>

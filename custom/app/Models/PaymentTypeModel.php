@@ -27,8 +27,8 @@ class PaymentTypeModel extends BaseModel
                 $stmt = $this->pdo->prepare("SELECT * FROM mdl_payment_types WHERE is_delete = 0 AND id = :payTypeId");
                 $stmt->bindParam(':payTypeId', $id, PDO::PARAM_INT);
                 $stmt->execute();
-                $paymentTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                return $paymentTypes[0];
+                $paymentTypes = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $paymentTypes;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }

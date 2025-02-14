@@ -44,6 +44,25 @@ function validate_custom_email($email, $text = "")
 }
 
 /**
+ * バリデーション: メールアドレス
+ */
+function validate_emails_count($emails, $count, $text = "")
+{
+    if (count($emails) == $count) {
+        return $text . 'メールアドレスは必須です。';
+    }
+    foreach($emails as $$email) {
+        if (empty($email)) {
+            return $text . 'メールアドレスは必須です。';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return '無効なメールアドレスです。';
+        }
+    }
+    return null;
+}
+
+/**
  * バリデーション: パスワード
  */
 function validate_password($password)

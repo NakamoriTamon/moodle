@@ -11,7 +11,7 @@ $lectureFormatModel = new LectureFormatModel();
 $tutorModel = new TutorModel();
 $customFieldCategoryModel = new EventCustomFieldCategoryModel();
 
-$categorys = $categoryModel->getCategorys();
+$categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $tutors = $tutorModel->getTutors();
 $event_category_list = $customFieldCategoryModel->getCustomFieldCategory();
