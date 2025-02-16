@@ -132,5 +132,8 @@ $deadline_list = [
 ];
 define('DEADLINE_LIST', $deadline_list);
 
+//  URLでの暗号化共通キー
+$url_secret_key = 'my_secret_key_1234567890';
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

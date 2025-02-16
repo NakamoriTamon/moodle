@@ -50,23 +50,6 @@ html {
 body {
   font-family: "Noto Sans JP", serif;
   font-weight: 400;
-  /*font-family : "Times New Roman", 
-        "游明朝", 
-        YuMincho,
-        "ヒラギノ明朝 Pr6 W6",
-        "Hiragino Mincho Pro", 
-        "HGS明朝E",
-        "メイリオ", 
-        "ＭＳ Ｐ明朝",
-        "MS PMincho",
-        Meiryo, 
-        serif;
-    font-family: "Helvetica Neue",
-        Arial,
-        "Hiragino Kaku Gothic ProN",
-        "Hiragino Sans",
-        Meiryo,
-        sans-serif;*/
   color: #373737;
 }
 html,
@@ -162,4 +145,9 @@ h5 {
   .nosp {
     display: none !important;
   }
+}
+/* validate */
+.text-danger{
+  color: red;
+  margin-top: 3px;
 }

@@ -216,12 +216,21 @@
 #form.user .form_cont .agree {
   gap: 0 40px;
   max-width: 600px;
+  width: 560px;
   margin: 40px 0 0 320px;
   padding: 30px;
 }
 #form.user .form_cont .agree .agree_txt {
   font-size: 1.4rem;
   line-height: 1.8;
+}
+#parents_input_area,
+#parents_check_area{
+  display: none;
+}
+/* 初期はdisable状態 */
+#form.user #submit:disabled{
+  background: #ccc;
 }
 
 /*-------------------------------------
@@ -321,7 +330,7 @@
   }
   #form .form_cont .agree {
     gap: 30px;
-    width: 100%;
+    width: 100% !important;
   }
   #form .form_cont .form_btn {
     margin: 40px auto 0;

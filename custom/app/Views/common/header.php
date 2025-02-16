@@ -1,10 +1,15 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 
 // CSRF動的トークン生成
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$errors = $_SESSION['errors'] ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
 
 ?>
 
