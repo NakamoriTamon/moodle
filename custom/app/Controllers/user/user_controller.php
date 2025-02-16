@@ -156,11 +156,11 @@ try {
     $context = system::instance(); // システムコンテキスト
     role_assign($admin_role->id, $id, $context->id);
 
-    $user_id = base64_encode(hash('sha256', $id, true));
-    $expiration_time = time() + (24 * 60 * 60);
+    $user_id = encrypt_id($id, $url_secret_key);
+    $expiration_time = encrypt_id(time() + (24 * 60 * 60), $url_secret_key);
 
     // 本登録確認URLの作成
-    $confirmUrl = $CFG->wwwroot . "/custom/app/Views/signup/signup_confirm.php?id=" . urlencode($user_id) . "&expires=" . urlencode($expiration_time);
+    $confirmUrl = $CFG->wwwroot . "/custom/app/Views/signup/signup_confirm.php?id=" . $user_id . "&expiration_time=" . $expiration_time;
 
     // メール送信処理
     $mail = new PHPMailer(true);
@@ -237,4 +237,11 @@ function confirm_validation($value, $comparison_value, $title, $error)
         }
     }
     return $error;
+}
+
+// 暗号化
+function encrypt_id($id, $key)
+{
+    $iv = substr(hash('sha256', $key), 0, 16);
+    return urlencode(base64_encode(openssl_encrypt($id, 'AES-256-CBC', $key, 0, $iv)));
 }
