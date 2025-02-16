@@ -51,8 +51,8 @@ function validate_password($password)
     if (empty($password)) {
         return 'パスワードは必須です。';
     }
-    if (strlen($password) < 8 && strlen($password) > 21) {
-        return 'パスワードは8文字以上である必要があります。';
+    if (strlen($password) < 8 || strlen($password) > 20) {
+        return 'パスワードは8文字以上20文字以下である必要があります。';
     }
     // 英字（大文字・小文字）と数字の使用必須
     if (!preg_match('/[A-Za-z]/', $password)) {
@@ -62,19 +62,6 @@ function validate_password($password)
         return 'パスワードには数字が含まれている必要があります。';
     }
     return null;
-}
-
-/**
- * バリデーション: ユーザ登録 氏名
- */
-function validate_signup_name($name)
-{
-    if (empty($name)) {
-        return '氏名は必須です。';
-    }
-    if (strlen($name) > 50) {
-        return '氏名は50文字以内である必要があります。';
-    }
 }
 
 /*
@@ -275,7 +262,7 @@ function validate_max_text($val, $title, $size, $required = false)
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) >= $size) {
+    if (strlen($val) > $size) {
         return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
@@ -289,11 +276,28 @@ function validate_tel_number($tel_number)
     if (empty($tel_number)) {
         return '電話番号は必須です。';
     }
-    if (strlen($tel_number) >= 5) {
+    if (strlen($tel_number) > 15) {
         return '無効な電話番号です。';
     }
     if (!preg_match('/^\d+$/', $tel_number)) {
         return '無効な電話番号です。';
+    }
+    return null;
+}
+
+/*
+ * バリデーション: フリガナ
+ */
+function validate_kana($val, $size)
+{
+    if (empty($tel_number)) {
+        return 'フリガナは必須です。';
+    }
+    if (strlen($tel_number) > 50) {
+        return 'フリガナは50文字以下である必要があります。';
+    }
+    if (!preg_match('/^[ァ-ヶーｦ-ﾟ]+$/u', $val)) {
+        return '指定されている形式で入力してください。';
     }
     return null;
 }
