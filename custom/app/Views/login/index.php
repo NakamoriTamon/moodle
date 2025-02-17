@@ -1,4 +1,5 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<?php
+include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/setting.css" />
 
 <main id="subpage">
@@ -9,19 +10,29 @@
 
     <div class="inner_l">
         <section id="setting" class="login">
-            <form method="" action="/custom/app/Views/mypage/index.php" class="whitebox set_form">
+            <form method="POST" action="/custom/app/Controllers/login/login_controller.php" class="whitebox set_form">
                 <div class="set_inner">
                     <ul class="list">
                         <li class="list_item01">
                             <p class="list_label">メールアドレス（もしくはユーザーID）</p>
                             <div class="list_field f_txt">
-                                <input type="email" />
+                                <input type="text" name="email" />
+                                <?php if (!empty($errors['email'])): ?>
+                                    <div class="text-danger mt-2">
+                                        <?= htmlspecialchars($errors['email']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </li>
                         <li class="list_item02">
                             <p class="list_label">パスワード</p>
                             <div class="list_field f_txt">
-                                <input type="password" />
+                                <input type="password" name="password" />
+                                <?php if (!empty($errors['password'])): ?>
+                                    <div class="text-danger mt-2">
+                                        <?= htmlspecialchars($errors['password']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
