@@ -22,17 +22,17 @@ $data->is_delete = 1;
 
 try {
     $transaction = $DB->start_delegated_transaction();
-    $tutorRecord = $DB->get_record('target', ['id' => $id]);
     $DB->update_record('target', $data);
     $transaction->allow_commit();
     $_SESSION['message_success'] = '削除が完了しました';
     header('Location: /custom/admin/app/Views/master/target/index.php');
     exit;
-} catch (Exception $e) {
-    if (isset($transaction)) {
+} catch (Throwable $e) {
+    try {
         $transaction->rollback($e);
+    } catch (Throwable $e) {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        header('Location: /custom/admin/app/Views/master/target/index.php');
+        exit;
     }
-    $_SESSION['message_error'] = '削除に失敗しました';
-    header('Location: /custom/admin/app/Views/master/target/index.php');
-    exit;
 }

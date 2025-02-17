@@ -1,9 +1,10 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/TargetController.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/target/target_controller.php');
 
-$targetController = new TargetController();
-$targets = $targetController->getTargets();
+$target_controller = new TargetController();
+$target_list = $target_controller->index();
+unset($_SESSION['errors'], $_SESSION['old_input']);
 ?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -47,7 +48,7 @@ $targets = $targetController->getTargets();
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ($targets as $target): ?>
+										<?php foreach ($target_list as $target): ?>
 											<tr>
 												<td class="ps-4 pe-4"><?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?></td>
 												<td class="ps-4 pe-4"><?= htmlspecialchars($target['name'], ENT_QUOTES, 'UTF-8') ?></td>

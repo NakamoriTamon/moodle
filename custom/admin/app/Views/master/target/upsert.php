@@ -1,19 +1,14 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/target/target_controller.php');
+
+$target_controller = new TargetController();
+$target = $target_controller->edit($_GET['id']);
 
 // バリデーションエラー
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
-$id = $_GET['id'];
-
-global $DB;
-try {
-	$targets = $DB->get_record('target', ['id' => $id]);
-} catch (dml_exception $e) {
-	$_SESSION['message_error'] = 'エラーが発生しました';
-}
 ?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -48,13 +43,13 @@ try {
 							<div class="form-wrapper">
 								<form method="POST" action="/custom/admin/app/Controllers/target/target_update_controller.php" enctype="multipart/form-data">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-									<input type="hidden" name="id" value="<?php echo htmlspecialchars($id, ENT_QUOTES, 'UTF-8'); ?>">
+									<input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>">
 
 									<div class="mb-3">
 										<label class="form-label me-2">対象者名</label>
 										<span class="badge bg-danger">必須</span>
 										<input name="name" class="form-control" type="text"
-											value="<?php echo htmlspecialchars($old_input['name'] ?? $targets->name ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+											value="<?php echo htmlspecialchars($old_input['name'] ?? $target['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 										<?php if (!empty($errors['name'])): ?>
 											<div class="text-danger mt-2">
 												<?= htmlspecialchars($errors['name']); ?>

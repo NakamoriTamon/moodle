@@ -12,16 +12,17 @@ class TargetController
         $this->targetModel = new TargetModel();
     }
 
-    public function getTargetDetails($targetId)
+    public function index()
     {
-        $target = $this->targetModel->getTargetById($targetId);
+        $target = $this->targetModel->getTargets();
 
         return $target;
     }
 
-    public function getTargets()
+
+    public function edit($id = null)
     {
-        $target = $this->targetModel->getTargets();
+        $target = $this->targetModel->getTargetById($id);
 
         return $target;
     }
