@@ -12,13 +12,14 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
         <section id="setting" class="login">
             <form method="POST" action="/custom/app/Controllers/login/login_controller.php" class="whitebox set_form">
                 <div class="set_inner">
-                    <ul class="list">
+                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+                    <ul class=" list">
                         <li class="list_item01">
                             <p class="list_label">メールアドレス（もしくはユーザーID）</p>
                             <div class="list_field f_txt">
-                                <input type="text" name="email" />
+                                <input type="text" name="email" autocomplete="off" />
                                 <?php if (!empty($errors['email'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -29,7 +30,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
                             <div class="list_field f_txt">
                                 <input type="password" name="password" />
                                 <?php if (!empty($errors['password'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['password']); ?>
                                     </div>
                                 <?php endif; ?>

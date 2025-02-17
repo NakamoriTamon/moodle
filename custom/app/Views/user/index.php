@@ -17,13 +17,14 @@
             <form method="POST" action="/custom/app/Controllers/user/user_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="inner_m">
+                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
                     <ul class="list">
                         <li class="list_item01 req">
                             <p class="list_label">お名前</p>
                             <div class="list_field f_txt">
                                 <input type="text" name="name" value="<?= htmlspecialchars($old_input['name'] ?? '') ?>" />
                                 <?php if (!empty($errors['name'])): ?>
-                                    <div class=" text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['name']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -34,7 +35,7 @@
                             <div class="list_field f_txt">
                                 <input type="text" name="kana" pattern="^[ァ-ヶー]+$" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>" />
                                 <?php if (!empty($errors['kana'])): ?>
-                                    <div class=" text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['kana']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -53,7 +54,7 @@
                                 </select>
                             </div>
                             <?php if (!empty($errors['city'])) { ?>
-                                <div class=" text-danger mt-2">
+                                <div class="error-msg mt-2">
                                     <?= htmlspecialchars($errors['city']); ?>
                                 </div>
                             <?php } ?>
@@ -63,7 +64,7 @@
                             <div class="list_field f_txt">
                                 <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? '') ?>" />
                                 <?php if (!empty($errors['email'])) { ?>
-                                    <div class=" text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email']); ?>
                                     </div>
                                 <?php } ?>
@@ -72,9 +73,10 @@
                         <li class=" list_item05 req">
                             <p class="list_label">メールアドレス（確認用）</p>
                             <div class="list_field f_txt">
-                                <input type="email" name="email_confirm" value="<?= htmlspecialchars($old_input['email_confirm'] ?? '') ?>" onpaste="return false" />
+                                <input type="email" name="email_confirm" value="<?= htmlspecialchars($old_input['email_confirm'] ?? '') ?>"
+                                    onpaste="return false" autocomplete="off" />
                                 <?php if (!empty($errors['email_confirm'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email_confirm']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -85,7 +87,7 @@
                             <div class="list_field f_txt">
                                 <input type="password" name="password" />
                                 <?php if (!empty($errors['password'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['password']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -98,9 +100,9 @@
                         <li class="list_item07 req">
                             <p class="list_label">パスワード（確認用）</p>
                             <div class="list_field f_txt">
-                                <input type="password" name="password_confirm" onpaste="return false" />
+                                <input type="password" name="password_confirm" onpaste="return false" autocomplete="off" />
                                 <?php if (!empty($errors['password_confirm'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['password_confirm']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -111,7 +113,7 @@
                             <div class="list_field f_txt">
                                 <input type="tel" name="phone" value="<?= htmlspecialchars($old_input['phone'] ?? '') ?>" />
                                 <?php if (!empty($errors['phone'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['phone']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -122,7 +124,7 @@
                             <div class="list_field f_txt">
                                 <input type="date" name="birthdate" value="<?= htmlspecialchars($old_input['birthdate'] ?? '') ?>" />
                                 <?php if (!empty($errors['birthdate'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['birthdate']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -133,7 +135,7 @@
                             <div class="list_field f_txt">
                                 <input type="text" name="child_name" value="<?= htmlspecialchars($old_input['child_name'] ?? '') ?>" />
                                 <?php if (!empty($errors['child_name'])): ?>
-                                    <div class="text-danger mt-2">
+                                    <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['child_name']); ?>
                                     </div>
                                 <?php endif; ?>
@@ -154,7 +156,7 @@
                                 <div class="list_field f_txt">
                                     <input type="text" name="guardian_name" value="<?= htmlspecialchars($old_input['guardian_name'] ?? '') ?>" />
                                     <?php if (!empty($errors['guardian_name'])): ?>
-                                        <div class="text-danger mt-2">
+                                        <div class="error-msg mt-2">
                                             <?= htmlspecialchars($errors['guardian_name']); ?>
                                         </div>
                                     <?php endif; ?>
@@ -165,7 +167,7 @@
                                 <div class="list_field f_txt">
                                     <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? '') ?>" />
                                     <?php if (!empty($errors['guardian_email'])): ?>
-                                        <div class="text-danger mt-2">
+                                        <div class="error-msg mt-2">
                                             <?= htmlspecialchars($errors['guardian_email']); ?>
                                         </div>
                                     <?php endif; ?>

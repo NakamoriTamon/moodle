@@ -6,11 +6,13 @@ require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+// ログインユーザーID
+$login_id = $_SESSION['user_id'] ?? null;
+$basic_error = $_SESSION['message_error'] ?? null;
 
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
-unset($_SESSION['errors'], $_SESSION['old_input']);
-
+unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +84,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                 <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
                     <p>ユーザー登録</p>
                 </a>
-                <a href="/custom/app/Views/login/index.php" class="btn_h btn_login">
+                <a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?> class="btn_h btn_login">
                     <p>ログイン<span>（マイページ）</span></p>
                 </a>
                 <form action="" class="search">

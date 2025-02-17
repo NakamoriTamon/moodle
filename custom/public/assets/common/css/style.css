@@ -153,6 +153,19 @@ select {
   border-top: 6px solid #707070;
   border-bottom: 0;
 }
+/* バリデーション */
+.error-msg {
+  color: red;
+  margin-top: 3px;
+}
+/* 登録失敗などの大元のエラー */
+.error{
+  text-align: center;
+  margin-bottom: 4rem;
+  color: red;
+  font-size: 18px;
+}
+
 
 /*-------------------------------------
  下層ページ共通
