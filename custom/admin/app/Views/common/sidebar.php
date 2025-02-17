@@ -67,6 +67,7 @@
 					</a>
 					<ul id="master" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/category/index.php">カテゴリーマスタ</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/target/index.php">対象マスタ</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -89,6 +90,9 @@
 			// マスタ
 			if (currentPath == "/custom/admin/app/Views/master/category/upsert.php") {
 				currentPath = "/custom/admin/app/Views/master/category/index.php";
+			}
+			if (currentPath == "/custom/admin/app/Views/master/target/upsert.php") {
+				currentPath = "/custom/admin/app/Views/master/target/index.php";
 			}
 
 			const sidebarLinks = $(".sidebar-link");

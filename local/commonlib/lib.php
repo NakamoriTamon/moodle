@@ -51,7 +51,7 @@ function validate_emails_count($emails, $count, $text = "")
     if (count($emails) == $count) {
         return $text . 'メールアドレスは必須です。';
     }
-    foreach($emails as $$email) {
+    foreach ($emails as $$email) {
         if (empty($email)) {
             return $text . 'メールアドレスは必須です。';
         }

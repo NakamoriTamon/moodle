@@ -1,9 +1,10 @@
 <?php
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/category/category_controller.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/target/target_controller.php');
 
-$categoryController = new CategoryController();
-$category_list = $categoryController->index();
+$target_controller = new TargetController();
+$target_list = $target_controller->index();
+unset($_SESSION['errors'], $_SESSION['old_input']);
 ?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -15,7 +16,7 @@ $category_list = $categoryController->index();
 					<a class="sidebar-toggle js-sidebar-toggle">
 						<i class="hamburger align-self-center"></i>
 					</a>
-					<p class="title header-title ms-4 fs-4 fw-bold mb-0">カテゴリ一覧</p>
+					<p class="title header-title ms-4 fs-4 fw-bold mb-0">対象一覧</p>
 					<p class="title mb-0"></p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
@@ -35,30 +36,23 @@ $category_list = $categoryController->index();
 					<div class="card min-70vh">
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3">
-								<button onclick="window.location.href='/custom/admin/app/Views/master/category/upsert.php';" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
+								<button onclick="window.location.href='/custom/admin/app/Views/master/target/upsert.php';" class="btn btn-primary mt-3 mb-3 ms-auto">新規登録</button>
 							</div>
 							<div class="card m-auto mb-5 overflow-auto w-95">
 								<table class="table table-responsive table-striped table_list">
 									<thead>
 										<tr>
-											<th class="ps-4 pe-4 min-130">カテゴリーID</th>
-											<th class="ps-4 pe-4 w-35">カテゴリー名</th>
+											<th class="ps-4 pe-4 w-35">対象ID</th>
+											<th class="ps-4 pe-4 w-35">対象名</th>
 											<th class="text-center ps-4 pe-4">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
-										<?php foreach ($category_list as $category): ?>
+										<?php foreach ($target_list as $target): ?>
 											<tr>
-												<td class="ps-4 pe-4"><?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?></td>
-												<td class="ps-4 pe-4"><?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?></td>
-												<td class="text-center ps-4 pe-4 text-nowrap">
-													<a href="/custom/admin/app/Views/master/category/upsert.php?id=<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3">
-														<i class="align-middle" data-feather="edit-2"></i>
-													</a>
-													<a class="delete-link" data-id="<?= htmlspecialchars($category['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8') ?>">
-														<i class="align-middle" data-feather="trash"></i>
-													</a>
-												</td>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="ps-4 pe-4"><?= htmlspecialchars($target['name'], ENT_QUOTES, 'UTF-8') ?></td>
+												<td class="text-center ps-4 pe-4 text-nowrap"><a href="/custom/admin/app/Views/master/target/upsert.php?id=<?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?>" class=" me-3"><i class="align-middle" data-feather="edit-2"></i></a><a class="delete-link" data-id="<?= htmlspecialchars($target['id'], ENT_QUOTES, 'UTF-8') ?>" data-name="<?= htmlspecialchars($target['name'], ENT_QUOTES, 'UTF-8') ?>"><i class="align-middle" data-feather="trash"></i></a></td>
 											</tr>
 										<?php endforeach; ?>
 									</tbody>
@@ -68,7 +62,7 @@ $category_list = $categoryController->index();
 							<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
 								<div class="modal-dialog modal-dialog-centered">
 									<div class="modal-content">
-										<form id="deleteForm" action="/custom/admin/app/Controllers/category/category_delete_controller.php" method="POST">
+										<form id="deleteForm" action="/custom/admin/app/Controllers/target/target_delete_controller.php" method="POST">
 											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 											<input type="hidden" name="id" value="">
 											<div class="modal-header">
@@ -76,7 +70,7 @@ $category_list = $categoryController->index();
 												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 											</div>
 											<div class="modal-body">
-												<p class="mt-3"><span id="deleteCategoryName"></span> を削除します。本当によろしいですか？</p>
+												<p class="mt-3"><span id="deleteTargetName"></span> を削除します。本当によろしいですか？</p>
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
@@ -92,11 +86,11 @@ $category_list = $categoryController->index();
 			</main>
 		</div>
 	</div>
+	<script src="/custom/admin/public/js/app.js"></script>
 </body>
 
 </html>
 
-<script src="/custom/admin/public/js/app.js"></script>
 <script>
 	$(document).ready(function() {
 		let selectedId;
@@ -104,10 +98,10 @@ $category_list = $categoryController->index();
 		$('.delete-link').on('click', function(event) {
 			event.preventDefault();
 			selectedId = $(this).data('id');
-			let categoryName = $(this).data('name');
+			let targetName = $(this).data('name');
 
 			$('input[name="id"]').val(selectedId);
-			$('#deleteCategoryName').text(categoryName);
+			$('#deleteTargetName').text(targetName);
 			$('#confirmDeleteModal').modal('show');
 		});
 		// モーダル内の削除ボタンがクリックされたとき
