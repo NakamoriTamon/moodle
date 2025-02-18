@@ -100,7 +100,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                 <li>
                                     <p class="term">申込締切</p>
                                     <p class="desc">
-                                    <?php if(count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?>△月△△日まで<br />
+                                    <?php if(count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
                                         ＜各回受講＞開催日の〇日前
                                     </p>
                                 </li>
