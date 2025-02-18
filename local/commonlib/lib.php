@@ -281,7 +281,7 @@ function validate_max_text($val, $title, $size, $required = false)
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) > $size) {
+    if (mb_strlen($val) > $size) {
         return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
@@ -317,6 +317,20 @@ function validate_kana($val, $size)
     }
     if (!preg_match('/^[ァ-ヶーｦ-ﾟ]+$/u', $val)) {
         return '指定されている形式で入力してください。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: 備考
+ */
+function validate_note($val, $title, $size, $required)
+{
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    }
+    if (mb_strlen($val) > $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }

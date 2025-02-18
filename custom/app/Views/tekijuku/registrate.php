@@ -6,165 +6,179 @@ $payment_select_list = PAYMENT_SELECT_LIST;
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
 ?>
+
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
+
 <html>
 <style>
-    .area {
-        display: flex;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-    }
+.area {
+  display: flex; /* フレックスボックスを使用 */
+  justify-content: flex-start; /* 左寄せに配置 */
+  align-items: center; /* 縦方向中央揃え */
+  margin-bottom: 24px; /* 下部マージン */
+}
+.text-danger {
+    color: red;
+}
+.checkbox_input {
+    margin-right: 8px; /* 好きな間隔に調整 */
+}
 
-    label {
-        width: 100%;
-        margin-bottom: 5px;
-    }
 
-    select,
-    input,
-    textarea {
-        width: 300px
-    }
-
-    #post_button {
-        margin-left: 5px;
-    }
-
-    .checkbox_input,
-    .radio_input {
-        width: 30px;
-    }
-
-    .checkbox_label {
-        width: calc(100% - 50px);
-    }
-
-    .radio_label {
-        width: 100px;
-    }
-
-    .text-danger {
-        width: 100%;
-        color: red;
-    }
-
-    .phone-input {
-        display: flex;
-        align-items: center;
-    }
-
-    .phone-input input {
-        width: 60px;
-        /* 入力欄の幅を調整 */
-        text-align: center;
-    }
-
-    .phone-input span {
-        margin: 0 5px;
-    }
 </style>
-<form method="POST" action="/custom/app/Controllers/tekijuku/tekijuku_controller.php">
-    <div class="area">
-        <label>会員種別</label>
-        <select name="type_code">
-            <option selected value=1>普通会員</option>
-            <option value=2>賛助会員</option>
-        </select>
-    </div>
-    <div class="area">
-        <label>氏名</label>
-        <input name="name" value="<?= htmlspecialchars($old_input['name'] ?? '') ?>">
-        <?php if (!empty($errors['name'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label>フリガナ</label>
-        <input name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>">
-        <?php if (!empty($errors['kana'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label>性別</label>
-        <select name="sex">
-            <option selected value=1 <?= isSelected(1, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>男性</option>
-            <option value=2 <?= isSelected(2, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>女性</option>
-            <option value=3 <?= isSelected(3, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>その他</option>
-        </select>
-    </div>
-    <div class="area">
-        <label>郵便番号（ハイフンなし）</label>
-        <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}" required
-            value="<?= htmlspecialchars($old_input['post_code'] ?? '') ?>">
-        <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
-        <?php if (!empty($errors['post_code'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['post_code']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label for="address">住所</label>
-        <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? '') ?>">
-        <?php if (!empty($errors['address'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['address']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label>電話番号</label>
-        <div class="phone-input">
-            <input type="text" name="tell_number[]" maxlength="4" required value="<?= htmlspecialchars($old_input['tell_number'][0] ?? '') ?>">
-            <span>-</span>
-            <input type="text" name="tell_number[]" maxlength="4" required value="<?= htmlspecialchars($old_input['tell_number'][1] ?? '') ?>">
-            <span>-</span>
-            <input type="text" name="tell_number[]" maxlength="4" required value="<?= htmlspecialchars($old_input['tell_number'][2] ?? '') ?>">
-        </div>
-        <?php if (!empty($errors['tell_number'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label>メールアドレス</label>
-        <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? '') ?>">
-        <?php if (!empty($errors['email'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <label style="margin-bottom: 20px">支払方法</label>
-        <div class="radio-group">
-            <?php foreach ($payment_select_list as $key => $value) { ?>
-                <input class="radio_input" type="radio" name="payment_method" value=<?= $key ?>
-                    <?php if (!$old_input['payment_method'] && $key === 1) { ?> checked
-                    <?php } else { ?>
-                    <?= isSelected($key, $old_input['payment_method'] ?? null, null) ? 'checked' : '';
-                    } ?> />
-                <label class="radio_label" for="convenience"><?= $value ?></label>
-            <?php } ?>
-        </div>
-    </div>
-    <div class="area">
-        <label>備考</label>
-        <textarea name="note" rows=5><?= htmlspecialchars($old_input['note']); ?></textarea>
-        <?php if (!empty($errors['note'])): ?>
-            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
-        <?php endif; ?>
-    </div>
-    <div class="area">
-        <input type="hidden" name="is_published" value=0>
-        <input class="checkbox_input" type="checkbox" name="is_published" value=1 <?php if ($old_input['is_published'] == '1') { ?>checked <?php } ?>>
-        <label class="checkbox_label">氏名掲載を許可します</label>
-    </div>
-    <div class="area">
-        <input type="hidden" name="is_subscription" value=0>
-        <input class="checkbox_input" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
-        <label class="checkbox_label">定額課金プランを利用する</label>
-    </div>
 
-    <button type="submit">登録する</button>
+<main id="subpage">
+    <section id="heading" class="inner_l">
+        <h2 class="head_ttl" data-en="TEKIJUKU COMMEMORATION CENTER REGISTER">適塾記念会会員登録</h2>
+    </section>
+    <div class="inner_l">
+        <section id="form" class="user confirm">
+            <ul id="flow">
+                <li class="active">入力</li>
+                <li>確認</li>
+                <li>完了</li>
+            </ul>
+            <form method="POST" action="/custom/app/Controllers/tekijuku/tekijuku_controller.php" class="whitebox form_cont">
+                <div class="inner_m">
+                    
+                    <ul class="list">
+                        <li class="list_item01 req">
+                            <p class="list_label">会員種別</p>
+                            <div class="list_field f_select select">
+                                <select name="type_code" class="select">
+                                    <option selected value=1>普通会員</option>
+                                    <option value=2>賛助会員</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="list_item02 req">
+                            <p class="list_label">お名前</p>
+                            <div class="list_field f_txt">
+                                <input type="text" name="name" value="<?= htmlspecialchars($old_input['name']) ?>"> 
+                                <?php if (!empty($errors['name'])): ?>
+                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+                                <?php endif; ?>                               
+                            </div>
+                        </li>
+                        <li class="list_item03 req">
+                            <p class="list_label">フリガナ</p>
+                            <div class="list_field f_txt">
+                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>">
+                                <?php if (!empty($errors['kana'])): ?>
+                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
+                                <?php endif; ?>                             
+                            </div>
+                        </li>
+                        <li class="list_item04 req">
+                            <p class="list_label">性別</p>
+                            <div class="list_field f_select select">
+                                <select name="sex" class="select">
+                                    <option selected value=1 <?= isSelected(1, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>男性</option>
+                                    <option value=2 <?= isSelected(2, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>女性</option>
+                                    <option value=3 <?= isSelected(3, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>その他</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="list_item05 req">
+                            <p class="list_label">郵便番号（ハイフンなし）</p>
+                            <div class="list_field f_txt a">
+                                <div class="post_code">
+                                    <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
+                                        value="<?= htmlspecialchars($old_input['post_code'] ?? '') ?>"
+                                        pattern="[0-9]*" inputmode="numeric"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                    <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
+                                </div>
+                                <?php if (!empty($errors['post_code'])): ?>
+                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['post_code']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item06 req">
+                            <p class="list_label">住所</p>
+                            <div class="list_field f_txt">
+                                <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? '') ?>">
+                                <?php if (!empty($errors['address'])): ?>
+                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['address']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item07 req">
+                            <p class="list_label">電話番号（ハイフンなし）</p>
+                            <div class="list_field f_txt">
+                                <div class="phone-input">
+                                    <input type="text" name="tell_number" maxlength="11" 
+                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? '') ?>"
+                                        pattern="[0-9]*" inputmode="numeric"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                        <?php if (!empty($errors['tell_number'])): ?>
+                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
+                                        <?php endif; ?>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list_item08 req">
+                            <p class="list_label">メールアドレス</p>
+                            <div class="list_field f_txt">
+                                <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? '') ?>">
+                                <?php if (!empty($errors['email'])): ?>
+                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item09 req">
+                            <p class="list_label">支払方法</p>
+                            <div class="list_field f_txt radio-group">
+                                <?php foreach ($payment_select_list as $key => $value) { ?>
+                                    <input class="radio_input" type="radio" name="payment_method" value=<?= $key ?>
+                                        <?php if (!$old_input['payment_method'] && $key === 1) { ?> checked
+                                        <?php } else { ?>
+                                        <?= isSelected($key, $old_input['payment_method'] ?? null, null) ? 'checked' : '';
+                                        } ?> />
+                                    <label class="radio_label" for="convenience"><?= $value ?></label>
+                                <?php } ?>
+                            </div>
+                        </li>
+                        <li class="list_item10">
+                            <p class="list_label">備考</p>
+                            <div class="list_field f_txt">
+                                <textarea name="note" rows=5><?= htmlspecialchars($old_input['note']); ?></textarea>
+                                <?php if (!empty($errors['note'])): ?>
+                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <div class="area name">
+                            <input type="hidden" name="is_published" value=0>
+                            <input class="checkbox_input" type="checkbox" name="is_published" value=1 <?php if ($old_input['is_published'] == '1') { ?>checked <?php } ?>>
+                            <label class="checkbox_label">氏名掲載を許可します</label>
+                        </div>
+                        <div class="area plan">
+                            <input type="hidden" name="is_subscription" value=0>
+                            <input class="checkbox_input" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
+                            <label class="checkbox_label">定額課金プランを利用する</label>
+                        </div>
+                        <div class="form_btn">
+                            <input type="submit" class="btn btn_red box_bottom_btn" value="登録する" />
+                        </div>
+                    </div>
+                </ul>
+            </form>
+        </section>
+    </div>
+</main>
 
-</form>
-
+<ul id="pankuzu" class="inner_l">
+    <li><a href="../index.php">トップページ</a></li>
+    <li>会員登録</li>
+</ul>
 </html>
+
+
+
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
     async function fetchAddress() {
@@ -186,4 +200,26 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
             alert("エラーが発生しました");
         }
     }
+    
+    document.addEventListener("DOMContentLoaded", function () {
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const subscriptionArea = document.querySelector('.plan');
+
+    function toggleSubscriptionArea() {
+        const selectedValue = document.querySelector('input[name="payment_method"]:checked')?.value;
+        if (selectedValue === "2") {
+            subscriptionArea.style.display = "block"; // 表示
+        } else {
+            subscriptionArea.style.display = "none";  // 非表示
+        }
+    }
+
+    // 初回実行（ページ読み込み時）
+    toggleSubscriptionArea();
+
+    // ラジオボタンの変更を監視
+    paymentRadios.forEach(radio => {
+        radio.addEventListener("change", toggleSubscriptionArea);
+    });
+});
 </script>

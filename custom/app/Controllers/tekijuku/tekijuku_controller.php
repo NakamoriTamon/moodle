@@ -11,29 +11,21 @@ $kana = $_POST['kana'];
 $sex = $_POST['sex'];
 $post_code = $_POST['post_code'];
 $address = $_POST['address'];
-$tell_numbers = $_POST['tell_number'];
+$tell_number = $_POST['tell_number'];
 $email = $_POST['email'];
 $payment_method = $_POST['payment_method'];
 $note = $_POST['note'];
 $_SESSION['old_input'] = $_POST;
-
 // バリデーションチェック
-$size = 225;
-$name_error = validate_max_text($name, '氏名', $size, true);
-$kana_error = validate_max_text($kana, 'フリガナ', $size, true);
+$name_size = 50;
+$size = 500;
+$name_error = validate_max_text($name, 'お名前', $name_size, true);
+$kana_error = validate_max_text($kana, 'フリガナ', $name_size, true);
 $address_error = validate_max_text($address, '住所', $size, true);
 $email_error = validate_custom_email($email, $text = "");
-$note_error = validate_textarea($note, '備考', false);
+$note_error = validate_note($note, '備考', $size, false);
 
-// 電話番号の桁数チェック
-foreach ($tell_numbers as $value) {
-    $tell_number_error = validate_tel_number($value);
-    if ($tell_number_error) {
-        break;
-    }
-    $valid_tell_numbers[] = $value;
-}
-$combine_tell_number = $tell_number_error ? null : implode('-', $valid_tell_numbers);
+$tell_number_error = validate_tel_number($tell_number);
 
 $tekijuku_commem_count = $DB->count_records('tekijuku_commemoration', ['is_delete' => false, 'email' => $email]);
 if ($tekijuku_commem_count > 0) {
@@ -41,8 +33,12 @@ if ($tekijuku_commem_count > 0) {
 }
 
 // 郵便番号形式チェック
-if (!preg_match('/^\d+$/', $post_code)) {
+if ($post_code && !preg_match('/^\d+$/', $post_code)) {
     $post_code_error =  '郵便番号は数値で入力してください';
+}
+
+if (empty($post_code)) {
+    $post_code_error =  '郵便番号は必須です。';
 }
 
 // エラーメッセージをセッションに保存
@@ -62,7 +58,7 @@ foreach ($_SESSION['errors'] as $error) {
         exit;
     }
 }
-$_SESSION['old_input']['combine_tell_number'] = $combine_tell_number;
+$_SESSION['old_input']['combine_tell_number'] = $tell_number;
 
 header('Location: /custom/app/Views/tekijuku/confirm.php');
 exit;

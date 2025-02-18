@@ -105,6 +105,42 @@
 #form .form_cont .list li .list_field .note::before {
   content: "※";
 }
+
+#form .form_cont .list li .list_item05 .list_field.f_txt {
+  display: flex;
+  flex-direction: column; /* 入力欄とエラーメッセージを縦並びに */
+}
+
+#form .form_cont .list li .list_field.f_txt .post_code {
+  display: flex;
+  align-items: center; /* 入力欄とボタンを横並び */
+  gap: 10px; /* 入力欄とボタンの間にスペース */
+}
+
+#form .form_cont .list li .list_field.f_txt input {
+  flex-grow: 1; /* 入力欄が横幅を埋める */
+  padding: 8px;
+  font-size: 1.6rem;
+}
+
+#form .form_cont .list li .list_field.f_txt button {
+  padding: 8px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: #949494;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+}
+
+#form .form_cont .list li .list_field.f_txt button:hover {
+  background-color: rgb(82, 82, 82);
+}
+#form .form_cont .list li .text-danger {
+  margin-top: 5px; /* エラーメッセージを入力欄の下に表示 */
+  color: red;
+}
 #form .form_cont .list li .select {
   max-width: 470px;
 }
@@ -306,6 +342,8 @@
   #form .form_cont .list li .list_field .note:first-of-type {
     margin-top: 10px;
   }
+  
+
   #form .form_cont .list li .select {
     width: 80%;
   }
