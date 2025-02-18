@@ -132,5 +132,8 @@ $deadline_list = [
 ];
 define('DEADLINE_LIST', $deadline_list);
 
+$weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+define('WEEKDAYS', $weekdays);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

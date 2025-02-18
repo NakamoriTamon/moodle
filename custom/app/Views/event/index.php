@@ -16,15 +16,16 @@ $old_input = $_SESSION['old_input'] ?? [];
     <div class="inner_l">
         <section id="search">
             <h3 class="ttl_event">絞り込み検索</h3>
-            <form method="" action="" id="search_cont" class="whitebox">
+            <form method="" action="/custom/app/Controllers/event/event_controller.php" id="search_cont" class="whitebox">
+                <input type="hidden" name="action" value="index">
                 <div class="inner_s">
                     <ul class="search_list">
                         <li>
                             <p class="term">開催ステータス</p>
                             <div class="field f_check">
-                                <label><input type="checkbox" id="" />開催前</label>
-                                <label><input type="checkbox" id="" />開催中</label>
-                                <label><input type="checkbox" id="" />開催終了</label>
+                                <?php foreach(EVENT_STATUS_LIST as $key => $name): ?>
+                                    <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if(isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                                <?php endforeach; ?>
                             </div>
                         </li>
                         <li>
@@ -33,19 +34,17 @@ $old_input = $_SESSION['old_input'] ?? [];
                                 ステータス
                             </p>
                             <div class="field f_check">
-                                <label><input type="checkbox" id="" />受付前</label>
-                                <label><input type="checkbox" id="" />受付中</label>
-                                <label><input type="checkbox" id="" />受付終了</label>
-                                <label><input type="checkbox" id="" />申し込み不要</label>
+                                <?php foreach(DEADLINE_LIST as $key => $name): ?>
+                                    <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if(isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                                <?php endforeach; ?>
                             </div>
                         </li>
                         <li>
                             <p class="term">イベント形式</p>
                             <div class="field f_check">
-                                <label><input type="checkbox" id="" />会場（対面）</label>
-                                <label><input type="checkbox" id="" />会場（オンデマンドあり）</label>
-                                <label><input type="checkbox" id="" />オンライン</label>
-                                <label><input type="checkbox" id="" />ハイブリッド</label>
+                                <?php foreach ($lectureFormats as $lectureFormat): ?>
+                                    <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if(isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
+                                <?php endforeach; ?>
                             </div>
                         </li>
                         <li>
@@ -60,115 +59,41 @@ $old_input = $_SESSION['old_input'] ?? [];
                         <li>
                             <p class="term">キーワード</p>
                             <div class="field f_txt">
-                                <input type="text" placeholder="検索するキーワードを入力" />
+                                <input type="text" name="keyword" value="<?php if(isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
                             </div>
                         </li>
                         <li>
                             <p class="term">開催日時</p>
                             <div class="field f_date">
-                                <p class="date_wrap">
-                                    <input type="text" placeholder="年/月/日" />
+                                <p>
+                                    <input type="date" name="event_start_date" value="<?php if(isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
                                 </p>
                                 <span>～</span>
-                                <p class="date_wrap">
-                                    <input type="text" placeholder="年/月/日" />
+                                <p>
+                                    <input type="date" name="event_end_date" value="<?php if(isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
                                 </p>
                             </div>
                         </li>
                         <li>
                             <p class="term">カテゴリー</p>
                             <div class="field" id="category">
-                                <div class="cat_item category01">
-                                    <input type="checkbox" id="cat01" name="" />
-                                    <label for="cat01" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat01.svg"
-                                            class="obj"></object>
-                                        <p class="txt">医療・健康</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category02">
-                                    <input type="checkbox" id="cat02" name="" />
-                                    <label for="cat02" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat02.svg"
-                                            class="obj"></object>
-                                        <p class="txt">科学・技術</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category03">
-                                    <input type="checkbox" id="cat03" name="" />
-                                    <label for="cat03" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat03.svg"
-                                            class="obj"></object>
-                                        <p class="txt">生活・福祉</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category04">
-                                    <input type="checkbox" id="cat04" name="" />
-                                    <label for="cat04" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat04.svg"
-                                            class="obj"></object>
-                                        <p class="txt">文化・芸術</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category05">
-                                    <input type="checkbox" id="cat05" name="" />
-                                    <label for="cat05" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat05.svg"
-                                            class="obj"></object>
-                                        <p class="txt">社会・経済</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category06">
-                                    <input type="checkbox" id="cat06" name="" />
-                                    <label for="cat06" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat06.svg"
-                                            class="obj"></object>
-                                        <p class="txt">自然・環境</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category07">
-                                    <input type="checkbox" id="cat07" name="" />
-                                    <label for="cat07" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat07.svg"
-                                            class="obj"></object>
-                                        <p class="txt">子ども・教育</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category08">
-                                    <input type="checkbox" id="cat08" name="" />
-                                    <label for="cat08" class="cat_btn">
-                                        <object
-                                            type="image/svg+xml"
-                                            data="/custom/public/assets/common/img/icon_cat08.svg"
-                                            class="obj"></object>
-                                        <p class="txt">国際・言語</p>
-                                    </label>
-                                </div>
-                                <div class="cat_item category09">
-                                    <input type="checkbox" id="cat09" name="" />
-                                    <label for="cat09" class="cat_btn">
-                                        <p class="txt">その他</p>
-                                    </label>
-                                </div>
+                                <?php foreach($categorys as $row): ?>
+                                    <div class="cat_item category0<?= htmlspecialchars($row['id'])?>">
+                                        <input type="checkbox" id="cat0<?= htmlspecialchars($row['id'])?>" name="category[]" value="<?= htmlspecialchars($row['id'])?>" <?php if(isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
+                                        <label for="cat0<?= htmlspecialchars($row['id'])?>" class="cat_btn">
+                                            <object
+                                                type="image/svg+xml"
+                                                data="/custom/public/assets/common/img/icon_cat0<?= htmlspecialchars($row['id'])?>.svg"
+                                                class="obj"></object>
+                                            <p class="txt"><?= htmlspecialchars($row['name'])?></p>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </li>
                     </ul>
                     <div class="search_btn">
-                        <button type="button" class="btn btn_clear">クリア</button>
+                        <button type="button" class="btn btn_clear" id="clear_button">クリア</button>
                         <button type="submit" class="btn btn_red">検索する</button>
                     </div>
                 </div>
@@ -231,3 +156,8 @@ $old_input = $_SESSION['old_input'] ?? [];
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
+<script>
+    document.getElementById('clear_button').addEventListener('click', function () {
+        document.getElementById('search_cont').reset();
+    });
+</script>
