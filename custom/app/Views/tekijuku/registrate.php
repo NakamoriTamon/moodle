@@ -157,7 +157,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                         </div>
                         <div class="area plan">
                             <input type="hidden" name="is_subscription" value=0>
-                            <input class="checkbox_input" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
+                            <input class="checkbox_input" type="checkbox" name="is_subscription_open" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
                             <label class="checkbox_label">定額課金プランを利用する</label>
                         </div>
                         <div class="form_btn">
@@ -203,13 +203,15 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
     
     document.addEventListener("DOMContentLoaded", function () {
     const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-    const subscriptionArea = document.querySelector('.plan');
+    const subscriptionArea = document.querySelector('.area.plan');
 
     function toggleSubscriptionArea() {
         const selectedValue = document.querySelector('input[name="payment_method"]:checked')?.value;
+        const subscriptionCheckbox = document.querySelector('input[name="is_subscription_open"]');
         if (selectedValue === "2") {
             subscriptionArea.style.display = "block"; // 表示
         } else {
+            subscriptionCheckbox.checked = false;  // チェックを外す
             subscriptionArea.style.display = "none";  // 非表示
         }
     }

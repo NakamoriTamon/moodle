@@ -51,7 +51,6 @@ $_SESSION['errors'] = [
     'post_code' => $post_code_error,
     'note' => $note_error
 ];
-
 foreach ($_SESSION['errors'] as $error) {
     if (!empty($error)) {
         header('Location: /custom/app/Views/tekijuku/registrate.php');
