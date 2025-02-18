@@ -262,7 +262,7 @@ function validate_max_text($val, $title, $size, $required = false)
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) >= $size) {
+    if (mb_strlen($val) > $size) {
         return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
@@ -276,11 +276,25 @@ function validate_tel_number($tel_number)
     if (empty($tel_number)) {
         return '電話番号は必須です。';
     }
-    if (strlen($tel_number) >= 5) {
+    if (strlen($tel_number) >= 12) {
         return '無効な電話番号です。';
     }
     if (!preg_match('/^\d+$/', $tel_number)) {
         return '無効な電話番号です。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: 備考
+ */
+function validate_note($val, $title, $size, $required)
+{
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    }
+    if (mb_strlen($val) > $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }

@@ -29,11 +29,15 @@ try {
         LIMIT 1
     ");
 
+    $max_number = $max_number->number + 1;
+
+    // ゼロ埋め　sprintf('%08d', $max_number)
+
     $transaction = $DB->start_delegated_transaction();
     $tekijuku_commemoration = new stdClass();
     $tekijuku_commemoration->created_at = date('Y-m-d H:i:s');
     $tekijuku_commemoration->updated_at = date('Y-m-d H:i:s');
-    $tekijuku_commemoration->number = (int)$max_number->number + 1;
+    $tekijuku_commemoration->number = $max_number;
     $tekijuku_commemoration->type_code = $type_code;
     $tekijuku_commemoration->name = $name;
     $tekijuku_commemoration->kana = $kana;
@@ -46,6 +50,7 @@ try {
     $tekijuku_commemoration->note = $note;
     $tekijuku_commemoration->is_published = $is_published;
     $tekijuku_commemoration->is_subscription = $is_subscription;
+    $tekijuku_commemoration->paid_date = date('Y-m-d H:i:s');
 
     $id = $DB->insert_record('tekijuku_commemoration', $tekijuku_commemoration);
     $amount = $type_code === 1 ? 2000 : 10000;
