@@ -38,6 +38,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
                                             <?php endif; ?>
                                         </div>
                                         <div class="mb-3">
+                                            <label class="form-label">所属部局</label>
+                                            <div class="input-group">
+                                                <input class="form-control form-control-lg" type="text" name="department" placeholder="所属部局名"
+                                                    value="<?= htmlspecialchars($old_input['department'] ?? '') ?>" />
+                                            </div>
+                                            <?php if (!empty($errors['department'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="mb-3">
                                             <label class="form-label">メールアドレス</label>
                                             <input class="form-control form-control-lg" type="email" name="email" placeholder="Enter your email"
                                                 value="<?= htmlspecialchars($old_input['email'] ?? '') ?>" />

@@ -56,18 +56,16 @@ $capacity = $_POST['capacity'] ?? null; // 定員
 $_SESSION['errors']['capacity'] = validate_int($capacity, '定員', true); // バリデーションチェック
 // 複数回シリーズのイベント　の場合
 if($event_kbn == 2) {
-    $participation_fee = $_POST['all_participation_fee'] ?? null; // 参加費
-    $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参加費( 全て受講 )', false); // バリデーションチェック
-    $deadline = $_POST['all_deadline'] ?? null; // 申し込み締切日　必須
-    $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日( 全て受講 )', true);
-    $deadline = $_POST['all_deadline'] . ' 23:59:59';
+    $all_deadline = $_POST['all_deadline'] ?? null; // 各回申し込み締切日　必須
+    $_SESSION['errors']['all_deadline'] = validate_int($all_deadline, '各回申し込み締切日', true);
 } else {
-    $participation_fee = $_POST['participation_fee'] ?? null; // 参加費
-    $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参加費', false); // バリデーションチェック
-    $deadline = $_POST['deadline'] ?? null; // 申し込み締切日　必須
-    $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', true);
-    $deadline = $_POST['deadline'] . ' 23:59:59';
+    $all_deadline = 0;
 }
+$participation_fee = $_POST['participation_fee'] ?? null; // 参加費
+$_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参加費', false); // バリデーションチェック
+$deadline = $_POST['deadline'] ?? null; // 申し込み締切日　必須
+$_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', true);
+$deadline = $_POST['deadline'] . ' 23:59:59';
 $archive_streaming_period = empty($_POST['archive_streaming_period']) ? 0 : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
 $is_double_speed = $_POST['is_double_speed'] == null ? 0 : 1; // 動画倍速機能
@@ -143,7 +141,8 @@ if ($event_kbn == 1) {
                 && ($_SESSION['errors']["course_date_{$lectureNumber}"]
                 || $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"]
                 || $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"]
-                || $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"])
+                || $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"]
+                || $_SESSION['errors']['all_deadline'])
             ) {
                 $error_flg = true;
             }
@@ -237,6 +236,7 @@ try {
                 capacity = :capacity,
                 participation_fee = :participation_fee,
                 deadline = :deadline,
+                all_deadline = :all_deadline,
                 archive_streaming_period = :archive_streaming_period,
                 is_double_speed = :is_double_speed,
                 note = :note,
@@ -268,6 +268,7 @@ try {
             ':capacity' => $capacity,
             ':participation_fee' => $participation_fee,
             ':deadline' => $deadline,
+            ':all_deadline' => $all_deadline,
             ':archive_streaming_period' => $archive_streaming_period,
             ':is_double_speed' => $is_double_speed,
             ':note' => $note,
@@ -285,14 +286,14 @@ try {
                 name, description
                 , event_date, start_hour, end_hour, target, venue_name, access
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
-                , participation_fee, deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
+                , participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, survey_custom_id, is_apply_btn
             ) 
             VALUES (
                 :name, :description
                 , :event_date, :start_hour, :end_hour, :target, :venue_name, :access
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
-                , :participation_fee, :deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
+                , :participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :survey_custom_id, :is_apply_btn
             )
         ");
@@ -317,6 +318,7 @@ try {
             , ':capacity' => $capacity
             , ':participation_fee' => $participation_fee
             , ':deadline' => $deadline
+            , ':all_deadline' => $all_deadline
             , ':archive_streaming_period' => $archive_streaming_period
             , ':is_double_speed' => $is_double_speed
             , ':note' => $note
