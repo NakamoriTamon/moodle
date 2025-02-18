@@ -434,8 +434,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3 onetime_area">
-									<div class="mb-3 onetime_area">
+									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">申し込み締切日</label>
 											<span class="badge bg-danger">必須</span>
@@ -448,13 +447,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3 repeatedly_area">
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">申し込み締切日( 全て受講 )</label>
+											<label class="me-2">各回申し込み締切日</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input name="all_deadline" class="form-control" type="date"
-                                            value="<?= explode (' ', htmlspecialchars($eventData['deadline'] ?? ($old_input['all_deadline'] ?? '')))[0] ?>" />
-										<?php if (!empty($errors['deadline'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
+										<input name="all_deadline" class="form-control" type="number"
+                                            value="<?= explode (' ', htmlspecialchars($eventData['all_deadline'] ?? ($old_input['all_deadline'] ?? '')))[0] ?>" />
+										<?php if (!empty($errors['all_deadline'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['all_deadline']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -525,7 +524,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const event_id = $('#event_id').val();
 
 		// 初期表示で value="2" の場合は表示
-		if (eventKbnElement.value == '2' && event_id == '') {
+		if (eventKbnElement.value == '2') {
 			onetimeArea.css('display', 'none');
 			repeatedlyArea.css('display', 'block');
 		}
