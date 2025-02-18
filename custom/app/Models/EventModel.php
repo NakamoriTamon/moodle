@@ -28,20 +28,95 @@ class EventModel extends BaseModel
 
                 // 動的に検索条件を追加
                 $params = [];
+                $having = "";
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
-                    $where .= ' AND ec.category_id = :category_id';
-                    $params[':category_id'] = $filters['category_id'];
+                    if(is_array($filters['category_id'])) {
+                        $where .= ' AND ec.category_id in (:category_id)';
+                        $category_id = implode(',', $filters['category_id']);
+                    } else {
+                        $where .= ' AND ec.category_id = :category_id';
+                        $category_id = $filters['category_id'];
+                    }
+                    $params[':category_id'] = $category_id;
                 }
                 if (!empty($filters['event_status'])) {
-                    $having = ' HAVING event_status = :event_status';
-                    $params[':event_status'] = $filters['event_status'];
+                    if(is_array($filters['event_status'])) {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' event_status IN (:event_status)';
+                        $event_status = implode(',', $filters['event_status']);
+                    } else {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' event_status = :event_status';
+                        $event_status = $filters['event_status'];
+                    }
+                    $params[':event_status'] = $event_status;
+                }
+                if (!empty($filters['deadline_status'])) {
+                    if(is_array($filters['deadline_status'])) {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' deadline_status IN (:deadline_status)';
+                        $deadline_status = implode(',', $filters['deadline_status']);
+                    } else {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' deadline_status = :deadline_status';
+                        $deadline_status = $filters['deadline_status'];
+                    }
+                    $params[':deadline_status'] = $deadline_status;
                 }
                 if (!empty($filters['event_id'])) {
                     $where .= ' AND e.id = :event_id';
                     $params[':event_id'] = $filters['event_id'];
                 }
+                if (!empty($filters['event_start_date'])) {
+                    $where .= ' AND ci.course_date >= :event_start_date';
+                    $params[':event_start_date'] = $filters['event_start_date'];
+                }
+                if (!empty($filters['event_end_date'])) {
+                    $where .= ' AND ci.course_date <= :event_end_date';
+                    $params[':event_end_date'] = $filters['event_end_date'];
+                }
+                // キーワード　フリー入力
+                if (!empty($filters['keyword'])) {
+                    // 開催場所、イベント名、講師名の部分一致検索
+                    $sql .= '
+                        LEFT JOIN mdl_course_info_detail cid ON cid.course_info_id = ci.id
+                        LEFT JOIN mdl_tutor t ON t.id = cid.tutor_id';
+                    // 文字列をスペース、半角スペース区切りで分割
+                    $keywordArray = preg_split('/[ 　]+/u', $filters['keyword']);
+                    $keywordConditions = [];
+                    foreach ($keywordArray as $index => $word) {
+                        $paramName = ":keyword{$index}";
+                        $params[$paramName] = '%' . $word . '%';
+                
+                        $keywordConditions[] = "(
+                            e.name LIKE $paramName
+                            OR e.venue_name LIKE $paramName
+                            OR cid.name LIKE $paramName
+                            OR t.name LIKE $paramName
+                        )";
+                    }
 
+                    if (!empty($keywordConditions)) {
+                        $where .= ' AND (' . implode(' AND ', $keywordConditions) . ')';
+                    }
+                }
                 // ページネーション用のオフセットを計算
                 $offset = ($page - 1) * $perPage;
                 $limit = " LIMIT $perPage OFFSET $offset";
@@ -187,13 +262,41 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event WHERE id = ? AND visible = 1 ORDER BY timestart ASC");
-                $stmt->execute([$id]);
+                
+                // ベースのSQLクエリ
+                $sql = 'SELECT 
+                        e.*,
+                        CASE
+                            WHEN CURRENT_DATE < MIN(ci.course_date) THEN 1 -- 開催前
+                            WHEN CURRENT_DATE >= MIN(ci.course_date) AND CURRENT_DATE <= MAX(ci.course_date) THEN 2 -- 開催中
+                            WHEN CURRENT_DATE > MAX(ci.course_date) THEN 3 -- 開催終了
+                        END AS event_status,
+                        CASE
+                            WHEN CURRENT_DATE <= e.deadline THEN 1
+                            WHEN CURRENT_DATE > e.deadline THEN 2
+                        END AS deadline_status
+                    FROM mdl_event e
+                    LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
+                    LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
+                    WHERE e.visible = 1 AND e.id = :id
+                    GROUP BY e.id
+                    ORDER BY MIN(ci.course_date) ASC';
+
+                // 動的に検索条件を追加
+                $params[':id'] = $id;
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
                 $event = $stmt->fetch(PDO::FETCH_ASSOC);
-                $event['details'] = $this->getEventDetails($id);
-                $event['lecture_formats'] = $this->getEventLectureFormats($id);
-                $event['categorys'] = $this->getEventCategorys($id);
-                $event['course_infos'] = $this->getEventCourseInfos($id);
+
+                // 各イベントの詳細を追加
+                $event['details'] = $this->getEventDetails($event['id']);
+                $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
+                $event['categorys'] = $this->getEventCategorys($event['id']);
+                $event['course_infos'] = $this->getEventCourseInfos($event['id']);
+                $event_status = $event['event_status'];
+
                 return  $event;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();

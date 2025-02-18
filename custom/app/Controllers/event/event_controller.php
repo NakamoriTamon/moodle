@@ -14,14 +14,22 @@ $lectureFormats = $lectureFormatModel->getLectureFormats();
 $currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
 $perPage = 12; // 1ページあたりの件数
 // 検索条件を取得
-$category_id = $_POST['category_id'] ?? '';
-$event_status = $_POST['event_status'] ?? '';
-$event_id = $_POST['event_id'] ?? '';
+$category_id = $_GET['category'] ?? [];
+$event_status = $_GET['event_status'] ?? [];
+$deadline_status = $_GET['deadline_status'] ?? [];
+$lecture_format_id = $_GET['lecture_format_id'] ?? [];
+$keyword = $_GET['keyword'] ?? '';
+$event_start_date = $_GET['event_start_date'] ?? '';
+$event_end_date = $_GET['event_end_date'] ?? '';
 
 $events = $eventModel->getEvents([
-    'category_id' => $category_id,
     'event_status' => $event_status,
-    'event_id' => $event_id,
+    'deadline_status' => $deadline_status,
+    'lecture_format_id' => $lecture_format_id,
+    'keyword' => $keyword,
+    'event_start_date' => $event_start_date,
+    'event_end_date' => $event_end_date,
+    'category_id' => $category_id
 ], $currentPage, $perPage);
 
 if(!empty($events)) {
@@ -51,7 +59,7 @@ $totalCount = count($events);
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 
+$_SESSION['old_input'] = $_GET; // 入力内容も保持
 if ($action === 'index') {
-    $_SESSION['old_input'] = $_POST; // 入力内容も保持
     include '/var/www/html/moodle/custom/app/Views/event/index.php';
 }

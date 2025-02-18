@@ -1,4 +1,12 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/event/event_detail_controller.php');
+
+$dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
+$start_hour = $dateTime->format('H:i'); // "00:00"
+$dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
+$end_hour = $dateTime->format('H:i'); // "00:00"
+?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
 <main id="subpage">
@@ -10,50 +18,35 @@
     <div class="inner_l">
         <section id="desc">
             <div class="desc_info">
-                <h3 class="event_ttl">中之島芸術センター 演劇公演『中之島デリバティブⅢ』</h3>
+                <h3 class="event_ttl"><?= htmlspecialchars($event['name']); ?></h3>
                 <ul class="event_status">
-                    <li class="no">開催前</li>
-                    <li class="no">申し込み不要</li>
+                    <li class="no"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
+                    <li class="no"><?= htmlspecialchars(DEADLINE_LIST[$event['deadline_status']]); ?></li>
                 </ul>
                 <div class="event_sched">
                     <p class="term">開催日</p>
                     <div class="date">
-                        <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                        <p class="dt02">2回目：2025年1月15日～1月28日</p>
+                        <?php foreach($event['select_course'] as $no => $course): ?>
+                            <p class="dt01"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 <div class="category" id="category">
-                    <div class="cat_item category01 active">
-                        <div class="cat_btn">
-                            <object
-                                type="image/svg+xml"
-                                data="/custom/public/assets/common/img/icon_cat01.svg"
-                                class="obj"></object>
-                            <p class="txt">医療・健康</p>
+                    <?php foreach($select_categorys as $select_category ): ?>
+                        <div class="cat_item category01 active">
+                            <div class="cat_btn">
+                                <object
+                                    type="image/svg+xml"
+                                    data="/custom/public/assets/common/img/icon_cat0<?= htmlspecialchars($select_category['id']) ?>.svg"
+                                    class="obj"></object>
+                                <p class="txt"><?php if(in_array($select_category ,array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category ,array_column($categorys, 'id'))]['name'] ?></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="cat_item category02 active">
-                        <div class="cat_btn">
-                            <object
-                                type="image/svg+xml"
-                                data="/custom/public/assets/common/img/icon_cat02.svg"
-                                class="obj"></object>
-                            <p class="txt">科学・技術</p>
-                        </div>
-                    </div>
-                    <div class="cat_item category04 active">
-                        <div class="cat_btn">
-                            <object
-                                type="image/svg+xml"
-                                data="/custom/public/assets/common/img/icon_cat04.svg"
-                                class="obj"></object>
-                            <p class="txt">文化・芸術</p>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
             <div class="desc_img">
-                <div class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></div>
+                <div class="img"><img src="<?= htmlspecialchars($event['thumbnail_img']); ?>" alt="" /></div>
                 <p class="big">タップで拡大する</p>
             </div>
         </section>
@@ -65,13 +58,7 @@
                     <div class="detail_item">
                         <h2 class="block_ttl">内容</h2>
                         <p class="sent">
-                            近代日本医療の土台となった蘭医学の意義を再認識する「蘭医学サロン」を開催します。<br />
-                            第１回は、蘭医学を樹立するために大きな貢献を果たした緒方洪庵と、彼が設立した大阪適塾を取り上げます。<br />
-                            　10月に刊行される海堂尊著『蘭医繚乱
-                            洪庵と泰然』（PHP研究所）の主人公は二人の蘭医学者、佐倉順天堂を開設した佐藤泰然（1804-72）と、大阪適塾を開いた緒方洪庵（1810-63）です。そこで作
-                            者の海堂尊氏に、緒方洪庵の人となりについて特別講演をいただき、大阪大学適塾記念センターの松永和浩氏に洪庵と適塾の実態を、そして緒方洪庵記念財団の川上潤氏も交えた三人で適塾の過去・現在・未来について語り合います。<br />
-                            　適塾は有名ですが、あまり知られていない一面も多いため、適塾研究の第一人者が集い、存分に語り合うという、これまで例のないシンポジウムをお楽しみください。<br />
-                            　シンポジウム終了後は海堂尊氏のサイン会が開催されます。奮ってご参加ください。
+                            <?= htmlspecialchars($event['program']); ?>
                         </p>
                     </div>
                     <div class="detail_item">
@@ -80,11 +67,11 @@
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">開催日</p>
-                                    <p class="desc">2024年10月19日（土曜日）</p>
+                                    <p class="desc"><?= (new DateTime($event['event_date']))->format('Y年m月d日') . '（' . WEEKDAYS[(new DateTime($event['event_date']))->format('w')] . '）'; ?></p>
                                 </li>
                                 <li>
                                     <p class="term">時間</p>
-                                    <p class="desc">9:30～12:15（9:00開場）</p>
+                                    <p class="desc"><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
                                 </li>
                                 <li>
                                     <p class="term">対象</p>
@@ -92,22 +79,28 @@
                                 </li>
                                 <li>
                                     <p class="term">定員</p>
-                                    <p class="desc">300名</p>
+                                    <p class="desc"><?= htmlspecialchars(number_format($event['capacity'])); ?>名</p>
                                 </li>
                                 <li>
                                     <p class="term">講義形式</p>
-                                    <p class="desc">会場（オンデマンドあり）</p>
+                                    <p class="desc">
+                                    <?php foreach($select_lecture_formats as $lecture_format): ?>
+                                        <?= htmlspecialchars($lecture_format['name']) ?><br />
+                                    <?php endforeach; ?>
+                                    </p>
                                 </li>
                             </ul>
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">参加費</p>
-                                    <p class="desc">1回〇〇円、全て受講の場合〇〇〇円</p>
+                                    <p class="desc">1回 <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
+                                    <?php if(count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
+                                    </p>
                                 </li>
                                 <li>
                                     <p class="term">申込締切</p>
                                     <p class="desc">
-                                        ＜全受講＞△月△△日まで<br />
+                                    <?php if(count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
                                         ＜各回受講＞開催日の〇日前
                                     </p>
                                 </li>
@@ -155,6 +148,10 @@
                             </div>
                         </div>
                     </div>
+                    <a href="apply.php" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
+                    <p class="detail_txt">
+                        ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
+                    </p>
                     <div class="detail_item">
                         <h2 class="block_ttl">プログラム</h2>
                         <div class="program">
@@ -209,10 +206,6 @@
                             </div>
                         </div>
                     </div>
-                    <a href="apply.php" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
-                    <p class="detail_txt">
-                        ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
-                    </p>
                     <a href="" class="btn btn_contact btn_navy">このイベントを問い合わせる</a>
                 </div>
             </div>

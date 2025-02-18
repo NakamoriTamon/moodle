@@ -59,6 +59,7 @@ input::placeholder {
   color: #ccc;
 }
 input[type="text"],
+input[type="date"],
 input[type="email"],
 input[type="tel"],
 input[type="password"],
@@ -70,6 +71,7 @@ textarea,
   border-radius: 3px;
 }
 input[type="text"],
+input[type="date"],
 input[type="email"],
 input[type="tel"],
 input[type="password"],
@@ -696,7 +698,7 @@ select {
   width: calc(100% - 7em - 30px);
 }
 #search_cont .search_list li .f_txt input[type="text"],
-#search_cont .search_list li .f_date input[type="text"],
+#search_cont .search_list li .f_date input[type="date"],
 #search_cont .search_list li .f_select {
   height: 50px;
   border-radius: 3px;
