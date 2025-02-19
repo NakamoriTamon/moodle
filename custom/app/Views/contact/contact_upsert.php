@@ -67,7 +67,7 @@ if ($name_error || $email_error || $email_confirm_error || $message_error) {
         $event = $DB->get_record('event', array('name' => $heading));
         $eventid = ($event && isset($event->id)) ? $event->id : '';
         $tutor = $DB->get_record('tutor', array('id' => $event->userid));
-        $eventid = ($tutor && isset($tutor->id)) ? $tutor->id : '';
+        $tutorid = null;
         $tutorname = ($tutor && isset($tutor->name)) ? $tutor->name : '';
     }
 

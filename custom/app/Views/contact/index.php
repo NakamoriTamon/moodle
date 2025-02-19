@@ -1,10 +1,10 @@
 <?php
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/EventController.php');
 
-$event_statuses = EVENT_STATUS_LIST;
-$old_input = $_SESSION['old_input'] ?? [];
+$eventController = new EventController();
+$eventlist = $eventController->getEvents();
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -65,14 +65,12 @@ $old_input = $_SESSION['old_input'] ?? [];
                             <div class="list_field f_select select">
                                 <select name="heading">
                                     <option value="" disabled selected>選択してください</option>
-                                    <?php if (isset($events) && !empty($events)): ?>
-                                        <?php foreach ($events as $event): ?>
-                                            <option value="<?= htmlspecialchars($event['id']) ?>"
-                                                <?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($event['name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
+                                    <?php foreach ($eventlist as $event): ?>
+                                        <option value="<?= htmlspecialchars($event['id']) ?>"
+                                            <?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($event['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                     <option value="会員登録前のご質問">会員登録前のご質問</option>
                                     <option value="その他一般的なお問い合わせ">その他一般的なお問い合わせ</option>
                                 </select>

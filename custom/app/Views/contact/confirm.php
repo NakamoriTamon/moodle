@@ -1,4 +1,5 @@
 <?php
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/EventController.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
@@ -64,24 +65,24 @@ if (!isset($_SESSION['confirm_token'])) {
                     <ul class="list">
                         <li class="list_item01">
                             <p class="list_label">お名前</p>
-                            <p class="list_field f_txt"><?php echo $name; ?></p>
+                            <p class="list_field f_txt"><?= htmlspecialchars($name); ?></p>
                         </li>
                         <li class="list_item02">
                             <p class="list_label">メールアドレス</p>
-                            <p class="list_field f_txt"><?php echo $email; ?></p>
+                            <p class="list_field f_txt"><?= htmlspecialchars($email); ?></p>
                         </li>
                         <li class="list_item03">
                             <p class="list_label">メールアドレス（確認用）</p>
-                            <p class="list_field f_txt"><?php echo $email_confirm; ?></p>
+                            <p class="list_field f_txt"><?= htmlspecialchars($email_confirm); ?></p>
                         </li>
                         <li class="list_item04">
                             <p class="list_label">お問い合わせの項目</p>
-                            <p class="list_field f_select"><?php echo $heading; ?></p>
+                            <p class="list_field f_select"><?= htmlspecialchars($event['name']); ?></p>
                         </li>
                         <li class="list_item05 long_item">
                             <p class="list_label">お問い合わせ内容</p>
                             <p class="list_field f_txtarea">
-                                <?php echo nl2br($message); ?>
+                                <?= htmlspecialchars(nl2br($message)); ?>
                             </p>
                         </li>
                     </ul>
@@ -90,7 +91,7 @@ if (!isset($_SESSION['confirm_token'])) {
                     <input type="hidden" name="name" value="<?php echo $name; ?>">
                     <input type="hidden" name="email" value="<?php echo $email; ?>">
                     <input type="hidden" name="email_confirm" value="<?php echo $email_confirm; ?>">
-                    <input type="hidden" name="heading" value="<?php echo $heading; ?>">
+                    <input type="hidden" name="heading" value="<?php echo $event['name']; ?>">
                     <input type="hidden" name="message" value="<?php echo $message; ?>">
                     <input type="hidden" name="confirm_token" value="<?php echo $_SESSION['confirm_token']; ?>">
                 </div>
