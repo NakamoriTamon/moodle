@@ -334,3 +334,62 @@ function validate_note($val, $title, $size, $required)
     }
     return null;
 }
+
+/**
+ * バリデーション: お問い合わせ お名前
+ */
+function validate_contact_name($username)
+{
+    if (empty($username)) {
+        return 'お名前は必須です。';
+    }
+    if (strlen($username) > 50) {
+        return 'お名前は50文字以内である必要があります。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: お問い合わせ メールアドレス
+ */
+function validate_contact_email($email)
+{
+    if (empty($email)) {
+        return 'メールアドレスは必須です。';
+    }
+    if (strlen($email) > 50) {
+        return 'メールアドレスは50文字以内である必要があります。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: お問い合わせ メールアドレス（確認用）
+ */
+function validate_contact_email_confirm($email, $email_confirm)
+{
+    if (empty($email_confirm)) {
+        return 'メールアドレス（確認用）は必須です。';
+    }
+    if (strlen($email_confirm) > 255) {
+        return 'メールアドレス（確認用）は255文字以内である必要があります。';
+    }
+    if ($email_confirm !== $email) {
+        return 'メールアドレスとメールアドレス（確認用）が一致していません。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: お問い合わせ お問い合わせ内容
+ */
+function validate_contact_message($message)
+{
+    if (empty($message)) {
+        return 'お問い合わせ内容は必須です。';
+    }
+    if (strlen($message) > 300) {
+        return 'お問い合わせ内容は300文字以内である必要があります。';
+    }
+    return null;
+}
