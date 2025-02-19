@@ -1,8 +1,10 @@
 <?php
-require_once('/var/www/html/moodle/config.php');
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_controller.php');
-$eventId = 2;
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller.php');
+
+$event_statuses = EVENT_STATUS_LIST;
+$old_input = $_SESSION['old_input'] ?? [];
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -19,7 +21,7 @@ $eventId = 2;
                 <li>確認</li>
                 <li>完了</li>
             </ul>
-            <form method="POST" action="confirm.php" class="whitebox form_cont">
+            <form method="POST" action="confirm.php" class="whitebox form_cont contact">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_SESSION['USER']->id); ?>">
                 <input type="hidden" name="event_id" value="<?php echo $eventId ?>">
@@ -90,10 +92,12 @@ $eventId = 2;
                     </ul>
                     <div class="agree">
                         <p class="agree_txt">個人情報の取扱いについて</p>
-                        <label for="agree"><input type="checkbox" id="agree" required />同意する</label>
+                        <label for="agree">
+                            <input type="checkbox" name="agree" id="agree" <?= !empty($old_input['agree']) ? "checked" : ''; ?> />同意する
+                        </label>
                     </div>
                     <div class="form_btn">
-                        <input type="submit" class="btn btn_red" value="入力内容の確認" />
+                        <input id="submit" type="submit" disabled class="btn btn_red" value="入力内容の確認" />
                     </div>
                 </div>
             </form>
@@ -101,6 +105,14 @@ $eventId = 2;
         <!-- contact -->
     </div>
 </main>
+
+<ul id="pankuzu" class="inner_l">
+    <li><a href="../index.php">トップページ</a></li>
+    <li>お問い合わせ</li>
+</ul>
+
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
 <script>
     const emailInput = document.getElementById('email_confirm');
 
@@ -116,11 +128,14 @@ $eventId = 2;
     emailInput.addEventListener('contextmenu', function(e) {
         e.preventDefault();
     });
+
+    $(document).ready(function() {
+        // 初期状態をチェック
+        $('#submit').prop('disabled', !$('#agree').is(':checked'));
+
+        // チェックボックスの状態変化時にボタンを有効/無効に切替
+        $('#agree').on('change', function() {
+            $('#submit').prop('disabled', !$(this).is(':checked'));
+        });
+    });
 </script>
-
-<ul id="pankuzu" class="inner_l">
-    <li><a href="../index.php">トップページ</a></li>
-    <li>お問い合わせ</li>
-</ul>
-
-<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>

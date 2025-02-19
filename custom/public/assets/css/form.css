@@ -302,6 +302,14 @@
   margin-top: 60px;
 }
 
+/*-------------------------------------
+ contact
+ -------------------------------------*/
+/* 初期はdisable状態 */
+#form.contact #submit:disabled{
+  background: #ccc;
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
