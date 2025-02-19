@@ -6,37 +6,44 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 session_start();
 
 global $DB;
+$_SESSION['old_input'] = $_POST;
 
 $ids        = $_POST['ids']       ?? [];
 $files      = $_FILES['video_files'] ?? null;
 $createdAt  = date('Y-m-d H:i:s');
 $updatedAt  = date('Y-m-d H:i:s');
 
-// バリデーション
-$validate_movie_file = validate_movie_file($files);
-if ($validate_movie_file) {
-    $_SESSION['errors'] = [
-        'video_files' => $validate_movie_file,
-    ];
-    $_SESSION['old_input'] = $_POST;
+// 講義動画のアップロードはここだけなのでここでバリデーション
+if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['file'];
+    $fileTmpPath = $file['tmp_name'];
+    $fileMimeType = mime_content_type($fileTmpPath); // MIMEタイプ取得
+
+    if (strpos($fileMimeType, 'video/') !== 0) {
+        $_SESSION['errors']['file'] = '許可されていない形式です。動画ファイルをアップロードしてください。';
+        header('Location: /custom/admin/app/Views/event/movie.php');
+    }
+} else {
+    $_SESSION['errors']['file'] = '講義動画は必須です。';
+}
+
+if ($_SESSION['errors']['file']) {
     $_SESSION['message_error'] = '登録に失敗しました';
     header('Location: /custom/admin/app/Views/event/movie.php');
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = '登録に失敗しました';
-        header('Location: /custom/admin/app/Views/event/movie.php');
-        exit;
-    }
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $_SESSION['message_error'] = '登録に失敗しました';
+    header('Location: /custom/admin/app/Views/event/movie.php');
+    exit;
 }
 
 try {
     $transaction = $DB->start_delegated_transaction();
     $destination_dir = '/var/www/html/moodle/uploads/movie';
     if (!file_exists($destination_dir)) {
-        mkdir($destination_dir, 0777, true);
+        mkdir($destination_dir, 0755, true);
     }
 
     foreach ($files['name'] as $movieIndex => $fileNames) {

@@ -1,37 +1,22 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-session_start();
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/movie/movie_controller.php');
+include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+$movie_conroller = new MovieController();
+$result_list = $movie_conroller->index();
 
 // バリデーションエラー
 $errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 
-$eventController = new EventController();
-$events = $eventController->index();
+// 情報取得
+$category_list = $result_list['category_list'] ?? [];
+$event_list = $result_list['event_list']  ?? [];
+$movie = $result_list['movie'] ?? [];
 
-global $DB;
-$movies = [];
-
-if (isset($_GET['search'])) {
-	try {
-		$sql = "SELECT * FROM {course_movie} WHERE is_delete = :is_delete";
-		$movies = $DB->get_records_sql($sql, ['is_delete' => 0]);
-		$movies = array_values($movies);
-	} catch (Exception $e) {
-		$_SESSION['message_error'] = 'エラーが発生しました';
-	}
-	if (empty($movies)) {
-		$movies[] = (object)[
-			'id'        => 0,
-			'name'      => '',
-			'file_name' => '',
-			'file_path' => '',
-		];
-	}
-}
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -63,35 +48,59 @@ if (isset($_GET['search'])) {
 						<div class="card-body p-0">
 							<div class="card">
 								<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
-									<form method="GET" action="" class="d-flex w-100">
-										<div class="sp-w-100 w-50 me-4 sp-mb-3">
-											<label class="form-label" for="notyf-message">イベント名</label>
-											<select name="movie_id" class="form-control w-100">
-												<?php foreach ($events as $event): ?>
-													<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>">
-														<?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
-													</option>
-												<?php endforeach; ?>
-											</select>
-										</div>
-										<div class="sp-w-100 sp-mb-4 w-25">
-											<label class="form-label" for="notyf-message">回数</label>
-											<div class="d-flex align-items-center">
-												<select name="round" class="form-control w-100">
-													<option value="0">未選択</option>
-													<option value="1">第1回</option>
-													<option value="2">第2回</option>
-													<option value="3">第3回</option>
-													<option value="4">第4回</option>
-													<option value="5">第5回</option>
-													<option value="6">第6回</option>
-													<option value="7">第7回</option>
-													<option value="8">第8回</option>
-													<option value="9">第9回</option>
+									<form id="form" method="POST" action="/custom/admin/app/Views/event/movie.php" class="w-100">
+										<div class="sp-block d-flex justify-content-between">
+											<div class="mb-3 w-100">
+												<label class="form-label" for="notyf-message">カテゴリー</label>
+												<select name="category_id" class="form-control">
+													<option value="">すべて</option>
+													<?php foreach ($category_list as $category) { ?>
+														<option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
+															<?= htmlspecialchars($category['name']) ?>
+														</option>
+													<?php } ?>
+												</select>
+											</div>
+											<div class="sp-ms-0 ms-3 mb-3 w-100">
+												<label class="form-label" for="notyf-message">開催ステータス</label>
+												<select name="event_status_id" class="form-control">
+													<option value="">すべて</option>
+													<?php foreach ($event_status_list as $key => $event_status) { ?>
+														<option value=<?= $key ?> <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+															<?= htmlspecialchars($event_status) ?></option>
+													<?php } ?>
 												</select>
 											</div>
 										</div>
-										<div class="d-flex align-items-end ms-auto">
+										<div class="sp-block d-flex justify-content-between">
+											<div class="mb-3 w-100">
+												<label class="form-label" for="notyf-message">イベント名</label>
+												<select name="event_id" class="form-control">
+													<option value="" selected disabled>未選択</option>
+													<?php foreach ($event_list as $event): ?>
+														<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
+															<?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
+															<?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+														</option>
+													<?php endforeach; ?>
+												</select>
+											</div>
+											<div class="sp-ms-0 ms-3 mb-3 w-100">
+												<label class="form-label" for="notyf-message">回数</label>
+												<div class="d-flex align-items-center">
+													<select name="course_no" class="form-control w-100" <?= $result_list['is_display'] ? 'disabled' : '' ?>>
+														<option value="" selected disabled>未選択</option>
+														<?php for ($i = 1; $i < 10; $i++) { ?>
+															<option value=<?= $i ?>
+																<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+																<?= "第" . $i . "回" ?>
+															</option>
+														<? } ?>
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="d-flex justify-content-end ms-auto">
 											<button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
 										</div>
 									</form>
@@ -101,8 +110,8 @@ if (isset($_GET['search'])) {
 					</div>
 				</div>
 
-				<?php if (!empty($movies)): ?>
-					<div class="search-area col-12 col-lg-12">
+				<?php if ($result_list['is_display']): ?>
+					<div class="col-12 col-lg-12">
 						<div class="card">
 							<div class="card-body">
 								<form method="POST" action="/custom/admin/app/Controllers/movie/movie_upsert_controller.php" enctype="multipart/form-data">
@@ -111,69 +120,20 @@ if (isset($_GET['search'])) {
 									</div>
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="movie_id" value="<?= htmlspecialchars($_GET['movie_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-									<input type="hidden" name="round" value="<?= htmlspecialchars($_GET['round'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-									<?php foreach ($movies as $index => $movie): ?>
-										<div class="movie-container mb-4" data-movie-id="<?= htmlspecialchars($movie->id, ENT_QUOTES, 'UTF-8') ?>">
-											<input type="hidden" name="ids[<?= $index ?>]" value="<?= !empty($movie->id) ? (int)$movie->id : 0 ?>">
-											<h5><?= htmlspecialchars($movie->name, ENT_QUOTES, 'UTF-8') ?></h5>
-											<div class="fields-container">
-												<div class="uploadRow">
-													<div class="add_field mb-3 d-flex align-items-center">
-														<input type="hidden" class="hiddenField"
-															name="video_files[<?= $index ?>][]"
-															value="">
-														<input type="file" class="form-control fileUpload"
-															name="video_files[<?= $index ?>][]"
-															multiple accept="video/mp4,video/x-msvideo,video/quicktime">
-														<a type="button" class="trash ms-2 btn btn-danger btn-sm delete-link"
-															data-id="<?= htmlspecialchars($movie->id, ENT_QUOTES, 'UTF-8') ?>"
-															data-name="<?= htmlspecialchars(!empty($movie->file_name) ? $movie->file_name : $movie->name, ENT_QUOTES, 'UTF-8') ?>"
-															data-has-file="<?= !empty($movie->file_name) ? '1' : '0' ?>">
-															<i data-feather="trash"></i>
-														</a>
-													</div>
-													<div class="fileInfo mt-2 d-none"></div>
+									<div class="movie-container mb-4">
+										<input type="hidden" name="id" value="<?= !empty($movie->id) ? (int)$movie->id : 0 ?>">
+										<h5><?= htmlspecialchars($movie->name, ENT_QUOTES, 'UTF-8') ?></h5>
+										<div class="fields-container">
+											<div>
+												<div class="add_field mb-3 d-flex align-items-center">
+													<input type="file" class="form-control" name="file" id="videoInput" accept="video/*">
 												</div>
 											</div>
+											<img id="movie_img" src="" alt="サムネイル">
 										</div>
-										<?php if (!empty($errors['video_files'][$movie->id])): ?>
-											<div class="text-danger">
-												<?= htmlspecialchars($errors['video_files'][$movie->id], ENT_QUOTES, 'UTF-8') ?>
-											</div>
-										<?php endif; ?>
-									<?php endforeach; ?>
-
-									<div class="d-flex justify-content-end">
-										<button class="btn btn-primary" id="add-btn">項目追加</button>
 									</div>
 								</form>
 							</div>
-
-							<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-								<div class="modal-dialog modal-dialog-centered">
-									<div class="modal-content">
-										<form id="deleteForm" action="/custom/admin/app/Controllers/movie/movie_delete_controller.php" method="POST">
-											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-											<input type="hidden" name="id" value="">
-
-											<div class="modal-header">
-												<h5 class="modal-title">削除確認</h5>
-												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-											</div>
-
-											<div class="modal-body">
-												<p class="mt-3"><span id="deleteMovieName"></span> を削除します。本当によろしいですか？</p>
-											</div>
-
-											<div class="modal-footer">
-												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-												<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-
 						</div>
 					</div>
 				<?php endif; ?>
@@ -181,174 +141,59 @@ if (isset($_GET['search'])) {
 		</div>
 	</div>
 
-	<template id="uploadRowTemplate">
-		<div class="uploadRow">
-			<div class="add_field mb-3 d-flex align-items-center">
-				<input type="hidden" class="hiddenField" name="" value="">
-				<input type="file" class="form-control fileUpload" name="" multiple accept="video/mp4,video/x-msvideo,video/quicktime">
-				<button type="button" class="trash ms-2 btn btn-danger btn-sm deleteFile">
-					<i data-feather="trash"></i>
-				</button>
-			</div>
-			<div class="fileInfo mt-2 d-none"></div>
-		</div>
-	</template>
-
 	<script src="/custom/admin/public/js/app.js"></script>
 	<script>
-		$(document).on('click', '.delete-link, .deleteFile', function(event) {
-			event.preventDefault();
-
-			let hasFile = $(this).data('has-file');
-			if (typeof hasFile === 'undefined') {
-				hasFile = 0;
-			}
-
-			if (hasFile == 1) {
-				const selectedId = $(this).data('id');
-				const selectedName = $(this).data('name');
-				$('#deleteForm').find('input[name="id"]').val(selectedId);
-				$('#deleteMovieName').text(selectedName);
-				$('#confirmDeleteModal').modal('show');
-			} else {
-				$(this).closest('.uploadRow').remove();
-			}
-		});
-
-		$('#confirmDeleteButton').on('click', function() {
-			$('#confirmDeleteModal').modal('hide');
-			$('#deleteForm').submit();
-		});
-
-		function createFileLink(fileName, fileUrl) {
-			const fileLinkContainer = document.createElement('div');
-			fileLinkContainer.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
-
-			const link = document.createElement('a');
-			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-				link.href = fileUrl;
-			} else if (fileUrl.charAt(0) === '/') {
-				link.href = fileUrl;
-			} else {
-				link.href = '/uploads/movie/' + fileUrl;
-			}
-			link.target = '_blank';
-			link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
-			link.innerHTML = `
-        <i data-feather="file-text" class="me-2"></i>
-        <span class="fileName text-primary">${fileName}</span>
-    `;
-			fileLinkContainer.appendChild(link);
-
-			feather.replace();
-			return fileLinkContainer;
-		}
-
-		// 動画ファイル変更時の処理
-		function handleFileChange(e) {
-			const files = e.target.files;
-			const row = e.target.closest('.uploadRow');
-			const fileInfo = row.querySelector('.fileInfo');
-			fileInfo.innerHTML = '';
-
-			Array.from(files).forEach(file => {
-				// 許可するMIMEタイプをチェック
-				const allowedMimeTypes = ['video/mp4', 'video/x-msvideo', 'video/quicktime'];
-				if (allowedMimeTypes.indexOf(file.type) !== -1) {
-					const objectURL = URL.createObjectURL(file);
-					const linkElement = createFileLink(file.name, objectURL);
-					fileInfo.appendChild(linkElement);
-				} else {
-					alert('MP4, AVI, MOV形式の動画ファイルのみアップロードできます。');
-				}
+		$(document).ready(function() {
+			$('select[name="category_id"]').change(function() {
+				$("#form").submit();
+			});
+			$('select[name="event_status_id"]').change(function() {
+				$("#form").submit();
+			});
+			$('select[name="event_id"]').change(function() {
+				$("#form").submit();
+			});
+			$('select[name="course_no"]').change(function() {
+				$("#form").submit();
 			});
 
-			fileInfo.classList.toggle('d-none', files.length === 0);
-			feather.replace();
-		}
-		document.querySelectorAll('.fileUpload').forEach(input => {
-			input.addEventListener('change', handleFileChange);
-		});
+			// 動画の冒頭を画像で表示
+			$('#videoInput').on('change', function(event) {
+				const file = event.target.files[0];
+				if (!file) return;
 
-		<?php if (isset($_GET['search'])): ?>
-				(function initExistingFiles() {
-					const existingmovies = <?= json_encode($movies, JSON_UNESCAPED_UNICODE) ?>;
-					existingmovies.forEach(movie => {
-						const movieId = movie.id;
-						const fileName = movie.file_name;
-						const fileUrl = movie.file_path;
-
-						if (fileUrl) {
-							const container = document.querySelector(`.movie-container[data-movie-id="${movieId}"]`);
-							if (!container) return;
-
-							const row = container.querySelector('.uploadRow');
-							if (!row) return;
-
-							const fileInfo = row.querySelector('.fileInfo');
-							const linkElem = createFileLink(fileName, fileUrl);
-							fileInfo.appendChild(linkElem);
-							fileInfo.classList.remove('d-none');
-						}
-					});
-				})();
-		<?php endif; ?>
-
-		let inputCount = 1;
-		const addButton = document.getElementById('add-btn');
-		if (addButton) {
-			addButton.addEventListener('click', function(e) {
-				e.preventDefault();
-				const template = document.getElementById('uploadRowTemplate');
-				if (!template) {
-					alert('テンプレートが見つかりません。');
+				if (!file.type.startsWith('video/')) {
+					alert('動画ファイルを選択してください');
+					$(this).val('');
 					return;
 				}
-				const movieContainers = document.querySelectorAll('.movie-container');
-				if (movieContainers.length === 0) {
-					alert('コースコンテナが見つかりません。');
-					return;
-				}
-				const movieContainer = movieContainers[movieContainers.length - 1];
-				const fieldsContainer = movieContainer.querySelector('.fields-container');
-				if (!fieldsContainer) return;
 
-				let index = 0;
-				const existingInput = movieContainer.querySelector('.fileUpload');
-				if (existingInput && existingInput.name) {
-					const match = existingInput.name.match(/^video_files\[(\d+)\]\[\]$/);
-					if (match) {
-						index = match[1];
-					}
-				}
+				const video = document.createElement('video');
+				const fileURL = URL.createObjectURL(file);
+				video.src = fileURL;
+				video.muted = true;
+				video.playsInline = true;
+				video.preload = "metadata"; // 最小限のデータ取得
 
-				const clone = template.content.cloneNode(true);
-				const fileInput = clone.querySelector('.fileUpload');
-				const hiddenField = clone.querySelector('.hiddenField');
-				if (fileInput && hiddenField) {
-					fileInput.name = `video_files[${index}][]`;
-					hiddenField.name = `video_files[${index}][]`;
-				}
-				if (fileInput) {
-					fileInput.addEventListener('change', handleFileChange);
-				}
-				fieldsContainer.appendChild(clone);
-				feather.replace();
+				$(video).on('loadeddata', function() {
+					video.currentTime = 0; // 最初のフレームへ
+				});
+
+				$(video).on('seeked', function() {
+					const canvas = document.createElement('canvas');
+					const ctx = canvas.getContext('2d');
+
+					canvas.width = video.videoWidth / 2; // 解像度を半分にして負荷軽減
+					canvas.height = video.videoHeight / 2;
+
+					ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+					$('#movie_img').attr('src', canvas.toDataURL('image/png')).show(); // サムネイル表示
+					URL.revokeObjectURL(fileURL); // メモリ解放
+				});
 			});
-		}
-		feather.replace();
+		});
 	</script>
-
-	<?php if (!empty($errors) || isset($_GET['search'])): ?>
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const searchArea = document.querySelector('.search-area');
-				if (searchArea) {
-					searchArea.style.display = 'block';
-				}
-			});
-		</script>
-	<?php endif; ?>
 </body>
 
 </html>

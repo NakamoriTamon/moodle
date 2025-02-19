@@ -172,6 +172,12 @@ input.timepicker {
 #thumbnailPreviewContainer{
     max-width: 9rem;
 }
+/* 講義動画読込 */
+#movie_img{
+    width: 500px;
+    max-width: 100%;
+    display: none;
+}
 /* QR読込 */
 video#qr-video {
     width: 200px; 
