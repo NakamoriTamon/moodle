@@ -16,7 +16,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
-
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -114,19 +113,20 @@ $movie = $result_list['movie'] ?? [];
 					<div class="col-12 col-lg-12">
 						<div class="card">
 							<div class="card-body">
-								<form method="POST" action="/custom/admin/app/Controllers/movie/movie_upsert_controller.php" enctype="multipart/form-data">
+								<form id="upsert_form" enctype="multipart/form-data">
 									<div class="d-flex justify-content-end">
-										<button type="submit" class="btn btn-primary">アップロード</button>
+										<button type="button" id="upload_button" class="btn mb-2 btn-primary">アップロード</button>
 									</div>
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-									<input type="hidden" name="movie_id" value="<?= htmlspecialchars($_GET['movie_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="id" value="<?= htmlspecialchars($result_list['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<div class="movie-container mb-4">
 										<input type="hidden" name="id" value="<?= !empty($movie->id) ? (int)$movie->id : 0 ?>">
 										<h5><?= htmlspecialchars($movie->name, ENT_QUOTES, 'UTF-8') ?></h5>
 										<div class="fields-container">
 											<div>
 												<div class="add_field mb-3 d-flex align-items-center">
-													<input type="file" class="form-control" name="file" id="videoInput" accept="video/*">
+													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
 											<img id="movie_img" src="" alt="サムネイル">
@@ -137,63 +137,163 @@ $movie = $result_list['movie'] ?? [];
 						</div>
 					</div>
 				<?php endif; ?>
+
+				<!-- モーダルの構造 -->
+				<div class="modal fade" id="upload_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-body text-center p-5">
+								講義動画をアップロード中です<p id="percent" class="mt-1 me-3">100%</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 	</div>
+</body>
 
-	<script src="/custom/admin/public/js/app.js"></script>
-	<script>
-		$(document).ready(function() {
-			$('select[name="category_id"]').change(function() {
-				$("#form").submit();
-			});
-			$('select[name="event_status_id"]').change(function() {
-				$("#form").submit();
-			});
-			$('select[name="event_id"]').change(function() {
-				$("#form").submit();
-			});
-			$('select[name="course_no"]').change(function() {
-				$("#form").submit();
+<script src="/custom/admin/public/js/app.js"></script>
+<script>
+	$(document).ready(function() {
+		$('select[name="category_id"]').change(function() {
+			$("#form").submit();
+		});
+		$('select[name="event_status_id"]').change(function() {
+			$("#form").submit();
+		});
+		$('select[name="event_id"]').change(function() {
+			$("#form").submit();
+		});
+		$('select[name="course_no"]').change(function() {
+			$("#form").submit();
+		});
+
+		// 動画の冒頭を画像で表示
+		$('#video_input').on('change', function(event) {
+			const file = event.target.files[0];
+			if (!file) return;
+
+			if (!file.type.startsWith('video/')) {
+				alert('動画ファイルを選択してください');
+				$(this).val('');
+				return;
+			}
+
+			const video = document.createElement('video');
+			const fileURL = URL.createObjectURL(file);
+			video.src = fileURL;
+			video.muted = true;
+			video.playsInline = true;
+			video.preload = "metadata"; // 最小限のデータ取得
+
+			$(video).on('loadeddata', function() {
+				video.currentTime = 0; // 最初のフレームへ
 			});
 
-			// 動画の冒頭を画像で表示
-			$('#videoInput').on('change', function(event) {
-				const file = event.target.files[0];
-				if (!file) return;
+			$(video).on('seeked', function() {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d');
 
-				if (!file.type.startsWith('video/')) {
-					alert('動画ファイルを選択してください');
-					$(this).val('');
+				canvas.width = video.videoWidth / 2; // 解像度を半分にして負荷軽減
+				canvas.height = video.videoHeight / 2;
+
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+				$('#movie_img').attr('src', canvas.toDataURL('image/png')).show(); // サムネイル表示
+				URL.revokeObjectURL(fileURL); // メモリ解放
+			});
+		});
+
+		// 講義動画をChunkして登録
+		$('#upload_button').on('click', function() {
+			const file_input = $('#video_input')[0];
+			if (!file_input.files.length) {
+				alert('動画を選択してください');
+				return;
+			}
+
+			const modal = new bootstrap.Modal(document.getElementById('upload_modal'));
+			modal.show();
+
+			const file = file_input.files[0];
+			const chunk_size = 10 * 1024 * 1024; // 10MBずつ送信
+			const total_chunks = Math.ceil(file.size / chunk_size);
+			let current_chunk = 0;
+
+			// upsert_formのデータをFormDataに追加
+			const form_data = new FormData();
+
+			function upload_chunk() {
+				if (current_chunk >= total_chunks) {
+					$.ajax({
+						url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // 同一URLで最終処理
+						type: 'POST',
+						data: {
+							file_name: file.name,
+							csrf_token: $('#upsert_form').find('[name="csrf_token"]').val()
+						},
+						dataType: 'json',
+						success: function(response) {
+							if (response.status === 'success') {
+								location.href = "/custom/admin/app/Views/event/movie.php";
+							} else {
+								location.href = "/custom/admin/app/Views/event/movie.php";
+							}
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							console.log('AJAX エラー:', textStatus);
+							console.log('HTTP ステータスコード:', jqXHR.status);
+							console.log('エラーメッセージ:', errorThrown);
+							console.log('レスポンス内容:', jqXHR.responseText);
+							alert('最終処理でエラーが発生しました');
+						}
+					});
 					return;
 				}
 
-				const video = document.createElement('video');
-				const fileURL = URL.createObjectURL(file);
-				video.src = fileURL;
-				video.muted = true;
-				video.playsInline = true;
-				video.preload = "metadata"; // 最小限のデータ取得
+				const start = current_chunk * chunk_size;
+				const end = Math.min(start + chunk_size, file.size);
+				const chunk = file.slice(start, end);
 
-				$(video).on('loadeddata', function() {
-					video.currentTime = 0; // 最初のフレームへ
+				// フォーム内の特定のデータを追加
+				form_data.append('id', $('#upsert_form').find('[name="id"]').val());
+				form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
+				form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
+
+				// FormDataに動画チャンクと追加データを追加
+				form_data.append('file', chunk);
+				form_data.append('chunk_index', current_chunk);
+				form_data.append('total_chunks', total_chunks);
+				form_data.append('file_name', file.name);
+
+				$.ajax({
+					url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // 同一URLで処理
+					type: 'POST',
+					data: form_data,
+					processData: false,
+					contentType: false,
+					dataType: 'json',
+					success: function(response) {
+						if (response.status === 'error') {
+							console.log(response);
+							return;
+						}
+						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
+						$('#percent').text(`${percentage}%`);
+						current_chunk++;
+						upload_chunk(); // 次のチャンクをアップロード
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						location.href = "/custom/admin/app/Views/event/movie.php";
+					}
 				});
+			}
 
-				$(video).on('seeked', function() {
-					const canvas = document.createElement('canvas');
-					const ctx = canvas.getContext('2d');
-
-					canvas.width = video.videoWidth / 2; // 解像度を半分にして負荷軽減
-					canvas.height = video.videoHeight / 2;
-
-					ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-					$('#movie_img').attr('src', canvas.toDataURL('image/png')).show(); // サムネイル表示
-					URL.revokeObjectURL(fileURL); // メモリ解放
-				});
-			});
+			upload_chunk();
 		});
-	</script>
-</body>
+	});
+</script>
+
 
 </html>
