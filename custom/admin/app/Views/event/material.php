@@ -1,8 +1,37 @@
 <?php
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+session_start();
+
+// バリデーションエラー
+$errors   = $_SESSION['errors']   ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+
 $eventController = new EventController();
 $events = $eventController->index();
+
+global $DB;
+$materials = [];
+
+if (isset($_GET['search'])) {
+	try {
+		$sql = "SELECT * FROM {course_material} WHERE is_delete = :is_delete";
+		$materials = $DB->get_records_sql($sql, ['is_delete' => 0]);
+		$materials = array_values($materials);
+	} catch (Exception $e) {
+		$_SESSION['message_error'] = 'エラーが発生しました: ' . $e->getMessage();
+	}
+	if (empty($materials)) {
+		$materials[] = (object)[
+			'id'        => 0,
+			'name'      => '',
+			'file_name' => '',
+			'file_path' => '',
+		];
+	}
+}
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -34,96 +63,290 @@ $events = $eventController->index();
 						<div class="card-body p-0">
 							<div class="card">
 								<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
-									<div class="sp-w-100 w-50 me-4 sp-mb-3">
-										<label class="form-label" for="notyf-message">イベント名</label>
-										<select name="category_id" class="form-control w-100">
-											<option value=1>未選択</option>
-											<option value=1>タンパク質の精製技術の基礎</option>
-											<option value=2>AIと機械学習の基礎講座</option>
-											<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
-											<option value=4>気候変動と持続可能なエネルギーソリューション</option>
-											<option value=5>心理学で学ぶ意思決定と行動経済学</option>
-										</select>
-									</div>
-									<div class="w-25 sp-w-100 sp-mb-4">
-										<label class="form-label" for="notyf-message">回数</label>
-										<div class="d-flex align-items-center">
-											<!-- <span class="pe-2">第</span> -->
-											<select name="category_id" class="form-control w-100">
-												<option value=1>未選択</option>
-												<option value=1>第1回</option>
-												<option value=2>第2回</option>
-												<option value=3>第3回</option>
-												<option value=4>第4回</option>
-												<option value=5>第5回</option>
-												<option value=2>第6回</option>
-												<option value=3>第7回</option>
-												<option value=4>第8回</option>
-												<option value=5>第9回</option>
+									<form method="GET" action="" class="d-flex w-100">
+										<div class="sp-w-100 w-50 me-4 sp-mb-3">
+											<label class="form-label" for="notyf-message">イベント名</label>
+											<select name="event_id" class="form-control w-100">
+												<?php foreach ($events as $event): ?>
+													<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>">
+														<?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+													</option>
+												<?php endforeach; ?>
 											</select>
-											<!-- <span class="ps-2 pe-2">回</span> -->
 										</div>
-									</div>
-									<div class="d-flex align-items-end ms-auto">
-										<button class="search-button btn btn-primary me-0 ms-auto search-button">検索</button>
-									</div>
+										<div class="w-25 sp-w-100 sp-mb-4">
+											<label class="form-label" for="notyf-message">回数</label>
+											<div class="d-flex align-items-center">
+												<select name="round" class="form-control w-100">
+													<option value="0">未選択</option>
+													<option value="1">第1回</option>
+													<option value="2">第2回</option>
+													<option value="3">第3回</option>
+													<option value="4">第4回</option>
+													<option value="5">第5回</option>
+													<option value="6">第6回</option>
+													<option value="7">第7回</option>
+													<option value="8">第8回</option>
+													<option value="9">第9回</option>
+												</select>
+											</div>
+										</div>
+										<div class="d-flex align-items-end ms-auto">
+											<button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+										</div>
+									</form>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="search-area col-12 col-lg-12">
-					<div class="card">
-						<div class="card-body p-0 p-055">
-							<div class="d-flex justify-content-end mt-3">
-								<button class="mt-3 mb-4 btn btn-primary mr-025" id="submit">アップロード</button>
-							</div>
-							<div class="card m-auto mb-5 mt-2 overflow-auto w-95">
-								<div class="">
-									<label for="fileUpload" class="form-label">アップロードするファイルを選択</label>
-									<div class="add_field mb-3 d-flex align-items-center">
-										<input type="file" class="form-control" id="fileUpload" multiple accept="application/pdf">
-										<a class="trash"><i class="ms-2 align-middle" data-feather="trash"></i></a>
+
+				<?php if (!empty($materials)): ?>
+					<div class="search-area col-12 col-lg-12">
+						<div class="card">
+							<div class="card-body">
+								<form method="POST" action="/custom/admin/app/Controllers/material/material_upsert_controller.php" enctype="multipart/form-data">
+									<div class="d-flex justify-content-end">
+										<button type="submit" class="btn btn-primary">アップロード</button>
 									</div>
-								</div>
-								<div class="d-flex justify-content-end">
-									<button class="btn btn-primary" id="add-btn">項目追加</button>
+									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="event_id" value="<?= htmlspecialchars($_GET['event_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="round" value="<?= htmlspecialchars($_GET['round']   ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<?php foreach ($materials as $index => $material): ?>
+										<div class="material-container mb-4" data-material-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>">
+											<input type="hidden" name="ids[<?= $index ?>]" value="<?= !empty($material->id) ? (int)$material->id : 0 ?>">
+											<h5><?= htmlspecialchars($material->name, ENT_QUOTES, 'UTF-8') ?></h5>
+											<div class="fields-container">
+												<div class="uploadRow">
+													<div class="add_field mb-3 d-flex align-items-center">
+														<input type="hidden" class="hiddenField"
+															name="pdf_files[<?= $index ?>][]"
+															value="">
+														<input type="file" class="form-control fileUpload"
+															name="pdf_files[<?= $index ?>][]"
+															multiple accept="application/pdf">
+														<a type="button" class="trash ms-2 btn btn-danger btn-sm delete-link"
+															data-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>"
+															data-name="<?= htmlspecialchars(!empty($material->file_name) ? $material->file_name : $material->name, ENT_QUOTES, 'UTF-8') ?>"
+															data-has-file="<?= !empty($material->file_name) ? '1' : '0' ?>">
+															<i data-feather="trash"></i>
+														</a>
+													</div>
+													<div class="fileInfo mt-2 d-none"></div>
+												</div>
+											</div>
+										</div>
+										<?php if (!empty($errors['pdf_files'][$material->id])): ?>
+											<div class="text-danger">
+												<?= htmlspecialchars($errors['pdf_files'][$material->id], ENT_QUOTES, 'UTF-8') ?>
+											</div>
+										<?php endif; ?>
+									<?php endforeach; ?>
+
+									<div class="d-flex justify-content-end">
+										<button class="btn btn-primary" id="add-btn">項目追加</button>
+									</div>
+								</form>
+							</div>
+
+							<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+								<div class="modal-dialog modal-dialog-centered">
+									<div class="modal-content">
+										<form id="deleteForm" action="/custom/admin/app/Controllers/material/material_delete_controller.php" method="POST">
+											<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+											<input type="hidden" name="id" value="">
+
+											<div class="modal-header">
+												<h5 class="modal-title">削除確認</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+
+											<div class="modal-body">
+												<p class="mt-3"><span id="deleteMaterialName"></span> を削除します。本当によろしいですか？</p>
+											</div>
+
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+												<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
+											</div>
+										</form>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				<?php endif; ?>
 			</main>
 		</div>
 	</div>
 
+	<template id="uploadRowTemplate">
+		<div class="uploadRow">
+			<div class="add_field mb-3 d-flex align-items-center">
+				<input type="hidden" class="hiddenField" name="" value="">
+				<input type="file" class="form-control fileUpload" name="" multiple accept="application/pdf">
+				<button type="button" class="trash ms-2 btn btn-danger btn-sm deleteFile">
+					<i data-feather="trash"></i>
+				</button>
+			</div>
+			<div class="fileInfo mt-2 d-none"></div>
+		</div>
+	</template>
+
 	<script src="/custom/admin/public/js/app.js"></script>
 	<script>
-		$('#add-btn').on('click', function() {
-			const element = $(this).closest('.card').find('.add_field').first().clone(false);
-			element.find('input').val('');
-			$(this).parent().before(element);
-		});
-		$('.search-button').on('click', function(event) {
-			$('.search-area').css('display', 'block');
-		});
-		$(document).on('click', '.trash', function() {
-			const element = $(this).closest('.add_field');
-			if ($('.add_field').length > 1) {
-				element.remove();
+		$(document).on('click', '.delete-link, .deleteFile', function(event) {
+			event.preventDefault();
+
+			let hasFile = $(this).data('has-file');
+			if (typeof hasFile === 'undefined') {
+				hasFile = 0;
+			}
+
+			if (hasFile == 1) {
+				const selectedId = $(this).data('id');
+				const selectedName = $(this).data('name');
+				$('#deleteForm').find('input[name="id"]').val(selectedId);
+				$('#deleteMaterialName').text(selectedName);
+				$('#confirmDeleteModal').modal('show');
 			} else {
-				element.find('input').val('');
+				$(this).closest('.uploadRow').remove();
 			}
 		});
 
-		// モック用アラート　本番時は消してください
-		$('#submit').on('click', function(event) {
-			sessionStorage.setItem('alert', 'aaasss');
-			setTimeout(() => {
-				location.reload();
-			}, 50);
+		$('#confirmDeleteButton').on('click', function() {
+			$('#confirmDeleteModal').modal('hide');
+			$('#deleteForm').submit();
 		});
+
+		function createFileLink(fileName, fileUrl) {
+			const fileLinkContainer = document.createElement('div');
+			fileLinkContainer.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
+
+			const link = document.createElement('a');
+			// fileUrl の先頭が "/" で始まっていなければ、先頭に "/" を付加してリンク先を構築する
+			if (fileUrl.startsWith('blob:') || fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+				link.href = fileUrl;
+			} else if (fileUrl.charAt(0) === '/') {
+				link.href = fileUrl;
+			} else {
+				link.href = '/uploads/material/' + fileUrl;
+			}
+			link.target = '_blank';
+			link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
+			link.innerHTML = `
+        <i data-feather="file-text" class="me-2"></i>
+        <span class="fileName text-primary">${fileName}</span>
+    `;
+			fileLinkContainer.appendChild(link);
+
+			// 必要に応じて再描画
+			feather.replace();
+			return fileLinkContainer;
+		}
+
+		function handleFileChange(e) {
+			const files = e.target.files;
+			const row = e.target.closest('.uploadRow');
+			const fileInfo = row.querySelector('.fileInfo');
+			fileInfo.innerHTML = '';
+
+			Array.from(files).forEach(file => {
+				if (file.type === 'application/pdf') {
+					const objectURL = URL.createObjectURL(file);
+					const linkElement = createFileLink(file.name, objectURL);
+					fileInfo.appendChild(linkElement);
+				} else {
+					alert('PDFファイルのみアップロードできます。');
+				}
+			});
+
+			fileInfo.classList.toggle('d-none', files.length === 0);
+			feather.replace();
+		}
+		document.querySelectorAll('.fileUpload').forEach(input => {
+			input.addEventListener('change', handleFileChange);
+		});
+
+		<?php if (isset($_GET['search'])): ?>(function initExistingFiles() {
+				const existingMaterials = <?= json_encode($materials, JSON_UNESCAPED_UNICODE) ?>;
+				console.log(existingMaterials);
+				existingMaterials.forEach(material => {
+					const materialId = material.id;
+					const fileName = material.file_name;
+					const fileUrl = material.file_path;
+
+					if (fileUrl) {
+						const container = document.querySelector(`.material-container[data-material-id="${materialId}"]`);
+						if (!container) return;
+
+						const row = container.querySelector('.uploadRow');
+						if (!row) return;
+
+						const fileInfo = row.querySelector('.fileInfo');
+						const linkElem = createFileLink(fileName, fileUrl);
+						fileInfo.appendChild(linkElem);
+						fileInfo.classList.remove('d-none');
+					}
+				});
+			})();
+		<?php endif; ?>
+
+		let inputCount = 1;
+		const addButton = document.getElementById('add-btn');
+		if (addButton) {
+			addButton.addEventListener('click', function(e) {
+				e.preventDefault();
+				const template = document.getElementById('uploadRowTemplate');
+				if (!template) {
+					alert('テンプレートが見つかりません。');
+					return;
+				}
+				const materialContainers = document.querySelectorAll('.material-container');
+				if (materialContainers.length === 0) {
+					alert('コースコンテナが見つかりません。');
+					return;
+				}
+				const materialContainer = materialContainers[materialContainers.length - 1];
+				const fieldsContainer = materialContainer.querySelector('.fields-container');
+				if (!fieldsContainer) return;
+
+				let index = 0;
+				const existingInput = materialContainer.querySelector('.fileUpload');
+				if (existingInput && existingInput.name) {
+					const match = existingInput.name.match(/^pdf_files\[(\d+)\]\[\]$/);
+					if (match) {
+						index = match[1];
+					}
+				}
+
+				const clone = template.content.cloneNode(true);
+				const fileInput = clone.querySelector('.fileUpload');
+				const hiddenField = clone.querySelector('.hiddenField');
+				if (fileInput && hiddenField) {
+					fileInput.name = `pdf_files[${index}][]`;
+					hiddenField.name = `pdf_files[${index}][]`;
+				}
+				if (fileInput) {
+					fileInput.addEventListener('change', handleFileChange);
+				}
+				fieldsContainer.appendChild(clone);
+				feather.replace();
+			});
+		}
+		feather.replace();
 	</script>
+
+	<?php if (!empty($errors) || isset($_GET['search'])): ?>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const searchArea = document.querySelector('.search-area');
+				if (searchArea) {
+					searchArea.style.display = 'block';
+				}
+			});
+		</script>
+	<?php endif; ?>
 </body>
 
 </html>
