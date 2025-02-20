@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $time                    = sanitize_post('time');
     $holdingEnviroment       = sanitize_post('holding_enviroment');
     $noGoodEnviromentReason  = sanitize_post('no_good_enviroment_reason');
-    $lecture_suggestions     = sanitize_post('lecture_suggestions');
-    $speaker_suggestions     = sanitize_post('speaker_suggestions');
+    $lectureSuggestions     = sanitize_post('lecture_suggestions');
+    $speakerSuggestions     = sanitize_post('speaker_suggestions');
     $work                    = sanitize_post('work');
     $sex                     = sanitize_post('sex');
     $address                 = sanitize_post('address');
@@ -80,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $time_error                      = validate_input($time);
         $holding_enviroment_error        = validate_input($holdingEnviroment);
         $no_good_enviroment_reason_error = validate_other_input($holdingEnviroment, $noGoodEnviromentReason);
-        $lecture_suggestions_error       = validate_text_input($lecture_suggestions);
-        $speaker_suggestions_error       = validate_text_input($speaker_suggestions);
+        $lecture_suggestions_error       = validate_text_input($lectureSuggestions);
+        $speaker_suggestions_error       = validate_text_input($speakerSuggestions);
 
         if (
             $found_method_error || $reason_error || $satisfaction_error || $understanding_error || $good_point_error ||
@@ -115,92 +115,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 直書きのSQL文で挿入するためのパラメータを準備
-$params = [
-    'event_id'                   => $eventid,
-    'user_id'                    => 118,
-    'survey_custom_field_id'     => 19,
-    'thoughts'                   => $impression,
-    'attend'                     => $participation,
-    'found_method'               => implode(', ', $foundMethod),
-    'other_found_method'         => $otherFoundMethod,
-    'reason'                     => implode(', ', $reason),
-    'other_reason'               => $otherReason,
-    'satisfaction'               => $satisfaction,
-    'understanding'              => $understanding,
-    'good_point'                 => $goodPoint,
-    'other_good_point'           => $otherGoodPoint,
-    'time'                       => $time,
-    'holding_environment'        => $holdingEnviroment,
-    'no_good_environment_reason' => $noGoodEnviromentReason,
-    'lecture_suggestions'        => $lecture_suggestions,
-    'speaker_suggestions'        => $speaker_suggestions,
-    'work'                       => $work,
-    'sex'                        => $sex,
-    'address'                    => $address,
-    'prefectures'                => $prefectures,
-];
-
-$sql = "INSERT INTO {survey_application} (
-    event_id,
-    user_id,
-    survey_custom_field_id,
-    thoughts,
-    attend,
-    found_method,
-    other_found_method,
-    reason,
-    other_reason,
-    satisfaction,
-    understanding,
-    good_point,
-    other_good_point,
-    time,
-    holding_environment,
-    no_good_environment_reason,
-    lecture_suggestions,
-    speaker_suggestions,
-    work,
-    sex,
-    address,
-    prefectures
-) VALUES (
-    :event_id,
-    :user_id,
-    :survey_custom_field_id,
-    :thoughts,
-    :attend,
-    :found_method,
-    :other_found_method,
-    :reason,
-    :other_reason,
-    :satisfaction,
-    :understanding,
-    :good_point,
-    :other_good_point,
-    :time,
-    :holding_environment,
-    :no_good_environment_reason,
-    :lecture_suggestions,
-    :speaker_suggestions,
-    :work,
-    :sex,
-    :address,
-    :prefectures
-)";
-
 try {
     // トランザクション開始
     $transaction = $DB->start_delegated_transaction();
+    $record = new stdClass();
+    $record->event_id = $eventid;
+    $record->user_id = $_SESSION['user_id'];
+    $record->thoughts = $impression;
+    $record->attend = $participation;
+    $record->found_method = implode(', ', $foundMethod);
+    $record->other_found_method = $otherFoundMethod;
+    $record->reason = implode(', ', $reason);
+    $record->other_reason = $otherReason;
+    $record->satisfaction = $satisfaction;
+    $record->understanding = $understanding;
+    $record->good_point = $goodPoint;
+    $record->other_good_point = $otherGoodPoint;
+    $record->time = $time;
+    $record->holding_environment = $holdingEnviroment;
+    $record->no_good_environment_reason = $noGoodEnviromentReason;
+    $record->lecture_suggestions = $lectureSuggestions;
+    $record->speaker_suggestions = $speakerSuggestions;
+    $record->work = $work;
+    $record->sex = $sex;
+    $record->address = $address;
+    $record->prefectures = $prefectures;
 
-    // SQL文を実行
-    $DB->execute($sql, $params);
+    $DB->insert_record_raw('survey_application', $record);
 
     // コミット
     $transaction->allow_commit();
 
     $_SESSION['message_success'] = '登録が完了しました';
-    unset($_SESSION['event_id']);
     header("Location: /custom/app/Views/event/register.php");
     exit;
 } catch (Exception $e) {

@@ -7,8 +7,8 @@ require_once('/var/www/html/moodle/local/commonlib/lib.php');
 global $DB;
 
 $prefectures = PREFECTURES;
-if (isset($_SESSION['event_id'])) {
-    $event_id = $_SESSION['event_id'];
+if (isset($old_input['event_id'])) {
+    $event_id = $old_input['event_id'];
 } else {
     $event_id = $_GET['event_id'];
 }
