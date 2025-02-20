@@ -74,43 +74,20 @@ if ($name_error || $email_error || $email_confirm_error || $message_error) {
 
     $mail = new PHPMailer(true);
     try {
+        // トランザクション開始
         $transaction = $DB->start_delegated_transaction();
+        $record = new stdClass();
+        $record->userid = $_SESSION['user_id'];
+        $record->eventid = $eventid;
+        $record->tutorid = $tutorid;
+        $record->name = $name;
+        $record->email = $email;
+        $record->heading = $heading;
+        $record->message = $message;
+        $record->created_at = $createdAt;
+        $record->updated_at = $updatedAt;
 
-        $sql = "INSERT INTO {contact_inquiries} (
-                userid,
-                eventid,
-                tutorid,
-                name,
-                email,
-                heading,
-                message,
-                created_at,
-                updated_at
-            ) VALUES (
-                :userid,
-                :eventid,
-                :tutorid,
-                :name,
-                :email,
-                :heading,
-                :message,
-                :created_at,
-                :updated_at
-            )";
-
-        $params = [
-            'userid'      => $_SESSION['user_id'],
-            'eventid'     => $eventid,
-            'tutorid'     => $tutorid,
-            'name'        => $name,
-            'email'       => $email,
-            'heading'     => $heading,
-            'message'     => $message,
-            'created_at'  => $createdAt,
-            'updated_at'  => $updatedAt,
-        ];
-
-        $DB->execute($sql, $params);
+        $DB->insert_record_raw('contact_inquiries', $record);
 
         // 管理者側メール
         $mail->SMTPDebug   = 0;
