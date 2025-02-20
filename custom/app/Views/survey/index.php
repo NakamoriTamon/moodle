@@ -64,7 +64,7 @@ if ($survey) {
                                 </label>
                             </div>
                             <?php if (!empty($errors['participation'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['participation']); ?>
                                 </div>
                             <?php endif; ?>
@@ -159,11 +159,11 @@ if ($survey) {
                                 </div>
                                 <div class="other_item">
                                     <label> その他 </label>
-                                    <textarea name="other_found_method" row="10px"><?php echo htmlspecialchars($old_input['other_found_method'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <input type="text" name="other_found_method" row="10px"><?php echo htmlspecialchars($old_input['other_found_method'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
                                 </div>
                             </div>
                             <?php if (!empty($errors['found_method'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['found_method']); ?>
                                 </div>
                             <?php endif; ?>
@@ -222,13 +222,13 @@ if ($survey) {
                                         余暇を有効に利用したかったから
                                     </label>
                                 </div>
-                                <div class="other_item">
+                                <div class="oher_item">
                                     <label> その他 </label>
-                                    <textarea name="reason_other" row="10px"><?php echo htmlspecialchars($old_input['reason_other'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <input type="text" row="10px"><?php echo htmlspecialchars($old_input['reason_other'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
                                 </div>
                             </div>
                             <?php if (!empty($errors['reason'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['reason']); ?>
                                 </div>
                             <?php endif; ?>
@@ -260,7 +260,7 @@ if ($survey) {
                                 </label>
                             </div>
                             <?php if (!empty($errors['satisfaction'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['satisfaction']); ?>
                                 </div>
                             <?php endif; ?>
@@ -292,7 +292,7 @@ if ($survey) {
                                 </label>
                             </div>
                             <?php if (!empty($errors['understanding'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['understanding']); ?>
                                 </div>
                             <?php endif; ?>
@@ -339,13 +339,13 @@ if ($survey) {
                                         身の周りの社会課題に対する解決のヒントが得られた
                                     </label>
                                 </div>
-                                <div class="other_item">
+                                <div class="oher_item">
                                     <label> その他 </label>
-                                    <textarea name="other_good_point" row="20px"><?php echo htmlspecialchars($old_input['other_good_point'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <input type="text" name="other_good_point" row="20px"><?php echo htmlspecialchars($old_input['other_good_point'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
                                 </div>
                             </div>
                             <?php if (!empty($errors['good_point'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['good_point']); ?>
                                 </div>
                             <?php endif; ?>
@@ -369,7 +369,7 @@ if ($survey) {
                                 </label>
                             </div>
                             <?php if (!empty($errors['time'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['time']); ?>
                                 </div>
                             <?php endif; ?>
@@ -402,7 +402,7 @@ if ($survey) {
                                 </label>
                             </div>
                             <?php if (!empty($errors['holding_enviroment'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['holding_enviroment']); ?>
                                 </div>
                             <?php endif; ?>
@@ -415,7 +415,7 @@ if ($survey) {
                                 <textarea name="no_good_enviroment_reason" row="20px"><?php echo htmlspecialchars($old_input['no_good_enviroment_reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                             <?php if (!empty($errors['no_good_enviroment_reason'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['no_good_enviroment_reason']); ?>
                                 </div>
                             <?php endif; ?>
@@ -428,7 +428,7 @@ if ($survey) {
                                 <textarea name="lecture_suggestions" row="20px"><?php echo htmlspecialchars($old_input['lecture_suggestions'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                             <?php if (!empty($errors['lecture_suggestions'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['lecture_suggestions']); ?>
                                 </div>
                             <?php endif; ?>
@@ -441,7 +441,7 @@ if ($survey) {
                                 <textarea name="speaker_suggestions" row="20px"><?php echo htmlspecialchars($old_input['speaker_suggestions'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                             <?php if (!empty($errors['speaker_suggestions'])): ?>
-                                <div class="error-message">
+                                <div class="error-msg">
                                     <?= htmlspecialchars($errors['speaker_suggestions']); ?>
                                 </div>
                             <?php endif; ?>
@@ -538,7 +538,7 @@ if ($survey) {
                                     <label>市町村 </label>
                                     <input type="text" name="address" id="address" style="width: 50%;" value="<?php echo htmlspecialchars($old_input['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php if (!empty($errors['address'])): ?>
-                                        <div class="error-message">
+                                        <div class="error-msg">
                                             <?= htmlspecialchars($errors['address']); ?>
                                         </div>
                                     <?php endif; ?>

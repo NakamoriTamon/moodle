@@ -72,16 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prefectures             = sanitize_post('prefecture');
 
     if ($participation == '2') {
-        $found_method_error              = validate_found_method($foundMethod, $otherFoundMethod);
-        $reason_error                    = validate_reason($reason, $otherReason);
-        $satisfaction_error              = validate_satisfaction($satisfaction);
-        $understanding_error             = validate_understanding($understanding);
-        $good_point_error                = validate_good_point($goodPoint, $otherGoodPoint);
-        $time_error                      = validate_program_time($time);
-        $holding_enviroment_error        = validate_holding_enviroment($holdingEnviroment);
-        $no_good_enviroment_reason_error = validate_no_good_enviroment_reason($holdingEnviroment, $noGoodEnviromentReason);
-        $lecture_suggestions_error       = validate_lecture_suggestions($lecture_suggestions);
-        $speaker_suggestions_error       = validate_speaker_suggestions($speaker_suggestions);
+        $found_method_error              = validate_other_input($foundMethod, $otherFoundMethod);
+        $reason_error                    = validate_other_input($reason, $otherReason);
+        $satisfaction_error              = validate_input($satisfaction);
+        $understanding_error             = validate_input($understanding);
+        $good_point_error                = validate_other_input($goodPoint, $otherGoodPoint);
+        $time_error                      = validate_input($time);
+        $holding_enviroment_error        = validate_input($holdingEnviroment);
+        $no_good_enviroment_reason_error = validate_other_input($holdingEnviroment, $noGoodEnviromentReason);
+        $lecture_suggestions_error       = validate_text_input($lecture_suggestions);
+        $speaker_suggestions_error       = validate_text_input($speaker_suggestions);
 
         if (
             $found_method_error || $reason_error || $satisfaction_error || $understanding_error || $good_point_error ||
