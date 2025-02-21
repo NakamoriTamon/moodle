@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
@@ -58,6 +57,5 @@ foreach ($_SESSION['errors'] as $error) {
     }
 }
 $_SESSION['old_input']['combine_tell_number'] = $tell_number;
-
 header('Location: /custom/app/Views/tekijuku/confirm.php');
 exit;

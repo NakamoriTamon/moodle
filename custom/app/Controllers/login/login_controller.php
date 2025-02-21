@@ -31,6 +31,7 @@ global $DB;
 $password = password_hash($password, PASSWORD_DEFAULT);
 // 管理者のメールアカウントも含む
 $user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1]);
+
 if (!$user_list) {
     $user_id = ltrim($email, '0');
     $user_list = $DB->get_records('user', ['id' => $user_id, 'confirmed' => 1]);
@@ -44,6 +45,7 @@ if (!$user_list) {
 foreach ($user_list as $user) {
     $login_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
     if ($login_user) {
+        complete_user_login($user); // 追加　セッションに$USER情報を入れる
         $_SESSION['user_id'] = $user->id; // DBから取得したユーザーIDを保存
         header('Location: /custom/app/Views/index.php');
         exit;

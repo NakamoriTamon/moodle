@@ -1,11 +1,11 @@
 <?php
-session_start();
 require_once('/var/www/html/moodle/config.php');
-$values = $_SESSION['old_input'];
+// $values = $_SESSION['old_input'];
 $type_code_list = [1 => "普通会員", 2 => "賛助会員"];
 $sex_list = [1 => "男性", 2 => "女性", 3 => "その他"];
 $payment_mehod_list = PAYMENT_SELECT_LIST;
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
+global $old_input;
 ?>
 
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -71,83 +71,82 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                     <li class="active">確認</li>
                     <li>完了</li>
                 </ul>
-                
                 <div class="whitebox form_cont">
                     <div class="inner_m">
                         <ul class="list">
                             <li class="list_item01">
                                 <p class="list_label">会員種別</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($type_code_list[$values['type_code']]) ?></p>
+                                    <p><?= htmlspecialchars($type_code_list[$old_input['type_code']]) ?></p>
                                 </div>
                             </li>
                             <li class="list_item02">
                                 <p class="list_label">氏名</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['name']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['name']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item03">
                                 <p class="list_label">フリガナ</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['kana']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['kana']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item04">
                                 <p class="list_label">性別</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($sex_list[$values['sex']]) ?></p>
+                                    <p><?= htmlspecialchars($sex_list[$old_input['sex']]) ?></p>
                                 </div>
                             </li>
                             <li class="list_item05">
                                 <p class="list_label">郵便番号</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['post_code']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['post_code']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item06">
                                 <p class="list_label">住所</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['address']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['address']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item07">
                                 <p class="list_label">電話番号</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['combine_tell_number']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['combine_tell_number']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item08">
                                 <p class="list_label">メールアドレス</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['email']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['email']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item09">
                                 <p class="list_label">支払方法</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($payment_mehod_list[$values['payment_method']]) ?></p>
+                                    <p><?= htmlspecialchars($payment_mehod_list[$old_input['payment_method']]) ?></p>
                                 </div>
                             </li>
                             <li class="list_item10">
                                 <p class="list_label">備考</p>
                                 <div class="list_field">
-                                    <p><?= htmlspecialchars($values['note']) ?></p>
+                                    <p><?= htmlspecialchars($old_input['note']) ?></p>
                                 </div>
                             </li>
                             <li class="list_item11">
                                 <div class="list_field">
                                     <label class="checkbox_label">
-                                        <input class="checkbox_input" type="checkbox" disabled name="is_published" <?php if ($values['is_published'] === '1') { ?>checked <?php } ?>>
+                                        <input class="checkbox_input" type="checkbox" disabled name="is_published" <?php if ($old_input['is_published'] === '1') { ?>checked <?php } ?>>
                                         氏名掲載を許可します
                                     </label>
                                 </div>
                             </li>
-                            <?php if ($values['payment_method'] == 2) { ?>
+                            <?php if ($old_input['payment_method'] == 2) { ?>
                             <li class="list_item12">
                                 <div class="list_field">
                                     <label class="checkbox_label">
-                                        <input class="checkbox_input" type="checkbox" disabled name="is_subscription" <?php if ($values['is_subscription'] === '1') { ?>checked <?php } ?>>
+                                        <input class="checkbox_input" type="checkbox" disabled name="is_subscription" <?php if ($old_input['is_subscription'] === '1') { ?>checked <?php } ?>>
                                         定額課金プランを利用する
                                     </label>
                                 </div>
@@ -162,9 +161,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                     </div> 
                 </div>
             </section>
-            
         </div>
-
     </main>
 
     <ul id="pankuzu" class="inner_l">

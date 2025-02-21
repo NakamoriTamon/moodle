@@ -5,75 +5,94 @@ require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
+global $DB; 
+
 $user_id = $_SESSION['USER']->id;
-$lastname = htmlspecialchars(required_param('lastname', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['lastname'] = validate_text($lastname, '苗字', 100, true);
-$firstname = htmlspecialchars(required_param('firstname', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['firstname'] = validate_text($firstname, '名前', 100, true);
-$lastname_kana = htmlspecialchars(required_param('lastname_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['lastname_kana'] = validate_text($lastname_kana, '苗字フリガナ', 100, true);
-$firstname_kana = htmlspecialchars(required_param('firstname_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['firstname_kana'] = validate_text($firstname_kana, '名前フリガナ', 100, true);
-$birthday = empty($_POST['birthday']) ? null : $_POST['birthday']; // 生年月日
-$_SESSION['errors']['birthday'] = validate_date($birthday, '生年月日', true);
+$name_size = 50;
+$name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+$_SESSION['errors']['name'] = validate_text($name, 'お名前', $name_size, true);
+$name_kana = htmlspecialchars(required_param('name_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+$_SESSION['errors']['name_kana'] = validate_text($name_kana, 'フリガナ', $name_size, true);
 $city = htmlspecialchars(required_param('city', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['city'] = validate_select($city, '都道府県', true);
-$email = required_param('email', PARAM_EMAIL); // メールアドレス
+$_SESSION['errors']['city'] = validate_select($city, 'お住いの都道府県', true);
+
+
+
+$email = required_param('email', PARAM_TEXT);
 $_SESSION['errors']['email'] = validate_custom_email($email);
-$phone = htmlspecialchars(required_param('phone', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$phone = str_replace('ー', '-', $phone);
-$_SESSION['errors']['phone'] = validate_phone($phone, '電話番号', true);
-$change_password = htmlspecialchars(required_param('change_password', PARAM_INT), ENT_QUOTES, 'UTF-8');
+$user_list = $DB->get_records_select('user', 'email = :email AND id != :user_id', ['email' => $email, 'user_id' => $user_id]);
+
+if (!empty($user_list)) {
+    foreach ($user_list as $user) {
+        $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
+        if ($general_user) {
+            $email_error = '既に使用されています。';
+            $_SESSION['errors']['email'] = $email_error;
+            break;
+        }
+    }
+}
+$birthday = empty($_POST['birthday']) ? null : $_POST['birthday']; // 生年月日
+// ユーザー重複チェック(管理者含む)
+$timestamp_format = date("Y-m-d H:i:s", strtotime($birthday));
+$user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana]);
+if (!empty($user_list)) {
+    foreach ($user_list as $user) {
+        $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
+        if ($general_user) {
+            $email_error = '既に使用されています。';
+            $_SESSION['errors']['email'] = $email_error;
+            break;
+        }
+    }
+}
+
 $password = htmlspecialchars(required_param('password', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-if(!empty($change_password)){
+if(!empty($password)){
     $_SESSION['errors']['password'] = validate_password($password);
 } else {
     $_SESSION['errors']['password'] = null;
 }
-$note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
-$_SESSION['errors']['note'] = validate_textarea($note, '備考', false);
-$guardian_kbn = htmlspecialchars(required_param('guardian_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
-$age = htmlspecialchars(required_param('age', PARAM_INT), ENT_QUOTES, 'UTF-8');
+$phone = htmlspecialchars(required_param('phone', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+$phone = str_replace('ー', '-', $phone);
+$_SESSION['errors']['phone'] = validate_tel_number($phone);
+$_SESSION['errors']['birthday'] = validate_date($birthday, '生年月日', true);
+
+// 生年月日整合性チェック
+if (strtotime($timestamp_format) >= strtotime(date("Y-m-d H:i:s"))) {
+    $_SESSION['errors']['birthday'] = '生年月日は過去の日付を入れてください。';
+}
+
+$description = htmlspecialchars(required_param('description', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
+$_SESSION['errors']['description'] = validate_textarea($description, '備考', false);
+// $age = htmlspecialchars(required_param('age', PARAM_INT), ENT_QUOTES, 'UTF-8');
+$age = 15; // デバッグ
 // 保護者情報
-$guardian_lastname = "";
-$guardian_firstname = "";
-$guardian_lastname_kana = "";
-$guardian_firstname_kana = "";
+$guardian_name = "";
 $guardian_email = "";
 if(!empty($guardian_kbn) || $age < 14) {
-    $guardian_lastname = htmlspecialchars(required_param('guardian_lastname', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $_SESSION['errors']['guardian_lastname'] = validate_text($guardian_lastname, '保護者の苗字', 100, true);
-    $guardian_firstname = htmlspecialchars(required_param('guardian_firstname', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $_SESSION['errors']['guardian_firstname'] = validate_text($guardian_firstname, '保護者の名前', 100, true);
-    $guardian_lastname_kana = htmlspecialchars(required_param('guardian_lastname_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $_SESSION['errors']['guardian_lastname_kana'] = validate_text($guardian_lastname_kana, '保護者の苗字フリガナ', 100, true);
-    $guardian_firstname_kana = htmlspecialchars(required_param('guardian_firstname_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-    $_SESSION['errors']['guardian_firstname_kana'] = validate_text($guardian_firstname_kana, '保護者の名前フリガナ', 100, true);
+    $guardian_name = htmlspecialchars(required_param('guardian_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の苗字', 100, true);
     $guardian_email = required_param('guardian_email', PARAM_EMAIL); // メールアドレス
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
 }
 
-$notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_TEXT));
+// $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_TEXT));
 
 $result = false;
 // エラーがある場合
-if($_SESSION['errors']['lastname']
-    || $_SESSION['errors']['firstname']
-    || $_SESSION['errors']['lastname_kana']
-    || $_SESSION['errors']['firstname_kana']
-    || $_SESSION['errors']['birthday']
+if($_SESSION['errors']['name']
+    || $_SESSION['errors']['name_kana']
     || $_SESSION['errors']['city']
     || $_SESSION['errors']['email']
-    || $_SESSION['errors']['phone']
     || $_SESSION['errors']['password']
-    || $_SESSION['errors']['note']) {
+    || $_SESSION['errors']['phone']
+    || $_SESSION['errors']['birthday']
+    || $_SESSION['errors']['description']) {
     $result = true;
 }
 if( $age < 14) {
-    if($_SESSION['errors']['guardian_lastname']
-    || $_SESSION['errors']['guardian_firstname']
-    || $_SESSION['errors']['guardian_lastname_kana']
-    || $_SESSION['errors']['guardian_firstname_kana']
+    if($_SESSION['errors']['guardian_name']
     || $_SESSION['errors']['guardian_email']) {
         $result = true;
     }
@@ -93,89 +112,23 @@ try{
         $pdo = $baseModel->getPdo();
         $pdo->beginTransaction();
 
-        if(!empty($change_password)){
-            $stmt = $pdo->prepare("
-                UPDATE mdl_user
-                SET 
-                    lastname = :lastname,
-                    firstname = :firstname,
-                    lastname_kana = :lastname_kana,
-                    firstname_kana = :firstname_kana,
-                    birthday = :birthday,
-                    city = :city,
-                    email = :email,
-                    phone1 = :phone,
-                    password = :password,
-                    note = :note,
-                    guardian_lastname = :guardian_lastname,
-                    guardian_firstname = :guardian_firstname,
-                    guardian_lastname_kana = :guardian_lastname_kana,
-                    guardian_firstname_kana = :guardian_firstname_kana,
-                    guardian_email = :guardian_email,
-                    notification_kbn = :notification_kbn
-                WHERE id = :id
-            ");
+        $data = new stdClass();
+        $data->id = (int)$user_id;
+        $data->name = $name;
+        $data->name_kana = $name_kana;
+        $data->city = $city;
+        $data->email = $email;
+        $data->phone1 = $phone;
+        $data->birthday = $birthday;
+        $data->description = $description;
+        $data->guardian_name = $guardian_name;
+        $data->guardian_email = $guardian_email;
 
-            $stmt->execute([
-                ':lastname' => $lastname,
-                ':firstname' => $firstname,
-                ':lastname_kana' => $lastname_kana,
-                ':firstname_kana' => $firstname_kana,
-                ':birthday' => $birthday,
-                ':city' => $city,
-                ':email' => $email,
-                ':phone' => $phone,
-                ':password' => password_hash($password, PASSWORD_DEFAULT),
-                ':note' => $note,
-                ':guardian_lastname' => $guardian_lastname,
-                ':guardian_firstname' => $guardian_firstname,
-                ':guardian_lastname_kana' => $guardian_lastname_kana,
-                ':guardian_firstname_kana' => $guardian_firstname_kana,
-                ':guardian_email' => $guardian_email,
-                ':notification_kbn' => $notification_kbn,
-                ':id' => $user_id // 一意の識別子をWHERE条件として設定
-            ]);
-        } else {
-            $stmt = $pdo->prepare("
-                UPDATE mdl_user
-                SET 
-                    lastname = :lastname,
-                    firstname = :firstname,
-                    lastname_kana = :lastname_kana,
-                    firstname_kana = :firstname_kana,
-                    birthday = :birthday,
-                    city = :city,
-                    email = :email,
-                    phone1 = :phone,
-                    note = :note,
-                    guardian_lastname = :guardian_lastname,
-                    guardian_firstname = :guardian_firstname,
-                    guardian_lastname_kana = :guardian_lastname_kana,
-                    guardian_firstname_kana = :guardian_firstname_kana,
-                    guardian_email = :guardian_email,
-                    notification_kbn = :notification_kbn
-                WHERE id = :id
-            ");
-
-            $stmt->execute([
-                ':lastname' => $lastname,
-                ':firstname' => $firstname,
-                ':lastname_kana' => $lastname_kana,
-                ':firstname_kana' => $firstname_kana,
-                ':birthday' => $birthday,
-                ':city' => $city,
-                ':email' => $email,
-                ':phone' => $phone,
-                ':note' => $note,
-                ':guardian_lastname' => $guardian_lastname,
-                ':guardian_firstname' => $guardian_firstname,
-                ':guardian_lastname_kana' => $guardian_lastname_kana,
-                ':guardian_firstname_kana' => $guardian_firstname_kana,
-                ':guardian_email' => $guardian_email,
-                ':notification_kbn' => $notification_kbn,
-                ':id' => $user_id // 一意の識別子をWHERE条件として設定
-            ]);
+        if (!empty($change_password)) {
+            $data->password = password_hash($password, PASSWORD_DEFAULT);
         }
+        
+        $DB->update_record('user', $data);
 
         $pdo->commit();
         $_SESSION['message_success'] = '登録が完了しました';

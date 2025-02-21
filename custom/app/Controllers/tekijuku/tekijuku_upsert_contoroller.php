@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
@@ -20,7 +19,6 @@ $payment_method = (int)$values['payment_method'];
 $note = $values['note'];
 $is_published = (int)$values['is_published'];
 $is_subscription = (int)$values['is_subscription'];
-
 try {
     // 将来的にはユニークにするので下記制約は不要となる(確認中)
     $max_number = $DB->get_record_sql("
@@ -30,7 +28,7 @@ try {
     ");
 
     $max_number = $max_number->number + 1;
-
+    $fk_user_id = (int)$_SESSION['USER']->id;
     // ゼロ埋め　sprintf('%08d', $max_number)
 
     $transaction = $DB->start_delegated_transaction();
@@ -51,6 +49,7 @@ try {
     $tekijuku_commemoration->is_published = $is_published;
     $tekijuku_commemoration->is_subscription = $is_subscription;
     $tekijuku_commemoration->paid_date = date('Y-m-d H:i:s');
+    $tekijuku_commemoration->fk_user_id = $fk_user_id;
 
     $id = $DB->insert_record('tekijuku_commemoration', $tekijuku_commemoration);
     $amount = $type_code === 1 ? 2000 : 10000;
@@ -60,7 +59,7 @@ try {
         'amount' => $amount,
         'currency' => 'JPY',
         'external_order_num' => uniqid(),
-        'return_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // 決済成功後のリダイレクトURL
+        'return_url' => $CFG->wwwroot . '/custom/app/Views/mypage/index.php', // 決済成功後のリダイレクトURL
         'cancel_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // キャンセル時のリダイレクトURL
     ];
 

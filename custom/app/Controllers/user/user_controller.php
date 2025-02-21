@@ -54,7 +54,7 @@ $confirm_password_error = confirm_validation($password_confirm, $password, 'パ�
 $user_list = $DB->get_records('user', ['email' => $email]);
 if (!empty($user_list)) {
     foreach ($user_list as $user) {
-        $general_user = $DB->get_record('role_assignments', ['id' => $user->id, 'roleid' => 7]);
+        $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
         if ($general_user) {
             $email_error = '既に使用されています。';
             break;

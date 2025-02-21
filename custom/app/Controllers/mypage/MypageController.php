@@ -3,19 +3,45 @@ require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 
-$lastname_kana = "";
-$firstname_kana = "";
-if (isloggedin() && isset($_SESSION['USER'])) {
-    global $DB, $USER;
+class MypageController {
+    private $DB;
+    private $USER;
+    private $eventApplicationModel;
 
-    // 必要な情報を取得
-    $userData = $DB->get_record('user', ['id' => $USER->id], 'lastname, firstname, email, phone1, city, lastname_kana, firstname_kana, guardian_kbn, birthday
-    , guardian_lastname, guardian_firstname, guardian_lastname_kana, guardian_firstname_kana, guardian_email, note, notification_kbn');
-    // 都道府県
-    $prefectures = PREFECTURES;
+    public function __construct() {
+        global $DB, $USER; 
+        $this->DB = $DB;
+        $this->USER = $USER;
+        $this->eventApplicationModel = new EventApplicationModel();
+    }
 
-    $eventApplicationModel = new EventApplicationModel();
-    $eventApplicationList = $eventApplicationModel->getEventApplicationByUserId($_SESSION['USER']->id);
-    $oldEventApplicationList = $eventApplicationModel->getOldEventApplicationByUserId($_SESSION['USER']->id);
+    // $lastname_kana = "";
+    // $firstname_kana = "";
+    // ユーザー情報を取得
+    public function getUserData() {
+        return $this->DB->get_record(
+            'user',
+            ['id' => $this->USER->id],
+            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_email, description'
+        );
+    }
+
+    // 適塾記念情報を取得
+    public function getTekijukuCommemoration() {
+        return $this->DB->get_record(
+            'tekijuku_commemoration',
+            ['fk_user_id' => $this->USER->id],
+            'number, name'
+        );
+    }
+
+    // イベント申し込み情報を取得
+    public function getEventApplications() {
+        return [
+            'current' => $this->eventApplicationModel->getEventApplicationByUserId($this->USER->id),
+            'past' => $this->eventApplicationModel->getOldEventApplicationByUserId($this->USER->id)
+        ];
+    }
 }
+
 ?>

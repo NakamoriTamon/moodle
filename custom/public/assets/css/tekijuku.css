@@ -40,6 +40,17 @@
   line-height: 2;
 }
 
+.juku_block {
+  text-align: center; /* 親要素にテキストを中央揃え */
+}
+
+.btn-container {
+  display: flex; /* フレックスボックスを使用 */
+  justify-content: center; /* ボタンを横方向に中央揃え */
+  align-items: center; /* ボタンを縦方向に中央揃え */
+  margin-top: 20px; /* ボタンと上の要素との間隔を調整 */
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {

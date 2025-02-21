@@ -71,7 +71,7 @@
   font-size: 1.8rem;
 }
 #card .card_id::before {
-  content: "ユーザーID";
+  content: "会員ID";
   display: inline-block;
   padding-right: 10px;
   font-size: 1.4rem;

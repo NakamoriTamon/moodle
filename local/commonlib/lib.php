@@ -40,6 +40,16 @@ function validate_custom_email($email, $text = "")
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return '無効なメールアドレスです。';
     }
+    $local_part = explode('@', $email)[0];
+    $domain = explode('@', $email)[1];  // @の前がローカルパート
+    if (strlen($email) > 255) {
+        return 'メールアドレスは255文字以下にしてください。';
+    } else if (strlen($local_part) > 64) {
+        return 'メールアドレスのローカルパート(@より前)は64文字以下にしてください。';
+    } else if (strlen($domain) > 255) {
+        return 'メールアドレスのドメイン(@より後)は255文字以下にしてください。';
+    }
+    
     return null;
 }
 
@@ -91,22 +101,8 @@ function validate_text($val, $title, $size, $required = false)
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) > $size) {
-        return $title . 'は' . $size . '文字以上である必要があります。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: input type="text"
- */
-function validate_phone($val, $title, $required = false)
-{
-    if (empty($val) && $required) {
-        return $title . 'は必須です。';
-    }
-    if (strlen($val) > 20) {
-        return $title . 'は20文字以上である必要があります。';
+    if (mb_strlen($val) > $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }
@@ -119,7 +115,7 @@ function validate_textarea($val, $title, $required)
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     }
-    if (strlen($val) > 10000) {
+    if (mb_strlen($val) > 10000) {
         return $title . 'は10000文字以下である必要があります。';
     }
     return null;

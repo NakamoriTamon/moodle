@@ -61,9 +61,10 @@ $guardian_kbn_default = 0;
 define('GUARDIAN_KBN_DEFAULT', $guardian_kbn_default);
 $payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込'];
 define('PAYMENT_SELECT_LIST', $payment_select_list);
+$membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
+define('MEMBERSHIP_START_DATE', $membership_start_date);
 // 都道府県プルダウン
 $prefectures = [
-  '' => '選択してください',
   '北海道' => '北海道',
   '青森県' => '青森県',
   '岩手県' => '岩手県',

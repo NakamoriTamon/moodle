@@ -1,12 +1,13 @@
 <?php
-session_start();
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 $payment_select_list = PAYMENT_SELECT_LIST;
 $errors = $_SESSION['errors'] ?? [];
-$old_input = $_SESSION['old_input'] ?? [];
-unset($_SESSION['errors'], $_SESSION['old_input']);
+// $old_input = $_SESSION['old_input'] ?? [];
+
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
+$user_data = $_SESSION['USER'];
+unset($_SESSION['errors'], $_SESSION['old_input']);
 ?>
 
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -42,7 +43,6 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
             </ul>
             <form method="POST" action="/custom/app/Controllers/tekijuku/tekijuku_controller.php" class="whitebox form_cont">
                 <div class="inner_m">
-                    
                     <ul class="list">
                         <li class="list_item01 req">
                             <p class="list_label">会員種別</p>
@@ -56,7 +56,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                         <li class="list_item02 req">
                             <p class="list_label">お名前</p>
                             <div class="list_field f_txt">
-                                <input type="text" name="name" value="<?= htmlspecialchars($old_input['name']) ?>"> 
+                                <input type="text" name="name" value="<?= htmlspecialchars($old_input['name'] ?? $user_data->name); ?>"> 
                                 <?php if (!empty($errors['name'])): ?>
                                     <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
                                 <?php endif; ?>                               
@@ -65,7 +65,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                         <li class="list_item03 req">
                             <p class="list_label">フリガナ</p>
                             <div class="list_field f_txt">
-                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>">
+                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $user_data->name_kana) ?>">
                                 <?php if (!empty($errors['kana'])): ?>
                                     <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
                                 <?php endif; ?>                             
@@ -109,8 +109,8 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                             <p class="list_label">電話番号（ハイフンなし）</p>
                             <div class="list_field f_txt">
                                 <div class="phone-input">
-                                    <input type="text" name="tell_number" maxlength="11" 
-                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? '') ?>"
+                                    <input type="text" name="tell_number" maxlength="15" 
+                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? $user_data->phone1) ?>"
                                         pattern="[0-9]*" inputmode="numeric"
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                         <?php if (!empty($errors['tell_number'])): ?>
@@ -122,7 +122,10 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                         <li class="list_item08 req">
                             <p class="list_label">メールアドレス</p>
                             <div class="list_field f_txt">
-                                <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? '') ?>">
+                                <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? $user_data->email) ?>"
+                                    inputmode="email" 
+                                    autocomplete="email" 
+                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
                                 <?php if (!empty($errors['email'])): ?>
                                     <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
                                 <?php endif; ?>

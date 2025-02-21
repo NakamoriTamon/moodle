@@ -9,10 +9,9 @@ if (empty($_SESSION['csrf_token'])) {
 // ログインユーザーID
 $login_id = $_SESSION['user_id'] ?? null;
 $basic_error = $_SESSION['message_error'] ?? null;
-
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
-unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
+unset($_SESSION['errors'], $_SESSION['message_error']);
 ?>
 
 <!DOCTYPE html>

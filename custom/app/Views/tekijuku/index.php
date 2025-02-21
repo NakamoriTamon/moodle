@@ -1,4 +1,11 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<?php 
+include('/var/www/html/moodle/custom/app/Views/common/header.php'); 
+
+require_once('/var/www/html/moodle/custom/app/Controllers/tekijuku/tekijuku_index_controller.php');
+
+$tekijuku_index_controller = new TekijukuIndexController;
+$isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemorationMember();
+?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/tekijuku.css" />
 
 <main id="subpage">
@@ -66,6 +73,17 @@
                 <p class="sent">
                     まずは、本システムでユーザー登録をしていただき、その後、適塾記念会ホームページより、入会のお申し込みをしてください。
                 </p>
+                <?php if (!$isTekijukuCommemorationMember) : ?>
+                <div class="btn-container">
+                    <form action="/custom/app/Controllers/tekijuku/tekijuku_index_controller.php" method="POST">
+                        <button type="submit" class="btn btn_red">入会する</button>
+                    </form>
+                </div>
+                <?php else : ?>
+                <div class="btn-container">
+                    <button class="btn btn_gray" disabled>入会済み</button>
+                </div>
+                <?php endif ?>
             </div>
         </section>
         <!-- faq -->
