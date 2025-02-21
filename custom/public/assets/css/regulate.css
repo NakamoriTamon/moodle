@@ -1,0 +1,28 @@
+@charset "utf-8";
+/*  regulate.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+#regulate .reg_cont li:not(:last-child) {
+  margin-bottom: 30px;
+}
+#regulate .reg_cont li .label {
+  margin-bottom: 5px;
+}
+#regulate .reg_cont li .label::before {
+  content: "■";
+  margin-right: 5px;
+  color: #81bfda;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  #regulate .whitebox {
+    padding: 30px 0;
+  }
+  #regulate .reg_cont li:not(:last-child) {
+    margin-bottom: 15px;
+  }
+}

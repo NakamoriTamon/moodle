@@ -98,7 +98,7 @@
         <div class="mypage_cont reserve">
             <h3 class="mypage_head">予約情報</h3>
             <div class="info_wrap js_pay">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -113,7 +113,7 @@
                         </ul>
                     </div>
                 </a>
-                <a href="" class="info_wrap_qr">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
                     <object
                         type="image/svg+xml"
                         data="../assets/common/img/icon_qr_pay.svg"
@@ -126,7 +126,7 @@
                 </a>
             </div>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -158,7 +158,7 @@
         <div class="mypage_cont history">
             <h3 class="mypage_head">イベント履歴</h3>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/history.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -173,7 +173,7 @@
                 </a>
             </div>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/history.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
