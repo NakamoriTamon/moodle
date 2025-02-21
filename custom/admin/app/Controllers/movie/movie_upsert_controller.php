@@ -1,97 +1,85 @@
 <?php
+header('Content-Type: application/json');
 require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/local/commonlib/lib.php');
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
-
-session_start();
+require_once($CFG->dirroot . '/local/commonlib/lib.php');
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 
 global $DB;
 
-$ids        = $_POST['ids']       ?? [];
-$files      = $_FILES['video_files'] ?? null;
-$createdAt  = date('Y-m-d H:i:s');
-$updatedAt  = date('Y-m-d H:i:s');
-
-// バリデーション
-$validate_movie_file = validate_movie_file($files);
-if ($validate_movie_file) {
-    $_SESSION['errors'] = [
-        'video_files' => $validate_movie_file,
-    ];
-    $_SESSION['old_input'] = $_POST;
-    $_SESSION['message_error'] = '登録に失敗しました';
-    header('Location: /custom/admin/app/Views/event/movie.php');
+// CSRFチェック
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $_SESSION['message_error'] = '登録に失敗しました。';
+    echo json_encode(['status' => 'error']);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = '登録に失敗しました';
-        header('Location: /custom/admin/app/Views/event/movie.php');
-        exit;
-    }
+$upload_dir = '/var/www/html/moodle/uploads/movie/';
+$file_name = $_POST['file_name'];
+$chunk_index = $_POST['chunk_index'];
+$total_chunks = $_POST['total_chunks'];
+
+$tmpFilePath = $_FILES['file']['tmp_name'];
+$targetPath = $upload_dir . $file_name . '.part' . $chunk_index;
+
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0755, true);
 }
 
-try {
-    $transaction = $DB->start_delegated_transaction();
-    $destination_dir = '/var/www/html/moodle/uploads/movie';
-    if (!file_exists($destination_dir)) {
-        mkdir($destination_dir, 0777, true);
+// チャンクを保存
+move_uploaded_file($tmpFilePath, $targetPath);
+
+// すべてのチャンクがアップロードされたら結合
+if ($chunk_index == $total_chunks - 1) {
+    $finalFilePath = $upload_dir . $file_name;
+    $outputFile = fopen($finalFilePath, 'wb');
+
+    // チャンクの結合
+    for ($i = 0; $i < $total_chunks; $i++) {
+        $chunk_file = $upload_dir . $file_name . '.part' . $i;
+        fwrite($outputFile, file_get_contents($chunk_file));
+        unlink($chunk_file); // チャンク削除
     }
 
-    foreach ($files['name'] as $movieIndex => $fileNames) {
-        $idOfThisVideo = isset($ids[$movieIndex]) ? (int)$ids[$movieIndex] : 0;
+    fclose($outputFile);
 
-        foreach ($fileNames as $i => $original_name) {
-            $errCode  = $files['error'][$movieIndex][$i] ?? UPLOAD_ERR_NO_FILE;
-            $tmp_name = $files['tmp_name'][$movieIndex][$i] ?? '';
+    $id = $_POST['id'] ?? null;
+    $course_info_id = (int)$_POST['course_info_id'] ?? null;
 
-            if ($errCode === UPLOAD_ERR_NO_FILE || empty($original_name)) {
-                continue;
+    try {
+        $transaction = $DB->start_delegated_transaction();
+
+        $data = new stdClass();
+        $data->file_name  = $file_name;
+        $data->course_info_id = $course_info_id;
+        $data->updated_at = date('Y-m-d H:i:s');
+
+        if (!empty($id)) {
+            $data->id = $id;
+            $DB->update_record('course_movie', $data);
+        } else {
+            $data->created_at = date('Y-m-d H:i:s');
+            $DB->insert_record('course_movie', $data);
+        }
+        $transaction->allow_commit();
+        $_SESSION['message_success'] = '登録が完了しました';
+        $response = ['status' => 'success'];
+        echo json_encode($response);
+        exit;
+    } catch (Exception $e) {
+        try {
+            $transaction->rollback($e);
+        } catch (Exception $rollbackException) {
+            $_SESSION['message_error'] = '登録に失敗しました。';
+            $unlink_file = $upload_dir . $file_name;
+            if (isset($unlink_file) && file_exists($unlink_file)) {
+                unlink($unlink_file);
             }
-
-            $exists = $DB->record_exists_sql("SELECT 1 FROM {course_movie} WHERE file_name = ? AND is_delete = ?", [$original_name, 0]);
-
-            if ($exists) {
-                $_SESSION['message_error'] = '同じ名前の動画が既に存在します';
-                header('Location: /custom/admin/app/Views/event/movie.php');
-                exit;
-            }
-
-            $ext         = pathinfo($original_name, PATHINFO_EXTENSION);
-            $newfilename = uniqid('video_') . '.' . $ext;
-            $destination = $destination_dir . '/' . $newfilename;
-            $dbstorepath = 'uploads/video';
-
-            if (!move_uploaded_file($tmp_name, $destination)) {
-                $_SESSION['message_error'] = '登録に失敗しました';
-                header('Location: /custom/admin/app/Views/event/movie.php');
-                exit;
-            }
-
-            $data = new stdClass();
-            $data->file_name  = $original_name;
-            $data->file_path  = $newfilename;
-            $data->created_at = $createdAt;
-            $data->updated_at = $updatedAt;
-
-            if ($idOfThisVideo > 0 && $i == 0) {
-                $data->id = $idOfThisVideo;
-            }
-
-            if ($idOfThisVideo > 0 && $i == 0) {
-                $DB->update_record('course_movie', $data);
-            } else {
-                $DB->insert_record('course_movie', $data);
-            }
+            echo json_encode(['status' => 'error', 'message' => $unlink_file]);
+            exit;
         }
     }
-    $transaction->allow_commit();
-    $_SESSION['message_success'] = '登録が完了しました';
-    header('Location: /custom/admin/app/Views/event/movie.php');
-    exit;
-} catch (Exception $e) {
-    $_SESSION['message_error'] = '登録に失敗しました';
-    header('Location: /custom/admin/app/Views/event/movie.php');
+} else {
+    // チャンクがアップロード中の段階では何も返さない
+    echo json_encode(['status' => 'success']);
     exit;
 }
