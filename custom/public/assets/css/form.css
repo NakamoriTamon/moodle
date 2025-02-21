@@ -63,8 +63,10 @@
   display: flex;
   align-items: center;
   gap: 5%;
-  margin-bottom: 40px;
   line-height: 1.6;
+}
+#form .form_cont .list li:not(:last-child) {
+  margin-bottom: 40px;
 }
 #form .form_cont .list li.long_item {
   align-items: flex-start;
@@ -220,7 +222,7 @@
 /*-------------------------------------
  confirm
  -------------------------------------*/
-#form.confirm .form_cont .list li {
+#form.confirm .form_cont .list li:not(:last-child) {
   margin-bottom: 50px;
 }
 #form.confirm .form_cont .list li.long_item {
@@ -320,11 +322,13 @@
  form
  -------------------------------------*/
   #form .form_cont {
-    padding: 50px 0;
+    padding: 40px 0;
   }
   #form .form_cont .list li {
-    margin-bottom: 20px;
     display: block;
+  }
+  #form .form_cont .list li:not(:last-child) {
+    margin-bottom: 20px;
   }
   #form .form_cont .list li .list_label {
     width: 100%;
@@ -371,7 +375,7 @@
     width: 100% !important;
   }
   #form .form_cont .form_btn {
-    margin: 40px auto 0;
+    margin: 30px auto 0;
     gap: 3%;
   }
   #form .form_cont .form_btn .btn {
@@ -381,7 +385,7 @@
   /*-------------------------------------
  confirm
  -------------------------------------*/
-  #form.confirm .form_cont .list li {
+  #form.confirm .form_cont .list li:not(:last-child) {
     margin-bottom: 20px;
   }
 

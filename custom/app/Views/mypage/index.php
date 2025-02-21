@@ -166,7 +166,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
         <div class="mypage_cont reserve">
             <h3 class="mypage_head">予約情報</h3>
             <div class="info_wrap js_pay">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -181,7 +181,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                         </ul>
                     </div>
                 </a>
-                <a href="" class="info_wrap_qr">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
                     <object
                         type="image/svg+xml"
                         data="../assets/common/img/icon_qr_pay.svg"
@@ -194,7 +194,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                 </a>
             </div>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -223,10 +223,12 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
             </div>
         </div>
 
+        <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
+
         <div class="mypage_cont history">
             <h3 class="mypage_head">イベント履歴</h3>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/history.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
@@ -241,7 +243,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                 </a>
             </div>
             <div class="info_wrap">
-                <a href="" class="info_wrap_cont">
+                <a href="/custom/app/Views/event/history.php" class="info_wrap_cont">
                     <p class="date">0000/00/00</p>
                     <div class="txt">
                         <p class="txt_ttl">
