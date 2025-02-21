@@ -36,8 +36,11 @@ body {
 .min-130{
     min-width: 130px;
 }
-.min-140{
-    min-width: 140px;
+.min-100{
+    min-width: 100px;
+}
+.min-200{
+    min-width: 200px;
 }
 .max-650{
     max-width: 650px;
