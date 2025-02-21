@@ -137,8 +137,9 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 												</div>
 
 												<!-- 動画タグ -->
-												<div class="w-100">
-													<video id="movie_video" controls>
+												<div id="movie-wrapper" class="w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
+													<video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
+														<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>>
 														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
 														<p>動画再生をサポートしていないブラウザです。</p>
 													</video>
@@ -198,24 +199,68 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 <script src="/custom/admin/public/js/app.js"></script>
 <script>
 	$(document).ready(function() {
-		var video_file_name = "<?php echo htmlspecialchars($file_name, ENT_QUOTES, 'UTF-8'); ?>"; // PHPから動画ファイル名を取得
-
+		// PHPから動画ファイル名を取得
+		let video_file_name = "<?php echo htmlspecialchars($file_name, ENT_QUOTES, 'UTF-8'); ?>";
+		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
+		console.log(is_double_speed);
 		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
 		if (video_file_name) {
-			var video_path = "/uploads/movie/" + video_file_name;
+			let video_path = "/uploads/movie/" + video_file_name;
 			$('#movie_video_source').attr('src', video_path);
 
 			// 動画をロードして再生
 			$('#movie_video')[0].load();
-			$('#movie_video').show();
-			$('#movie_img').hide();
+			$('#movie_video')[0].oncanplay = function() {
+				$('#movie_video').show();
+				$('#movie_img').hide();
+			}
 		}
+		$('#movie_video').on('contextmenu', function(event) {
+			event.preventDefault();
+		});
 
+		// 動画ソースへのクリックを無効化
+		$('#movie_video_source').on('click', function(event) {
+			event.preventDefault();
+		});
+
+		// 動画の右クリックメニューを無効化
+		$('#movie_video').on('contextmenu', function(event) {
+			event.preventDefault();
+		});
+
+		// マウスが動画に乗ったときの設定
+		$('#movie_video').on('mouseenter', function() {
+			// ダウンロードボタンを非表示にする
+			$(this).prop('controlsList', 'nodownload');
+			//倍速の設定
+			if (is_double_speed != 1) {
+				$(this).prop('controlsList', 'nodownload noplaybackrate'); // 倍速無効化
+			} else {
+				$(this).prop('controlsList', 'nodownload'); // ダウンロードだけ無効化
+			}
+		});
+
+		// 再生時の設定
+		$('#movie_video').on('play', function() {
+			// 再生時に倍速の設定を変更
+			if (is_double_speed != 1) {
+				$(this).prop('controlsList', 'nodownload noplaybackrate'); // 倍速無効化
+			} else {
+				$(this).prop('controlsList', 'nodownload'); // ダウンロードだけ無効化
+			}
+		});
 
 		// ファイル選択時の処理
 		$('#video_input').on('change', function(event) {
 			const file = event.target.files[0];
-			if (!file) return;
+			$('#delete_video_btn').hide();
+			if (!file) {
+				$('#movie_video').hide();
+				$('#movie_img').hide();
+				return
+			}
+
 			$('#movie_video').hide();
 			$('#movie_img').hide();
 
