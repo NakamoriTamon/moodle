@@ -155,6 +155,8 @@
             </div>
         </div>
 
+        <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
+
         <div class="mypage_cont history">
             <h3 class="mypage_head">イベント履歴</h3>
             <div class="info_wrap">
