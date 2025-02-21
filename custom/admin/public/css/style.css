@@ -174,8 +174,14 @@ input.timepicker {
 }
 /* 講義動画読込 */
 #movie_img{
-    width: 500px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 1000px;
+    display: none;
+}
+#movie_video{
+    width: 100%;
+    max-width: 1000px;
+    aspect-ratio: auto 320/420;
     display: none;
 }
 /* QR読込 */

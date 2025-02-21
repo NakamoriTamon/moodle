@@ -7,6 +7,7 @@ global $DB;
 
 // POSTデータの取得 (バリデーションは別途行う)
 $id = $_POST['id'] ?? '';
+$course_info_id = $_POST['course_info_id'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -16,30 +17,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$data = new stdClass();
-$data->id = $id;
-$data->is_delete = 1;
-
 try {
     $transaction = $DB->start_delegated_transaction();
-    $tutorRecord = $DB->get_record('course_movie', ['id' => $id]);
-    if ($tutorRecord && !empty($tutorRecord->file_path)) {
-        $filePath = '/var/www/html/moodle/uploads/movie/' . $tutorRecord->file_path;
-        if (file_exists($filePath)) {
-            unlink($filePath);
+    $movie = $DB->get_record('course_movie', ['id' => $id]);
+    $DB->delete_records('course_movie', ['id' => $id]);
+
+    if ($movie && !empty($movie->file_name)) {
+        $file_path = '/var/www/html/moodle/uploads/movie/' . $movie->file_name;
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        } else {
+            throw new Exception('ファイルの削除に失敗しました。');
         }
     }
 
-    $DB->update_record('course_movie', $data);
     $transaction->allow_commit();
     $_SESSION['message_success'] = '削除が完了しました';
     header('Location: /custom/admin/app/Views/event/movie.php');
     exit;
 } catch (Exception $e) {
-    if (isset($transaction)) {
+    try {
         $transaction->rollback($e);
+    } catch (Exception $rollbackException) {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        header('Location: /custom/admin/app/Views/event/movie.php');
+        exit;
     }
-    $_SESSION['message_error'] = '削除に失敗しました';
-    header('Location: /custom/admin/app/Views/event/movie.php');
-    exit;
 }

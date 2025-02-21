@@ -16,6 +16,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
+$file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -87,7 +88,7 @@ $movie = $result_list['movie'] ?? [];
 											<div class="sp-ms-0 ms-3 mb-3 w-100">
 												<label class="form-label" for="notyf-message">回数</label>
 												<div class="d-flex align-items-center">
-													<select name="course_no" class="form-control w-100" <?= $result_list['is_display'] ? 'disabled' : '' ?>>
+													<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 														<option value="" selected disabled>未選択</option>
 														<?php for ($i = 1; $i < 10; $i++) { ?>
 															<option value=<?= $i ?>
@@ -113,7 +114,7 @@ $movie = $result_list['movie'] ?? [];
 					<div class="col-12 col-lg-12">
 						<div class="card">
 							<div class="card-body">
-								<form id="upsert_form" enctype="multipart/form-data">
+								<form id="upsert_form" method="POST" enctype="multipart/form-data">
 									<div class="d-flex justify-content-end">
 										<button type="button" id="upload_button" class="btn mb-2 btn-primary">アップロード</button>
 									</div>
@@ -129,7 +130,25 @@ $movie = $result_list['movie'] ?? [];
 													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
-											<img id="movie_img" src="" alt="サムネイル">
+											<div class="d-flex flex-wrap align-items-end gap-3">
+												<!-- サムネイル用画像 -->
+												<div class="w-100">
+													<img id="movie_img" src="" alt="サムネイル">
+												</div>
+
+												<!-- 動画タグ -->
+												<div class="w-100">
+													<video id="movie_video" controls>
+														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
+														<p>動画再生をサポートしていないブラウザです。</p>
+													</video>
+												</div>
+												<?php if (!empty($file_name)) { ?>
+													<button type="button" id="delete_video_btn" class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#delete_confirm_modal">
+														削除
+													</button>
+												<?php } ?>
+											</div>
 										</div>
 									</div>
 								</form>
@@ -142,9 +161,32 @@ $movie = $result_list['movie'] ?? [];
 				<div class="modal fade" id="upload_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
 					<div class="modal-dialog modal-dialog-centered">
 						<div class="modal-content">
-							<div class="modal-body text-center p-5">
-								講義動画をアップロード中です<p id="percent" class="mt-1 me-3">100%</p>
+							<div class="modal-body text-center p-5 fs-4">
+								講義動画をアップロード中です<p id="percent" class="mt-1 me-2 fs-4">100%</p>
 							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 削除モーダル -->
+				<div class="modal fade" id="delete_confirm_modal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="deleteConfirmModalLabel">削除確認</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<form method="POST" action="/custom/admin/app/Controllers/movie/movie_delete_controller.php">
+								<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="id" value="<?= htmlspecialchars($result_list['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<div class="modal-body">
+									本当にこの動画を削除しますか？
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+									<button type="submit" id="confirm_delete" class="btn btn-danger">削除</button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -156,24 +198,28 @@ $movie = $result_list['movie'] ?? [];
 <script src="/custom/admin/public/js/app.js"></script>
 <script>
 	$(document).ready(function() {
-		$('select[name="category_id"]').change(function() {
-			$("#form").submit();
-		});
-		$('select[name="event_status_id"]').change(function() {
-			$("#form").submit();
-		});
-		$('select[name="event_id"]').change(function() {
-			$("#form").submit();
-		});
-		$('select[name="course_no"]').change(function() {
-			$("#form").submit();
-		});
+		var video_file_name = "<?php echo htmlspecialchars($file_name, ENT_QUOTES, 'UTF-8'); ?>"; // PHPから動画ファイル名を取得
 
-		// 動画の冒頭を画像で表示
+		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
+		if (video_file_name) {
+			var video_path = "/uploads/movie/" + video_file_name;
+			$('#movie_video_source').attr('src', video_path);
+
+			// 動画をロードして再生
+			$('#movie_video')[0].load();
+			$('#movie_video').show();
+			$('#movie_img').hide();
+		}
+
+
+		// ファイル選択時の処理
 		$('#video_input').on('change', function(event) {
 			const file = event.target.files[0];
 			if (!file) return;
+			$('#movie_video').hide();
+			$('#movie_img').hide();
 
+			// 動画ファイルでない場合はエラーメッセージ
 			if (!file.type.startsWith('video/')) {
 				alert('動画ファイルを選択してください');
 				$(this).val('');
@@ -181,28 +227,35 @@ $movie = $result_list['movie'] ?? [];
 			}
 
 			const video = document.createElement('video');
-			const fileURL = URL.createObjectURL(file);
-			video.src = fileURL;
+			const file_url = URL.createObjectURL(file);
+			video.src = file_url;
 			video.muted = true;
 			video.playsInline = true;
 			video.preload = "metadata"; // 最小限のデータ取得
 
 			$(video).on('loadeddata', function() {
-				video.currentTime = 0; // 最初のフレームへ
+				// 最初のフレームへ
+				video.currentTime = 0;
 			});
 
 			$(video).on('seeked', function() {
 				const canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
 
-				canvas.width = video.videoWidth / 2; // 解像度を半分にして負荷軽減
+				// 解像度を半分にして負荷軽減
+				canvas.width = video.videoWidth / 2;
 				canvas.height = video.videoHeight / 2;
 
 				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-				$('#movie_img').attr('src', canvas.toDataURL('image/png')).show(); // サムネイル表示
-				URL.revokeObjectURL(fileURL); // メモリ解放
+				// サムネイル表示
+				$('#movie_img').attr('src', canvas.toDataURL('image/png')).show();
+				URL.revokeObjectURL(file_url);
 			});
+		});
+		// 検索
+		$('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+			$("#form").submit();
 		});
 
 		// 講義動画をChunkして登録
@@ -242,11 +295,7 @@ $movie = $result_list['movie'] ?? [];
 							}
 						},
 						error: function(jqXHR, textStatus, errorThrown) {
-							console.log('AJAX エラー:', textStatus);
-							console.log('HTTP ステータスコード:', jqXHR.status);
-							console.log('エラーメッセージ:', errorThrown);
-							console.log('レスポンス内容:', jqXHR.responseText);
-							alert('最終処理でエラーが発生しました');
+							location.href = "/custom/admin/app/Views/event/movie.php";
 						}
 					});
 					return;
@@ -276,7 +325,6 @@ $movie = $result_list['movie'] ?? [];
 					dataType: 'json',
 					success: function(response) {
 						if (response.status === 'error') {
-							console.log(response);
 							return;
 						}
 						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
