@@ -55,7 +55,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
         <nav>
             <ul class="header_menu">
                 <li>
-                    <a href="/custom/app/Views/index.php">
+                    <a href="/custom/app/Views/event/index.php">
                         <img src="/custom/public/assets/common/img/icon_menu01.svg" alt="講座一覧" />
                         <p class="txt">イベント一覧</p>
                     </a>

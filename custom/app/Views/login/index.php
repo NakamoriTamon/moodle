@@ -12,7 +12,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
         <section id="setting" class="login">
             <form method="POST" action="/custom/app/Controllers/login/login_controller.php" class="whitebox set_form">
                 <div class="set_inner">
-                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
                     <ul class=" list">
                         <li class="list_item01">
                             <p class="list_label">メールアドレス（もしくはユーザーID）</p>
