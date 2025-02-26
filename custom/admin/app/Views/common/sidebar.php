@@ -61,7 +61,8 @@
 						<i class="align-middle" data-feather="log-out"></i> <span class="align-middle">Log out</span>
 					</a>
 				</li>
-				<li class="sidebar-item">
+				<!-- 管理者以外アクセス禁止へ -->
+				<!-- <li class="sidebar-item">
 					<a href="#master" data-bs-toggle="collapse" class="sidebar-link collapsed">
 						<i class="align-middle" data-feather="table"></i> <span class="align-middle">各種マスタ</span>
 					</a>
@@ -69,7 +70,7 @@
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/category/index.php">カテゴリーマスタ</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/master/target/index.php">対象マスタ</a></li>
 					</ul>
-				</li>
+				</li> -->
 			</ul>
 		</div>
 	</nav>

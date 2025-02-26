@@ -16,12 +16,12 @@
                     <li><a href="/custom/app/Views/contact/index.php">お問い合わせ</a></li>
                     <!-- <li><a href="quest/index.html">アンケート</a></li> -->
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
-                    <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
+                    <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/logout/index.php" ?>><?=empty($login_id) ? 'ログイン' : 'ログアウト'?></a></li>
                 </ul>
                 <ul class="menu_btm">
                     <li><a href="">利用規約</a></li>
                     <li><a href="">プライバシーポリシー</a></li>
-                    <li><a href="">特定商取引法に基づく表記</a></li>
+                    <li><a href="/custom/app/Views/regulate/index.php">特定商取引法に基づく表記</a></li>
                 </ul>
             </div>
         </div>

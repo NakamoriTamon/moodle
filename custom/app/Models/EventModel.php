@@ -216,13 +216,37 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT ci.id as course_info_id, ci.no, ci.course_date FROM mdl_event_course_info eci 
+                $stmt = $this->pdo->prepare("SELECT ci.id, ci.no, ci.course_date FROM mdl_event_course_info eci 
                     LEFT JOIN mdl_course_info ci ON ci.id = eci.course_info_id WHERE event_id = :eventID");
                 $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
                 $stmt->execute();
                 $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 foreach($course_infos as &$course_info) {
-                    $course_info["details"] = $this->getEventCourseInfoDetails($course_info["course_info_id"]);
+                    $course_info["details"] = $this->getEventCourseInfoDetails($course_info["id"]);
+                }
+                
+                return $course_infos;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    private function getEventCourseInfosById($id)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT id, no, course_date FROM mdl_course_info 
+                    WHERE id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+                $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach($course_infos as &$course_info) {
+                    $course_info["details"] = $this->getEventCourseInfoDetails($course_info["id"]);
                 }
                 
                 return $course_infos;
@@ -290,11 +314,63 @@ class EventModel extends BaseModel
                 $stmt->execute($params);
                 $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
+                if(!empty($event)) {
+                    // 各イベントの詳細を追加
+                    $event['details'] = $this->getEventDetails($event['id']);
+                    $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
+                    $event['categorys'] = $this->getEventCategorys($event['id']);
+                    $event['course_infos'] = $this->getEventCourseInfos($event['id']);
+                    $event_status = $event['event_status'];
+                }
+
+                return  $event;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    public function getEventByIdAndCourseInfoId($id, $courseInfoId)
+    {
+
+        if ($this->pdo) {
+            try {        
+                // ベースのSQLクエリ
+                $sql = 'SELECT 
+                        e.*,
+                        CASE
+                            WHEN CURRENT_DATE < MIN(ci.course_date) THEN 1 -- 開催前
+                            WHEN CURRENT_DATE >= MIN(ci.course_date) AND CURRENT_DATE <= MAX(ci.course_date) THEN 2 -- 開催中
+                            WHEN CURRENT_DATE > MAX(ci.course_date) THEN 3 -- 開催終了
+                        END AS event_status,
+                        CASE
+                            WHEN CURRENT_DATE <= e.deadline THEN 1
+                            WHEN CURRENT_DATE > e.deadline THEN 2
+                        END AS deadline_status
+                    FROM mdl_event e
+                    LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
+                    LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
+                    WHERE e.visible = 1 AND e.id = :id
+                    GROUP BY e.id
+                    ORDER BY MIN(ci.course_date) ASC';
+
+                // 動的に検索条件を追加
+                $params[':id'] = $id;
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $event = $stmt->fetch(PDO::FETCH_ASSOC);
+
                 // 各イベントの詳細を追加
                 $event['details'] = $this->getEventDetails($event['id']);
                 $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
                 $event['categorys'] = $this->getEventCategorys($event['id']);
-                $event['course_infos'] = $this->getEventCourseInfos($event['id']);
+                $event['course_infos'] = $this->getEventCourseInfosById($courseInfoId);
                 $event_status = $event['event_status'];
 
                 return  $event;

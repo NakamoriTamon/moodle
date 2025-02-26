@@ -1,9 +1,4 @@
-<?php
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/event_controller.php');
-$eventController = new EventController();
-$events = $eventController->index();
-?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
 
 <body id="qr" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative show">
 	<div class="wrapper">
@@ -73,45 +68,45 @@ $events = $eventController->index();
 	</div>
 
 	<script src="/custom/admin/public/js/app.js"></script>
+	<script>
+		$(document).ready(function() {
+			let selectedId;
+			// 削除リンクがクリックされたとき
+			$('.delete-link').on('click', function(event) {
+				event.preventDefault();
+				selectedId = $(this).data('id');
+				$('#confirmDeleteModal').modal('show');
+			});
+			// モーダル内の削除ボタンがクリックされたとき
+			$('#confirmDeleteButton').on('click', function() {
+				$('#confirmDeleteModal').modal('hide');
+				$(`.delete-link[data-id="${selectedId}"]`).closest('li').remove();
+			});
+		});
+	</script>
+
+	<script type="module">
+		import QrScanner from "https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js";
+
+		const videoElem = document.getElementById('qr-video');
+		let qrScanner = new QrScanner(videoElem, (result) => {
+			console.log(result);
+			videoElem.pause();
+			$('.scan-text').text('Success');
+			$('.scan-text').css('color', '#249f2a');
+			$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
+			var modal = new bootstrap.Modal(document.getElementById('qrModal'));
+			modal.show();
+		});
+		qrScanner.start();
+
+		$('#qrModal').on('hidden.bs.modal', function() {
+			videoElem.play();
+			$('.scan-text').text('Scannning...');
+			$('.scan-text').css('color', '#00bcd4');
+			$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
+		});
+	</script>
 </body>
 
 </html>
-<script>
-	$(document).ready(function() {
-		let selectedId;
-		// 削除リンクがクリックされたとき
-		$('.delete-link').on('click', function(event) {
-			event.preventDefault();
-			selectedId = $(this).data('id');
-			$('#confirmDeleteModal').modal('show');
-		});
-		// モーダル内の削除ボタンがクリックされたとき
-		$('#confirmDeleteButton').on('click', function() {
-			$('#confirmDeleteModal').modal('hide');
-			$(`.delete-link[data-id="${selectedId}"]`).closest('li').remove();
-		});
-	});
-</script>
-
-<script type="module">
-	import QrScanner from "https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js";
-
-	const videoElem = document.getElementById('qr-video');
-	let qrScanner = new QrScanner(videoElem, (result) => {
-		console.log(result);
-		videoElem.pause();
-		$('.scan-text').text('Success');
-		$('.scan-text').css('color', '#249f2a');
-		$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
-		var modal = new bootstrap.Modal(document.getElementById('qrModal'));
-		modal.show();
-	});
-	qrScanner.start();
-
-	$('#qrModal').on('hidden.bs.modal', function() {
-		videoElem.play();
-		$('.scan-text').text('Scannning...');
-		$('.scan-text').css('color', '#00bcd4');
-		$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
-	});
-</script>

@@ -51,7 +51,7 @@ require_once(__DIR__ . '/lib/setup.php');
 $customfield_select_list = [1 => 'テキスト', 2 => 'テキストエリア', 3 => 'チェックボックス', 4 => 'ラジオ', 5 => '日付'];
 $customfield_type_list = [1 => 'text', 2 => 'textarea', 3 => 'checkbox', 4 => 'radio', 5 => 'date'];
 define('CUSTOMFIELD_TYPE_LIST', $customfield_type_list);
-$event_kbn_list = [1 => '1度きりのイベント', 2 => '複数回シリーズのイベント'];
+$event_kbn_list = [1 => '単発のイベント', 2 => '複数回シリーズのイベント'];
 define('EVENT_KBN_LIST', $event_kbn_list);
 $event_status_list = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_LIST', $event_status_list);
