@@ -63,6 +63,8 @@ $payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => 
 define('PAYMENT_SELECT_LIST', $payment_select_list);
 $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
+$type_code_list = [1 => '普通会員', 2 => '賛助会員'];
+define('TYPE_CODE_LIST', $type_code_list);
 // 都道府県プルダウン
 $prefectures = [
   '北海道' => '北海道',
