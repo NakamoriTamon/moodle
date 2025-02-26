@@ -61,7 +61,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                     <div class="detail_item">
                         <h2 class="block_ttl">内容</h2>
                         <p class="sent">
-                            <?= htmlspecialchars($event['program']); ?>
+                            <?= nl2br($event['description']); ?>
                         </p>
                     </div>
                     <div class="detail_item">
@@ -107,12 +107,6 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                         ＜各回受講＞開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
                                     </p>
                                 </li>
-                                <!-- <li>
-                                    <p class="term">アーカイブ<br />配信</p>
-                                    <p class="desc">
-                                        下記URLよりご覧いただけます。<br />https://www....................................
-                                    </p>
-                                </li> -->
                             </ul>
                         </div>
                         <div class="access">
@@ -136,7 +130,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                     </p>
                                     <p>
                                         【交通アクセス】<br />
-                                        <?= htmlspecialchars($event['access']) ?>
+                                        <?= nl2br($event['access']) ?>
                                     </p>
                                 </div>
                             </div>
