@@ -146,8 +146,8 @@ h5 {
     display: none !important;
   }
 }
-/* validate */
-.text-danger{
-  color: red;
-  margin-top: 3px;
+
+/* カテゴリーレイアウト */
+.justify_center{
+    justify-content: center;
 }

@@ -17,7 +17,7 @@
             <form method="POST" action="/custom/app/Controllers/user/user_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="inner_m">
-                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
                     <ul class="list">
                         <li class="list_item01 req">
                             <p class="list_label">お名前</p>
@@ -289,3 +289,6 @@
         }
     });
 </script>
+</body>
+
+</html>

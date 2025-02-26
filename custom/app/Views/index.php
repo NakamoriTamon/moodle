@@ -57,7 +57,7 @@
     <div class="swiper new_swiper">
       <ul class="swiper-wrapper" id="event">
         <li class="swiper-slide event_item">
-          <a href="">
+          <a href="event/detail.php?id=49">
             <figure class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></figure>
             <div class="event_info">
               <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
@@ -72,7 +72,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="event/detail.php">
+          <a href="event/detail.php?id=49">
             <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -94,7 +94,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="event/detail.php">
+          <a href="event/detail.php?id=49">
             <figure class="img"><img src="/custom/public/assets/img/event/event03.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -115,7 +115,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="event/detail.php">
+          <a href="event/detail.php?id=49">
             <figure class="img"><img src="/custom/public/assets/img/event/event04.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">
@@ -137,7 +137,7 @@
           </a>
         </li>
         <li class="swiper-slide event_item">
-          <a href="event/detail.php">
+          <a href="event/detail.php?id=49">
             <figure class="img"><img src="/custom/public/assets/img/event/event05.jpg" alt="" /></figure>
             <div class="event_info">
               <ul class="event_status">

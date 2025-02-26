@@ -26,20 +26,23 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                 <div class="event_sched">
                     <p class="term">開催日</p>
                     <div class="date">
-                        <?php foreach($event['select_course'] as $no => $course): ?>
+                        <?php foreach ($event['select_course'] as $no => $course): ?>
                             <p class="dt01"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
                         <?php endforeach; ?>
                     </div>
                 </div>
                 <div class="category" id="category">
-                    <?php foreach($select_categorys as $select_category ): ?>
+                    <?php foreach ($select_categorys as $select_category): ?>
                         <div class="cat_item category01 active">
                             <div class="cat_btn">
-                                <object
-                                    type="image/svg+xml"
-                                    data="/custom/public/assets/common/img/icon_cat0<?= htmlspecialchars($select_category['id']) ?>.svg"
-                                    class="obj"></object>
-                                <p class="txt"><?php if(in_array($select_category ,array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category ,array_column($categorys, 'id'))]['name'] ?></p>
+                                <?php if (!empty($select_category['path'])) { ?>
+                                    <object
+                                        type="image/svg+xml"
+                                        data="<?= htmlspecialchars($select_category['path']) ?>"
+                                        class="obj">
+                                    </object>
+                                <?php } ?>
+                                <p class="txt"><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category, array_column($categorys, 'id'))]['name'] ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -84,9 +87,9 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                 <li>
                                     <p class="term">講義形式</p>
                                     <p class="desc">
-                                    <?php foreach($select_lecture_formats as $lecture_format): ?>
-                                        <?= htmlspecialchars($lecture_format['name']) ?><br />
-                                    <?php endforeach; ?>
+                                        <?php foreach ($select_lecture_formats as $lecture_format): ?>
+                                            <?= htmlspecialchars($lecture_format['name']) ?><br />
+                                        <?php endforeach; ?>
                                     </p>
                                 </li>
                             </ul>
@@ -94,13 +97,13 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                 <li>
                                     <p class="term">参加費</p>
                                     <p class="desc">1回 <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
-                                    <?php if(count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
+                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
                                     </p>
                                 </li>
                                 <li>
                                     <p class="term">申込締切</p>
                                     <p class="desc">
-                                    <?php if(count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
+                                        <?php if (count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
                                         ＜各回受講＞開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
                                     </p>
                                 </li>
@@ -115,17 +118,17 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                         <div class="access">
                             <h4 class="sub_ttl">アクセス</h4>
                             <div class="access_item01">
-                                <?php if(empty($event['google_map'])): ?>
-                                <div class="map">
-                                    <iframe
-                                        src="<?= $event['google_map'] ?>"
-                                        width="400"
-                                        height="300"
-                                        style="border: 0"
-                                        allowfullscreen=""
-                                        loading="lazy"
-                                        referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                </div>
+                                <?php if (empty($event['google_map'])): ?>
+                                    <div class="map">
+                                        <iframe
+                                            src="<?= $event['google_map'] ?>"
+                                            width="400"
+                                            height="300"
+                                            style="border: 0"
+                                            allowfullscreen=""
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    </div>
                                 <?php endif ?>
                                 <div class="sent">
                                     <p>
@@ -155,19 +158,19 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                     </p>
                     <div class="detail_item">
                         <h2 class="block_ttl">プログラム</h2>
-                        <?php foreach($event['select_course'] as $no => $course): ?>
+                        <?php foreach ($event['select_course'] as $no => $course): ?>
                             <div class="program">
                                 <h4 class="sub_ttl">【第<?= $no ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
-                                <p class="sent">
-                                    <?= $course['details'][0]['program'] ?>
-                                </p>
-                                <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                    <p class="sent">
+                                        <?= $course['details'][0]['program'] ?>
+                                    </p>
+                                    <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
                             </div>
                         <?php endforeach; ?>
                     </div>
                     <div class="detail_item">
                         <h2 class="block_ttl">登壇者</h2>
-                        <?php foreach($select_tutor as $turor): ?>
+                        <?php foreach ($select_tutor as $turor): ?>
                             <div class="speaker">
                                 <div class="speaker_img"><img src="" alt="" /></div>
                                 <div class="speaker_desc">

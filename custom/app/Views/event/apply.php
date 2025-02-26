@@ -6,10 +6,10 @@ $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 $formdata = null;
 if (isset($SESSION->formdata)) {
-    if(is_null($eventId)) {
+    if (is_null($eventId)) {
         $eventId = isset($SESSION->formdata) && isset($SESSION->formdata['id']) ? $SESSION->formdata['id'] : null;
     }
-    if(is_null($eventId)) {
+    if (is_null($eventId)) {
         $courseInfoId = is_null($courseInfoId) && isset($SESSION->formdata) && isset($SESSION->formdata['course_info_id']) ? $SESSION->formdata['course_info_id'] : null;
     }
     $formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
@@ -59,7 +59,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $guardian_kbn = $userData->guardian_kbn ?? "";
     $guardian_email = $userData->guardian_email ?? "";
 }
-if(!empty($old_input)) {
+if (!empty($old_input)) {
     $payMethod = isset($old_input['pay_method']) ? $old_input['pay_method'] : null;
     $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : null;
     $price = $ticket * $participation_fee;
@@ -79,13 +79,13 @@ if(!empty($old_input)) {
     $triggerOther = $formdata['trigger_other'];
     $note = $formdata['note'];
     $triggers = $formdata['triggers'];
-    if(is_array($triggers)) {
+    if (is_array($triggers)) {
         $triggersArray = $triggers;
     } else {
         $triggersArray = explode(',', $triggers); // 配列に変換
     }
     $companion_mails = $formdata['companion_mails'];
-    if(is_array($companion_mails)) {
+    if (is_array($companion_mails)) {
         $mailsArray = $companion_mails;
     } else {
         $mailsArray = explode(',', $companion_mails); // 配列に変換
@@ -105,41 +105,41 @@ if(!empty($old_input)) {
         <h2 class="head_ttl" data-en="APPLICATION">イベント申し込み</h2>
     </section>
     <!-- heading -->
-    <?php if($deadline != null && $dayDate < $nowDate): ?>
+    <?php if ($deadline != null && $dayDate < $nowDate): ?>
         <div class="inner_l">
-        <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <section id="form" class="event entry">
-            <form method="POST" action="confirm.php" class="whitebox form_cont">
-                <div class="inner_m">
-                    <div class="form_btn">
-                        <p class="list_label">申し込みの受付を終了致しました。</p>
-                    </div>
-                    <div class="form_btn">
-                    <a href="index.php?id=<?= $eventId ?>" class="btn btn_gray">戻る</a>
-                    </div>
-                <div>
-            </form>
+                <form method="POST" action="confirm.php" class="whitebox form_cont">
+                    <div class="inner_m">
+                        <div class="form_btn">
+                            <p class="list_label">申し込みの受付を終了致しました。</p>
+                        </div>
+                        <div class="form_btn">
+                            <a href="index.php?id=<?= $eventId ?>" class="btn btn_gray">戻る</a>
+                        </div>
+                        <div>
+                </form>
             </section>
         </div>
-    <?php elseif($aki_ticket <= 0): ?>
+    <?php elseif ($aki_ticket <= 0): ?>
         <div class="inner_l">
-        <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <section id="form" class="event entry">
-            <form method="POST" action="confirm.php" class="whitebox form_cont">
-                <div class="inner_m">
-                    <div class="form_btn">
-                        <p class="list_label">定員数に達したため受付を終了致しました。</p>
+                <form method="POST" action="confirm.php" class="whitebox form_cont">
+                    <div class="inner_m">
+                        <div class="form_btn">
+                            <p class="list_label">定員数に達したため受付を終了致しました。</p>
+                        </div>
+                        <div class="form_btn">
+                            <a href="index.php?id=<?= $eventId ?>" class="btn btn_gray">戻る</a>
+                        </div>
                     </div>
-                    <div class="form_btn">
-                    <a href="index.php?id=<?= $eventId ?>" class="btn btn_gray">戻る</a>
-                    </div>
-                <div>
-            </form>
+                </form>
             </section>
         </div>
     <?php else: ?>
         <div class="inner_l">
-        <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><? } ?>
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <section id="form" class="event entry">
                 <ul id="flow">
                     <li class="active">入力</li>
@@ -176,7 +176,7 @@ if(!empty($old_input)) {
                             <li class="long_item">
                                 <p class="list_label">開催日</p>
                                 <div class="list_field f_txt list_col">
-                                    <?php foreach($event['select_course'] as $no => $course): ?>
+                                    <?php foreach ($event['select_course'] as $no => $course): ?>
                                         <p class="f_check">
                                             <?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?>
                                         </p>
@@ -206,7 +206,7 @@ if(!empty($old_input)) {
                                     <?= htmlspecialchars($errors['companion_mails']); ?>
                                 <?php endif; ?>
                             </span>
-                            <span id="other_mails_tag" <?php if(empty($mailsArray)): ?>style="display: none"<?php endif; ?>>
+                            <span id="other_mails_tag" <?php if (empty($mailsArray)): ?>style="display: none" <?php endif; ?>>
                                 <span class="error-msg" id="companion-mails-error">
                                     <?php if (!empty($errors['companion_mails'])): ?>
                                         <?= htmlspecialchars($errors['companion_mails']); ?>
@@ -215,12 +215,12 @@ if(!empty($old_input)) {
                                 <li class="list_item07 long_item">
                                     <p class="list_label">複数チケット申し込みの場合お連れ様のメールアドレス</p>
                                     <div class="list_field f_txt list_col" id="input_emails">
-                                        <?php if(!empty($mailsArray)): ?>
-                                        <?php foreach($mailsArray as $key => $mail): ?>
-                                            <p class="f_check">
-                                                <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key+1 ?>";>
-                                            </p>
-                                        <?php endforeach; ?>
+                                        <?php if (!empty($mailsArray)): ?>
+                                            <?php foreach ($mailsArray as $key => $mail): ?>
+                                                <p class="f_check">
+                                                    <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key + 1 ?>" ;>
+                                                </p>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
                                 </li>
@@ -235,10 +235,10 @@ if(!empty($old_input)) {
                                     本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
                                 </p>
                                 <div class="list_field list_col">
-                                    <?php foreach($responce['cognitions'] as $cognition): ?>
+                                    <?php foreach ($responce['cognitions'] as $cognition): ?>
                                         <p class="f_check">
                                             <label><input type="checkbox" name="trigger[]" value="<?= $cognition['id'] ?>" <?php echo in_array($cognition['id'], $triggersArray) ? 'checked' : ''; ?> /><?= htmlspecialchars($cognition['name']) ?></label>
-                                            <?php if($cognition['id'] == 1 || $cognition['id'] == 2 || $cognition['id'] == 10): ?>
+                                            <?php if ($cognition['id'] == 1 || $cognition['id'] == 2 || $cognition['id'] == 10): ?>
                                                 <span class="comment">※「その他」の欄にどこでご覧になったか具体的にご記載ください</span>
                                             <?php endif; ?>
                                         </p>
@@ -264,12 +264,12 @@ if(!empty($old_input)) {
                             <li class="list_item06 req">
                                 <p class="list_label">お支払方法</p>
                                 <div class="list_field list_row">
-                                <?php foreach($responce['paymentTypes'] as $paymentType): ?>
-                                    <label class="f_radio">
-                                        <input type="radio" name="pay_method" value="<?= $paymentType['id'] ?>" <?php if($paymentType['id'] == $payMethod): ?>checked<?php endif; ?>>
+                                    <?php foreach ($responce['paymentTypes'] as $paymentType): ?>
+                                        <label class="f_radio">
+                                            <input type="radio" name="pay_method" value="<?= $paymentType['id'] ?>" <?php if ($paymentType['id'] == $payMethod): ?>checked<?php endif; ?>>
                                             <?= $paymentType['name'] ?>
-                                    </label>
-                                <?php endforeach; ?>
+                                        </label>
+                                    <?php endforeach; ?>
                                 </div>
                             </li>
                             <span class="error-msg" id="notification_kbn-error">
@@ -282,8 +282,8 @@ if(!empty($old_input)) {
                                     今後大阪大学からのメールによるイベントのご案内を希望されますか？
                                 </p>
                                 <div class="list_field list_row">
-                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="1" <?php if("1" == $notification_kbn): ?>checked<?php endif; ?> />希望する</label>
-                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="2" <?php if("2" == $notification_kbn): ?>checked<?php endif; ?> />希望しない</label>
+                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="1" <?php if ("1" == $notification_kbn): ?>checked<?php endif; ?> />希望する</label>
+                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="2" <?php if ("2" == $notification_kbn): ?>checked<?php endif; ?> />希望しない</label>
                                 </div>
                             </li>
                             <span class="error-msg" id="note-error">
@@ -297,64 +297,64 @@ if(!empty($old_input)) {
                                     <textarea name="note"><?= htmlspecialchars($note) ?></textarea>
                                 </div>
                             </li>
-                            <?php if(!empty($errors['passage'])): ?>
-                                <?php foreach($errors['passage'] as $key => $message): ?>
-                                    <?php if(!empty($message)): ?>
+                            <?php if (!empty($errors['passage'])): ?>
+                                <?php foreach ($errors['passage'] as $key => $message): ?>
+                                    <?php if (!empty($message)): ?>
                                         <div class="error-msg"><?= htmlspecialchars($message); ?></div><br>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if($guardian_kbn): ?>
-                            <li>
-                            <span class="error-msg" id="applicant_kbn-error">
-                                <?php if (!empty($errors['applicant_kbn'])): ?>
-                                    <?= htmlspecialchars($errors['applicant_kbn']); ?>
-                                <?php endif; ?>
-                            </span>
-                            </li>
-                            <li class="long_item">
-                                <div class="list_field list_col">
-                                    <p class="f_check">
-                                        <label>
-                                        <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" <?php if(!empty($applicant_kbn)): ?> checked <?php endif ?>><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
-                                        </label>
-                                    </p>
-                                </div>
-                            </li>
-                            <span class="error-msg" id="guardian_name-error">
-                                <?php if (!empty($errors['guardian_name'])): ?>
-                                    <?= htmlspecialchars($errors['guardian_name']); ?>
-                                <?php endif; ?>
-                            </span>
-                            <li class="long_item">
-                                <p class="list_label">保護者名</p>
-                                <div class="list_field f_txt" id="guardian_name">
-                                    <input type="text" style="margin-right: 2rem" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>";>
-                                </div>
-                            </li>
-                            <span class="error-msg" id="guardian_kana-error">
-                                <?php if (!empty($errors['guardian_kana'])): ?>
-                                    <?= htmlspecialchars($errors['guardian_kana']); ?>
-                                <?php endif; ?>
-                            </span>
-                            <li class="long_item">
-                                <p class="list_label">保護者名フリガナ</p>
-                                <div class="list_field f_txt" id="guardian_kana">
-                                    <input type="text" style="margin-right: 2rem" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>";>
-                                </div>
-                            </li>
-                            <span class="error-msg" id="guardian_email-error">
-                                <?php if (!empty($errors['guardian_email'])): ?>
-                                    <?= htmlspecialchars($errors['guardian_email']); ?>
-                                <?php endif; ?>
-                            </span>
-                            <li class="long_item">
-                                <p class="list_label">保護者連絡先メールアドレス</p>
-                                <div class="list_field f_txt" id="guardian_email">
-                                    <input type="email" style="margin-right: 2rem" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>";>
-                                </div>
-                            </li>
+                            <?php if ($guardian_kbn): ?>
+                                <li>
+                                    <span class="error-msg" id="applicant_kbn-error">
+                                        <?php if (!empty($errors['applicant_kbn'])): ?>
+                                            <?= htmlspecialchars($errors['applicant_kbn']); ?>
+                                        <?php endif; ?>
+                                    </span>
+                                </li>
+                                <li class="long_item">
+                                    <div class="list_field list_col">
+                                        <p class="f_check">
+                                            <label>
+                                                <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
+                                            </label>
+                                        </p>
+                                    </div>
+                                </li>
+                                <span class="error-msg" id="guardian_name-error">
+                                    <?php if (!empty($errors['guardian_name'])): ?>
+                                        <?= htmlspecialchars($errors['guardian_name']); ?>
+                                    <?php endif; ?>
+                                </span>
+                                <li class="long_item">
+                                    <p class="list_label">保護者名</p>
+                                    <div class="list_field f_txt" id="guardian_name">
+                                        <input type="text" style="margin-right: 2rem" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" ;>
+                                    </div>
+                                </li>
+                                <span class="error-msg" id="guardian_kana-error">
+                                    <?php if (!empty($errors['guardian_kana'])): ?>
+                                        <?= htmlspecialchars($errors['guardian_kana']); ?>
+                                    <?php endif; ?>
+                                </span>
+                                <li class="long_item">
+                                    <p class="list_label">保護者名フリガナ</p>
+                                    <div class="list_field f_txt" id="guardian_kana">
+                                        <input type="text" style="margin-right: 2rem" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" ;>
+                                    </div>
+                                </li>
+                                <span class="error-msg" id="guardian_email-error">
+                                    <?php if (!empty($errors['guardian_email'])): ?>
+                                        <?= htmlspecialchars($errors['guardian_email']); ?>
+                                    <?php endif; ?>
+                                </span>
+                                <li class="long_item">
+                                    <p class="list_label">保護者連絡先メールアドレス</p>
+                                    <div class="list_field f_txt" id="guardian_email">
+                                        <input type="email" style="margin-right: 2rem" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>" ;>
+                                    </div>
+                                </li>
                             <?php endif; ?>
                         </ul>
 
@@ -391,7 +391,7 @@ if(!empty($old_input)) {
         $('#show_price').text(price.toLocaleString() + "円");
     });
 
-    document.getElementById('ticket').addEventListener('blur', function () {
+    document.getElementById('ticket').addEventListener('blur', function() {
         createInputMail();
     });
 
@@ -410,7 +410,7 @@ if(!empty($old_input)) {
             other_mails_tag.style.display = 'block';
 
             // チケット数が増えた場合、追加
-            for (let i = currentEmailFields; i < ticketCount-1; i++) {    
+            for (let i = currentEmailFields; i < ticketCount - 1; i++) {
                 const pElement = document.createElement('p');
                 pElement.classList.add('f_check');
                 const newInput = document.createElement('input');
@@ -424,10 +424,10 @@ if(!empty($old_input)) {
             }
         } else if (ticketCount <= currentEmailFields) {
             // チケット数が減った場合、余分な入力欄を削除
-            for (let i = 0; currentEmailFields-ticketCount >= i; i++) {
+            for (let i = 0; currentEmailFields - ticketCount >= i; i++) {
                 emailContainer.removeChild(emailContainer.lastChild);
             }
-            if(ticketCount == 1){
+            if (ticketCount == 1) {
                 other_mails_tag.style.display = 'none';
             }
         }
