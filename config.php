@@ -1,8 +1,4 @@
 <?php  // Moodle configuration file
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__ . "/custom");
-$dotenv->load();
 
 unset($CFG);
 global $CFG;

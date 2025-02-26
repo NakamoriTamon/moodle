@@ -11,6 +11,9 @@ use Endroid\QrCode\Writer\PngWriter;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
+
 // POSTリクエストの内容を取得
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
