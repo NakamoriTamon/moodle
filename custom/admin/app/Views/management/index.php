@@ -48,7 +48,7 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                                             <?php foreach ($admins as $index => $admin): ?>
                                                 <tr>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['id']) ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['lastname'] . ' ' . $admin['firstname']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['name']) ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['department']) ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['email']) ?></td>
                                                     <td class="ps-4 pe-4">

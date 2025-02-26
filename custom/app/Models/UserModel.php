@@ -8,10 +8,7 @@ class UserModel extends BaseModel
             try {
                 // ベースのSQLクエリ
                 $sql = "SELECT 
-                    u.id, 
-                    u.firstname, 
-                    u.lastname, 
-                    u.email, 
+                    u.*, 
                     r.id AS role_id,
                     r.shortname AS role
                 FROM mdl_user u
