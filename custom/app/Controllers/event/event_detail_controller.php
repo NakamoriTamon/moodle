@@ -3,10 +3,12 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
+$tutorModel = new TutorModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -18,6 +20,7 @@ $event = $eventModel->getEventById($id);
 $select_lecture_formats = [];
 $select_categorys = [];
 $select_courses = [];
+$select_tutor = [];
 if(!empty($event)) {
     
     foreach($event['lecture_formats'] as $lecture_format) {
@@ -42,7 +45,18 @@ if(!empty($event)) {
         }
     }
 
+    $tutor_ids = [];
     foreach($event['course_infos'] as $select_course) {
         $event['select_course'][$select_course['no']] = $select_course;
+        if(isset($select_course['details'])) {
+            $tutor_id = $select_course['details'][0]['tutor_id'];
+            if(count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))){
+                $tutor_ids[] = $tutor_id;
+            }
+        }
     }
+    foreach($tutor_ids as $tutor_id) {
+        $select_tutor[] = $tutorModel->getTutorsById($tutor_id);
+    }
+
 }

@@ -95,7 +95,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 																<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 																<?= "第" . $i . "回" ?>
 															</option>
-														<? } ?>
+														<?php } ?>
 													</select>
 												</div>
 											</div>

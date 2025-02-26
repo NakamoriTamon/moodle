@@ -5,7 +5,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller
 
 $event_statuses = EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
- ?>
+?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
 <main id="subpage">
@@ -23,8 +23,8 @@ $old_input = $_SESSION['old_input'] ?? [];
                         <li>
                             <p class="term">開催ステータス</p>
                             <div class="field f_check">
-                                <?php foreach(EVENT_STATUS_LIST as $key => $name): ?>
-                                    <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if(isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                                <?php foreach (EVENT_STATUS_LIST as $key => $name): ?>
+                                    <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
                                 <?php endforeach; ?>
                             </div>
                         </li>
@@ -34,8 +34,8 @@ $old_input = $_SESSION['old_input'] ?? [];
                                 ステータス
                             </p>
                             <div class="field f_check">
-                                <?php foreach(DEADLINE_LIST as $key => $name): ?>
-                                    <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if(isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                                <?php foreach (DEADLINE_LIST as $key => $name): ?>
+                                    <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
                                 <?php endforeach; ?>
                             </div>
                         </li>
@@ -43,7 +43,7 @@ $old_input = $_SESSION['old_input'] ?? [];
                             <p class="term">イベント形式</p>
                             <div class="field f_check">
                                 <?php foreach ($lectureFormats as $lectureFormat): ?>
-                                    <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if(isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
+                                    <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if (isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
                                 <?php endforeach; ?>
                             </div>
                         </li>
@@ -59,33 +59,35 @@ $old_input = $_SESSION['old_input'] ?? [];
                         <li>
                             <p class="term">キーワード</p>
                             <div class="field f_txt">
-                                <input type="text" name="keyword" value="<?php if(isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
+                                <input type="text" name="keyword" value="<?php if (isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
                             </div>
                         </li>
                         <li>
                             <p class="term">開催日時</p>
                             <div class="field f_date">
                                 <p>
-                                    <input type="date" name="event_start_date" value="<?php if(isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
+                                    <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
                                 </p>
                                 <span>～</span>
                                 <p>
-                                    <input type="date" name="event_end_date" value="<?php if(isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
+                                    <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
                                 </p>
                             </div>
                         </li>
                         <li>
                             <p class="term">カテゴリー</p>
                             <div class="field" id="category">
-                                <?php foreach($categorys as $row): ?>
-                                    <div class="cat_item category0<?= htmlspecialchars($row['id'])?>">
-                                        <input type="checkbox" id="cat0<?= htmlspecialchars($row['id'])?>" name="category[]" value="<?= htmlspecialchars($row['id'])?>" <?php if(isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
-                                        <label for="cat0<?= htmlspecialchars($row['id'])?>" class="cat_btn">
-                                            <object
-                                                type="image/svg+xml"
-                                                data="/custom/public/assets/common/img/icon_cat0<?= htmlspecialchars($row['id'])?>.svg"
-                                                class="obj"></object>
-                                            <p class="txt"><?= htmlspecialchars($row['name'])?></p>
+                                <?php foreach ($categorys as $row): ?>
+                                    <div class="cat_item category0<?= htmlspecialchars($row['id']) ?>">
+                                        <input type="checkbox" id="cat0<?= htmlspecialchars($row['id']) ?>" name="category[]" value="<?= htmlspecialchars($row['id']) ?>" <?php if (isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
+                                        <label for="cat0<?= htmlspecialchars($row['id']) ?>" class="cat_btn <?= empty($row['path']) ? 'justify_center' : ''; ?>">
+                                            <?php if (!empty($row['path'])) { ?>
+                                                <object
+                                                    type="image/svg+xml"
+                                                    data="<?= htmlspecialchars($row['path']) ?>"
+                                                    class="obj"></object>
+                                            <?php } ?>
+                                            <p class="txt"><?= htmlspecialchars($row['name']) ?></p>
                                         </label>
                                     </div>
                                 <?php endforeach; ?>
@@ -104,8 +106,8 @@ $old_input = $_SESSION['old_input'] ?? [];
         <section id="result">
             <h3 class="ttl_event">検索結果 <?= htmlspecialchars($totalCount) ?>件</h3>
             <ul class="result_list" id="event">
-                <?php if(isset($events) && !empty($events)): ?>
-                    <?php foreach($events as $row): ?>
+                <?php if (isset($events) && !empty($events)): ?>
+                    <?php foreach ($events as $row): ?>
                         <li class="event_item">
                             <a href="detail.php?id=<?= $row['id'] ?>">
                                 <figure class="img"><img src="<?= htmlspecialchars($row['thumbnail_img']); ?>" alt="" /></figure>
@@ -118,14 +120,14 @@ $old_input = $_SESSION['old_input'] ?? [];
                                     <div class="event_sched">
                                         <p class="term">開催日</p>
                                         <div class="date">
-                                            <?php foreach($row['select_course'] as $no => $course): ?>
+                                            <?php foreach ($row['select_course'] as $no => $course): ?>
                                                 <p class="dt01"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
                                     <ul class="event_category">
-                                        <?php foreach($row['select_categorys'] as $select_category ): ?>
-                                            <li><?php if(in_array($select_category ,array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category ,array_column($categorys, 'id'))]['name'] ?></li>
+                                        <?php foreach ($row['select_categorys'] as $select_category): ?>
+                                            <li><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category, array_column($categorys, 'id'))]['name'] ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -136,13 +138,13 @@ $old_input = $_SESSION['old_input'] ?? [];
             </ul>
             <ul class="result_pg">
                 <?php if ($currentPage >= 1 && $totalCount > 10): ?>
-                    <li><a href="?page=<?= intval($currentPage)-1 ?>" class="prev"></a></li>
+                    <li><a href="?page=<?= intval($currentPage) - 1 ?>" class="prev"></a></li>
                 <?php endif; ?>
-                <?php for ($i = 1; $i <= ceil($totalCount/10); $i++): ?>
+                <?php for ($i = 1; $i <= ceil($totalCount / 10); $i++): ?>
                     <li><a href="?page=<?= $i ?>" class="num <?= $i == $currentPage ? 'active' : '' ?>"><?= $i ?></a></li>
                 <?php endfor; ?>
                 <?php if ($currentPage >= 0 && $totalCount > 10): ?>
-                    <li><a href="?page=<?= intval($currentPage)+1 ?>" class="next"></a></li>
+                    <li><a href="?page=<?= intval($currentPage) + 1 ?>" class="next"></a></li>
                 <?php endif; ?>
             </ul>
         </section>
@@ -157,7 +159,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script>
-    document.getElementById('clear_button').addEventListener('click', function () {
+    document.getElementById('clear_button').addEventListener('click', function() {
         document.getElementById('search_cont').reset();
     });
 </script>

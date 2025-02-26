@@ -2,7 +2,10 @@
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/lib/moodlelib.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
+require_once('/var/www/html/moodle/lib/accesslib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+
+use core\context\system as context_system;
 
 $lastname = $_POST['lastname'] ?? null;
 $firstname = $_POST['firstname'] ?? null;
@@ -41,7 +44,6 @@ if ($lastname_error || $firstname_error || $department_error || $email_error || 
             $baseModel = new BaseModel();
             $pdo = $baseModel->getPdo();
             $pdo->beginTransaction();
-            
             // $itmt = $pdo->prepare("
             //     INSERT INTO mdl_user (
             //         username, auth, confirmed, lastname, firstname, name, name_kana,
@@ -51,8 +53,8 @@ if ($lastname_error || $firstname_error || $department_error || $email_error || 
             //         :email, :password, :department, :timecreated, :timemodified, :lang
             //     )
             // ");
-            
-            
+
+
             // $itmt->execute([
             //     ':username' => strtolower($lastname . '.' . $firstname . time()) // 例: john.doe1672901234
             //     , ':auth' => 'manual' // 手動認証
@@ -87,7 +89,7 @@ if ($lastname_error || $firstname_error || $department_error || $email_error || 
             $new_user->lang = LANG_DEFAULT;
             $new_user->name = $lastname . ' ' . $firstname; // 氏名（姓 名）
             $new_user->name_kana = ''; // 仮で入れる or フォーム入力で受け取る
-            $user_id = $DB->insert_record('user', $new_user);
+            $user_id = $DB->insert_record_raw('user', $new_user, true);
 
             // 管理者ロールを割り当てる
             $admin_role = $DB->get_record('role', ['shortname' => 'coursecreator']); // もしくは 'admin'
@@ -95,7 +97,6 @@ if ($lastname_error || $firstname_error || $department_error || $email_error || 
             role_assign($admin_role->id, $user_id, $context->id);
 
             $siteadmins = explode(',', get_config('moodle', 'siteadmins'));
-            
             // 管理者IDがすでに存在しない場合のみ追加
             if (!in_array($user_id, $siteadmins)) {
                 $siteadmins[] = $user_id;
@@ -115,4 +116,3 @@ if ($lastname_error || $firstname_error || $department_error || $email_error || 
     header('Location: /custom/admin/app/Views/login/result.php');
     exit;
 }
-?>

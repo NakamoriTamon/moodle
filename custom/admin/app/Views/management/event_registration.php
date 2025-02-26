@@ -102,6 +102,7 @@
                                                 <th class="ps-4 pe-4">決済状況</th>
                                                 <th class="ps-4 pe-4">決済日</th>
                                                 <th class="ps-4 pe-4">申込日</th>
+                                                <th class="ps-4 pe-4">参加状態</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -116,6 +117,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="" selected>参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -128,6 +135,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/6/5</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="" selected>参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -140,6 +153,12 @@
                                                 <td class="ps-4 pe-4 text-danger">未決済</td>
                                                 <td class="ps-4 pe-4">2024/10/21</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="" selected>参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -152,6 +171,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/4/1</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="">参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -164,6 +189,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/4/1</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="" selected>参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -176,6 +207,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/4/1</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="" selected>参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -188,6 +225,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/4/1</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="">参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="ps-4 pe-4">1</td>
@@ -200,6 +243,12 @@
                                                 <td class="ps-4 pe-4">決済済</td>
                                                 <td class="ps-4 pe-4">2024/4/1</td>
                                                 <td class="ps-4 pe-4">2024/12/20</td>
+                                                <td class="ps-4 pe-4">
+                                                    <select class="form-control min-100">
+                                                        <option value="">未参加</option>
+                                                        <option value="">参加済</option>
+                                                    </select>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -6,6 +6,9 @@ require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php')
 require_once('/var/www/html/moodle/custom/app/Models/EventCustomFieldModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CognitionModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
+require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
 class EventApplicationController {
 
@@ -14,6 +17,8 @@ class EventApplicationController {
     private $cognitionModel;
     private $paymentTypeModel;
     private $eventApplicationModel;
+    private $categoryModel;
+    private $lectureFormatModel;
 
     public function __construct()
     {
@@ -22,10 +27,52 @@ class EventApplicationController {
         $this->cognitionModel = new CognitionModel();
         $this->paymentTypeModel = new PaymentTypeModel();
         $this->eventApplicationModel = new EventApplicationModel();
+        $this->categoryModel = new CategoryModel();
+        $this->lectureFormatModel = new LectureFormatModel();
     }
     
-    public function getEvenApplication($eventId) {
-        $event = $this->eventModel->getEventById($eventId);
+    public function getEvenApplication($eventId, $courseInfoId, $formdata) {
+        if(!empty($courseInfoId)) {
+            $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+        } else {
+            $event = $this->eventModel->getEventById($eventId);
+        }
+        
+        $categorys = $this->categoryModel->getCategories();
+        $lectureFormats = $this->lectureFormatModel->getLectureFormats();
+
+        $select_lecture_formats = [];
+        $select_categorys = [];
+        $select_courses = [];
+        if(!empty($event)) {
+            
+            foreach($event['lecture_formats'] as $lecture_format) {
+                $lecture_format_id = $lecture_format['lecture_format_id'];
+            
+                foreach ($lectureFormats as $lectureFormat) {
+                    if ($lectureFormat['id'] == $lecture_format_id) {
+                        $select_lecture_formats[] = $lectureFormat;
+                        break;
+                    }
+                }
+            }
+        
+            foreach($event['categorys'] as $select_category) {
+                $category_id = $select_category['category_id'];
+            
+                foreach ($categorys as $category) {
+                    if ($category['id'] == $category_id) {
+                        $select_categorys[] = $category;
+                        break;
+                    }
+                }
+            }
+        
+            foreach($event['course_infos'] as $select_course) {
+                $event['select_course'][$select_course['no']] = $select_course;
+            }
+        }
+        
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
         $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)['sum_ticket_count'] ?? 0;
 
@@ -35,30 +82,54 @@ class EventApplicationController {
         $passage = '';
         $checked = '';
         $customfield_type_list = CUSTOMFIELD_TYPE_LIST;
+        $params = null;
+        if(!is_null($formdata) && isset($formdata['params'])) {
+            $params = $formdata['params'];
+        }
         foreach ($fieldList as $fields) {
-            $passage .= '<label class="label_name" for="name">' . $fields['field_name'] . '</label>';
-            if ($fields['field_type'] == 3 || $fields['field_type'] == 4) {
-                $passage .= '<div class="radio-group">';
+            $passage .= '<li class="long_item"><p class="list_label">' . $fields['field_name'] . '</p>';
+            if ($fields['field_type'] == 3) {
+                $passage .= '<div class="list_field list_col">';
                 $options = explode(",", $fields['selection']);
                 foreach ($options as $i => $option) {
                     $name = "";
-                    if ($fields['field_type'] == 4) {
-                        // $checked = ($i == 0) ? 'checked' : '';
-                        $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+                    $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+                    $checked_param = is_null($params) ? [] : $params[$name];
+                    $checked = isChoicesSelected($option, $checked_param, null) ? 'checked' : '';
+                    $name .= '[]';
+                    $passage .= '<p class="f_check"><label><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label></p>';
+                }
+                $passage .= '</div>';
+                continue;
+            }
+            if ($fields['field_type'] == 4) {
+                $passage .= '<div class="list_field list_row">';
+                $options = explode(",", $fields['selection']);
+                foreach ($options as $i => $option) {
+                    $name = "";
+                    $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+                    $checked_param = is_null($params) || !isset($params[$name]) ? "" : $params[$name];
+                    if(!is_null($params)) {
+                        $checked = isSelected($option, $checked_param, null) ? 'checked' : '';
                     } else {
-                        $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '[]';
+                        $checked = '';
                     }
-                    $passage .= '<label class="label_d_flex"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $i+1 . '"' . $checked . '>' . $option . '</label>';
+
+                    $passage .= '<label class="f_radio"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label>';
                 }
                 $passage .= '</div>';
                 continue;
             }
             if ($fields['field_type'] == 2) {
-                $passage .= '<textarea name="' . $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '" rows="4" cols="50"></textarea>';
+                $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+                $value = is_null($params) ? "" : $params[$name];
+                $passage .= '<div class="list_field f_txtarea"><textarea name="' . $name . '" rows="4" cols="50">' . $value . '</textarea></div>';
                 continue;
             }
             if ($fields['field_type'] == 1 || $fields['field_type'] == 5) {
-                $passage .= '<input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'] . '">';
+                $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+                $value = is_null($params) ? "" : $params[$name];
+                $passage .= '<div class="list_field list_col"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $value . '"></div>';
                 continue;
             }
         }

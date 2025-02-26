@@ -2,11 +2,13 @@
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/event/EventApplicationController.php');
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
+$courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 if (isset($SESSION->formdata) && is_null($eventId)) {
     $eventId = isset($SESSION->formdata) ? $SESSION->formdata['id'] : null;
+    $courseInfoId = isset($SESSION->formdata) ? $SESSION->formdata['course_info_id'] : null;
 }
 $eventApplicationController = new EventApplicationController();
-$responce = $eventApplicationController->getEvenApplication($eventId);
+$responce = $eventApplicationController->getEvenApplication($eventId, $courseInfoId);
 
 $aki_ticket = $responce['event']['capacity'] - $responce['sum_ticket_count'];
 
