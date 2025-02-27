@@ -184,7 +184,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                 <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
                     <object
                         type="image/svg+xml"
-                        data="/custom/public/assets/common/img/icon_qr.svg"
+                        data="/custom/public/assets/common/img/icon_qr_pay.svg"
                         class="obj obj_pay"></object>
                     <object
                         type="image/svg+xml"
@@ -212,11 +212,11 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                 <a href="" class="info_wrap_qr">
                     <object
                         type="image/svg+xml"
-                        data="../assets/common/img/icon_qr_pay.svg"
+                        data="/custom/public/assets/common/img/icon_qr_pay.svg"
                         class="obj obj_pay"></object>
                     <object
                         type="image/svg+xml"
-                        data="../assets/common/img/icon_qr.svg"
+                        data="/custom/public/assets/common/img/icon_qr.svg"
                         class="obj obj_no"></object>
                     <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
                 </a>
