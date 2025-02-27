@@ -70,7 +70,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                             <p class="list_label">郵便番号（ハイフンなし）</p>
                             <div class="list_field f_txt a">
                                 <div class="post_code">
-                                    <input type="text" id="zip" readonly name="post_code" maxlength="7" pattern="\d{7}"
+                                    <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
                                         value="<?= htmlspecialchars($old_input['post_code'] ?? '') ?>"
                                         pattern="[0-9]*" inputmode="numeric"
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '');">
