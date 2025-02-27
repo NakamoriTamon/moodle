@@ -194,8 +194,8 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
 </div>
 
 <ul id="pankuzu" class="inner_l">
-    <li><a href="/custom/public/index.php">トップページ</a></li>
-    <li><a href="index.html">イベント一覧</a></li>
+    <li><a href="/custom/app/Views/index.php">トップページ</a></li>
+    <li><a href="/custom/app/Views/event/index.php">イベント一覧</a></li>
     <li>○○○○講座名が入ります</li>
 </ul>
 
