@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/MypageController.php');
 
@@ -34,20 +34,20 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
     <!-- heading -->
     <section id="mypage" class="inner_l">
         <?php if ($tekijuku_commemoration !== false): ?>
-        <div id="card">
-            <p class="card_head">適塾記念会デジタル会員証</p>
-            <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
-            <p class="card_name"><?php echo $tekijuku_commemoration_name; ?></p>
-            <p class="card_id"><?php echo $tekijuku_commemoration_number; ?></p>
-            <ul class="card_desc">
-                <li>・本会員証は他人への貸与や譲渡はできません。</li>
-                <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
-            </ul>
-            <div class="card_pres">
-                <p class="card_pres_pos">適塾記念会会長</p>
-                <p class="card_pres_name">熊ノ郷 淳</p>
+            <div id="card">
+                <p class="card_head">適塾記念会デジタル会員証</p>
+                <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
+                <p class="card_name"><?php echo $tekijuku_commemoration_name; ?></p>
+                <p class="card_id"><?php echo $tekijuku_commemoration_number; ?></p>
+                <ul class="card_desc">
+                    <li>・本会員証は他人への貸与や譲渡はできません。</li>
+                    <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
+                </ul>
+                <div class="card_pres">
+                    <p class="card_pres_pos">適塾記念会会長</p>
+                    <p class="card_pres_name">熊ノ郷 淳</p>
+                </div>
             </div>
-        </div>
         <?php endif; ?>
         <div id="form" class="mypage_cont">
             <h3 class="mypage_head">知の広場 会員情報</h3>
@@ -65,7 +65,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                     <input type="text" name="name" value="<?php echo htmlspecialchars($userData->name); ?>" />
                                     <?php if (!empty($errors['name'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
-                                    <?php endif; ?>    
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item03 req">
@@ -74,7 +74,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                     <input type="text" name="name_kana" value="<?php echo htmlspecialchars($userData->name_kana); ?>" />
                                     <?php if (!empty($errors['name_kana'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
-                                    <?php endif; ?>    
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item04 req">
@@ -82,7 +82,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                 <div class="list_field f_txt">
                                     <select name="city" class="select">
                                         <?php foreach ($prefectures as $prefecture): ?>
-                                            <option value="<?php echo htmlspecialchars($prefecture); ?>" 
+                                            <option value="<?php echo htmlspecialchars($prefecture); ?>"
                                                 <?php echo ($userData->city == $prefecture) ? 'selected' : ''; ?>>
                                                 <?php echo htmlspecialchars($prefecture); ?>
                                             </option>
@@ -90,50 +90,50 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                     </select>
                                     <?php if (!empty($errors['city'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
-                                    <?php endif; ?>    
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item05 req">
                                 <p class="list_label">メールアドレス</p>
                                 <div class="list_field f_txt">
-                                    <input type="email" name="email" value="<?php echo htmlspecialchars($userData->email); ?>" 
-                                        inputmode="email" 
-                                        autocomplete="email" 
+                                    <input type="email" name="email" value="<?php echo htmlspecialchars($userData->email); ?>"
+                                        inputmode="email"
+                                        autocomplete="email"
                                         oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
                                     <?php if (!empty($errors['email'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
-                                    <?php endif; ?> 
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item06">
                                 <p class="list_label">パスワード（変更時のみ入力）</p>
                                 <div class="list_field f_txt">
                                     <input type="password" name="password" />
-                                    
+
                                     <?php if (!empty($errors['password'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
-                                    <?php endif; ?> 
+                                    <?php endif; ?>
 
                                     <p class="note">
                                         8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
                                     </p>
                                     <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
-                                    
+
                                 </div>
                             </li>
                             <li class="list_item07 req">
                                 <p class="list_label">電話番号（ハイフンなし）</p>
                                 <div class="list_field f_txt">
-                                    <input type="text"  
-                                        maxlength="15" 
-                                        pattern="[0-9]*" 
-                                        inputmode="numeric" 
-                                        name="phone" 
-                                        value="<?php echo htmlspecialchars($userData->phone1); ?>" 
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');"/>
+                                    <input type="text"
+                                        maxlength="15"
+                                        pattern="[0-9]*"
+                                        inputmode="numeric"
+                                        name="phone"
+                                        value="<?php echo htmlspecialchars($userData->phone1); ?>"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                     <?php if (!empty($errors['phone'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['phone']); ?></div>
-                                    <?php endif; ?> 
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item08 req">
@@ -142,7 +142,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                     <input type="date" name="birthday" value="<?php echo htmlspecialchars($birthday); ?>" />
                                     <?php if (!empty($errors['birthday'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
-                                    <?php endif; ?> 
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <li class="list_item09 long_item">
@@ -151,7 +151,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                                     <textarea name="description"><?php echo htmlspecialchars($userData->description); ?></textarea>
                                     <?php if (!empty($errors['description'])): ?>
                                         <div class=" text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
-                                    <?php endif; ?> 
+                                    <?php endif; ?>
                                 </div>
                             </li>
                         </ul>
@@ -184,11 +184,11 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
                 <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
                     <object
                         type="image/svg+xml"
-                        data="../assets/common/img/icon_qr_pay.svg"
+                        data="/custom/public/assets/common/img/icon_qr.svg"
                         class="obj obj_pay"></object>
                     <object
                         type="image/svg+xml"
-                        data="../assets/common/img/icon_qr.svg"
+                        data="/custom/public/assets/common/img/icon_qr.svg"
                         class="obj obj_no"></object>
                     <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
                 </a>
