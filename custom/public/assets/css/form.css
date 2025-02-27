@@ -304,6 +304,18 @@
   margin-top: 60px;
 }
 
+/*-------------------------------------
+tekijuku
+-------------------------------------*/
+.checkbox_label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#subpage #is_subscription_area{
+  display: none;
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
