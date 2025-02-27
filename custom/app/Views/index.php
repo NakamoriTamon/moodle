@@ -52,7 +52,7 @@
         <span class="en">NEW ARRIVAL</span>
         新着イベント
       </h2>
-      <a href="event/index.php" class="btn btn_blue arrow nosp">全てのイベントを見る</a>
+      <a href="/custom/app/Views/event/index.php" class="btn btn_blue arrow nosp">全てのイベントを見る</a>
     </div>
     <div class="swiper new_swiper">
       <ul class="swiper-wrapper" id="event">
@@ -163,7 +163,7 @@
         <div class="swiper-button-next"></div>
       </div>
     </div>
-    <a href="event/index.html" class="btn btn_blue arrow nopc">全てのイベントを見る</a>
+    <a href="/custom/app/Views/event/index.php" class="btn btn_blue arrow nopc">全てのイベントを見る</a>
   </section>
   <!-- new -->
 

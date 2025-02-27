@@ -10,6 +10,7 @@ class UserModel extends BaseModel
                 $sql = "SELECT 
                     u.*, 
                     r.id AS role_id,
+                    r.sortorder AS role_sortorder,
                     r.shortname AS role
                 FROM mdl_user u
                 JOIN mdl_role_assignments ra ON u.id = ra.userid

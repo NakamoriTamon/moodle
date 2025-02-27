@@ -12,9 +12,9 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
     <section id="heading" class="inner_l">
         <?php if ($result) { ?>
             <h2 class="head_ttl" data-en="REGISTRATION SUCCESSFUL">本登録完了</h2>
-        <? } else { ?>
+        <?php } else { ?>
             <h2 class="head_ttl" data-en="REGISTRATION FATAL">本登録失敗</h2>
-        <? } ?>
+        <?php } ?>
     </section>
     <!-- heading -->
 
@@ -28,11 +28,11 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
                 <p class="cpt_txt"><?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?></p>
                 <p class="sent">
                     <?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?><br />
-                    <? if ($result) { ?>
+                    <?php if ($result) { ?>
                         ログイン画面からログインして<br class="pc" />システムをご利用ください
-                    <? } else { ?>
+                    <?php } else { ?>
                         再度手続きしてください。<br class="pc" />
-                    <? } ?>
+                    <?php } ?>
                 </p>
             </div>
             <a href="../index.php" class="btn btn_blue arrow box_bottom_btn">TOPへ戻る</a>
