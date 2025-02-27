@@ -51,17 +51,17 @@
                     </div>
                 </li>
             </ul>
-            <a href="" class="btn btn_blue arrow box_bottom_btn">前へ戻る</a>
+            <a href="/custom/app/Views/mypage/index.php" class="btn btn_blue arrow box_bottom_btn">前へ戻る</a>
             <!-- 多い場合ページネーション必要ですか？必要であれば復活してください -->
-            <!-- <ul class="result_pg">
-            <li><a href="" class="prev"></a></li>
-            <li><a href="" class="num active">1</a></li>
-            <li><a href="" class="num">2</a></li>
-            <li><a href="" class="num">3</a></li>
-            <li><a href="" class="num">4</a></li>
-            <li><a href="" class="num">5</a></li>
-            <li><a href="" class="next"></a></li>
-          </ul> -->
+            <ul class="result_pg">
+                <li><a href="" class="prev"></a></li>
+                <li><a href="" class="num active">1</a></li>
+                <li><a href="" class="num">2</a></li>
+                <li><a href="" class="num">3</a></li>
+                <li><a href="" class="num">4</a></li>
+                <li><a href="" class="num">5</a></li>
+                <li><a href="" class="next"></a></li>
+            </ul>
         </section>
         <!-- result -->
     </div>

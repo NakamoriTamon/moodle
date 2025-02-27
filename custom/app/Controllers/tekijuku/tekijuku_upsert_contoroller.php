@@ -89,30 +89,9 @@ try {
 
     // セッションURLが取得できたらリダイレクト
     if (isset($result['session_url'])) {
-
-            // cURLオプションの設定
-//     $ch2 = curl_init('https://komoju.com/api/v1/sessions/' . $result['id'] . '/pay');
-//     $data = [
-//         'payment_types' => [$payment_method_list[$payment_method]], // 利用可能な決済手段
-//         'payment_details' => [
-//             'type' => 'credit_card', // 支払い方法のタイプ
-//             'number' => '4111111111111111', // カード番号
-//             'name' => 'TEST CARD', // カード所有者の名前（任意）
-//             'month' => '12', // 有効期限の月
-//             'year' => '25', // 有効期限の年（下2桁）
-//             'verification_value' => '123', // CVV（任意）
-//         ]
-//     ];
-//     curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true); // レスポンスを文字列で返す
-//     curl_setopt($ch2, CURLOPT_HTTPHEADER, $headers); // ヘッダーを設定
-//     curl_setopt($ch2, CURLOPT_POST, true); // POSTメソッド
-//     curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($data)); // POSTデータ
-
-//     $response2 = curl_exec($ch2);
-// var_dump($response2);
         $transaction->allow_commit();
         unset($_SESSION['old_input']);
-        // header("Location: " . $result['session_url']);
+        header("Location: " . $result['session_url']);
         exit;
     } else {
         throw new Exception("決済ページ取得に失敗しました");
