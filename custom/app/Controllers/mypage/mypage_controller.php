@@ -42,7 +42,12 @@ class MypageController {
                 ea.id AS event_application_id,
                 ea.event_id,
                 ea.user_id,
+                ea.price,
+                ea.ticket_count,
+                ea.payment_date,
+                e.id AS event_id,
                 e.name AS event_name,
+                e.venue_name AS venue_name,
                 ci.id AS course_id,
                 ci.course_date AS course_date
             FROM 
