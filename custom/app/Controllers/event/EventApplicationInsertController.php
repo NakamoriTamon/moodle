@@ -101,8 +101,12 @@ $pay_method = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOT
 $_SESSION['errors']['pay_method'] = validate_select($pay_method, '支払方法', true); // バリデーションチェック
 $note = htmlspecialchars(optional_param('note', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['note'] = validate_textarea($note, '備考欄', false);
-$companion_mails = htmlspecialchars(optional_param('companion_mails', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$companion_mails = explode(',', $companion_mails);
+if($ticket > 1) {
+    $companion_mails = htmlspecialchars(optional_param('companion_mails', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+    $companion_mails = explode(',', $companion_mails);
+} else {
+    $companion_mails = [];
+}
 $_SESSION['errors']['companion_mails'] = null;
 $mails = [];
 $mails[] = $email;
@@ -283,7 +287,7 @@ if ($result) {
                 foreach($mails as $mail) {
                     foreach ($select_courses as $courses) {
                         $itmt3->execute([
-                            ':event_id' => $event_id,
+                            ':event_id' => $eventId,
                             ':event_application_id' => $eventApplicationId,
                             ':course_info_id' => $courses['id'], // 空白を除去
                             ':participant_mail' => $mail
