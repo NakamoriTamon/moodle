@@ -48,14 +48,14 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                                             <?php foreach ($admins as $index => $admin): ?>
                                                 <tr>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['id']) ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['lastname'] . ' ' . $admin['firstname']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($admin['name']) ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['department']) ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($admin['email']) ?></td>
                                                     <td class="ps-4 pe-4">
                                                         <input type="hidden" name="users[<?= $index ?>][id]" value="<?= htmlspecialchars($admin['id']) ?>">
                                                         <select name="users[<?= $index ?>][role_id]" class="form-control">
                                                             <?php foreach (ROLES as $key => $role): ?>
-                                                                <option value=<?= htmlspecialchars($key) ?> <?php if ($key == $admin['role_id']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
+                                                                <option value=<?= htmlspecialchars($key) ?> <?php if ($key == $admin['role_sortorder']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
                                                             <?php endforeach ?>
                                                         </select>
                                                     </td>

@@ -208,7 +208,7 @@ if($_SESSION['errors']['ticket']
 || $_SESSION['errors']['guardian_name']
 || $_SESSION['errors']['guardian_kana']
 || $_SESSION['errors']['guardian_email']
-|| empty($_SESSION['errors']['passage'])) {
+|| (!empty($event_customfield_category_id) && empty($_SESSION['errors']['passage']))) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if(isset($params)) {
         $SESSION->formdata = ['params' => $params];

@@ -50,6 +50,9 @@
   align-items: center; /* ボタンを縦方向に中央揃え */
   margin-top: 20px; /* ボタンと上の要素との間隔を調整 */
 }
+#entry_btn-container{
+  margin-top: 30px;
+}
 
 /*  mobile & smart phone
 ---------------------------------------------- */

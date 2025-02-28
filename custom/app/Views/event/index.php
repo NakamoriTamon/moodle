@@ -5,6 +5,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller
 
 $event_statuses = EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
+unset($SESSION->formdata);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -109,7 +110,7 @@ $old_input = $_SESSION['old_input'] ?? [];
                 <?php if (isset($events) && !empty($events)): ?>
                     <?php foreach ($events as $row): ?>
                         <li class="event_item">
-                            <a href="detail.php?id=<?= $row['id'] ?>">
+                            <a href="/custom/app/Views/event/detail.php?id=<?= $row['id'] ?>">
                                 <figure class="img"><img src="<?= htmlspecialchars($row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
@@ -153,7 +154,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 </main>
 
 <ul id="pankuzu" class="inner_l">
-    <li><a href="../index.php">トップページ</a></li>
+    <li><a href="/custom/app/Views/index.php">トップページ</a></li>
     <li>イベント一覧</li>
 </ul>
 

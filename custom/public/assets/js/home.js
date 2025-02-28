@@ -71,3 +71,7 @@ $(document).ready(function () {
     }
   });
 });
+
+document.getElementById('clear_button').addEventListener('click', function() {
+  document.getElementById('search_cont').reset();
+});

@@ -8,7 +8,11 @@ class EventApplicationModel extends BaseModel
             try {
                 $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_application WHERE id = ?");
                 $stmt->execute([$id]);
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $eventApplication = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $eventApplication["course_infos"] = $this->getEventApplicationCourseInfos($id);
+
+                return $eventApplication;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }
@@ -79,6 +83,25 @@ class EventApplicationModel extends BaseModel
         return [];
     }
 
-    // カスタムフィールド登録
-    public function insertEventCustomField($eventId, $fieldName, $name, $sort, $fieldType, $fieldOptions) {}
+    // イベントIDに基づいて講座を取得
+    private function getEventApplicationCourseInfos($eventApplicationID)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT eaci.id, ci.no, ci.course_date, eaci.course_info_id, eaci.participant_mail, eaci.participation_kbn FROM mdl_event_application_course_info eaci 
+                    LEFT JOIN mdl_course_info ci ON ci.id = eaci.course_info_id WHERE eaci.event_application_id = :eventApplicationID");
+                $stmt->bindParam(':eventApplicationID', $eventApplicationID, PDO::PARAM_INT);
+                $stmt->execute();
+                $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                return $course_infos;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 }

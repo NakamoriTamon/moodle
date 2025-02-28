@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 
@@ -47,7 +47,6 @@ unset($_SESSION['old_input']);
                 <p class="card_pres_pos">適塾記念会会長</p>
                 <p class="card_pres_name">熊ノ郷 淳</p>
             </div>
-        </div>
         <?php endif; ?>
         <div id="user_form">
             <div id="form" class="mypage_cont">

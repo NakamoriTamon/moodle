@@ -43,7 +43,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 											<option value="">すべて</option>
 											<?php foreach ($categorys as $category): ?>
 												<option value="<?= htmlspecialchars($category['id']) ?>"
-												<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
+													<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
 													<?= htmlspecialchars($category['name']) ?>
 												</option>
 											<?php endforeach; ?>
@@ -56,7 +56,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 											<?php foreach ($event_statuses as $id => $name): ?>
 												<option value="<?= htmlspecialchars($id) ?>"
 													<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
-														<?= htmlspecialchars($name) ?>
+													<?= htmlspecialchars($name) ?>
 												</option>
 											<?php endforeach; ?>
 										</select>
@@ -66,13 +66,13 @@ $old_input = $_SESSION['old_input'] ?? [];
 									<label class="form-label" for="notyf-message">イベント名</label>
 									<select name="event_id" class="form-control">
 										<option value="">すべて</option>
-										<?php if(isset($events) && !empty($events)): ?>
-										<?php foreach ($events as $event): ?>
-											<option value="<?= htmlspecialchars($event['id']) ?>"
-											<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
-												<?= htmlspecialchars($event['name']) ?>
-											</option>
-										<?php endforeach; ?>
+										<?php if (isset($events) && !empty($events)): ?>
+											<?php foreach ($events as $event): ?>
+												<option value="<?= htmlspecialchars($event['id']) ?>"
+													<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+													<?= htmlspecialchars($event['name']) ?>
+												</option>
+											<?php endforeach; ?>
 										<?php endif; ?>
 									</select>
 								</div>
@@ -104,30 +104,30 @@ $old_input = $_SESSION['old_input'] ?? [];
 											</tr>
 										</thead>
 										<tbody>
-											<?php if(isset($events) && !empty($events)): ?>
-											<?php foreach($events as $key => $event): ?>
-												<tr>
-													<td class="ps-4 pe-4"><?= htmlspecialchars($event['id']); ?></td>
-													<td class="ps-4 pe-4"><?= htmlspecialchars($event['name']); ?></td>
-													<td class="ps-4 pe-4"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
-													<td class="ps-4 pe-4">
-														<?php foreach ($event['lecture_formats'] as $key => $lecture_format): ?>
-															<?php if ($key == 0): ?>
-																<?= htmlspecialchars($lecture_format['name']); ?>
-															<?php else: ?>
-																, <?= htmlspecialchars($lecture_format['name']); ?>
-															<?php endif; ?>
-														<?php endforeach; ?>
-													</td>
-													<td class="ps-4 pe-4"><?= htmlspecialchars($event['venue_name']); ?></td>
-													<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['capacity'])); ?>人</td>
-													<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['participation_fee'])); ?>円</td>
-													<td class="text-center ps-4 pe-4 text-nowrap">
-														<a  href="upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-														<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
-													</td>
-												</tr>
-											<?php endforeach; ?>
+											<?php if (isset($events) && !empty($events)): ?>
+												<?php foreach ($events as $key => $event): ?>
+													<tr>
+														<td class="ps-4 pe-4"><?= htmlspecialchars($event['id']); ?></td>
+														<td class="ps-4 pe-4"><?= htmlspecialchars($event['name']); ?></td>
+														<td class="ps-4 pe-4"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
+														<td class="ps-4 pe-4">
+															<?php foreach ($event['lecture_formats'] as $key => $lecture_format): ?>
+																<?php if ($key == 0): ?>
+																	<?= htmlspecialchars($lecture_format['name']); ?>
+																<?php else: ?>
+																	, <?= htmlspecialchars($lecture_format['name']); ?>
+																<?php endif; ?>
+															<?php endforeach; ?>
+														</td>
+														<td class="ps-4 pe-4"><?= htmlspecialchars($event['venue_name']); ?></td>
+														<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['capacity'])); ?>人</td>
+														<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['participation_fee'])); ?>円</td>
+														<td class="text-center ps-4 pe-4 text-nowrap">
+															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+															<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
+														</td>
+													</tr>
+												<?php endforeach; ?>
 											<?php endif; ?>
 										</tbody>
 									</table>
@@ -154,13 +154,13 @@ $old_input = $_SESSION['old_input'] ?? [];
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
 										<ul class="pagination">
 											<?php if ($currentPage >= 1 && $totalCount > 10): ?>
-											<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage)-1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+												<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage) - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
 											<?php endif; ?>
-											<?php for ($i = 1; $i <= ceil($totalCount/10); $i++): ?>
-											<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+											<?php for ($i = 1; $i <= ceil($totalCount / 10); $i++): ?>
+												<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
 											<?php endfor; ?>
 											<?php if ($currentPage >= 0 && $totalCount > 10): ?>
-											<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage)+1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+												<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage) + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
 											<?php endif; ?>
 										</ul>
 									</div>

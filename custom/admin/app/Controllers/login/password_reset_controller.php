@@ -1,10 +1,23 @@
 <?php
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/lib/moodlelib.php');
+require_once('/var/www/html/moodle/local/commonlib/lib.php');
+
+use Dotenv\Dotenv;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
 
 $email = $_POST['email'] ?? null;
 
-if ($email) {
+$_SESSION['errors']['email'] = validate_custom_email($email);
+
+if (is_null($_SESSION['errors']['email'])) {
     global $DB;
 
     // 入力されたメールアドレスが存在するか確認
@@ -34,12 +47,6 @@ if ($email) {
         $token = null;
 
         if ($existing_request) {
-            // 前回リクエストから1時間以上経過しているか確認
-            if ($current_time - $existing_request->timerequested < 3600) {
-                $_SESSION['result_message'] = 'パスワードリセットリクエストは1時間に1回のみ可能です。';
-                header('Location: /custom/admin/app/Views/login/result.php');
-            }
-
             // リクエストが許可される場合、データを更新
             $existing_request->timerequested = $current_time;
             $token = bin2hex(random_bytes(16)); // 32文字のランダムなトークン
@@ -59,10 +66,45 @@ if ($email) {
         // 再設定URLを生成
         $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/login/reset.php?token=' . $token;
 
-        // メール送信
-        $subject = "パスワード再設定のリクエスト";
-        $message = "以下のリンクをクリックしてパスワードを再設定してください。\n\n$reset_url";
-        email_to_user($user, core_user::get_support_user(), $subject, $message);
+        $mail = new PHPMailer(true);
+        
+        $mail->isSMTP();
+        $test = getenv('MAIL_HOST');
+        $mail->Host = $_ENV['MAIL_HOST'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $_ENV['MAIL_USERNAME'];
+        $mail->Password = $_ENV['MAIL_PASSWORD'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->CharSet = PHPMailer::CHARSET_UTF8;
+        $mail->Port = $_ENV['MAIL_PORT'];
+    
+        $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
+        $mail->addAddress($email);
+    
+        $mail->addReplyTo('no-reply@example.com', 'No Reply');
+        $mail->isHTML(true);
+    
+        $htmlBody = "
+            <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">以下のリンクをクリックしてパスワードを再設定してください。</P><br /><br />
+                <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">" . $reset_url . "</P><br /><br />
+                <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                あらかじめご了承ください。</p>
+            </div>
+        ";
+    
+        $mail->Subject = 'パスワード再設定のリクエスト';
+        $mail->Body = $htmlBody;
+    
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+    
+        $mail->send();
 
         $_SESSION['result_message'] = '再設定用のメールを送信しました。';
         header('Location: /custom/admin/app/Views/login/result.php');
@@ -70,5 +112,8 @@ if ($email) {
         $_SESSION['result_message'] = '入力したメールアドレスは存在しません。';
         header('Location: /custom/admin/app/Views/login/result.php');
     }
+} else {
+    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+    header('Location: /custom/admin/app/Views/login/recipient.php');
 }
 ?>

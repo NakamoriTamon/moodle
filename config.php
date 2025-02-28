@@ -131,7 +131,8 @@ $komoju_webhook_secret_key = 'secret_key_y7scduh5di2edddcfah6e58c6'; // テス�
 
 $deadline_list = [
   '1' => '受付中',
-  '2' => '受付終了'
+  '2' => 'もうすぐ締め切り',
+  '3' => '受付終了'
 ];
 define('DEADLINE_LIST', $deadline_list);
 
