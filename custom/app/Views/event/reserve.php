@@ -11,7 +11,6 @@
       <div class="whitebox form_cont">
         <div class="inner_m">
 
-        <?php var_dump($_POST['event_id']);?>
           <ul class="list">
             <li class="list_item01">
               <p class="list_label">氏名</p>

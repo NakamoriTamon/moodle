@@ -38,28 +38,52 @@ class MypageController {
     // イベント申し込み情報を取得
     public function getEventApplications() {
         $sql = "
+            WITH ranked_courses AS (
+                SELECT 
+                    ci.id AS course_id,
+                    ci.course_date,
+                    eaci.event_id,
+                    eaci.event_application_id,
+                    ROW_NUMBER() OVER (PARTITION BY eaci.event_id ORDER BY ci.course_date ASC) AS rn
+                FROM 
+                    {course_info} ci
+                JOIN 
+                    {event_application_course_info} eaci ON ci.id = eaci.course_info_id
+                WHERE 
+                    ci.course_date >= CURDATE()
+            ),
+            filtered_applications AS (
+                SELECT 
+                    ea.*,
+                    ROW_NUMBER() OVER (PARTITION BY ea.event_id ORDER BY ea.application_date ASC) AS app_rn
+                FROM 
+                    {event_application} ea
+            )
             SELECT 
-                ea.id AS event_application_id,
-                ea.event_id,
-                ea.user_id,
-                ea.price,
-                ea.ticket_count,
-                ea.payment_date,
+                fa.id AS event_application_id,
+                fa.event_id,
+                fa.user_id,
+                fa.price,
+                fa.ticket_count,
+                fa.payment_date,
                 e.id AS event_id,
                 e.name AS event_name,
                 e.venue_name AS venue_name,
-                ci.id AS course_id,
-                ci.course_date AS course_date
+                rc.course_id,
+                rc.course_date
             FROM 
-                {event_application} ea
+                filtered_applications fa
             JOIN 
-                {event} e ON ea.event_id = e.id
+                {event} e ON fa.event_id = e.id
             LEFT JOIN 
-                {event_application_course_info} eaci ON ea.id = eaci.event_application_id
-            LEFT JOIN 
-                {course_info} ci ON eaci.course_info_id = ci.id
+                ranked_courses rc 
+                ON fa.event_id = rc.event_id
+                AND rc.rn = 1
             WHERE 
-                ea.user_id = :user_id
+                fa.user_id = :user_id
+                AND fa.app_rn = 1
+            ORDER BY 
+                fa.event_id, rc.course_date;
         ";
         $params = ['user_id' => $this->USER->id];
 

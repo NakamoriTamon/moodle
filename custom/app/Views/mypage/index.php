@@ -346,45 +346,51 @@ unset($_SESSION['old_input']);
             </div>
         </div>
         <?php endif; ?>
-        
-        
-        <?php var_dump($event_applications); ?>
+    <div class="mypage_cont reserve">
+        <h3 class="mypage_head">予約情報</h3>
+        <?php $allCourseDateNull = true; ?>
+        <?php if (!empty($event_applications)): ?>
+        <?php foreach ($event_applications as $application): ?>
+            <?php 
+            if (is_null($application->course_date)) {
+                continue;
+            }
 
-        <div class="mypage_cont reserve">
-            <h3 class="mypage_head">予約情報</h3>
-            <?php if (!empty($event_applications)): ?>
-                <?php foreach ($event_applications as $application): ?>
-                    <div class="info_wrap js_pay">
-                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
-                            <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
-                            <button type="submit" class="info_wrap_cont_btn">
-                                <p class="date">
-                                    <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
-                                </p>
-                                <div class="txt">
-                                    <p class="txt_ttl">
-                                        <?php echo $application->event_name ?>
-                                    </p>
-                                    <ul class="txt_other">
-                                        <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
-                                        <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
-                                        <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済み' : '未決済' ?></span></li>
-                                    </ul>
-                                </div>
-                            </button>
-                        </form>
-                        <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
-                            <object type="image/svg+xml" data="../assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
-                            <object type="image/svg+xml" data="../assets/common/img/icon_qr.svg" class="obj obj_no"></object>
-                            <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
-                        </a>
-                    </div>
-                <?php endforeach; ?>
+            $allCourseDateNull = false;
+            ?>
+            <div class="info_wrap js_pay">
+                <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+                    <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
+                    <button type="submit" class="info_wrap_cont_btn">
+                        <p class="date">
+                            <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
+                        </p>
+                        <div class="txt">
+                            <p class="txt_ttl">
+                                <?php echo $application->event_name ?>
+                            </p>
+                            <ul class="txt_other">
+                                <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
+                                <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
+                                <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
+                                <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済み' : '未決済' ?></span></li>
+                            </ul>
+                        </div>
+                    </button>
+                </form>
+                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
+                    <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
+                    <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
+                    <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
+                </a>
             </div>
-        <?php else: ?>
-            <div>現在お申込みされているイベントはございません。下記申し込みイベント一覧からお申込みください。</div>
-        <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if ($allCourseDateNull): ?>
+        <div>現在お申込みされているイベントはございません。下記申し込みイベント一覧からお申込みください。</div>
+    <?php endif; ?>
+    </div>
         <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
 
         <div class="mypage_cont history">
