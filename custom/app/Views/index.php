@@ -60,7 +60,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.p
         <?php if (isset($events) && !empty($events)): ?>
             <?php foreach ($events as $row): ?>
               <li class="swiper-slide event_item">
-                <a href="event/detail.php?id=<?php $row['id'] ?>">
+                <a href="event/detail.php?id=<?= htmlspecialchars($row['id']) ?>">
                   <figure class="img"><img src=<?= htmlspecialchars($row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                   <div class="event_info">
                     <ul class="event_status">
