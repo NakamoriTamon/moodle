@@ -3,10 +3,12 @@ require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 
 $mypage_controller = new MypageController;
-$userData = $mypage_controller->getUserData();
-$tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration();
-$id = sprintf('%08d', $userData->id); // IDのゼロ埋め
-$birthday = substr($userData->birthday, 0, 10); // 生年月日を文字列化
+$user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+$tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+$event_applications = $mypage_controller->getEventApplications(); // イベントの情報を引っ張ってくる
+
+$user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
+$birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $currentDate = date('Y-m-d');
@@ -56,12 +58,12 @@ unset($_SESSION['old_input']);
                             <ul class="list">
                                 <li class="list_item01">
                                     <p class="list_label">ユーザーID</p>
-                                    <div class="list_field f_txt"><?php echo $id; ?></div>
+                                    <div class="list_field f_txt"><?php echo $user_id; ?></div>
                                 </li>
                                 <li class="list_item02 req">
                                     <p class="list_label">お名前</p>
                                     <div class="list_field f_txt">
-                                        <input type="text" name="name" value="<?php echo htmlspecialchars($userData->name); ?>" />
+                                        <input type="text" name="name" value="<?php echo htmlspecialchars($old_input['name'] ?? $user->name); ?>" />
                                         <?php if (!empty($errors['name'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
                                         <?php endif; ?>    
@@ -70,7 +72,7 @@ unset($_SESSION['old_input']);
                                 <li class="list_item03 req">
                                     <p class="list_label">フリガナ</p>
                                     <div class="list_field f_txt">
-                                        <input type="text" name="name_kana" value="<?php echo htmlspecialchars($userData->name_kana); ?>" />
+                                        <input type="text" name="name_kana" value="<?php echo htmlspecialchars($old_input['name_kana'] ?? $user->name_kana); ?>" />
                                         <?php if (!empty($errors['name_kana'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
                                         <?php endif; ?>    
@@ -82,7 +84,7 @@ unset($_SESSION['old_input']);
                                         <select name="city" class="select">
                                             <?php foreach ($prefectures as $prefecture): ?>
                                                 <option value="<?php echo htmlspecialchars($prefecture); ?>" 
-                                                    <?php echo ($userData->city == $prefecture) ? 'selected' : ''; ?>>
+                                                    <?php echo ($user->city == $prefecture) ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($prefecture); ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -95,7 +97,7 @@ unset($_SESSION['old_input']);
                                 <li class="list_item05 req">
                                     <p class="list_label">メールアドレス</p>
                                     <div class="list_field f_txt">
-                                        <input type="email" name="email" value="<?php echo htmlspecialchars($userData->email); ?>" 
+                                        <input type="email" name="email" value="<?php echo htmlspecialchars($old_input['email'] ?? $user->email); ?>" 
                                             inputmode="email" 
                                             autocomplete="email" 
                                             oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
@@ -128,7 +130,7 @@ unset($_SESSION['old_input']);
                                             pattern="[0-9]*" 
                                             inputmode="numeric" 
                                             name="phone" 
-                                            value="<?php echo htmlspecialchars($userData->phone1); ?>" 
+                                            value="<?php echo htmlspecialchars($old_input['phone'] ?? $user->phone1); ?>" 
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '');"/>
                                         <?php if (!empty($errors['phone'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['phone']); ?></div>
@@ -138,7 +140,7 @@ unset($_SESSION['old_input']);
                                 <li class="list_item08 req">
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
-                                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($birthday); ?>" />
+                                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($old_input['birthday'] ?? $birthday); ?>" />
                                         <?php if (!empty($errors['birthday'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
                                         <?php endif; ?> 
@@ -147,17 +149,56 @@ unset($_SESSION['old_input']);
                                 <li class="list_item09 long_item">
                                     <p class="list_label">備考</p>
                                     <div class="list_field f_txtarea">
-                                        <textarea name="description"><?php echo htmlspecialchars($userData->description); ?></textarea>
+                                        <textarea name="description"><?php echo htmlspecialchars($old_input['description'] ?? $user->description); ?></textarea>
                                         <?php if (!empty($errors['description'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
                                         <?php endif; ?> 
                                     </div>
                                 </li>
+                                
+                                <div id="parents_input_area">
+                                    <li class="list_item10 req">
+                                        <p class="list_label">保護者の氏名</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="guardian_name" value="<?= htmlspecialchars($old_input['guardian_name'] ?? $user->guardian_name) ?>" />
+                                            <?php if (!empty($errors['guardian_name'])): ?>
+                                                <div class="error-msg mt-2">
+                                                    <?= htmlspecialchars($errors['guardian_name']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item11 req">
+                                        <p class="list_label">保護者連絡先</p>
+                                        <div class="list_field f_txt">
+                                            <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? $user->guardian_email) ?>" />
+                                            <?php if (!empty($errors['guardian_email'])): ?>
+                                                <div class="error-msg mt-2">
+                                                    <?= htmlspecialchars($errors['guardian_email']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                </div>
+                                            
+                                <div id="parents_check_area">
+                                    <li class="list_item12 req">
+                                        <div class="agree">
+                                            <p class="agree_txt">
+                                                この会員登録は保護者の同意を得ています 。
+                                            </p>
+                                            <label for="parent_agree">
+                                                <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
+                                            </label>
+                                        </div>
+                                    </li>
+                                </div>
+
                             </ul>
                         </div>
                     </div>
                     <div class="form_btn">
-                        <input type="submit" class="btn btn_red box_bottom_btn" value="知の広場会員情報の変更を確定する" name="update_user"/>
+                        <input type="submit" class="btn btn_red box_bottom_btn submit_btn" value="知の広場会員情報の変更を確定する" name="update_user"/>
                     </div>
                 </form>
             </div>
@@ -305,65 +346,64 @@ unset($_SESSION['old_input']);
             </div>
         </div>
         <?php endif; ?>
+        
+        <?PHP var_dump($event_data); ?>
         <div class="mypage_cont reserve">
             <h3 class="mypage_head">予約情報</h3>
+
             <div class="info_wrap js_pay">
-                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
-                    <p class="date">0000/00/00</p>
-                    <div class="txt">
-                        <p class="txt_ttl">
-                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
-                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
-                        </p>
-                        <ul class="txt_other">
-                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
-                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
-                            <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
-                            <li>【決済】<span class="txt_other_pay">決済済</span></li>
-                        </ul>
-                    </div>
-                </a>
+                <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+                    <input type="hidden" name="event_id" value="1">
+                    <button type="submit" class="info_wrap_cont_btn">
+                        <p class="date">0000/00/00</p>
+                        <div class="txt">
+                            <p class="txt_ttl">
+                                大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                                －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                            </p>
+                            <ul class="txt_other">
+                                <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                                <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                                <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
+                                <li>【決済】<span class="txt_other_pay">決済済</span></li>
+                            </ul>
+                        </div>
+                    </button>
+                </form>
                 <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
-                    <object
-                        type="image/svg+xml"
-                        data="../assets/common/img/icon_qr_pay.svg"
-                        class="obj obj_pay"></object>
-                    <object
-                        type="image/svg+xml"
-                        data="../assets/common/img/icon_qr.svg"
-                        class="obj obj_no"></object>
+                    <object type="image/svg+xml" data="../assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
+                    <object type="image/svg+xml" data="../assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                     <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
                 </a>
             </div>
+
             <div class="info_wrap">
-                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_cont">
-                    <p class="date">0000/00/00</p>
-                    <div class="txt">
-                        <p class="txt_ttl">
-                            大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
-                            －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
-                        </p>
-                        <ul class="txt_other">
-                            <li>【会場】<span class="txt_other_place">大阪大学</span></li>
-                            <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
-                            <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
-                            <li>【決済】<span class="txt_other_pay">未決済</span></li>
-                        </ul>
-                    </div>
-                </a>
+                <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+                    <input type="hidden" name="event_id" value="2">
+                    <button type="submit" class="info_wrap_cont_btn">
+                        <p class="date">0000/00/00</p>
+                        <div class="txt">
+                            <p class="txt_ttl">
+                                大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
+                                －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                            </p>
+                            <ul class="txt_other">
+                                <li>【会場】<span class="txt_other_place">大阪大学</span></li>
+                                <li>【受講料】<span class="txt_other_money">￥0,000</span></li>
+                                <li>【購入枚数】<span class="txt_other_num">2枚</span></li>
+                                <li>【決済】<span class="txt_other_pay">未決済</span></li>
+                            </ul>
+                        </div>
+                    </button>
+                </form>
                 <a href="" class="info_wrap_qr">
-                    <object
-                        type="image/svg+xml"
-                        data="../assets/common/img/icon_qr_pay.svg"
-                        class="obj obj_pay"></object>
-                    <object
-                        type="image/svg+xml"
-                        data="../assets/common/img/icon_qr.svg"
-                        class="obj obj_no"></object>
+                    <object type="image/svg+xml" data="../assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
+                    <object type="image/svg+xml" data="../assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                     <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
                 </a>
             </div>
         </div>
+
 
         <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
 
@@ -491,5 +531,98 @@ unset($_SESSION['old_input']);
         paymentRadios.forEach(radio => {
             radio.addEventListener("change", toggleSubscriptionArea);
         });
+    });
+
+    function displayRange(birthdate) {
+            $('#parents_input_area').css('display', 'none');
+            $('#parents_check_area').css('display', 'none');
+            if (birthdate) {
+                const age = calculateAge(birthdate);
+                if (age < 13) {
+                    $('#parents_input_area').css('display', 'block');
+                } else if (age < 19) {
+                    $('#parents_check_area').css('display', 'block');
+                }
+            }
+            // 同意チェック
+            checkParentAgree();
+        }
+
+
+    $(document).ready(function() {
+        $('input[name="birthday"]').on('change', function() {
+            const birthday = $(this).val();
+            displayRange(birthday);
+        });
+
+        // 年齢計算
+        function calculateAge(birthday) {
+            const birthdayObj = new Date(birthday);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthdayObj.getFullYear();
+            const monthDiff = today.getMonth() - birthdayObj.getMonth();
+            const dayDiff = today.getDate() - birthdayObj.getDate();
+
+            // 誕生日がまだ来ていない場合、年齢を1引く
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                age--;
+            }
+
+            return age;
+        }
+
+        // 処理中フラグ
+        let processing = false;
+        displayRange($('input[name="birthday"]').val());
+
+        function displayRange(birthday) {
+            $('#parents_input_area').css('display', 'none');
+            $('#parents_check_area').css('display', 'none');
+            if (birthday) {
+                const age = calculateAge(birthday);
+                if (age < 13) {
+                    console.log(age);
+                    $('#parents_input_area').css('display', 'block');
+                } else if (age < 19) {
+                    $('#parents_check_area').css('display', 'block');
+                }
+            }
+            // 同意チェック
+            checkParentAgree();
+        }
+
+        // 初回の確認
+        checkAgree();
+        $(document).on('change', '#agree', checkAgree);
+        $(document).on('change', '#parent_agree', checkParentAgree);
+
+        // 利用規約同意チェック
+        function checkAgree() {
+            if (processing) return; // 処理中は再実行しない
+
+            // 利用規約の同意がチェックされている場合
+            if ($('#agree').prop('checked')) {
+                checkParentAgree();
+            } else {
+                $('#submit').prop('disabled', true);
+            }
+        }
+
+        // 保護者の同意チェック
+        function checkParentAgree() {
+            if (processing) return;
+
+            if ($('#parents_check_area').css('display') !== 'none') {
+                // 両方がチェックされている場合にボタンを有効化
+                if ($('#parent_agree').prop('checked')) {
+                    $('.submit_btn').prop('disabled', false); // 両方チェックされている場合は有効化
+                } else {
+                    $('.submit_btn').prop('disabled', true);
+                }
+            } else {
+                $('.submit_btn').prop('disabled', false);
+            }
+        }
     });
 </script>

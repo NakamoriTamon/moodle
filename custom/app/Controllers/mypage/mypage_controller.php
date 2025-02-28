@@ -18,11 +18,11 @@ class MypageController {
     // $lastname_kana = "";
     // $firstname_kana = "";
     // ユーザー情報を取得
-    public function getUserData() {
+    public function getUser() {
         return $this->DB->get_record(
             'user',
             ['id' => $this->USER->id],
-            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_email, description'
+            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description'
         );
     }
 
@@ -37,9 +37,27 @@ class MypageController {
 
     // イベント申し込み情報を取得
     public function getEventApplications() {
-        return [
-            'current' => $this->eventApplicationModel->getEventApplicationByUserId($this->USER->id),
-            'past' => $this->eventApplicationModel->getOldEventApplicationByUserId($this->USER->id)
-        ];
+        $sql = "
+            SELECT 
+                ea.id AS event_application_id,
+                ea.event_id,
+                ea.user_id,
+                e.name AS event_name,
+                ci.id AS course_id,
+                ci.course_date AS course_date
+            FROM 
+                {event_application} ea
+            JOIN 
+                {event} e ON ea.event_id = e.id
+            LEFT JOIN 
+                {event_application_course_info} eaci ON ea.id = eaci.event_application_id
+            LEFT JOIN 
+                {course_info} ci ON eaci.course_info_id = ci.id
+            WHERE 
+                ea.user_id = :user_id
+        ";
+        $params = ['user_id' => $this->USER->id];
+
+        return $this->DB->get_records_sql($sql, $params);
     }
 }

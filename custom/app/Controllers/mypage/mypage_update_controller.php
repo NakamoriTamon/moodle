@@ -87,14 +87,17 @@ class MypageUpdateController {
         
         $description = htmlspecialchars(required_param('description', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
         $_SESSION['errors']['description'] = validate_textarea($description, '備考', false);
-        // $age = htmlspecialchars(required_param('age', PARAM_INT), ENT_QUOTES, 'UTF-8');
-        $age = 15; // デバッグ
+   
+        $current_date = new DateTime();
+        $birthday_obj = new DateTime($birthday);
+        $age = $current_date->diff($birthday_obj)->y;
+
         // 保護者情報
         $guardian_name = "";
         $guardian_email = "";
-        if(!empty($guardian_kbn) || $age < 14) {
+        if($age < 13) {
             $guardian_name = htmlspecialchars(required_param('guardian_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-            $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の苗字', 100, true);
+            $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の苗字', $name_size, true);
             $guardian_email = required_param('guardian_email', PARAM_EMAIL); // メールアドレス
             $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
         }
@@ -113,7 +116,7 @@ class MypageUpdateController {
             || $_SESSION['errors']['description']) {
             $result = true;
         }
-        if( $age < 14) {
+        if( $age < 13) {
             if($_SESSION['errors']['guardian_name']
             || $_SESSION['errors']['guardian_email']) {
                 $result = true;
