@@ -334,3 +334,60 @@ function validate_note($val, $title, $size, $required)
     }
     return null;
 }
+
+/**
+ * バリデーション: 資料
+ */
+function validate_material_file($files)
+{
+    $max_size = 50 * 1024 * 1024; // 50MB（ファイルごとの上限）
+    $total_limit = 1 * 1024 * 1024 * 1024; // 1GB（合計上限）
+    $error_messages = [];
+    $total_file_size = 0;
+
+    if ($total_file_size >= $total_limit) {
+        return 'アップロード上限は1GBまで';
+    }
+
+    foreach ($files as $course_index => $file_names) {
+        if (!is_array($file_names)) {
+            continue;
+        }
+        foreach ($file_names as $i => $file_name) {
+            // 各ファイルのサイズを累積
+            $current_file_size = isset($files['size'][$course_index][$i]) ? $files['size'][$course_index][$i] : 0;
+            $total_file_size += $current_file_size;
+
+            // ファイルが選択されていない場合はスキップ
+            if (empty($file_name)) {
+                continue;
+            }
+
+            // エラーコード取得
+            $err_code = $files['error'][$course_index][$i] ?? UPLOAD_ERR_NO_FILE;
+            if ($err_code === UPLOAD_ERR_NO_FILE) {
+                // 未選択の場合はスキップ
+                continue;
+            }
+            if ($err_code !== UPLOAD_ERR_OK) {
+                $error_messages[$course_index][$i] = "ファイルアップロード時にエラーが発生しました。（エラーコード: {$err_code}）";
+                continue;
+            }
+
+            // 拡張子チェック（小文字に変換）
+            $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            if ($ext !== 'pdf') {
+                $error_messages[$course_index][$i] = "許可されていないファイル形式です。PDFをアップロードしてください。";
+                continue;
+            }
+
+            // 個々のファイルサイズチェック
+            if ($current_file_size > $max_size) {
+                $error_messages[$course_index][$i] = "30MBを超える資料はアップロードできません。";
+                continue;
+            }
+        }
+    }
+
+    return !empty($error_messages) ? $error_messages : false;
+}

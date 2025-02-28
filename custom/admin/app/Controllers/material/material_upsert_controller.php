@@ -1,101 +1,147 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/local/commonlib/lib.php');
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once($CFG->dirroot . '/local/commonlib/lib.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/material/material_controller.php');
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 
-// セッション開始
-session_start();
-
-// 接続情報取得
 global $DB;
 
-$ids        = $_POST['ids']       ?? [];
-$files      = $_FILES['pdf_files'] ?? null;
-$fileData   = $_POST['fileData']   ?? null;
-$createdAt  = date('Y-m-d H:i:s');
-$updatedAt  = date('Y-m-d H:i:s');
-
-// バリデーション
-$validate_material_file = validate_material_file($files);
-if ($validate_material_file) {
-    $_SESSION['errors'] = [
-        'pdf_files' => $validate_material_file,
-    ];
-    $_SESSION['old_input'] = $_POST;
-    $_SESSION['message_error'] = '登録に失敗しました';
-    header('Location: /custom/admin/app/Views/event/material.php');
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $_SESSION['message_error'] = '登録に失敗しました。333';
+    echo json_encode(['status' => 'error', 'error' => 'CSRFトークンが無効です']);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = '登録に失敗しました';
-        header('Location: /custom/admin/app/Views/event/material.php');
-        exit;
-    }
+$destination_dir = $CFG->dirroot . '/uploads/material';
+$ids        = $_POST['ids'] ?? [];
+$files      = $_FILES['files'] ?? array();
+$file_ids   = $_POST['files'] ?? null;
+$event_id   = $_POST['event_id'] ?? '';
+$course_no  = $_POST['course_no'] ?? '';
+
+$created_at = date('Y-m-d H:i:s');
+$updated_at = date('Y-m-d H:i:s');
+$_SESSION['old_input'] = $_POST;
+
+if (!file_exists($destination_dir)) {
+    mkdir($destination_dir, 0755, true);
 }
+
+$course_info = $DB->get_record_sql(
+    "SELECT * FROM {event_course_info} WHERE event_id = ? AND course_info_id = ?",
+    [$_POST['event_id'], $_POST['course_no']]
+);
+
+$material_list = $DB->get_records('course_material', array('course_info_id' => $course_info->id));
+$validate_material_file_error = validate_material_file($files);
+if ($validate_material_file_error) {
+    $_SESSION['errors']['files'] = $validate_material_file_error;
+    echo json_encode(['status' => 'error', 'errors' => ['files' => $validate_material_file_error]]);
+    exit;
+}
+
 
 try {
     $transaction = $DB->start_delegated_transaction();
-    $destination_dir = '/var/www/html/moodle/uploads/material';
-    if (!file_exists($destination_dir)) {
-        mkdir($destination_dir, 0777, true);
-    }
+    foreach ($files['name'] as $index => $file) {
+        if ($file == "") {
+            continue;
+        }
+        if (!file_exists($destination_dir)) {
+            mkdir($destination_dir, 0755, true);
+        }
+        $err_code = $files['error'][$index] ?? UPLOAD_ERR_NO_FILE;
+        $tmp_name = $files['tmp_name'][$index] ?? '';
+        $original_file_name = $file;
+        $existingFileNames = array_column($material_list, 'file_name');
 
-    foreach ($files['name'] as $courseIndex => $fileNames) {
-        $idOfThisCourse = isset($ids[$courseIndex]) ? (int)$ids[$courseIndex] : 0;
+        if (in_array($original_file_name, $existingFileNames)) {
+            $errors[$index][] = '既に' . $original_file_name . 'は登録されています';
+            continue;
+        }
 
-        foreach ($fileNames as $i => $original_name) {
-            $errCode  = $files['error'][$courseIndex][$i] ?? UPLOAD_ERR_NO_FILE;
-            $tmp_name = $files['tmp_name'][$courseIndex][$i] ?? '';
-
-            if ($errCode === UPLOAD_ERR_NO_FILE || empty($original_name)) {
+        $same_material = $DB->get_record('course_material', array('file_name' => $file));
+        if ($same_material) {
+            $same_course_info = $DB->get_record_sql(
+                "SELECT * FROM {event_course_info} WHERE id = ?",
+                [$same_material->course_info_id]
+            );
+            $event_data = $DB->get_record_sql(
+                "SELECT * FROM {event} WHERE id = ?",
+                [$same_course_info->event_id]
+            );
+            if ($same_course_info->event_id <> $course_info->event_id) {
+                $errors[$index][] = '既に' . $event_data->name . 'の第' . $same_course_info->course_info_id . '回目で登録されています';
                 continue;
             }
-
-            $exists = $DB->record_exists_sql("SELECT 1 FROM {course_material} WHERE file_name = ? AND is_delete = ?", [$original_name, 0]);
-
-            if ($exists) {
-                $_SESSION['message_error'] = '同じ名前の資料が既に存在します';
-                header('Location: /custom/admin/app/Views/event/material.php');
-                exit;
+            $existing_file_path = $CFG->dirroot . '/uploads/material/' . $same_material->file_name;
+            if (file_exists($existing_file_path)) {
+                unlink($existing_file_path);
+                $DB->delete_records('course_material', array('file_name' => $same_material->file_name));
             }
+        }
 
-            $ext         = pathinfo($original_name, PATHINFO_EXTENSION);
-            $newfilename = uniqid('material_') . '.' . $ext;
-            $destination = $destination_dir . '/' . $newfilename;
-            $dbstorepath = 'uploads/material';
+        $destination = $destination_dir . '/' . $original_file_name;
 
-            if (!move_uploaded_file($tmp_name, $destination)) {
-                $_SESSION['message_error'] = '登録に失敗しました';
-                header('Location: /custom/admin/app/Views/event/material.php');
-                exit;
-            }
+        if (!move_uploaded_file($tmp_name, $destination)) {
+            $errors[$index][] = '登録に失敗しました';
+            echo json_encode(['status' => 'error', 'error' => '登録に失敗しました']);
+            exit;
+        }
+        $data = new stdClass();
+        $data->file_name = $file;
+        $data->course_info_id = $course_info->id;
+        $data->created_at = $created_at;
+        $data->updated_at = $updated_at;
+        $DB->insert_record('course_material', $data);
+    }
+    if ($errors) {
+        echo json_encode(['status' => 'error', 'errors' => ['files' => $errors]]);
+        exit;
+    }
+    $ids = !empty($_POST['ids']) ? array_map('intval', $_POST['ids']) : [];
+    $file_ids = !empty($_POST['files']) ? array_map('intval', array_keys($_POST['files'])) : [];
+    $max_id = !empty($file_ids) ? max($file_ids) : 0;
 
-            $data = new stdClass();
-            $data->file_name  = $original_name;
-            $data->file_path  = $newfilename;
-            $data->created_at = $createdAt;
-            $data->updated_at = $updatedAt;
-
-            if ($idOfThisCourse > 0 && $i == 0) {
-                $data->id = $idOfThisCourse;
-            }
-
-            if ($idOfThisCourse > 0 && $i == 0) {
-                $DB->update_record('course_material', $data);
-            } else {
-                $DB->insert_record('course_material', $data);
+    foreach ($file_ids as $course_index => $record_id) {
+        if (!empty($files['name'][$record_id])) {
+            $posted_file = isset($files['name'][$record_id]) ? $files['name'][$record_id] : '';
+            if (isset($material_list[$record_id])) {
+                $record = $material_list[$record_id];
+                if ($record->file_name !== $posted_file) {
+                    $file_path = $CFG->dirroot . '/uploads/material/' . $record->file_name;
+                    if (file_exists($file_path)) {
+                        unlink($file_path);
+                    }
+                    $DB->delete_records('course_material', array('id' => $record_id));
+                }
             }
         }
     }
-
+    foreach ($material_list as $record_id => $record) {
+        if ($record->id != 0 && !in_array($record->id, $ids)) {
+            $file_path = $CFG->dirroot . '/uploads/material/' . $record->file_name;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+            $DB->delete_records('course_material', array('id' => $record->id));
+        }
+    }
     $transaction->allow_commit();
     $_SESSION['message_success'] = '登録が完了しました';
-    header('Location: /custom/admin/app/Views/event/material.php');
+    echo json_encode(['status' => 'success']);
     exit;
 } catch (Exception $e) {
-    $_SESSION['message_error'] = '登録に失敗しました';
-    header('Location: /custom/admin/app/Views/event/material.php');
-    exit;
+    try {
+        $transaction->rollback($e);
+    } catch (Exception $rollbackException) {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        $unlink_file = $destination_dir . '/' . $new_filename;
+        if (isset($unlink_file) && file_exists($unlink_file)) {
+            unlink($unlink_file);
+        }
+        echo json_encode(['status' => 'error', 'message' => $unlink_file]);
+        exit;
+    }
 }
