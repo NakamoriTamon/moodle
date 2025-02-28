@@ -41,7 +41,7 @@
 					</a>
 					<ul id="event-side" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/index.php">イベント一覧</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/material.php">講義資料アップロード</a></li>
+						<li class="sidebar-item"><a class="sidebar-link" href="#">講義資料アップロード</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/movie.php">講義動画アップロード</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/custom_index.php">カスタムフィールド</a></li>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/event/qr.php">QR読取</a></li>

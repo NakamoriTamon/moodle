@@ -146,7 +146,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             </div>
                         </div>
                     </div>
-                    <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
+                    <a href="#" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                     <p class="detail_txt">
                         ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
                     </p>
@@ -158,7 +158,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                     <p class="sent">
                                         <?= $course['details'][0]['program'] ?>
                                     </p>
-                                    <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                    <a href="#" class="btn btn_red arrow">この日程で申し込む</a>
                             </div>
                         <?php endforeach; ?>
                     </div>
