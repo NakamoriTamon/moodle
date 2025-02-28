@@ -61,10 +61,10 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 }
 if (!empty($old_input)) {
     $payMethod = isset($old_input['pay_method']) ? $old_input['pay_method'] : null;
-    $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : null;
+    $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : 0;
     $price = $ticket * $participation_fee;
-    $triggerOther = $old_input['trigger_other'];
-    $note = $old_input['note'];
+    $triggerOther = isset($old_input['trigger_other']) ? $old_input['trigger_other'] : "";
+    $note = isset($old_input['note']) ? $old_input['note'] : "";
     $triggersArray = isset($old_input['trigger']) ? $old_input['trigger'] : [];
     $mailsArray = isset($old_input['companion_mails']) ? $old_input['companion_mails'] : [];
     $notification_kbn = isset($old_input['notification_kbn']) ? $old_input['notification_kbn'] : null;
@@ -73,28 +73,28 @@ if (!empty($old_input)) {
     $guardian_kbn = isset($old_input['guardian_kbn']) ? $old_input['guardian_kbn'] : $guardian_kbn;
     $guardian_email = isset($old_input['guardian_email']) ? $old_input['guardian_email'] : $guardian_email;
 } else if (!is_null($formdata) && empty($errors)) {
-    $payMethod = $formdata['pay_method'];
-    $ticket = $formdata['ticket'];
+    $payMethod = isset($formdata['pay_method']) ? $formdata['pay_method'] : null;
+    $ticket = isset($formdata['ticket']) ? $formdata['ticket'] : 0;
     $price = $ticket * $participation_fee;
-    $triggerOther = $formdata['trigger_other'];
-    $note = $formdata['note'];
-    $triggers = $formdata['triggers'];
+    $triggerOther = isset($formdata['trigger_other']) ? $formdata['trigger_other'] : "";
+    $note = isset($formdata['note']) ? $formdata['note'] : "";
+    $triggers = isset($formdata['triggers']) ? $formdata['triggers'] : [];
     if (is_array($triggers)) {
         $triggersArray = $triggers;
     } else {
         $triggersArray = explode(',', $triggers); // 配列に変換
     }
-    $companion_mails = $formdata['companion_mails'];
+    $companion_mails = isset($formdata['companion_mails']) ? $formdata['companion_mails'] : [];
     if (is_array($companion_mails)) {
         $mailsArray = $companion_mails;
     } else {
         $mailsArray = explode(',', $companion_mails); // 配列に変換
     }
-    $notification_kbn = $formdata['notification_kbn'];
-    $applicant_kbn = $formdata['applicant_kbn'];
-    $guardian_name = $formdata['guardian_name'];
-    $guardian_kana = $formdata['guardian_kana'];
-    $guardian_email = $formdata['guardian_email'];
+    $notification_kbn = isset($formdata['notification_kbn']) ? $formdata['notification_kbn'] : null;
+    $applicant_kbn = isset($formdata['applicant_kbn']) ? $formdata['applicant_kbn'] : $applicant_kbn;
+    $guardian_name = isset($formdata['guardian_name']) ? $formdata['guardian_name'] : $guardian_name;
+    $guardian_kana = isset($formdata['guardian_kana']) ? $formdata['guardian_kana'] : $guardian_kana;
+    $guardian_email = isset($formdata['guardian_email']) ? $formdata['guardian_email'] : $guardian_email;
 }
 
 ?>
@@ -206,25 +206,18 @@ if (!empty($old_input)) {
                                     <?= htmlspecialchars($errors['companion_mails']); ?>
                                 <?php endif; ?>
                             </span>
-                            <span id="other_mails_tag" <?php if (empty($mailsArray)): ?>style="display: none" <?php endif; ?>>
-                                <span class="error-msg" id="companion-mails-error">
-                                    <?php if (!empty($errors['companion_mails'])): ?>
-                                        <?= htmlspecialchars($errors['companion_mails']); ?>
+                            <li class="list_item07 long_item">
+                                <p class="list_label" id="other_mails_tag">複数チケット申し込みの場合お連れ様のメールアドレス</p>
+                                <div class="list_field f_txt list_col" id="input_emails">
+                                    <?php if (!empty($mailsArray)): ?>
+                                        <?php foreach ($mailsArray as $key => $mail): ?>
+                                            <p class="f_check">
+                                                <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key + 1 ?>" ;>
+                                            </p>
+                                        <?php endforeach; ?>
                                     <?php endif; ?>
-                                </span>
-                                <li class="list_item07 long_item">
-                                    <p class="list_label">複数チケット申し込みの場合お連れ様のメールアドレス</p>
-                                    <div class="list_field f_txt list_col" id="input_emails">
-                                        <?php if (!empty($mailsArray)): ?>
-                                            <?php foreach ($mailsArray as $key => $mail): ?>
-                                                <p class="f_check">
-                                                    <input type="email" style="margin-right: 2rem" name="companion_mails[]" value="<?= htmlspecialchars($mail) ?>" placeholder="メールアドレス <?= $key + 1 ?>" ;>
-                                                </p>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                </li>
-                            </span>
+                                </div>
+                            </li>
                             <span class="error-msg" id="trigger-error">
                                 <?php if (!empty($errors['trigger'])): ?>
                                     <?= htmlspecialchars($errors['trigger']); ?>
@@ -427,7 +420,7 @@ if (!empty($old_input)) {
             for (let i = 0; currentEmailFields - ticketCount >= i; i++) {
                 emailContainer.removeChild(emailContainer.lastChild);
             }
-            if (ticketCount == 1) {
+            if (ticketCount <= 1) {
                 other_mails_tag.style.display = 'none';
             }
         }

@@ -5,6 +5,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller
 
 $event_statuses = EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
+unset($SESSION->formdata);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 

@@ -189,29 +189,40 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_date']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class=" mb-3 sp-none">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">時間</label>
-											<span class="badge bg-danger">必須</span>
+									<?php if (!is_mobile_device()): ?>
+										<div class=" mb-3 sp-none">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">時間</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="start_hour" class="timepicker" type="text" placeholder="12:00"
+												value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>" /> <span class="ps-2 pe-2">～</span>
+											<input name="end_hour" class="timepicker" type="text" placeholder="12:00"
+												value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>" />
+											<?php if (!empty($errors['start_hour'])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_hour']); ?></div>
+											<?php endif; ?>
+											<?php if (!empty($errors['end_hour'])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_hour']); ?></div>
+											<?php endif; ?>
 										</div>
-										<input name="start_hour" class="timepicker" type="text" placeholder="12:00"
-											value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>" /> <span class="ps-2 pe-2">～</span>
-										<input name="end_hour" class="timepicker" type="text" placeholder="12:00"
-											value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>" />
-										<?php if (!empty($errors['start_hour'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_hour']); ?></div>
-										<?php endif; ?>
-										<?php if (!empty($errors['end_hour'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_hour']); ?></div>
-										<?php endif; ?>
-									</div>
-									<div class="mb-3 pc-none">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">時間( 終了時間 )</label>
-											<span class="badge bg-danger">必須</span>
+									<?php endif; ?>
+									<?php if (is_mobile_device()): ?>
+										<div class="mb-3 pc-none">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">時間( 開始時間 )</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="start_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>">
 										</div>
-										<input name="start_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?php if ($id) { ?>13:00<?php } ?>">
-									</div>
+										<div class="mb-3 pc-none">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">時間( 終了時間 )</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input name="end_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>"">
+										</div>
+									<?php endif; ?>
 									<div class="mb-3">
 										<label class="form-label">交通アクセス</label>
 										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
@@ -416,20 +427,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['capacity']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3 onetime_area">
-										<label class="form-label">参加費</label>
+									<div class="mb-3">
+										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == 2): ?>( 全て受講 )<?php endif; ?></label>
 										<span class="badge bg-danger">必須</span>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>" />
-										<?php if (!empty($errors['participation_fee'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
-										<?php endif; ?>
-									</div>
-									<div class="mb-3 repeatedly_area">
-										<label class="form-label">参加費( 全て受講 )</label>
-										<span class="badge bg-danger">必須</span>
-										<input id="all_participation_fee" name="all_participation_fee" class="form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['all_participation_fee'] ?? '')) ?>" />
 										<?php if (!empty($errors['participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
 										<?php endif; ?>
@@ -522,11 +524,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const repeatedlyArea =$('.repeatedly_area');
 		const onetimeArea = $('.onetime_area');
 		const event_id = $('#event_id').val();
+		const participationFeeLabel = $('#participation_fee_label');
 
 		// 初期表示で value="2" の場合は表示
 		if (eventKbnElement.value == '2') {
 			onetimeArea.css('display', 'none');
 			repeatedlyArea.css('display', 'block');
+			participationFeeLabel.text("参加費( 全て受講 )");
 		}
 		
 		const ids = ['lecture_format_id', 'category_id'];
@@ -545,9 +549,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			if ($(this).val() == 2) {
 				onetimeArea.css('display', 'none');
 				repeatedlyArea.css('display', 'block');
+				participationFeeLabel.text("参加費( 全て受講 )");
 			} else {
 				onetimeArea.css('display', 'block');
 				repeatedlyArea.css('display', 'none');
+				participationFeeLabel.text("参加費");
 			}
 		});
 		let itemCount = 1; // 初期値として1を設定
