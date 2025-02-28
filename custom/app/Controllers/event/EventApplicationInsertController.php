@@ -277,12 +277,13 @@ if ($result) {
             
                 // 知った経由　mdl_event_application_course_info
                 $itmt3 = $pdo->prepare("
-                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_application_id, course_info_id, participant_mail) 
-                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_application_id, :course_info_id, :participant_mail)
+                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail) 
+                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail)
                 ");
                 foreach($mails as $mail) {
                     foreach ($select_courses as $courses) {
                         $itmt3->execute([
+                            ':event_id' => $event_id,
                             ':event_application_id' => $eventApplicationId,
                             ':course_info_id' => $courses['id'], // 空白を除去
                             ':participant_mail' => $mail

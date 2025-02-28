@@ -1,4 +1,5 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php') ?>
+<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php'); ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
 <main>
   <section id="mv">
@@ -56,107 +57,35 @@
     </div>
     <div class="swiper new_swiper">
       <ul class="swiper-wrapper" id="event">
-        <li class="swiper-slide event_item">
-          <a href="event/detail.php?id=49">
-            <figure class="img"><img src="/custom/public/assets/img/event/event01.jpg" alt="" /></figure>
-            <div class="event_info">
-              <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-              <div class="event_sched">
-                <p class="term">開催日</p>
-                <div class="date">
-                  <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                  <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                </div>
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="swiper-slide event_item">
-          <a href="event/detail.php?id=49">
-            <figure class="img"><img src="/custom/public/assets/img/event/event02.jpg" alt="" /></figure>
-            <div class="event_info">
-              <ul class="event_status">
-                <li class="end">受付終了</li>
-              </ul>
-              <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-              <div class="event_sched">
-                <p class="term">開催日</p>
-                <div class="date">
-                  <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                  <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                </div>
-              </div>
-              <ul class="event_category">
-                <li>医療・健康</li>
-                <li>生活・福祉</li>
-              </ul>
-            </div>
-          </a>
-        </li>
-        <li class="swiper-slide event_item">
-          <a href="event/detail.php?id=49">
-            <figure class="img"><img src="/custom/public/assets/img/event/event03.jpg" alt="" /></figure>
-            <div class="event_info">
-              <ul class="event_status">
-                <li class="active">受付中</li>
-              </ul>
-              <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-              <div class="event_sched">
-                <p class="term">開催日</p>
-                <div class="date">
-                  <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                  <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                </div>
-              </div>
-              <ul class="event_category">
-                <li>その他</li>
-              </ul>
-            </div>
-          </a>
-        </li>
-        <li class="swiper-slide event_item">
-          <a href="event/detail.php?id=49">
-            <figure class="img"><img src="/custom/public/assets/img/event/event04.jpg" alt="" /></figure>
-            <div class="event_info">
-              <ul class="event_status">
-                <li class="active">受付中</li>
-              </ul>
-              <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-              <div class="event_sched">
-                <p class="term">開催日</p>
-                <div class="date">
-                  <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                  <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                </div>
-              </div>
-              <ul class="event_category">
-                <li>自然・環境</li>
-                <li>社会・経済</li>
-              </ul>
-            </div>
-          </a>
-        </li>
-        <li class="swiper-slide event_item">
-          <a href="event/detail.php?id=49">
-            <figure class="img"><img src="/custom/public/assets/img/event/event05.jpg" alt="" /></figure>
-            <div class="event_info">
-              <ul class="event_status">
-                <li class="active">受付中</li>
-              </ul>
-              <p class="event_ttl">講義のタイトルが入ります講義のタイトルが入ります</p>
-              <div class="event_sched">
-                <p class="term">開催日</p>
-                <div class="date">
-                  <p class="dt01">1回目：2024年12月3日～12月11日</p>
-                  <p class="dt02">2回目：2025年1月15日～1月28日</p>
-                </div>
-              </div>
-              <ul class="event_category">
-                <li>社会・経済</li>
-              </ul>
-            </div>
-          </a>
-        </li>
+        <?php if (isset($events) && !empty($events)): ?>
+            <?php foreach ($events as $row): ?>
+              <li class="swiper-slide event_item">
+                <a href="event/detail.php?id=<?php $row['id'] ?>">
+                  <figure class="img"><img src=<?= htmlspecialchars($row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
+                  <div class="event_info">
+                    <ul class="event_status">
+                      <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                        <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                          <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                        <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
+                          <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                        <?php endif ?>
+                      <?php endforeach; ?>
+                    </ul>
+                    <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
+                    <div class="event_sched">
+                      <p class="term">開催日</p>
+                      <div class="date">
+                        <?php foreach ($row['select_course'] as $no => $course): ?>
+                          <p class="dt0<?= $no ?>"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                        <?php endforeach; ?>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </li>
+            <?php endforeach; ?>
+        <?php endif; ?>
       </ul>
       <div class="new_btns">
         <div class="swiper-button-prev"></div>
@@ -173,161 +102,89 @@
       イベント検索
     </h2>
     <!-- とりあえずイベント一覧へ飛ばします！！ -->
-    <form method="POST" action="/custom/app/Views/event/index.php" id="search_cont" class="whitebox">
-      <div class="inner_s">
-        <ul class="search_list">
-          <li>
-            <p class="term">開催ステータス</p>
-            <div class="field f_check">
-              <label><input type="checkbox" id="" />開催前</label>
-              <label><input type="checkbox" id="" />開催中</label>
-              <label><input type="checkbox" id="" />開催終了</label>
+    <form method="" action="/custom/app/Controllers/event/event_controller.php" id="search_cont" class="whitebox">
+        <input type="hidden" name="action" value="index">
+        <div class="inner_s">
+            <ul class="search_list">
+                <li>
+                    <p class="term">開催ステータス</p>
+                    <div class="field f_check">
+                        <?php foreach (EVENT_STATUS_LIST as $key => $name): ?>
+                            <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+                <li>
+                    <p class="term">
+                        申し込み<br />
+                        ステータス
+                    </p>
+                    <div class="field f_check">
+                        <?php foreach (DEADLINE_LIST as $key => $name): ?>
+                            <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+                <li>
+                    <p class="term">イベント形式</p>
+                    <div class="field f_check">
+                        <?php foreach ($lectureFormats as $lectureFormat): ?>
+                            <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if (isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+                <li>
+                    <p class="term">対象</p>
+                    <div class="field f_select select">
+                        <select>
+                            <option value="" disabled selected>選択してください</option>
+                            <option></option>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <p class="term">キーワード</p>
+                    <div class="field f_txt">
+                        <input type="text" name="keyword" value="<?php if (isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
+                    </div>
+                </li>
+                <li>
+                    <p class="term">開催日時</p>
+                    <div class="field f_date">
+                        <p>
+                            <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
+                        </p>
+                        <span>～</span>
+                        <p>
+                            <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <p class="term">カテゴリー</p>
+                    <div class="field" id="category">
+                        <?php foreach ($categorys as $row): ?>
+                            <div class="cat_item category0<?= htmlspecialchars($row['id']) ?>">
+                                <input type="checkbox" id="cat0<?= htmlspecialchars($row['id']) ?>" name="category[]" value="<?= htmlspecialchars($row['id']) ?>" <?php if (isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
+                                <label for="cat0<?= htmlspecialchars($row['id']) ?>" class="cat_btn <?= empty($row['path']) ? 'justify_center' : ''; ?>">
+                                    <?php if (!empty($row['path'])) { ?>
+                                        <object
+                                            type="image/svg+xml"
+                                            data="<?= htmlspecialchars($row['path']) ?>"
+                                            class="obj"></object>
+                                    <?php } ?>
+                                    <p class="txt"><?= htmlspecialchars($row['name']) ?></p>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+            </ul>
+            <div class="search_btn">
+                <button type="button" class="btn btn_clear" id="clear_button">クリア</button>
+                <button type="submit" class="btn btn_red">検索する</button>
             </div>
-          </li>
-          <li>
-            <p class="term">
-              申し込み<br />
-              ステータス
-            </p>
-            <div class="field f_check">
-              <label><input type="checkbox" id="" />受付前</label>
-              <label><input type="checkbox" id="" />受付中</label>
-              <label><input type="checkbox" id="" />受付終了</label>
-            </div>
-          </li>
-          <li>
-            <p class="term">イベント形式</p>
-            <div class="field f_check">
-              <label><input type="checkbox" id="" />会場（対面）</label>
-              <label><input type="checkbox" id="" />会場（オンデマンドあり）</label>
-              <label><input type="checkbox" id="" />オンライン</label>
-              <label><input type="checkbox" id="" />ハイブリッド</label>
-            </div>
-          </li>
-          <li>
-            <p class="term">対象</p>
-            <div class="field f_select select">
-              <select>
-                <option value="" disabled selected>選択してください</option>
-                <option></option>
-              </select>
-            </div>
-          </li>
-          <li>
-            <p class="term">キーワード</p>
-            <div class="field f_txt">
-              <input type="text" placeholder="検索するキーワードを入力" />
-            </div>
-          </li>
-          <li>
-            <p class="term">開催日時</p>
-            <div class="field f_date">
-              <p class="date_wrap">
-                <input type="text" placeholder="年/月/日" />
-              </p>
-              <span>～</span>
-              <p class="date_wrap">
-                <input type="text" placeholder="年/月/日" />
-              </p>
-            </div>
-          </li>
-          <li>
-            <p class="term">カテゴリー</p>
-            <div class="field" id="category">
-              <div class="cat_item category01">
-                <input type="checkbox" id="cat01" name="" />
-                <label for="cat01" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat01.svg"
-                    class="obj"></object>
-                  <p class="txt">医療・健康</p>
-                </label>
-              </div>
-              <div class="cat_item category02">
-                <input type="checkbox" id="cat02" name="" />
-                <label for="cat02" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat02.svg"
-                    class="obj"></object>
-                  <p class="txt">科学・技術</p>
-                </label>
-              </div>
-              <div class="cat_item category03">
-                <input type="checkbox" id="cat03" name="" />
-                <label for="cat03" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat03.svg"
-                    class="obj"></object>
-                  <p class="txt">生活・福祉</p>
-                </label>
-              </div>
-              <div class="cat_item category04">
-                <input type="checkbox" id="cat04" name="" />
-                <label for="cat04" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat04.svg"
-                    class="obj"></object>
-                  <p class="txt">文化・芸術</p>
-                </label>
-              </div>
-              <div class="cat_item category05">
-                <input type="checkbox" id="cat05" name="" />
-                <label for="cat05" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat05.svg"
-                    class="obj"></object>
-                  <p class="txt">社会・経済</p>
-                </label>
-              </div>
-              <div class="cat_item category06">
-                <input type="checkbox" id="cat06" name="" />
-                <label for="cat06" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat06.svg"
-                    class="obj"></object>
-                  <p class="txt">自然・環境</p>
-                </label>
-              </div>
-              <div class="cat_item category07">
-                <input type="checkbox" id="cat07" name="" />
-                <label for="cat07" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat07.svg"
-                    class="obj"></object>
-                  <p class="txt">子ども・教育</p>
-                </label>
-              </div>
-              <div class="cat_item category08">
-                <input type="checkbox" id="cat08" name="" />
-                <label for="cat08" class="cat_btn">
-                  <object
-                    type="image/svg+xml"
-                    data="/custom/public/assets/common/img/icon_cat08.svg"
-                    class="obj"></object>
-                  <p class="txt">国際・言語</p>
-                </label>
-              </div>
-              <div class="cat_item category09">
-                <input type="checkbox" id="cat09" name="" />
-                <label for="cat09" class="cat_btn">
-                  <p class="txt">その他</p>
-                </label>
-              </div>
-            </div>
-          </li>
-        </ul>
-        <div class="search_btn">
-          <button type="button" class="btn btn_clear">クリア</button>
-          <button type="submit" class="btn btn_red">検索する</button>
         </div>
-      </div>
     </form>
   </section>
   <!-- search -->
