@@ -49,71 +49,70 @@ unset($_SESSION['old_input']);
             </div>
         </div>
         <?php endif; ?>
-        <div id="user_form">
-            <div id="form" class="mypage_cont">
-                <h3 class="mypage_head">知の広場 会員情報</h3>
-                <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php">
-                    <div class="whitebox form_cont">
-                        <div class="inner_m">
-                            <ul class="list">
-                                <li class="list_item01">
-                                    <p class="list_label">ユーザーID</p>
-                                    <div class="list_field f_txt"><?php echo $user_id; ?></div>
-                                </li>
-                                <li class="list_item02 req">
-                                    <p class="list_label">お名前</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text" name="name" value="<?php echo htmlspecialchars($old_input['name'] ?? $user->name); ?>" />
-                                        <?php if (!empty($errors['name'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
-                                        <?php endif; ?>    
-                                    </div>
-                                </li>
-                                <li class="list_item03 req">
-                                    <p class="list_label">フリガナ</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text" name="name_kana" value="<?php echo htmlspecialchars($old_input['name_kana'] ?? $user->name_kana); ?>" />
-                                        <?php if (!empty($errors['name_kana'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
-                                        <?php endif; ?>    
-                                    </div>
-                                </li>
-                                <li class="list_item04 req">
-                                    <p class="list_label">お住いの都道府県</p>
-                                    <div class="list_field f_txt">
-                                        <select name="city" class="select">
-                                            <?php foreach ($prefectures as $prefecture): ?>
-                                                <option value="<?php echo htmlspecialchars($prefecture); ?>" 
-                                                    <?php echo ($user->city == $prefecture) ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($prefecture); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <?php if (!empty($errors['city'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
-                                        <?php endif; ?>    
-                                    </div>
-                                </li>
-                                <li class="list_item05 req">
-                                    <p class="list_label">メールアドレス</p>
-                                    <div class="list_field f_txt">
-                                        <input type="email" name="email" value="<?php echo htmlspecialchars($old_input['email'] ?? $user->email); ?>" 
-                                            inputmode="email" 
-                                            autocomplete="email" 
-                                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
-                                        <?php if (!empty($errors['email'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
-                                        <?php endif; ?> 
-                                    </div>
-                                </li>
-                                <li class="list_item06">
-                                    <p class="list_label">パスワード（変更時のみ入力）</p>
-                                    <div class="list_field f_txt">
-                                        <input type="password" name="password" />
-                                        
-                                        <?php if (!empty($errors['password'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
-                                        <?php endif; ?> 
+        <div id="form" class="mypage_cont">
+            <h3 class="mypage_head">知の広場 会員情報</h3>
+            <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php">
+                <div class="whitebox form_cont">
+                    <div class="inner_m">
+                        <ul class="list">
+                            <li class="list_item01">
+                                <p class="list_label">ユーザーID</p>
+                                <div class="list_field f_txt"><?php echo $id; ?></div>
+                            </li>
+                            <li class="list_item02 req">
+                                <p class="list_label">お名前</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" name="name" value="<?php echo htmlspecialchars($userData->name); ?>" />
+                                    <?php if (!empty($errors['name'])): ?>
+                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                            <li class="list_item03 req">
+                                <p class="list_label">フリガナ</p>
+                                <div class="list_field f_txt">
+                                    <input type="text" name="name_kana" value="<?php echo htmlspecialchars($userData->name_kana); ?>" />
+                                    <?php if (!empty($errors['name_kana'])): ?>
+                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                            <li class="list_item04 req">
+                                <p class="list_label">お住いの都道府県</p>
+                                <div class="list_field f_txt">
+                                    <select name="city" class="select">
+                                        <?php foreach ($prefectures as $prefecture): ?>
+                                            <option value="<?php echo htmlspecialchars($prefecture); ?>"
+                                                <?php echo ($userData->city == $prefecture) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($prefecture); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php if (!empty($errors['city'])): ?>
+                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                            <li class="list_item05 req">
+                                <p class="list_label">メールアドレス</p>
+                                <div class="list_field f_txt">
+                                    <input type="email" name="email" value="<?php echo htmlspecialchars($userData->email); ?>"
+                                        inputmode="email"
+                                        autocomplete="email"
+                                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
+                                    <?php if (!empty($errors['email'])): ?>
+                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                            <li class="list_item06">
+                                <p class="list_label">パスワード（変更時のみ入力）</p>
+                                <div class="list_field f_txt">
+                                    <input type="password" name="password" />
+
+                                    <?php if (!empty($errors['password'])): ?>
+                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
+                                    <?php endif; ?>
 
                                         <p class="note">
                                             8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。

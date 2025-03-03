@@ -86,10 +86,11 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                 <a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?> class="btn_h btn_login">
                     <p>ログイン<span>（マイページ）</span></p>
                 </a>
-                <form action="" class="search">
+                <form method="" action="/custom/app/Controllers/event/event_controller.php" class="search">
+                    <input type="hidden" name="action" value="index">
                     <button type="submit" aria-label="検索"></button>
                     <label>
-                        <input type="text" placeholder="イベントを検索する" />
+                        <input type="text" name="keyword" placeholder="イベントを検索する" />
                     </label>
                 </form>
             </div>

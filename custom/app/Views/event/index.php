@@ -53,7 +53,12 @@ unset($SESSION->formdata);
                             <div class="field f_select select">
                                 <select>
                                     <option value="" disabled selected>選択してください</option>
-                                    <option></option>
+                                    <?php foreach ($targets as $target): ?>
+                                    <option value="<?= htmlspecialchars($target['id']) ?>"
+                                        <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($target['name']) ?>
+                                    </option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </li>
@@ -111,11 +116,17 @@ unset($SESSION->formdata);
                     <?php foreach ($events as $row): ?>
                         <li class="event_item">
                             <a href="/custom/app/Views/event/detail.php?id=<?= $row['id'] ?>">
-                                <figure class="img"><img src="<?= htmlspecialchars($row['thumbnail_img']); ?>" alt="" /></figure>
+                                <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
                                         <li class="no"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
-                                        <li class="no"><?= htmlspecialchars(DEADLINE_LIST[$row['deadline_status']]); ?></li>
+                                        <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                                            <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                                            <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
+                                            <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php endif ?>
+                                        <?php endforeach; ?>
                                     </ul>
                                     <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
                                     <div class="event_sched">
