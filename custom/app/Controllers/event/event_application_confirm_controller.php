@@ -88,7 +88,7 @@ if($price != $ticket * ($participation_fee * count($select_courses))) {
     $_SESSION['errors']['message_error'] = '支払い料金が変更されました。ご確認の上、再度お申し込みしてください。';
     if(!is_null($courseInfoId)) {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
-        $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+        $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     } else {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId);
     }
@@ -123,19 +123,16 @@ $guardian_kbn = htmlspecialchars(optional_param('guardian_kbn', 0, PARAM_INT), E
 $contact_phone = $_SESSION['USER']->phone1;
 $applicant_kbn = htmlspecialchars(optional_param('applicant_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $guardian_name = htmlspecialchars(optional_param('guardian_name', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$guardian_kana = htmlspecialchars(optional_param('guardian_kana', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $guardian_email = htmlspecialchars(optional_param('guardian_email', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
 if(empty($guardian_kbn)) {
     $_SESSION['errors']['applicant_kbn'] = null;
     $_SESSION['errors']['guardian_name'] = null;
-    $_SESSION['errors']['guardian_kana'] = null;
     $_SESSION['errors']['guardian_email'] = null;
 } else {
     $_SESSION['errors']['applicant_kbn'] = validate_int($applicant_kbn, '保護者の許可', true);
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
-    $_SESSION['errors']['guardian_kana'] = validate_text($guardian_kana, '保護者名フリガナ', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
 }
 $event_customfield_category_id =  optional_param('event_customfield_category_id', '' , PARAM_INT);
@@ -206,7 +203,6 @@ if($_SESSION['errors']['ticket']
 || $_SESSION['errors']['companion_mails']
 || $_SESSION['errors']['applicant_kbn']
 || $_SESSION['errors']['guardian_name']
-|| $_SESSION['errors']['guardian_kana']
 || $_SESSION['errors']['guardian_email']
 || (!empty($event_customfield_category_id) && empty($_SESSION['errors']['passage']))) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
@@ -216,7 +212,7 @@ if($_SESSION['errors']['ticket']
 
     if(!is_null($courseInfoId)) {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
-        $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+        $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     } else {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId);
     }
@@ -292,7 +288,6 @@ if($_SESSION['errors']['ticket']
         , 'applicant_kbn' => $applicant_kbn
         , 'guardian_kbn' => $guardian_kbn
         , 'guardian_name' => $guardian_name
-        , 'guardian_kana' => $guardian_kana
         , 'guardian_email' => $guardian_email
         , 'event_customfield_category_id' => $event_customfield_category_id
         , 'cognitions' => $cognitions

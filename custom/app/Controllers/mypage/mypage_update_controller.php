@@ -168,6 +168,7 @@ class MypageUpdateController
             header('Location: /custom/app/Views/mypage/index.php#user_form');
         }
     }
+}
 
     public function updateMembershipInfo()
     {
@@ -213,17 +214,55 @@ class MypageUpdateController
         $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
         $_SESSION['errors']['note'] = validate_max_text($note, '備考', $size, false);
 
-        $payment_method = htmlspecialchars(required_param('payment_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
-        $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
-        $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
+// $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_TEXT));
 
-        foreach ($_SESSION['errors'] as $error) {
-            if (!empty($error)) {
-                $_SESSION['old_input'] = $_POST;
+$result = false;
+// エラーがある場合
+if($_SESSION['errors']['name']
+    || $_SESSION['errors']['name_kana']
+    || $_SESSION['errors']['city']
+    || $_SESSION['errors']['email']
+    || $_SESSION['errors']['password']
+    || $_SESSION['errors']['phone']
+    || $_SESSION['errors']['birthday']
+    || $_SESSION['errors']['description']) {
+    $result = true;
+}
+if( $age < 14) {
+    if($_SESSION['errors']['guardian_name']
+    || $_SESSION['errors']['guardian_email']) {
+        $result = true;
+    }
+}
+// バリデーションチェックの結果
+if($result) {
+    $_SESSION['old_input'] = $_POST; // 入力内容も保持
 
-                header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
-                exit;
-            }
+    header('Location: /custom/app/Views/mypage/index.php');
+    return;
+}
+
+try{
+    if (isloggedin() && isset($_SESSION['USER'])) {
+        // 接続情報取得
+        $baseModel = new BaseModel();
+        $pdo = $baseModel->getPdo();
+        $pdo->beginTransaction();
+
+        $data = new stdClass();
+        $data->id = (int)$user_id;
+        $data->name = $name;
+        $data->name_kana = $name_kana;
+        $data->city = $city;
+        $data->email = $email;
+        $data->phone1 = $phone;
+        $data->birthday = $birthday;
+        $data->description = $description;
+        $data->guardian_name = $guardian_name;
+        $data->guardian_email = $guardian_email;
+
+        if (!empty($change_password)) {
+            $data->password = password_hash($password, PASSWORD_DEFAULT);
         }
 
         try {

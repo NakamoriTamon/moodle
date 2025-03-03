@@ -3,13 +3,16 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
+$targetModel = new TargetModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
+$targets = $targetModel->getTargets();
 
 $currentPage = 1; // 現在のページ番号（デフォルト: 1）
 $perPage = 10; // 1ページあたりの件数

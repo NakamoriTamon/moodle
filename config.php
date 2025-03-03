@@ -123,6 +123,9 @@ $roles = [
 ];
 define('ROLES', $roles);
 
+$default_thumbnail = '/custom/public/assets/img/event/event02.jpg';
+define('DEFAULT_THUMBNAIL', $default_thumbnail);
+
 // 決済情報
 $komoju_api_key = 'sk_test_6nhd2x41v77mupxnbjl9nwlk'; // テスト用秘密鍵
 $komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エンドポイント
@@ -135,6 +138,8 @@ $deadline_list = [
   '3' => '受付終了'
 ];
 define('DEADLINE_LIST', $deadline_list);
+$deadline_end = 3;
+define('DEADLINE_END', $deadline_end);
 
 //  URLでの暗号化共通キー
 $url_secret_key = 'my_secret_key_1234567890';
