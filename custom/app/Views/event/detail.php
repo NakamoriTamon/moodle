@@ -119,7 +119,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             <h4 class="sub_ttl">アクセス</h4>
                             <div class="access_item01">
                                 <?php if (!empty($event['google_map'])): ?>
-                                    <div class="map"><?= $event['google_map'] ?></div>
+                                    <div class="map"><?= nl2br($event['google_map']) ?></div>
                                 <?php endif ?>
                                 <div class="sent">
                                     <p>
@@ -155,7 +155,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             <div class="program">
                                 <h4 class="sub_ttl">【第<?= $no ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
                                     <p class="sent">
-                                        <?= $course['details'][0]['program'] ?>
+                                        <?= nl2br($course['details'][0]['program']) ?>
                                     </p>
                                     <?php if(DEADLINE_END != $event['deadline_status']): ?>
                                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>

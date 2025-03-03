@@ -1,6 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/event/EventApplicationController.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/event/event_application_controller.php');
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 if (isset($SESSION->formdata) && is_null($eventId)) {
@@ -17,7 +17,6 @@ $kana = "";
 $email = "";
 $guardian_kbn = "";
 $guardian_name = "";
-$guardian_kana = "";
 $guardian_email = "";
 $event_customfield_category_id = $responce['event']['event_customfield_category_id'];
 $participation_fee = $responce['event']['participation_fee'];
@@ -64,7 +63,6 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $name = $_SESSION['USER']->lastname . $_SESSION['USER']->firstname;
     $kana = $lastname_kana . $firstname_kana;
     $guardian_name = $guardian_lastname . $guardian_firstname;
-    $guardian_kana = $guardian_lastname_kana . $guardian_firstname_kana;
     $email = $_SESSION['USER']->email ?? "";
     $guardian_kbn = $userData->guardian_kbn ?? "";
     $guardian_email = $userData->guardian_email ?? "";
@@ -193,9 +191,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
             <label class="label_name" for="name">保護者名</label>
             <div class="error-msg" id="guardian_name-error"><?php if (!empty($errors['guardian_name'])): ?><?= htmlspecialchars($errors['guardian_name']); ?><?php endif; ?></div>
             <input type="text" id="guardian_name" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" required>
-            <label class="label_name" for="kana">保護者名フリガナ</label>
-            <div class="error-msg" id="guardian_kana-error"><?php if (!empty($errors['guardian_kana'])): ?><?= htmlspecialchars($errors['guardian_kana']); ?><?php endif; ?></div>
-            <input type="text" id="guardian_kana" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" required>
             <label class="label_name" for="email">保護者連絡先メールアドレス</label>
             <div class="error-msg" id="guardian_email-error"><?php if (!empty($errors['guardian_email'])): ?><?= htmlspecialchars($errors['guardian_email']); ?><?php endif; ?></div>
             <input type="email" id="guardian_email" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>" required>
@@ -314,106 +309,5 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
         const companionMailsError = document.getElementById('companion-mails-error');
         
         other_mails_tag.style.display = 'none';
-
-        // バリデーション関数
-        function validateForm() {
-            let isValid = true;
-
-            // チケット枚数のバリデーション
-            if (ticketInput.value.trim() === '' || ticketInput.value < 1) {
-                ticketError.textContent = 'チケット枚数を1以上入力してください。';
-                isValid = false;
-            } else {
-                // 現在のメール入力欄の数を取得
-                const currentEmailFields = emailContainer.querySelectorAll('input[type="email"]').length;
-                let filledEmailFields = 0;
-                $('#input_emails input[type="email"]').each(function() {
-                    if ($(this).val().trim() !== "") {
-                        filledEmailFields++;
-                    }
-                });
-                if(currentEmailFields == filledEmailFields) {
-                    ticketError.textContent = '';
-                    companionMailsError.textContent = '';
-                } else {
-                    companionMailsError.textContent = 'お連れ様のメールアドレスを入力してください。';
-                    isValid = false;
-                }
-
-            }
-
-            // チェックボックスのバリデーション
-            const isTriggerChecked = Array.from(triggers).some(trigger => trigger.checked);
-            if (!isTriggerChecked) {
-                triggerError.textContent = '少なくとも1つ選択してください。';
-                isValid = false;
-            } else {
-                triggerError.textContent = '';
-            }
-
-            // ラジオボタンのバリデーション
-            const isPayMethodSelected = Array.from(paymentMethods).some(payMethod => payMethod.checked);
-            if (!isPayMethodSelected) {
-                payMethodError.textContent = '支払方法を選択してください。';
-                isValid = false;
-            } else {
-                payMethodError.textContent = '';
-            }
-
-            if(guardian_kbn.value == 1) {
-                const guardian_name = document.getElementById('guardian_name');
-                const guardian_name_val = guardian_name.value.trim();
-                const guardian_kana = document.getElementById('guardian_kana');
-                const guardian_kana_val = guardian_kana.value.trim();
-                const guardian_email = document.getElementById('guardian_email');
-                const guardian_email_val = guardian_email.value.trim();
-                const email = document.getElementById('email');
-                const guardianNameError = document.getElementById('guardian_name-error');
-                const guardianKanaError = document.getElementById('guardian_kana-error');
-                const guardianEmailError = document.getElementById('guardian_email-error');
-
-                // 保護者名
-                if(guardian_name_val === '') {
-                    guardianNameError.textContent = '保護者名を入力してください。';
-                    isValid = false;
-                } else {
-                    guardianNameError.textContent = '';
-                }
-                // 保護者名フリガナ
-                if(guardian_kana_val === '') {
-                    guardianKanaError.textContent = '保護者名フリガナを入力してください。';
-                    isValid = false;
-                } else if(!guardian_kana_val.match(/^[ァ-ンヴー]*$/)) {
-                    guardianKanaError.textContent = 'カタカナで入力してください。';
-                    isValid = false;
-                } else {
-                    guardianKanaError.textContent = '';
-                }
-                // 保護者連絡先メールアドレス
-                if(guardian_email_val === '') {
-                    guardianEmailError.textContent = '保護者連絡先メールアドレスを入力してください。';
-                    isValid = false;
-                } else if(guardian_email_val == email.value) {
-                    guardianEmailError.textContent = '保護者の方のメールアドレスを入力してください。';
-                    isValid = false;
-                } else if(!guardian_email_val.match(/.+@.+\..+/)) {
-                    guardianEmailError.textContent = '形式が違います。メールアドレスを入力してください。';
-                    isValid = false;
-                } else {
-                    guardianEmailError.textContent = '';
-                }
-            }
-
-            // バリデーションチェックの結果
-            return isValid;
-        }
-
-        // ボタンをクリックした際にサブミット
-        // form.addEventListener('submit', function (event) {
-        //     var isValid = validateForm();
-        //     if (!isValid) {
-        //         event.preventDefault(); // 送信をキャンセル
-        //     }
-        // });
     });
 </script>

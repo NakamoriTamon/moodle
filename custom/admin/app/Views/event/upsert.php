@@ -245,7 +245,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 										<div class="mb-3">
 										<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
-											<?= $eventData['google_map'] ?? '' ?>
+											<?= nl2br($eventData['google_map']) ?>
 										<?php endif; ?>
 										</div>
 									</div>

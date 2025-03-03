@@ -1,6 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/mypage/MypageController.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 
 $mypage_controller = new MypageController;
 $userData = $mypage_controller->getUserData();
@@ -51,7 +51,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
         <?php endif; ?>
         <div id="form" class="mypage_cont">
             <h3 class="mypage_head">知の広場 会員情報</h3>
-            <form method="POST" action="/custom/app/Controllers/mypage/MypageUpdateController.php">
+            <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php">
                 <div class="whitebox form_cont">
                     <div class="inner_m">
                         <ul class="list">
