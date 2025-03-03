@@ -125,7 +125,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">サムネール画像</label>
-											<span class="badge bg-danger">必須</span>
 										</div>
 										<div class="mb-3">
 											<input type="file" name="thumbnail_img" id="thumbnail_img" class="form-control" accept=".png,.jpeg,.jpg">
@@ -172,8 +171,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">対象</label>
-										<input name="target" class=" form-control" type="text"
-                                            value="<?= htmlspecialchars(isSetValue($eventData['target'] ?? '', ($old_input['target'] ?? ''))) ?>" />
+										<select id="target" class=" form-control mb-3" name="target">
+										<?php foreach ($targets as $target): ?>
+											<option value="<?= htmlspecialchars($target['id']) ?>"
+												<?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+												<?= htmlspecialchars($target['name']) ?>
+											</option>
+										<?php endforeach; ?>
+										</select>
 										<?php if (!empty($errors['target'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['target']); ?></div>
 										<?php endif; ?>
@@ -239,7 +244,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
 										</div>
 										<div class="mb-3">
-											<?php if (!is_null($eventData)): ?><?= $eventData['google_map'] ?? '' ?><?php endif; ?>
+										<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
+											<?= $eventData['google_map'] ?? '' ?>
+										<?php endif; ?>
 										</div>
 									</div>
 									<div class="mb-3">
