@@ -202,7 +202,6 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 		// PHPから動画ファイル名を取得
 		let video_file_name = "<?php echo htmlspecialchars($file_name, ENT_QUOTES, 'UTF-8'); ?>";
 		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
-		console.log(is_double_speed);
 		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
 		if (video_file_name) {
 			let video_path = "/uploads/movie/" + video_file_name;
