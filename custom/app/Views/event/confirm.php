@@ -19,7 +19,6 @@ $companionMailsString = "";
 $applicant_kbn = null;
 $guardian_kbn = null;
 $guardian_name = "";
-$guardian_name_kana = "";
 $guardian_email = "";
 $event_customfield_category_id = null;
 $cognitions = [];
@@ -46,7 +45,6 @@ if (isset($SESSION->formdata)) {
     $applicant_kbn = $formdata['applicant_kbn'];
     $guardian_kbn = $formdata['guardian_kbn'];
     $guardian_name = $formdata['guardian_name'];
-    $guardian_kana = $formdata['guardian_kana'];
     $guardian_email = $formdata['guardian_email'];
     $event_customfield_category_id = $formdata['event_customfield_category_id'];
     $cognitions = $formdata['cognitions'];
@@ -76,7 +74,7 @@ if(!is_null($courseInfoId)) {
                 <li>完了</li>
             </ul>
             <!-- 一旦申し込んだイベントリストへ飛ばす -->
-            <form action="/custom/app/Controllers/event/EventApplicationInsertController.php" method="post" enctype="multipart/form-data" class="whitebox form_cont">
+            <form action="/custom/app/Controllers/event/event_application_insert_controller.php" method="post" enctype="multipart/form-data" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" id="event_id" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
                 <input type="hidden" name="course_info_id" value="<?= htmlspecialchars($courseInfoId ?? "") ?>">
@@ -94,7 +92,6 @@ if(!is_null($courseInfoId)) {
                 <?php if($guardian_kbn == 1): ?>
                 <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
                 <input type="hidden" name="guardian_name" value="<?= htmlspecialchars($guardian_name); ?>">
-                <input type="hidden" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana); ?>">
                 <input type="hidden" name="guardian_email" value="<?= htmlspecialchars($guardian_email); ?>">
                 <?php endif ?>
                 <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id); ?>">
@@ -182,10 +179,6 @@ if(!is_null($courseInfoId)) {
                             <li>
                                 <p class="list_label">保護者名</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_name) ?></p>
-                            </li>
-                            <li>
-                                <p class="list_label">保護者名フリガナ</p>
-                                <p class="list_field"><?= htmlspecialchars($guardian_kana) ?></p>
                             </li>
                             <li>
                                 <p class="list_label">保護者連絡先メールアドレス</p>

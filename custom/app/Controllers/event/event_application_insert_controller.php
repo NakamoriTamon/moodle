@@ -123,17 +123,14 @@ $guardian_kbn = htmlspecialchars(optional_param('guardian_kbn', 0, PARAM_INT), E
 $contact_phone = $_SESSION['USER']->phone1;
 $applicant_kbn = htmlspecialchars(optional_param('applicant_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 $guardian_name = htmlspecialchars(optional_param('guardian_name', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$guardian_kana = htmlspecialchars(optional_param('guardian_kana', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $guardian_email = htmlspecialchars(optional_param('guardian_email', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
 if(empty($guardian_kbn)) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
-    $_SESSION['errors']['guardian_kana'] = validate_text($guardian_kana, '保護者名フリガナ', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
 } else {
     $_SESSION['errors']['guardian_name'] = null;
-    $_SESSION['errors']['guardian_kana'] = null;
     $_SESSION['errors']['guardian_email'] = null;
 }
 $event_customfield_category_id =  htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
@@ -193,7 +190,6 @@ if($_SESSION['errors']['ticket']
 || $_SESSION['errors']['note']
 || $_SESSION['errors']['companion_mails']
 || $_SESSION['errors']['guardian_name']
-|| $_SESSION['errors']['guardian_kana']
 || $_SESSION['errors']['guardian_email']) {
     $_SESSION['message_error'] = '登録に失敗しました。再度情報を入力してください。';
     $result = false;
@@ -230,14 +226,12 @@ if ($result) {
                     event_id, user_id, event_custom_field_id, field_value
                     , name, name_kana, email, ticket_count, price, pay_method
                     , request_mail_kbn, applicant_kbn, application_date
-                    , note, contact_phone, guardian_name, guardian_name_kana
-                    , guardian_email
+                    , note, contact_phone, guardian_name, guardian_email
                 ) VALUES (
                     :event_id , :user_id , :event_custom_field_id , :field_value
                     , :name , :name_kana , :email , :ticket_count , :price , :pay_method
                     , :request_mail_kbn , :applicant_kbn , CURRENT_TIMESTAMP
-                    , :note , :contact_phone , :guardian_name , :guardian_name_kana
-                    , :guardian_email
+                    , :note , :contact_phone , :guardian_name , :guardian_email
                 )
             ");
             
@@ -257,7 +251,6 @@ if ($result) {
                 , ':note' => $note
                 , ':contact_phone' => $contact_phone
                 , ':guardian_name' => $guardian_name
-                , ':guardian_name_kana' => $guardian_kana
                 , ':guardian_email' => $guardian_email
             ]);
     
@@ -426,7 +419,6 @@ if ($result) {
         , 'applicant_kbn' => $applicant_kbn
         , 'guardian_kbn' => $guardian_kbn
         , 'guardian_name' => $guardian_name
-        , 'guardian_kana' => $guardian_kana
         , 'guardian_email' => $guardian_email
         , 'event_customfield_category_id' => $event_customfield_category_id
         , 'params' => $params

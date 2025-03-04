@@ -49,7 +49,7 @@ function validate_custom_email($email, $text = "")
     } else if (strlen($domain) > 255) {
         return 'メールアドレスのドメイン(@より後)は255文字以下にしてください。';
     }
-    
+
     return null;
 }
 
@@ -305,10 +305,10 @@ function validate_tel_number($tel_number)
  */
 function validate_kana($val, $size)
 {
-    if (empty($tel_number)) {
+    if (empty($val)) {
         return 'フリガナは必須です。';
     }
-    if (strlen($tel_number) > 50) {
+    if (strlen($size) > 50) {
         return 'フリガナは50文字以下である必要があります。';
     }
     if (!preg_match('/^[ァ-ヶーｦ-ﾟ]+$/u', $val)) {

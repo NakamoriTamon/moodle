@@ -18,14 +18,13 @@ $_SESSION['errors']['description'] = validate_textarea($description, '説明文'
 $selectedCategories = $_POST['category_id'] ?? []; // カテゴリー　必須
 $_SESSION['errors']['category_id'] = validate_select_multiple($selectedCategories, 'カテゴリー', true); // バリデーションチェック
 $thumbnail_img = $_FILES['thumbnail_img'] ?? null; // サムネール画像　新規登録は必須
-$required_flg = is_null($id) ? true :false;
-$_SESSION['errors']['thumbnail_img'] = validate_image_file($thumbnail_img, 'サムネール画像', $required_flg); // バリデーションチェック
+$_SESSION['errors']['thumbnail_img'] = validate_image_file($thumbnail_img, 'サムネール画像', false); // バリデーションチェック
 $lecture_format_ids = $_POST['lecture_format_id'] ?? []; // 講義形式　必須
 $_SESSION['errors']['lecture_format_id'] = validate_select_multiple($lecture_format_ids, '講義形式', true); // バリデーションチェック
 $venue_name = $_POST['venue_name'] ?? null; // 会場名
 $_SESSION['errors']['venue_name'] = validate_text($venue_name, '会場名', 225, false); // バリデーションチェック
 $target = $_POST['target'] ?? null; // 対象
-$_SESSION['errors']['target'] = validate_text($target, '対象', 225, false); // バリデーションチェック
+$_SESSION['errors']['target'] = validate_select($target, '対象', false);
 $event_date = empty($_POST['event_date']) ? null : $_POST['event_date']; // 開催日
 if ($event_kbn == 1) {
     $_SESSION['errors']['event_date'] = validate_date($event_date, '開催日', true);
@@ -130,6 +129,7 @@ if ($event_kbn == 1) {
             // 初期化
             if (!isset($lectures[$lectureNumber])) {
                 $lectures[$lectureNumber] = [];
+                $event_date = $_POST["course_date_1"];
             }
 
             $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_select($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;

@@ -29,6 +29,12 @@
   margin: 60px 0 140px;
   cursor: pointer;
 }
+#mypage .radio_input, .radio_label{
+  vertical-align: middle;
+}
+#home .radio_label{
+  margin-right: 10px;
+}
 
 /*-------------------------------------
  card

@@ -61,7 +61,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.p
             <?php foreach ($events as $row): ?>
               <li class="swiper-slide event_item">
                 <a href="event/detail.php?id=<?= htmlspecialchars($row['id']) ?>">
-                  <figure class="img"><img src=<?= htmlspecialchars($row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
+                  <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                   <div class="event_info">
                     <ul class="event_status">
                       <?php foreach (DEADLINE_LIST as $key => $status): ?>
@@ -138,7 +138,12 @@ require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.p
                     <div class="field f_select select">
                         <select>
                             <option value="" disabled selected>選択してください</option>
-                            <option></option>
+                            <?php foreach ($targets as $target): ?>
+                              <option value="<?= htmlspecialchars($target['id']) ?>"
+                                <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($target['name']) ?>
+                              </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </li>

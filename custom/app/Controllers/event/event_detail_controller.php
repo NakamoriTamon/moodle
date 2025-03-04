@@ -4,14 +4,17 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $tutorModel = new TutorModel();
+$targetModel = new TargetModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
+$targets = $targetModel->getTargets();
 
 $id = $_GET['id'] ?? null;
 

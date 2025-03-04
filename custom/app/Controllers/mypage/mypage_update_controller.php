@@ -38,7 +38,7 @@ class MypageUpdateController {
         $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['name'] = validate_text($name, 'お名前', $name_size, true);
         $name_kana = htmlspecialchars(required_param('name_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        $_SESSION['errors']['name_kana'] = validate_text($name_kana, 'フリガナ', $name_size, true);
+        $_SESSION['errors']['name_kana'] = validate_kana($name_kana, $name_size);
         $city = htmlspecialchars(required_param('city', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['city'] = validate_select($city, 'お住いの都道府県', true);
         
@@ -155,7 +155,7 @@ class MypageUpdateController {
                     $data->password = password_hash($password, PASSWORD_DEFAULT);
                 }
                 
-                $DB->update_record('user', $data);
+                $DB->update_record_raw('user', $data);
         
                 $pdo->commit();
                 $_SESSION['message_success'] = '登録が完了しました';
@@ -166,8 +166,8 @@ class MypageUpdateController {
             $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
             header('Location: /custom/app/Views/mypage/index.php#user_form');
         }
-    }
-
+    }    
+    
     public function updateMembershipInfo () {
         global $DB; 
         
@@ -178,7 +178,7 @@ class MypageUpdateController {
         $name = htmlspecialchars(required_param('tekijuku_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['tekijuku_name'] = validate_text($name, 'お名前', $name_size, true);
         $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        $_SESSION['errors']['kana'] = validate_text($kana, 'フリガナ', $name_size, true);
+        $_SESSION['errors']['kana'] = validate_kana($kana, $name_size);
         $sex = htmlspecialchars(required_param('sex', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
         $post_code = htmlspecialchars(required_param('post_code', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
@@ -223,8 +223,6 @@ class MypageUpdateController {
                 exit;
             }
         }
-
-
         
         try{
             if (isloggedin() && isset($_SESSION['USER'])) {
@@ -259,6 +257,7 @@ class MypageUpdateController {
             $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
             header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
         }
+
     }
 
     // お知らせメール設定API
@@ -277,16 +276,16 @@ class MypageUpdateController {
                 $data->id = (int)$user_id;
                 $data->notification_kbn = $email_notification;
 
-                $DB->update_record('user', $data);
+                $DB->update_record_raw('user', $data);
 
                 $pdo->commit();
                 $_SESSION['message_success'] = '登録が完了しました';
-            } else {
-                $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+                header('Location: /custom/app/Views/mypage/index.php');
             }
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             $pdo->rollBack();
-            $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+            $_SESSION['message_error'] = '登録に失敗しました';
+            header('Location: /custom/app/Views/mypage/index.php');
         }
     }
 }

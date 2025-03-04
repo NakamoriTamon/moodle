@@ -1,40 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/custom/app/Controllers/EventCustomFieldController.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/event/EventApplicationConfirmController.php');
-
-
-// if ($_SERVER["REQUEST_METHOD"] === "POST") {
-//     $eventId = htmlspecialchars(required_param('event_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-//     $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $eventName = htmlspecialchars(required_param('event_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
-//     $price =  required_param('hidden_price', PARAM_INT);
-//     $triggerOther = htmlspecialchars(required_param('trigger_other', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $payMethod = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
-//     $notification_kbn = htmlspecialchars(required_param('notification_kbn', PARAM_INT), ENT_QUOTES, 'UTF-8');
-//     $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-//     $companionMails = optional_param_array('companion_mails', [], PARAM_EMAIL);
-//     if(!empty($companionMails)) {
-//         $companionMailsString = implode(',', $companionMails);
-//     } else {
-//         $companionMailsString = '';
-//     }
-//     $triggers = optional_param_array('trigger', [], PARAM_INT);
-//     $triggersString = implode(',', $triggers);
-//     $applicant_kbn = optional_param('applicant_kbn', '', PARAM_INT);
-//     $event_customfield_id = optional_param('event_customfield_id', '', PARAM_TEXT);
-//     $guardian_kbn = optional_param('guardian_kbn', 0, PARAM_INT);
-//     $guardian_name = optional_param('guardian_name', '', PARAM_TEXT);
-//     $guardian_kana = optional_param('guardian_kana', '', PARAM_TEXT);
-//     $guardian_email = optional_param('guardian_email', '', PARAM_TEXT);
-//     $event_customfield_category_id = htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-// } else {
-//     $_SESSION['message_error'] = '登録に失敗しました。お手数ですが、再度お申し込みをお願い致します。';
-//     header('Location: /custom/app/Views/front/index.php');
-//     exit;
-// }
+require_once('/var/www/html/moodle/custom/app/Controllers/event/event_application_confirm_controller.php');
 
 $eventCustomFieldModel = new eventCustomFieldModel();
 $eventCustomFieldList = $eventCustomFieldModel->getCustomFieldById($event_customfield_category_id);
@@ -172,11 +138,10 @@ foreach ($eventCustomFieldList as $eventCustomField) {
         <?php echo $passages ?>
         <?php if($guardian_kbn == 1): ?>
             <p><strong>保護者名</strong> <br><?= htmlspecialchars($guardian_name); ?></p>
-            <p><strong>保護者名フリガナ</strong> <br><?= htmlspecialchars($guardian_kana); ?></p>
             <p><strong>保護者連絡先メールアドレス</strong> <br><?= htmlspecialchars($guardian_email); ?></p>
         <?php endif ?>
     </div>
-    <form action="/custom/app/Controllers/event/EventApplicationInsertController.php" method="post" enctype="multipart/form-data">
+    <form action="/custom/app/Controllers/event/event_application_insert_controller.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
         <input type="hidden" id="event_id" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
         <input type="hidden" name="name" value="<?= htmlspecialchars($name); ?>">
@@ -194,7 +159,6 @@ foreach ($eventCustomFieldList as $eventCustomField) {
         <?php if($guardian_kbn == 1): ?>
         <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
         <input type="hidden" name="guardian_name" value="<?= htmlspecialchars($guardian_name); ?>">
-        <input type="hidden" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana); ?>">
         <input type="hidden" name="guardian_email" value="<?= htmlspecialchars($guardian_email); ?>">
         <?php endif ?>
         <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id); ?>">
