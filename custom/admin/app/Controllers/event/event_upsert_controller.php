@@ -14,7 +14,7 @@ $_SESSION['errors']['event_kbn'] = validate_select($event_kbn, 'イベント区�
 $name = $_POST['name'] ?? null; // イベントタイトル　必須
 $_SESSION['errors']['name'] = validate_text($name, 'イベントタイトル', 225, true); // バリデーションチェック
 $description = $_POST['description'] ?? null; // 説明文　必須
-$_SESSION['errors']['description'] = validate_textarea($description, '説明文', true); // バリデーションチェック
+$_SESSION['errors']['description'] = validate_textarea($description, '説明文', false); // バリデーションチェック
 $selectedCategories = $_POST['category_id'] ?? []; // カテゴリー　必須
 $_SESSION['errors']['category_id'] = validate_select_multiple($selectedCategories, 'カテゴリー', true); // バリデーションチェック
 $thumbnail_img = $_FILES['thumbnail_img'] ?? null; // サムネール画像　新規登録は必須
@@ -65,7 +65,7 @@ $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, '参
 $deadline = $_POST['deadline'] ?? null; // 申し込み締切日　必須
 $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', true);
 $deadline = $_POST['deadline'] . ' 23:59:59';
-$archive_streaming_period = empty($_POST['archive_streaming_period']) ? 0 : $_POST['archive_streaming_period']; // アーカイブ配信期間
+$archive_streaming_period = empty($_POST['archive_streaming_period']) ? null : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
 $is_double_speed = $_POST['is_double_speed'] == null ? 0 : 1; // 動画倍速機能
 $is_apply_btn = $_POST['is_apply_btn'] == null ? 0 : 1; // 申込みボタンを表示する
@@ -104,6 +104,7 @@ if ($event_kbn == 1) {
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                 'program' => $_POST["program_{$lectureNumber}"],
                 'course_date' => $_POST["event_date"],
+                'release_date' => $_POST["release_date"]
             ];
         }
     }
@@ -119,6 +120,7 @@ if ($event_kbn == 1) {
             // 全て未入力の場合
             if($lectureNumber > 2
             && empty($_POST["course_date_{$lectureNumber}"])
+            && empty($_POST["release_date_{$lectureNumber}"])
             && empty($value)
             && empty($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"])
             && empty($_POST["program_{$lectureNumber}_{$itemNumber}"])){
@@ -133,6 +135,7 @@ if ($event_kbn == 1) {
             }
 
             $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_select($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;
+            $_SESSION['errors']["release_date_{$lectureNumber}"] = validate_select($_POST["release_date_{$lectureNumber}"], "アーカイブ公開日", false);
             $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", $required_flg); // バリデーションチェック;
             $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"], "講義名", 225, $required_flg); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"] = validate_textarea($_POST["program_{$lectureNumber}_{$itemNumber}"], "講義概要", $required_flg); // バリデーションチェック;
@@ -150,6 +153,7 @@ if ($event_kbn == 1) {
             // 各フィールドを収集
             $lectures[$lectureNumber] = [
                 'course_date' => $_POST["course_date_{$lectureNumber}"],
+                'release_date' => $_POST["release_date_{$lectureNumber}"]
             ];
             $lectures[$lectureNumber]["detail"][$count] = [
                 'tutor_id' => $value,
@@ -509,16 +513,17 @@ try {
         // mdl_courseへのINSERT
         $stmt = $pdo->prepare("
             INSERT INTO mdl_course_info (
-                created_at, updated_at, no, course_date
+                created_at, updated_at, no, course_date, release_date
             )
             VALUES (
-                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date
             )
         ");
     
         $stmt->execute([
             ':no' => $key, // mdl_eventの挿入IDを使用
-            ':course_date' => $lecture["course_date"]
+            ':course_date' => $lecture["course_date"],
+            ':release_date' => $lecture["release_date"],
         ]);
         $courseInfoId = $pdo->lastInsertId();
 
