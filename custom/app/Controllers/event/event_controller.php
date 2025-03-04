@@ -58,7 +58,15 @@ if(!empty($events)) {
     
 }
 
-$totalCount = count($events);
+$totalCount = $eventModel->getEventTotal([
+    'event_status' => $event_status,
+    'deadline_status' => $deadline_status,
+    'lecture_format_id' => $lecture_format_id,
+    'keyword' => $keyword,
+    'event_start_date' => $event_start_date,
+    'event_end_date' => $event_end_date,
+    'category_id' => $category_id
+]);
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 

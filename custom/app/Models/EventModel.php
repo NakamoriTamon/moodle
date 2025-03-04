@@ -60,13 +60,34 @@ class EventModel extends BaseModel
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
                     if(is_array($filters['category_id'])) {
-                        $where .= ' AND ec.category_id in (:category_id)';
-                        $category_id = implode(',', $filters['category_id']);
+                        $placeholders = [];
+                        foreach ($filters['category_id'] as $index => $id) {
+                            $key = ":category_id_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $where .= ' AND ec.category_id IN (' . implode(',', $placeholders) . ')';
                     } else {
                         $where .= ' AND ec.category_id = :category_id';
                         $category_id = $filters['category_id'];
+                        $params[':category_id'] = $category_id;
                     }
-                    $params[':category_id'] = $category_id;
+                }
+                if(!empty($filters['lecture_format_id'])) {
+                    $sql .= ' LEFT JOIN mdl_event_lecture_format elf ON elf.event_id = e.id';
+                    if(is_array($filters['lecture_format_id'])) {
+                        $placeholders = [];
+                        foreach ($filters['lecture_format_id'] as $index => $id) {
+                            $key = ":lecture_format_id_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $where .= ' AND elf.lecture_format_id IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        $where .= ' AND elf.lecture_format_id = :lecture_format_id';
+                        $lecture_format_id = $filters['lecture_format_id'];
+                        $params[':lecture_format_id'] = $lecture_format_id;
+                    }
                 }
                 if (!empty($filters['event_status'])) {
                     if(is_array($filters['event_status'])) {
@@ -75,8 +96,13 @@ class EventModel extends BaseModel
                         } else {
                             $having = ' HAVING';
                         }
-                        $having .= ' event_status IN (:event_status)';
-                        $event_status = implode(',', $filters['event_status']);
+                        $placeholders = [];
+                        foreach ($filters['event_status'] as $index => $id) {
+                            $key = ":event_status_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $having .= ' event_status IN (' . implode(',', $placeholders) . ')';
                     } else {
                         if (!empty($having)) {
                             $having .= ' AND';
@@ -84,9 +110,8 @@ class EventModel extends BaseModel
                             $having = ' HAVING';
                         }
                         $having .= ' event_status = :event_status';
-                        $event_status = $filters['event_status'];
+                        $params[':event_status'] = $filters['event_status'];
                     }
-                    $params[':event_status'] = $event_status;
                 }
                 if (!empty($filters['deadline_status'])) {
                     if(is_array($filters['deadline_status'])) {
@@ -95,8 +120,13 @@ class EventModel extends BaseModel
                         } else {
                             $having = ' HAVING';
                         }
-                        $having .= ' deadline_status IN (:deadline_status)';
-                        $deadline_status = implode(',', $filters['deadline_status']);
+                        $placeholders = [];
+                        foreach ($filters['deadline_status'] as $index => $id) {
+                            $key = ":deadline_status_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $having .= ' deadline_status IN (' . implode(',', $placeholders) . ')';
                     } else {
                         if (!empty($having)) {
                             $having .= ' AND';
@@ -104,9 +134,8 @@ class EventModel extends BaseModel
                             $having = ' HAVING';
                         }
                         $having .= ' deadline_status = :deadline_status';
-                        $deadline_status = $filters['deadline_status'];
+                        $params[':deadline_status'] = $filters['deadline_status'];
                     }
-                    $params[':deadline_status'] = $deadline_status;
                 }
                 if (!empty($filters['event_id'])) {
                     $where .= ' AND e.id = :event_id';
@@ -163,7 +192,6 @@ class EventModel extends BaseModel
 
                 // 各イベントの詳細を追加
                 foreach ($events as &$event) {
-                    $event['details'] = $this->getEventDetails($event['id']);
                     $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
                     $event['categorys'] = $this->getEventCategorys($event['id']);
                     $event['course_infos'] = $this->getEventCourseInfos($event['id']);
@@ -180,15 +208,191 @@ class EventModel extends BaseModel
         return [];
     }
 
-    // イベントIDに基づいてイベント詳細を取得
-    private function getEventDetails($eventID)
-    {
+    public function getEventTotal($filters = []) {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_each WHERE event_id = :eventID");
-                $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
-                $stmt->execute();
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // ベースのSQLクエリ
+                $sql = 'WITH closest_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                c.course_date,
+                                ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                        ),
+                        event_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                MIN(c.course_date) AS min_course_date,
+                                MAX(c.course_date) AS max_course_date
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                            GROUP BY e.id
+                        )
+                        SELECT 
+                            e.*,
+                            (SELECT cd.course_date 
+                            FROM closest_dates cd 
+                            WHERE cd.event_id = e.id 
+                            ORDER BY cd.time_diff ASC 
+                            LIMIT 1) AS closest_course_date,
+                            CASE
+                                WHEN CURRENT_DATE < ed.min_course_date THEN 1 -- 開催前
+                                WHEN CURRENT_DATE BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
+                                WHEN CURRENT_DATE > ed.max_course_date THEN 3 -- 開催終了
+                            END AS event_status,
+                            CASE
+                                WHEN CURRENT_DATE <= (SELECT cd.course_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN CURRENT_DATE > (SELECT cd.course_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
+                                AND CURRENT_DATE <= (SELECT cd.course_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
+                                WHEN CURRENT_DATE > (SELECT cd.course_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
+                            END AS deadline_status
+                        FROM mdl_event e
+                        LEFT JOIN event_dates ed ON e.id = ed.event_id
+                    LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
+                    LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
+                    LEFT JOIN mdl_event_application ea ON ea.event_id = e.id';
+
+                $where = ' WHERE e.visible = 1';
+                $groupBy = ' GROUP BY e.id';
+                $orderBy = ' ORDER BY is_top, MIN(ci.course_date) ASC';
+
+                // 動的に検索条件を追加
+                $params = [];
+                $having = "";
+                if (!empty($filters['category_id'])) {
+                    $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
+                    if(is_array($filters['category_id'])) {
+                        $placeholders = [];
+                        foreach ($filters['category_id'] as $index => $id) {
+                            $key = ":category_id_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $where .= ' AND ec.category_id IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        $where .= ' AND ec.category_id = :category_id';
+                        $category_id = $filters['category_id'];
+                        $params[':category_id'] = $category_id;
+                    }
+                }
+                if(!empty($filters['lecture_format_id'])) {
+                    $sql .= ' LEFT JOIN mdl_event_lecture_format elf ON elf.event_id = e.id';
+                    if(is_array($filters['lecture_format_id'])) {
+                        $placeholders = [];
+                        foreach ($filters['lecture_format_id'] as $index => $id) {
+                            $key = ":lecture_format_id_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $where .= ' AND elf.lecture_format_id IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        $where .= ' AND elf.lecture_format_id = :lecture_format_id';
+                        $lecture_format_id = $filters['lecture_format_id'];
+                        $params[':lecture_format_id'] = $lecture_format_id;
+                    }
+                }
+                if (!empty($filters['event_status'])) {
+                    if(is_array($filters['event_status'])) {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $placeholders = [];
+                        foreach ($filters['event_status'] as $index => $id) {
+                            $key = ":event_status_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $having .= ' event_status IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' event_status = :event_status';
+                        $params[':event_status'] = $filters['event_status'];
+                    }
+                }
+                if (!empty($filters['deadline_status'])) {
+                    if(is_array($filters['deadline_status'])) {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $placeholders = [];
+                        foreach ($filters['deadline_status'] as $index => $id) {
+                            $key = ":deadline_status_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $having .= ' deadline_status IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' deadline_status = :deadline_status';
+                        $params[':deadline_status'] = $filters['deadline_status'];
+                    }
+                }
+                if (!empty($filters['event_id'])) {
+                    $where .= ' AND e.id = :event_id';
+                    $params[':event_id'] = $filters['event_id'];
+                }
+                if (!empty($filters['event_start_date'])) {
+                    $where .= ' AND ci.course_date >= :event_start_date';
+                    $params[':event_start_date'] = $filters['event_start_date'];
+                }
+                if (!empty($filters['event_end_date'])) {
+                    $where .= ' AND ci.course_date <= :event_end_date';
+                    $params[':event_end_date'] = $filters['event_end_date'];
+                }
+                // キーワード　フリー入力
+                if (!empty($filters['keyword'])) {
+                    // 開催場所、イベント名、講師名の部分一致検索
+                    $sql .= '
+                        LEFT JOIN mdl_course_info_detail cid ON cid.course_info_id = ci.id
+                        LEFT JOIN mdl_tutor t ON t.id = cid.tutor_id';
+                    // 文字列をスペース、半角スペース区切りで分割
+                    $keywordArray = preg_split('/[ 　]+/u', $filters['keyword']);
+                    $keywordConditions = [];
+                    foreach ($keywordArray as $index => $word) {
+                        $paramName = ":keyword{$index}";
+                        $params[$paramName] = '%' . $word . '%';
+                
+                        $keywordConditions[] = "(
+                            e.name LIKE $paramName
+                            OR e.venue_name LIKE $paramName
+                            OR cid.name LIKE $paramName
+                            OR t.name LIKE $paramName
+                        )";
+                    }
+
+                    if (!empty($keywordConditions)) {
+                        $where .= ' AND (' . implode(' AND ', $keywordConditions) . ')';
+                    }
+                }
+
+                // 最終SQLの組み立て
+                $sql .= $where . $groupBy;
+                if (!empty($having)) {
+                    $sql .= $having;
+                }
+
+                // クエリの実行
+                // 件数取得用のSQL
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $totalCount = count($stmt->fetchAll(PDO::FETCH_ASSOC));
+                
+                return $totalCount;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }
@@ -244,7 +448,7 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT ci.id, ci.no, ci.course_date FROM mdl_event_course_info eci 
+                $stmt = $this->pdo->prepare("SELECT ci.* FROM mdl_event_course_info eci 
                     LEFT JOIN mdl_course_info ci ON ci.id = eci.course_info_id WHERE event_id = :eventID");
                 $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
                 $stmt->execute();
@@ -372,7 +576,6 @@ class EventModel extends BaseModel
 
                 if(!empty($event)) {
                     // 各イベントの詳細を追加
-                    $event['details'] = $this->getEventDetails($event['id']);
                     $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
                     $event['categorys'] = $this->getEventCategorys($event['id']);
                     $event['course_infos'] = $this->getEventCourseInfos($event['id']);
@@ -423,7 +626,6 @@ class EventModel extends BaseModel
                 $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 // 各イベントの詳細を追加
-                $event['details'] = $this->getEventDetails($event['id']);
                 $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
                 $event['categorys'] = $this->getEventCategorys($event['id']);
                 $event['course_infos'] = $this->getEventCourseInfosById($courseInfoId);
@@ -474,11 +676,6 @@ class EventModel extends BaseModel
 
                 $stmt->execute();
                 $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // 各イベントの詳細を追加
-                foreach ($events as &$event) {
-                    $event['details'] = $this->getEventDetails($event['id']);
-                }
 
                 return $events;
             } catch (\PDOException $e) {

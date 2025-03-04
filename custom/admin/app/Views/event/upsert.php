@@ -98,7 +98,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">説明文</label>
-											<span class="badge bg-danger">必須</span>
 										</div>
 										<textarea name="description" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['description'] ?? '', ($old_input['description'] ?? ''))) ?></textarea>
 										<?php if (!empty($errors['description'])): ?>
@@ -257,6 +256,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3 onetime_area">
 									<?php foreach ($details[1] as $key => $detail): ?>
+										<div class="mb-3 onetime_area">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">アーカイブ公開日</label>
+											</div>
+												<input name="release_date" class="form-control" type="date"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
+												<?php if (!empty($errors['release_date'])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
+												<?php endif; ?>
+										</div>
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">講師</label>
 											<span class="badge bg-danger">必須</span>
@@ -315,9 +324,19 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												</div>
 												<input name="course_date_<?= $i ?>" class="form-control" type="date"
                                             value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][$i]['course_date'] ?? '', $old_input['course_date_' . $i] ?? '')) ?>" />
-														<?php if (!empty($errors['course_date_' . $i])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['course_date_' . $i]); ?></div>
-														<?php endif; ?>
+												<?php if (!empty($errors['course_date_' . $i])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['course_date_' . $i]); ?></div>
+												<?php endif; ?>
+											</div>
+											<div class="mb-3">
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">アーカイブ公開日</label>
+												</div>
+												<input name="release_date_<?= $i ?>" class="form-control" type="date"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][$i]['release_date'] ?? '', $old_input['release_date_' . $i] ?? '')) ?>" />
+												<?php if (!empty($errors['release_date_' . $i])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date_' . $i]); ?></div>
+												<?php endif; ?>
 											</div>
 											<?php foreach ($details[$i] as $key => $detail): ?>
 												<div id="area_<?= $i ?>_<?= $key+1 ?>">
@@ -467,7 +486,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">アーカイブ配信期間</label>
-										<span class="badge bg-danger">必須</span>
 										<input name="archive_streaming_period" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['archive_streaming_period'] ?? ($old_input['archive_streaming_period'] ?? '')) ?>" />
 										<?php if (!empty($errors['archive_streaming_period'])): ?>

@@ -48,7 +48,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                         class="obj">
                                     </object>
                                 <?php } ?>
-                                <p class="txt"><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category, array_column($categorys, 'id'))]['name'] ?></p>
+                                <p class="txt"><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $select_category['name'] ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
