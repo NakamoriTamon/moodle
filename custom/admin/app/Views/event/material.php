@@ -75,7 +75,7 @@ $course_number = $result_list['course_number'] ?? [];
 											<div class="mb-3 w-100">
 												<label class="form-label" for="notyf-message">イベント名</label>
 												<select name="event_id" class="form-control">
-													<option value="" selected disabled>未選択</option>
+													<option value="" selected>未選択</option>
 													<?php foreach ($event_list as $event): ?>
 														<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
 															<?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
@@ -213,15 +213,18 @@ $course_number = $result_list['course_number'] ?? [];
 			// 削除ボタンの処理
 			$(document).on('click', '.delete-link', function(event) {
 				event.preventDefault();
-				var $currentMaterialContainer = $(this).closest('.material-container');
-				if ($('.material-container').length > 1) {
-					$currentMaterialContainer.remove();
+				var $materialContainer = $(this).closest('.material-container');
+				var $uploadRow = $(this).closest('.uploadRow');
+				// 同じ material-container 内の .uploadRow が複数あればその行のみ削除、
+				// １件だけならhiddenフィールドの値を"delete"に設定して削除対象とする
+				if ($materialContainer.find('.uploadRow').length > 1) {
+					$uploadRow.remove();
 				} else {
-					$currentMaterialContainer.find('input[type="file"]').val('');
-					$currentMaterialContainer.find('.fileInfo').html('').addClass('d-none');
+					$uploadRow.find('input[type="file"]').val('');
+					$uploadRow.find('.fileInfo').html('').addClass('d-none');
+					$uploadRow.find('.hiddenField').val('delete');
 				}
 			});
-
 
 			$(document).on('change', '.fileUpload', function(e) {
 				var file = this.files[0];

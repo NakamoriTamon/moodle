@@ -101,6 +101,21 @@ try {
         exit;
     }
     $ids = !empty($_POST['ids']) ? array_map('intval', $_POST['ids']) : [];
+    $file_post = $_POST['files'] ?? [];
+    foreach ($file_post as $index => $value) {
+        if ($value === "delete") {
+            $record_id = isset($_POST['ids'][$index]) ? (int) $_POST['ids'][$index] : 0;
+            if ($record_id > 0 && isset($material_list[$record_id])) {
+                $record = $material_list[$record_id];
+                $file_path = $CFG->dirroot . '/uploads/material/' . $record->file_name;
+                if (file_exists($file_path)) {
+                    unlink($file_path);
+                }
+                $DB->delete_records('course_material', array('id' => $record_id));
+            }
+        }
+    }
+
     $file_ids = !empty($_POST['files']) ? array_map('intval', array_keys($_POST['files'])) : [];
     $max_id = !empty($file_ids) ? max($file_ids) : 0;
 

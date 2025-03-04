@@ -29,19 +29,8 @@ class EventModel extends BaseModel
                 // 動的に検索条件を追加
                 $params = [];
                 $having = "";
-                if (!empty($filters['category_id'])) {
-                    $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
-                    if(is_array($filters['category_id'])) {
-                        $where .= ' AND ec.category_id in (:category_id)';
-                        $category_id = implode(',', $filters['category_id']);
-                    } else {
-                        $where .= ' AND ec.category_id = :category_id';
-                        $category_id = $filters['category_id'];
-                    }
-                    $params[':category_id'] = $category_id;
-                }
                 if (!empty($filters['event_status'])) {
-                    if(is_array($filters['event_status'])) {
+                    if (is_array($filters['event_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -61,7 +50,7 @@ class EventModel extends BaseModel
                     $params[':event_status'] = $event_status;
                 }
                 if (!empty($filters['deadline_status'])) {
-                    if(is_array($filters['deadline_status'])) {
+                    if (is_array($filters['deadline_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -92,6 +81,10 @@ class EventModel extends BaseModel
                     $where .= ' AND ci.course_date <= :event_end_date';
                     $params[':event_end_date'] = $filters['event_end_date'];
                 }
+                if (!empty($filters['category_id'])) {
+                    $where .= ' AND e.categoryid = :category_id';
+                    $params[':category_id'] = $filters['category_id'];
+                }
                 // キーワード　フリー入力
                 if (!empty($filters['keyword'])) {
                     // 開催場所、イベント名、講師名の部分一致検索
@@ -104,7 +97,7 @@ class EventModel extends BaseModel
                     foreach ($keywordArray as $index => $word) {
                         $paramName = ":keyword{$index}";
                         $params[$paramName] = '%' . $word . '%';
-                
+
                         $keywordConditions[] = "(
                             e.name LIKE $paramName
                             OR e.venue_name LIKE $paramName
@@ -137,7 +130,6 @@ class EventModel extends BaseModel
                 foreach ($events as &$event) {
                     $event['details'] = $this->getEventDetails($event['id']);
                     $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
-                    $event['categorys'] = $this->getEventCategorys($event['id']);
                     $event['course_infos'] = $this->getEventCourseInfos($event['id']);
                 }
 
@@ -191,26 +183,6 @@ class EventModel extends BaseModel
         return [];
     }
 
-    // イベントIDに基づいてカテゴリーを取得
-    private function getEventCategorys($eventID)
-    {
-        if ($this->pdo) {
-            try {
-                $stmt = $this->pdo->prepare("SELECT c.id as category_id, c.name FROM mdl_event_category ec 
-                    LEFT JOIN mdl_category c ON c.id = ec.category_id WHERE event_id = :eventID");
-                $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
-                $stmt->execute();
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
-            }
-        } else {
-            echo "データの取得に失敗しました";
-        }
-
-        return [];
-    }
-
     // イベントIDに基づいて講座を取得
     private function getEventCourseInfos($eventID)
     {
@@ -221,10 +193,10 @@ class EventModel extends BaseModel
                 $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
                 $stmt->execute();
                 $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach($course_infos as &$course_info) {
+                foreach ($course_infos as &$course_info) {
                     $course_info["details"] = $this->getEventCourseInfoDetails($course_info["course_info_id"]);
                 }
-                
+
                 return $course_infos;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
@@ -262,7 +234,7 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                
+
                 // ベースのSQLクエリ
                 $sql = 'SELECT 
                         e.*,
@@ -293,7 +265,6 @@ class EventModel extends BaseModel
                 // 各イベントの詳細を追加
                 $event['details'] = $this->getEventDetails($event['id']);
                 $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
-                $event['categorys'] = $this->getEventCategorys($event['id']);
                 $event['course_infos'] = $this->getEventCourseInfos($event['id']);
                 $event_status = $event['event_status'];
 

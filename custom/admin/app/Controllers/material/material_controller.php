@@ -39,10 +39,11 @@ class MaterialController
             $filters['course_no'] = $course_no;
         }
 
-        // イベント検索
-        $event_list = $this->eventModel->getEvents($filters, 1, 100000);
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000);
-
+        if (!empty($event_status_id) || !empty($category_id)) {
+            $event_list = $this->eventModel->getEvents($filters, 1, 100000);
+        } else {
+            $event_list = $this->eventModel->getEvents([], 1, 100000);
+        }
         $course_info = null;
         $material    = [];
         if (!empty($event_id) && !empty($course_no)) {
@@ -64,8 +65,6 @@ class MaterialController
                 $is_display = true;
             }
         }
-        $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id)
-            ? $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
 
         $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
