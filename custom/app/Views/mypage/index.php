@@ -30,7 +30,7 @@
     }
 
     include('/var/www/html/moodle/custom/app/Views/common/header.php');
-    unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_']);
+unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -339,18 +339,20 @@
                                         </div>
                                     </li>
                                     <li class="list_item11">
-                                        <div class="list_field">
-                                            <label class="checkbox_label">
-                                                <input class="checkbox_input" id="is_published" type="checkbox" name="is_published" value=1 <?php if ($old_input['is_published'] == '1') { ?>checked <?php } ?>>
-                                                <label class="checkbox_label" for="is_published">氏名掲載を許可します</label>
-                                            </label>
-                                        </div>
+                                    <div class="area name">
+                                        <label class="checkbox_label" for="">
+                                            <input type="hidden" name="is_published" value="0">
+                                            <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration->is_published) == '1' ? 'checked' : ''; ?>>
+                                            <label class="checkbox_label">氏名掲載を許可します</label>
+                                        </label>
+                                    </div>
                                     </li>
-                                    <li id="is_subscription_area" class="list_item12">
-                                        <div class="list_field">
+                                    <li class="list_item12 is_subscription_area">
+                                        <div class="area plan">
                                             <label class="checkbox_label" for="">
-                                                <input class="checkbox_input" id="is_subscription" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
-                                                <label class="checkbox_label" for="is_subscription">定額課金プランを利用する</label>
+                                                <input type="hidden" name="is_subscription" value="0">
+                                                <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration->is_subscription) == '1' ? 'checked' : ''; ?>>
+                                                <label class="checkbox_label" for="is_subscription_checkbox">定額課金プランを利用する</label>
                                             </label>
                                         </div>
                                     </li>
@@ -537,10 +539,10 @@
         function paymentMethod(val) {
             console.log(val);
             if (val === "2") {
-                $('#is_subscription_area').css('display', 'block');
+                $('.is_subscription_area').css('display', 'block');
             } else {
-                $('#is_subscription_area').css('display', 'none');
-                $('#is_subscription').prop('checked', false);
+                $('.is_subscription_area').css('display', 'none');
+                $('#is_subscription_checkbox').prop('checked', false);
             }
         }
         // 登録成功文章を消す
