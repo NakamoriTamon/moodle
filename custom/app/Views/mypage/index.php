@@ -1,28 +1,35 @@
 <?php
-require_once('/var/www/html/moodle/config.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
+    require_once('/var/www/html/moodle/config.php');
+    require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 
-$mypage_controller = new MypageController;
-$user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
-$tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
-$event_applications = $mypage_controller->getEventApplications(); // イベントの情報を引っ張ってくる
+    // ページネート表示数
+    $perPage = 10;
+    // 現在のページ数
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    // ページネート取得位置位置
+    $offset = ($page - 1) * $perPage;
+    $mypage_controller = new MypageController;
+    $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+    $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+    $event_applications = $mypage_controller->getEventApplications($offset, $perPage); // イベントの情報を引っ張ってくる
+    $pagination = $event_applications['pagination'];
+    $event_applications['pagination']['current_page'] = $page;
+    $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
+    $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
-$user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
-$birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
+    $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
+    $currentDate = date('Y-m-d');
+    // 今は4/1で固定
+    $startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
+    if ($currentDate < $startDate) {
+        // 4/1以前なら去年
+        $currentYear = date('y') - 1;
+    } else {
+        $currentYear = date('y');
+    }
 
-$errors = $_SESSION['errors'] ?? []; // バリデーションエラー
-$currentDate = date('Y-m-d');
-// 今は4/1で固定
-$startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
-if ($currentDate < $startDate) {
-    // 4/1以前なら去年
-    $currentYear = date('y') - 1;
-} else {
-    $currentYear = date('y');
-}
-
-include('/var/www/html/moodle/custom/app/Views/common/header.php');
-unset($_SESSION['old_input']);
+    include('/var/www/html/moodle/custom/app/Views/common/header.php');
+    unset($_SESSION['old_input']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -198,6 +205,7 @@ unset($_SESSION['old_input']);
                         </div>
                     </div>
                     <div class="form_btn">
+                        <input type="hidden" name="post_kbn" value="update_user">
                         <input type="submit" class="btn btn_red box_bottom_btn submit_btn" value="知の広場会員情報の変更を確定する" name="update_user"/>
                     </div>
                 </form>
@@ -326,71 +334,91 @@ unset($_SESSION['old_input']);
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <div class="area name">
-                                    <input type="hidden" name="is_published" value="0">
-                                    <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration->is_published) == '1' ? 'checked' : ''; ?>>
-                                    <label class="checkbox_label">氏名掲載を許可します</label>
-                                </div>
-                                <div class="area plan">
-                                    <input type="hidden" name="is_subscription" value="0">
-                                    <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration->is_subscription) == '1' ? 'checked' : ''; ?>>
-                                    <label class="checkbox_label" for="is_subscription_checkbox">定額課金プランを利用する</label>
-                                </div>
+                                <li class="list_item11">
+                                    <div class="area name">
+                                        <label class="checkbox_label" for="">
+                                            <input type="hidden" name="is_published" value="0">
+                                            <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration->is_published) == '1' ? 'checked' : ''; ?>>
+                                            <label class="checkbox_label">氏名掲載を許可します</label>
+                                        </label>
+                                    </div>
+                                </li>
+                                <li class="list_item12 is_subscription_area">
+                                    <div class="area plan">
+                                        <label class="checkbox_label" for="">
+                                            <input type="hidden" name="is_subscription" value="0">
+                                            <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration->is_subscription) == '1' ? 'checked' : ''; ?>>
+                                            <label class="checkbox_label" for="is_subscription_checkbox">定額課金プランを利用する</label>
+                                        </label>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
                     <div class="form_btn">
+                        <input type="hidden" name="post_kbn" value="update_membership">
                         <input type="submit" class="btn btn_red box_bottom_btn" value="適塾記念会会員情報の変更を確定する" name="update_membership"/>
                     </div>
                 </form>
             </div>
         </div>
         <?php endif; ?>
-    <div class="mypage_cont reserve">
-        <h3 class="mypage_head">予約情報</h3>
-        <?php $allCourseDateNull = true; ?>
-        <?php if (!empty($event_applications)): ?>
-        <?php foreach ($event_applications as $application): ?>
-            <?php 
-            if (is_null($application->course_date)) {
-                continue;
-            }
+        <div class="mypage_cont reserve">
+            <h3 class="mypage_head">予約情報</h3>
+            <?php $allCourseDateNull = true; ?>
+            <?php if (!empty($event_applications['data'])): ?>
+                <?php foreach ($event_applications['data'] as $application): ?>
+                    <?php 
+                        if (is_null($application->course_date)) {
+                            continue;
+                        }
 
-            $allCourseDateNull = false;
-            ?>
-            <div class="info_wrap js_pay">
-                <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
-                    <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
-                    <button type="submit" class="info_wrap_cont_btn">
-                        <p class="date">
-                            <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
-                        </p>
-                        <div class="txt">
-                            <p class="txt_ttl">
-                                <?php echo $application->event_name ?>
-                            </p>
-                            <ul class="txt_other">
-                                <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
-                                <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
-                                <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
-                                <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済み' : '未決済' ?></span></li>
-                            </ul>
-                        </div>
-                    </button>
-                </form>
-                <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
-                    <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
-                    <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
-                    <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
-                </a>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
+                        $allCourseDateNull = false;
+                    ?>
+                    <div class="info_wrap js_pay">
+                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+                            <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
+                            <button type="submit" class="info_wrap_cont_btn">
+                                <p class="date">
+                                    <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
+                                </p>
+                                <div class="txt">
+                                    <p class="txt_ttl">
+                                        <?php echo $application->event_name ?>
+                                    </p>
+                                    <ul class="txt_other">
+                                        <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
+                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
+                                        <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
+                                        <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済み' : '未決済' ?></span></li>
+                                    </ul>
+                                </div>
+                            </button>
+                        </form>
+                        <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
+                            <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
+                            <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
+                            <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+                <div class="pagination">
+                    <?php if ($event_applications['pagination']['current_page'] > 1): ?>
+                        <a href="?page=<?php echo $event_applications['pagination']['current_page'] - 1 ?>" class="prev">← 前へ</a>
+                    <?php endif; ?>
+                    <span class="page-info">Page <?php echo $event_applications['pagination']['current_page']; ?> / <?php echo $event_applications['pagination']['total_pages']; ?></span>
+                    <?php if ($event_applications['pagination']['current_page'] < $event_applications['pagination']['total_pages']): ?>
+                        <a href="?page=<?php echo $event_applications['pagination']['current_page'] + 1 ?>" class="next">次へ →</a>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <p>申し込み情報はありません。</p>
+            <?php endif; ?>
+        </div>
 
-    <?php if ($allCourseDateNull): ?>
-        <div>現在お申込みされているイベントはございません。下記申し込みイベント一覧からお申込みください。</div>
-    <?php endif; ?>
-    </div>
+        <?php if ($allCourseDateNull): ?>
+            <div>現在お申込みされているイベントはございません。下記申し込みイベント一覧からお申込みください。</div>
+        <?php endif; ?>
         <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
 
         <div class="mypage_cont history">
@@ -433,7 +461,10 @@ unset($_SESSION['old_input']);
                 ご登録いただいたアドレス宛にイベントの最新情報やメールマガジンをお送りいたします。<br />
                 こちらで受信の設定が可能です。不要な方はチェックを外してください。
             </p>
-            <label class="set_check"><input type="checkbox" />受け取る</label>
+            <label class="set_check">
+                <input type="checkbox" id="email-notifications" <?php echo ($user->notification_kbn == 1) ? 'checked' : ''; ?> /> 受け取る
+            </label>
+            <div id="notification-message" style="display:none;"></div>
             <a href="" class="btn btn_blue box_bottom_btn arrow">前へ戻る</a>
         </div>
     </section>
@@ -568,7 +599,6 @@ unset($_SESSION['old_input']);
             if (birthday) {
                 const age = calculateAge(birthday);
                 if (age < 13) {
-                    console.log(age);
                     $('#parents_input_area').css('display', 'block');
                 } else if (age < 19) {
                     $('#parents_check_area').css('display', 'block');
@@ -611,4 +641,27 @@ unset($_SESSION['old_input']);
             }
         }
     });
+
+    $(document).ready(function() {
+        $('#email-notifications').change(function() {
+            var isChecked = $(this).is(':checked'); // チェックの状態を取得
+            $.ajax({
+                url: '/custom/app/Controllers/mypage/mypage_update_controller.php', // ここに実際のAPIのエンドポイントを指定
+                method: 'POST',
+                data: {
+                    email_notification: isChecked ? 1 : 0, 
+                    post_kbn: 'email_notification'
+                },
+                success: function(response) {
+                    // サーバーからのレスポンスに基づきフィードバック
+                    $('#notification-message').text('設定が保存されました').show();
+                },
+                error: function(xhr, status, error) {
+                    // エラー時の処理
+                    $('#notification-message').text('設定の保存に失敗しました').show();
+                }
+            });
+        });
+    });
+
 </script>

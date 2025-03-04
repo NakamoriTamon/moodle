@@ -7,7 +7,9 @@ require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 
 
 $email = $_POST['email'];
-$password = $_POST['password'];
+// $password = $_POST['password'];
+
+$password = required_param('password', PARAM_RAW); // パスワード
 $_SESSION['old_input'] = $_POST;
 
 $email_error = empty($email) ? 'メールアドレスかユーザーIDを入力してください。' : null;
@@ -28,7 +30,8 @@ foreach ($_SESSION['errors'] as $error) {
 
 // 接続情報取得
 global $DB;
-$password = password_hash($password, PASSWORD_DEFAULT);
+// $password = password_hash($password, PASSWORD_DEFAULT);
+
 // 管理者のメールアカウントも含む
 $user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1]);
 
@@ -43,8 +46,11 @@ if (!$user_list) {
     exit;
 }
 foreach ($user_list as $user) {
-    $login_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
-    if ($login_user) {
+    $login_user = $DB->get_record('role_assignments', ['userid' => $user->id]);
+
+    if ($login_user
+        && validate_internal_user_password($user, $password) // パスワードが通らない時は一時的にこの行をコメントアウト後userのpasswordをUIで変更してください。
+     ) {
         complete_user_login($user); // 追加　セッションに$USER情報を入れる
         $_SESSION['user_id'] = $user->id; // DBから取得したユーザーIDを保存
         header('Location: /custom/app/Views/index.php');

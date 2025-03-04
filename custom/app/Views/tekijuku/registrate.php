@@ -146,7 +146,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 </label>
                             </div>
                         </li>
-                        <li id="is_subscription_area" class="list_item12">
+                        <li class="list_item12 is_subscription_area">
                             <div class="list_field">
                                 <label class="checkbox_label" for="">
                                     <input class="checkbox_input" id="is_subscription" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
@@ -206,9 +206,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
         function paymentMethod(val) {
             console.log(val);
             if (val === "2") {
-                $('#is_subscription_area').css('display', 'block');
+                $('.is_subscription_area').css('display', 'block');
             } else {
-                $('#is_subscription_area').css('display', 'none');
+                $('.is_subscription_area').css('display', 'none');
                 $('#is_subscription').prop('checked', false);
             }
         }

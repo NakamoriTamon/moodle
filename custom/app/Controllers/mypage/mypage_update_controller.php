@@ -6,22 +6,26 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $post_kbn = isset($_POST['post_kbn']) ? $_POST['post_kbn'] : '';
     $controller = new MypageUpdateController(); // コントローラーのインスタンスを作成
+    switch ($post_kbn) {
+        case 'update_user':
+            $controller->updateUserInfo();
+            break;
+        case 'update_membership':
+            $controller->updateMembershipInfo();
+            break;
+        case 'email_notification':
+            $result = $controller->changeEmailNotifications();
 
-    if (isset($_POST['update_user'])) {
-        // ユーザー情報更新処理
-        $controller->updateUserInfo(); // ユーザー情報を更新するメソッドを呼び出す
-    } 
-    elseif (isset($_POST['update_membership'])) {
-        // 会員情報更新処理
-        $controller->updateMembershipInfo(); // 会員情報を更新するメソッドを呼び出す
-    } 
-    // elseif (isset($_POST['update_email_notifications'])) {
-    //     // メール通知設定更新処理
-    //     $controller->updateEmailNotifications(); // メール通知設定を更新するメソッドを呼び出す
-    // }
-    else {
-        die('不正なリクエストです。');
+            // 結果をJSON形式で返す
+            echo json_encode(['message' => $result ? '設定が保存されました' : '設定の保存に失敗しました']);
+            break;
+
+        // 他のリクエストタイプに応じた処理を追加可能
+        default:
+            die('不正なリクエストです');
+            break;
     }
 }
 
@@ -37,8 +41,6 @@ class MypageUpdateController {
         $_SESSION['errors']['name_kana'] = validate_text($name_kana, 'フリガナ', $name_size, true);
         $city = htmlspecialchars(required_param('city', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['city'] = validate_select($city, 'お住いの都道府県', true);
-        
-        
         
         $email = required_param('email', PARAM_TEXT);
         $_SESSION['errors']['email'] = validate_custom_email($email);
@@ -149,7 +151,7 @@ class MypageUpdateController {
                 $data->guardian_name = $guardian_name;
                 $data->guardian_email = $guardian_email;
         
-                if (!empty($change_password)) {
+                if (!empty($password)) {
                     $data->password = password_hash($password, PASSWORD_DEFAULT);
                 }
                 
@@ -257,7 +259,34 @@ class MypageUpdateController {
             $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
             header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
         }
+    }
 
+    // お知らせメール設定API
+    public function changeEmailNotifications() {
+        global $DB; 
+        
+        $user_id = $_SESSION['USER']->id;
+        $email_notification = $_POST['email_notification'] ?? 0;
 
+        try {
+            if (isloggedin() && isset($_SESSION['USER'])) {
+                $baseModel = new BaseModel();
+                $pdo = $baseModel->getPdo();
+                $pdo->beginTransaction();
+                $data = new stdClass();
+                $data->id = (int)$user_id;
+                $data->notification_kbn = $email_notification;
+
+                $DB->update_record('user', $data);
+
+                $pdo->commit();
+                $_SESSION['message_success'] = '登録が完了しました';
+            } else {
+                $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+            }
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        }
     }
 }
