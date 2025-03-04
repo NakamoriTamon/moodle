@@ -230,7 +230,7 @@ if($_SESSION['errors']['ticket']
             $tag_name = $customfield_type_list[$eventCustomField['field_type']] . '_' . $eventCustomField['id'] . '_' . $eventCustomField['field_type'];
             
             if ($eventCustomField['field_type'] == 3) {
-                $passages .= '<li class="long_item"><p class="list_label">' . $eventCustomField['field_name'] . '</p>';
+                $passages .= '<li class="long_item"><p class="list_label">' . $eventCustomField['name'] . '</p>';
                 $input_value = optional_param_array($tag_name, [], PARAM_RAW);
                 
                 $options = explode(",", $eventCustomField['selection']);
@@ -244,7 +244,7 @@ if($_SESSION['errors']['ticket']
                 $inputValueString = implode(',', $input_value);
                 $hiddens .= '<input type="hidden" name="' . $tag_name . '" value="' . $inputValueString . '">';
             } elseif ($eventCustomField['field_type'] == 4) {
-                $passages .= '<li class="long_item"><p class="list_label">' . $eventCustomField['field_name'] . '</p>';
+                $passages .= '<li class="long_item"><p class="list_label">' . $eventCustomField['name'] . '</p>';
                 $input_value = optional_param($tag_name, "", PARAM_TEXT);
 
                 $options = explode(",", $eventCustomField['selection']);
@@ -258,11 +258,11 @@ if($_SESSION['errors']['ticket']
             } elseif ($eventCustomField['field_type'] == 5) {
                 $input_value = optional_param($tag_name, '', PARAM_TEXT);
                 $value = str_replace("-", "/", $input_value);
-                $passages .= '<li><p class="list_label">' . $eventCustomField['field_name'] . '</p><p class="list_field">' . $value . '</p></li>';
+                $passages .= '<li><p class="list_label">' . $eventCustomField['name'] . '</p><p class="list_field">' . $value . '</p></li>';
                 $hiddens .= '<input type="hidden" name="' . $tag_name . '" value="' . $input_value . '">';
             } else {
                 $input_value = optional_param($tag_name, '', PARAM_TEXT);
-                $passages .= '<li><p class="list_label">' . $eventCustomField['field_name'] . '</p><p class="list_field">' . nl2br($input_value) . '</p></li>';
+                $passages .= '<li><p class="list_label">' . $eventCustomField['name'] . '</p><p class="list_field">' . nl2br($input_value) . '</p></li>';
                 $hiddens .= '<input type="hidden" name="' . $tag_name . '" value="' . $input_value . '">';
             }
         }

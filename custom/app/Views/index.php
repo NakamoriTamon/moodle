@@ -217,6 +217,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.p
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script src="/custom/public/assets/js/home.js"></script>
+<script src="/custom/public/assets/js/search_input_reset.js"></script>
 </body>
 
 </html>
