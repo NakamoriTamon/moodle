@@ -49,6 +49,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 							<div class="card">
 								<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
 									<form id="form" method="POST" action="/custom/admin/app/Views/event/movie.php" class="w-100">
+										<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id']) ?>">
 										<div class="sp-block d-flex justify-content-between">
 											<div class="mb-3 w-100">
 												<label class="form-label" for="notyf-message">カテゴリー</label>
@@ -119,8 +120,9 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 										<button type="button" id="upload_button" class="btn mb-2 btn-primary">アップロード</button>
 									</div>
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-									<input type="hidden" name="id" value="<?= htmlspecialchars($result_list['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="course_no" value="<?= htmlspecialchars($result_list['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<div class="movie-container mb-4">
 										<input type="hidden" name="id" value="<?= !empty($movie->id) ? (int)$movie->id : 0 ?>">
 										<h5><?= htmlspecialchars($movie->name, ENT_QUOTES, 'UTF-8') ?></h5>
@@ -140,7 +142,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 												<div id="movie-wrapper" class="w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
 													<video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
 														<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>>
-														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
+														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $result_list['course_info_id'] . '/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
 														<p>動画再生をサポートしていないブラウザです。</p>
 													</video>
 												</div>
@@ -178,8 +180,9 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 							</div>
 							<form method="POST" action="/custom/admin/app/Controllers/movie/movie_delete_controller.php">
 								<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-								<input type="hidden" name="id" value="<?= htmlspecialchars($result_list['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-								<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($movie['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="course_no" value="<?= htmlspecialchars($result_list['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 								<div class="modal-body">
 									本当にこの動画を削除しますか？
 								</div>
@@ -200,7 +203,10 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 <script>
 	$(document).ready(function() {
 		// PHPから動画ファイル名を取得
-		let video_file_name = "<?php echo htmlspecialchars($file_name, ENT_QUOTES, 'UTF-8'); ?>";
+		let video_file_name = null;
+		<?php if (isset($movie['course_info_id']) && isset($file_name) && isset($result_list['course_no'])): ?>
+			video_file_name = "<?php echo htmlspecialchars($movie['course_info_id'] . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8'); ?>";
+		<?php endif; ?>
 		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
 		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
 		if (video_file_name) {
@@ -328,7 +334,10 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 						type: 'POST',
 						data: {
 							file_name: file.name,
-							csrf_token: $('#upsert_form').find('[name="csrf_token"]').val()
+							csrf_token: $('#upsert_form').find('[name="csrf_token"]').val(),
+							course_info_id: $('#upsert_form').find('[name="course_info_id"]').val(),
+							course_no: $('#upsert_form').find('[name="course_no"]').val(),
+							id: $('#upsert_form').find('[name="id"]').val()
 						},
 						dataType: 'json',
 						success: function(response) {
@@ -352,6 +361,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 				// フォーム内の特定のデータを追加
 				form_data.append('id', $('#upsert_form').find('[name="id"]').val());
 				form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
+				form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
 				form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
 
 				// FormDataに動画チャンクと追加データを追加

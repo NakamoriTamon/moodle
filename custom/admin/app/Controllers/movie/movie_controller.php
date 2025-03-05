@@ -43,7 +43,6 @@ class MovieController
         $is_display = false;
         $is_single = false;
         $is_double_speed = false;
-        $id = null;
         $course_info_id = null;
         // 講義動画を取得
         foreach ($event_list as $event) {
@@ -53,6 +52,7 @@ class MovieController
                 if ($event['event_kbn'] == 1) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
+                        $course_no = 1;
                         $_SESSION['old_input']['course_no'] = "1";
                         $is_single = true;
                         $is_display = true;
@@ -70,7 +70,6 @@ class MovieController
             }
         }
 
-
         $movie = $this->movieModel->getMovieByInfoId($course_info_id);
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
@@ -83,7 +82,7 @@ class MovieController
             'is_single' => $is_single,
             'is_double_speed' => $is_double_speed,
             'course_info_id' => $course_info_id,
-            'id' => $id
+            'course_no' => $course_no,
         ];
 
         return $data;

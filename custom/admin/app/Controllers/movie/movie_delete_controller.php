@@ -8,6 +8,7 @@ global $DB;
 // POSTデータの取得 (バリデーションは別途行う)
 $id = $_POST['id'] ?? '';
 $course_info_id = $_POST['course_info_id'] ?? '';
+$course_no = $_POST['course_no'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
@@ -23,7 +24,7 @@ try {
     $DB->delete_records('course_movie', ['id' => $id]);
 
     if ($movie && !empty($movie->file_name)) {
-        $file_path = '/var/www/html/moodle/uploads/movie/' . $movie->file_name;
+        $file_path = '/var/www/html/moodle/uploads/movie/' . $course_info_id . '/' . $course_no . '/' . $movie->file_name;
         if (file_exists($file_path)) {
             unlink($file_path);
         } else {
