@@ -369,6 +369,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 					dataType: 'json',
 					success: function(response) {
 						if (response.status === 'error') {
+							location.href = "/custom/admin/app/Views/event/movie.php";
 							return;
 						}
 						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
