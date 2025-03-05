@@ -9,11 +9,21 @@ global $DB;
 // CSRFチェック
 if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
     $_SESSION['message_error'] = '登録に失敗しました。';
+}
+// 情報チェック
+$id = (int)$_POST['id'] ?? null;
+$course_no = (int)$_POST['course_no'] ?? null;
+$course_info_id = (int)$_POST['course_info_id'] ?? null;
+if (empty($course_info_id) || empty($course_no)) {
+    var_dump($course_no);
+    $_SESSION['message_error'] = $course_no;
+}
+if (!empty($_SESSION['message_error'])) {
     echo json_encode(['status' => 'error']);
     exit;
 }
 
-$upload_dir = '/var/www/html/moodle/uploads/movie/';
+$upload_dir = '/var/www/html/moodle/uploads/movie/' . $course_info_id . '/' . $course_no . '/';
 $file_name = $_POST['file_name'];
 $chunk_index = $_POST['chunk_index'];
 $total_chunks = $_POST['total_chunks'];
@@ -43,7 +53,6 @@ if ($chunk_index == $total_chunks - 1) {
     fclose($outputFile);
 
     $id = $_POST['id'] ?? null;
-    $course_info_id = (int)$_POST['course_info_id'] ?? null;
 
     try {
         $transaction = $DB->start_delegated_transaction();
@@ -53,13 +62,28 @@ if ($chunk_index == $total_chunks - 1) {
         $data->course_info_id = $course_info_id;
         $data->updated_at = date('Y-m-d H:i:s');
 
+        $existing_movie = null;
         if (!empty($id)) {
             $data->id = $id;
+            $existing_movie = $DB->get_record('course_movie', ['id' => $id]);
             $DB->update_record('course_movie', $data);
         } else {
             $data->created_at = date('Y-m-d H:i:s');
             $DB->insert_record('course_movie', $data);
         }
+
+        // 元のファイルを削除する
+        if ($existing_movie && !empty(trim($existing_movie->file_name))) {
+            if ($file_name !== $existing_movie->file_name) {
+                $file_path = '/var/www/html/moodle/uploads/movie/' . $course_info_id . '/' . $course_no . '/' . $existing_movie->file_name;
+                if (file_exists($file_path)) {
+                    unlink($file_path);
+                } else {
+                    throw new Exception('登録に失敗しました。');
+                }
+            }
+        }
+
         $transaction->allow_commit();
         $_SESSION['message_success'] = '登録が完了しました';
         $response = ['status' => 'success'];
