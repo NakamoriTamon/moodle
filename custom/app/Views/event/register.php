@@ -79,39 +79,39 @@
         <ul class="pdf_list">
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
             <li>
                 <p class="name">PDF1</p>
-                <a id="open-pdf" href="" class="btn btn_navy pdf">PDF資料</a>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
             </li>
         </ul>
     </div>
@@ -136,7 +136,7 @@
         $(window).scrollTop(srlpos);
     });
     $(document).ready(function() {
-        $("#open-pdf").on("click", function() {
+        $(".open-pdf").on("click", function() {
             const pdfUrl = "/uploads/material/sample.pdf";
             window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
         });
