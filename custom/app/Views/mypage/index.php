@@ -369,7 +369,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                     $allCourseDateNull = false;
                     ?>
                     <div class="info_wrap js_pay">
-                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+                        <form action="/custom/app/Views/event/reserve.php?id=<?php echo $application->event_application_id ?>" method="POST" class="info_wrap_cont">
                             <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">

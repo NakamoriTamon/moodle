@@ -3,13 +3,15 @@ require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 
-class MypageController {
+class MypageController
+{
     private $DB;
     private $USER;
     private $eventApplicationModel;
 
-    public function __construct() {
-        global $DB, $USER; 
+    public function __construct()
+    {
+        global $DB, $USER;
         $this->DB = $DB;
         $this->USER = $USER;
         $this->eventApplicationModel = new EventApplicationModel();
@@ -18,7 +20,8 @@ class MypageController {
     // $lastname_kana = "";
     // $firstname_kana = "";
     // ユーザー情報を取得
-    public function getUser() {
+    public function getUser()
+    {
         return $this->DB->get_record(
             'user',
             ['id' => $this->USER->id],
@@ -27,7 +30,8 @@ class MypageController {
     }
 
     // 適塾記念情報を取得
-    public function getTekijukuCommemoration() {
+    public function getTekijukuCommemoration()
+    {
         return $this->DB->get_record(
             'tekijuku_commemoration',
             ['fk_user_id' => $this->USER->id],
@@ -36,7 +40,8 @@ class MypageController {
     }
 
     // イベント申し込み情報を取得
-    public function getEventApplications() {
+    public function getEventApplications()
+    {
         $sql = "
             WITH ranked_courses AS (
                 SELECT 
