@@ -119,7 +119,7 @@ define('PREFECTURES', $prefectures);
 
 $roles = [
   '2' => '部門管理者',
-  '10' => 'システム管理者'
+  '9' => 'システム管理者'
 ];
 define('ROLES', $roles);
 

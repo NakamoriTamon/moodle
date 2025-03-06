@@ -55,7 +55,7 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                                                         <input type="hidden" name="users[<?= $index ?>][id]" value="<?= htmlspecialchars($admin['id']) ?>">
                                                         <select name="users[<?= $index ?>][role_id]" class="form-control">
                                                             <?php foreach (ROLES as $key => $role): ?>
-                                                                <option value=<?= htmlspecialchars($key) ?> <?php if ($key == $admin['role_sortorder']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
+                                                                <option value=<?= htmlspecialchars($key) ?> <?php if ($key == $admin['role_id']): ?>selected<?php endif; ?>><?= htmlspecialchars($role) ?></option>
                                                             <?php endforeach ?>
                                                         </select>
                                                     </td>
