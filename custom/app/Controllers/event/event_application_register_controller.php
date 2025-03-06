@@ -43,4 +43,18 @@ class EventRegisterController
         );
         return $pdf_list;
     }
+
+    public function movie_list($id = null)
+    {
+        global $DB;
+        $course_info_list = $DB->get_record_sql(
+            "SELECT * FROM {event_course_info} WHERE event_id = ?",
+            [$id]
+        );
+        $movie_list = $DB->get_records_sql(
+            "SELECT * FROM {course_movie} WHERE course_info_id = ?",
+            [$course_info_list->id]
+        );
+        return $movie_list;
+    }
 }

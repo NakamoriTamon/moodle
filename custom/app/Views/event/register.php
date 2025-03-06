@@ -44,11 +44,16 @@ $events = $reserve_controller->events();
                                 <?php if ($pdf_list) {
                                     echo "<a href='#' class='btn_pdf' data-event-id='" . htmlspecialchars($event->id) . "'>PDF資料</a>";
                                 } else {
-                                    echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'></a>";
+                                    echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
                                 }
                                 ?>
 
-                                <a href="movie.php" class="btn_movie">イベント動画</a>
+                                <?php if ($movie_list) {
+                                    echo '<a href="movie.php?event_id=' . htmlspecialchars($event->id) . '" class="btn_movie">イベント動画</a>';
+                                } else {
+                                    echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
+                                }
+                                ?>
                                 <a href="../survey/index.php?event_id=<?= htmlspecialchars($event->id) ?>" class="btn_answer">アンケートに回答する</a>
                             </div>
                             <p class="event_term">
@@ -76,14 +81,17 @@ $events = $reserve_controller->events();
 
 <div id="pdf_contents" style="display:none;">
     <?php foreach ($events as $event): ?>
-        <?php $pdf_list = $reserve_controller->pdf_list($event->id); ?>
+        <?php
+        $pdf_list = $reserve_controller->pdf_list($event->id);
+        $movie_list = $reserve_controller->movie_list($event->id);
+        ?>
         <div id="pdf_content_<?= htmlspecialchars($event->id) ?>">
             <ul class="pdf_list">
                 <?php if ($pdf_list): ?>
                     <?php foreach ($pdf_list as $pdf): ?>
                         <li>
                             <p class="name"><?= htmlspecialchars($pdf->file_name) ?></p>
-                            <a href="/uploads/material/<?= htmlspecialchars($pdf->file_name) ?>" class="btn btn_navy pdf" target="_blank">PDF資料</a>
+                            <a href="/custom/app/Views/event/pdf.php?file=<?= urlencode($pdf->file_name) ?>" class="open-pdf btn btn_navy pdf" target="_blank">PDF資料</a>
                         </li>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -100,44 +108,7 @@ $events = $reserve_controller->events();
     <div class="modal_bg js_close"></div>
     <div class="modal_cont inner_m">
         <span class="cross js_close"></span>
-        <ul class="pdf_list">
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-            <li>
-                <p class="name">PDF1</p>
-                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
-            </li>
-        </ul>
+        <div id="modal_pdf_content"></div>
     </div>
 </div>
 
@@ -173,7 +144,7 @@ $events = $reserve_controller->events();
     });
     $(document).ready(function() {
         $(".open-pdf").on("click", function() {
-            const pdfUrl = "/uploads/material/sample.pdf";
+            const pdfUrl = "/uploads/material/<?= htmlspecialchars($pdf->file_name) ?>";
             window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
         });
     });
