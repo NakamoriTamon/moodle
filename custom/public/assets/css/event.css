@@ -259,6 +259,9 @@
   height: 20px;
   background: url(../common/img/icon_mail.svg) no-repeat center / contain;
 }
+.program_sent{
+    font-weight: normal;
+}
 
 /*-------------------------------------
  EVENT MOVIE #movie 
