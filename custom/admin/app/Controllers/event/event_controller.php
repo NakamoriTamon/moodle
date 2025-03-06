@@ -24,7 +24,11 @@ $events = $eventModel->getEvents([
     'event_id' => $event_id,
 ], $currentPage, $perPage);
 
-$totalCount = count($events);
+$totalCount = $eventModel->getEventTotal([
+    'category_id' => $category_id,
+    'event_status' => $event_status,
+    'event_id' => $event_id,
+]);
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 

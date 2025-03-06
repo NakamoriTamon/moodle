@@ -126,11 +126,7 @@ $guardian_name = htmlspecialchars(optional_param('guardian_name', '', PARAM_TEXT
 $guardian_email = htmlspecialchars(optional_param('guardian_email', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-$current_date = new DateTime();
-$birthday_obj = new DateTime($_SESSION['USER']->birthday);
-$age = $current_date->diff($birthday_obj)->y;
-
-if (empty($guardian_kbn) && $age < 13) {
+if (empty($guardian_kbn)) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
 } else {
@@ -195,9 +191,11 @@ if (
     || $_SESSION['errors']['trigger_other']
     || $_SESSION['errors']['note']
     || $_SESSION['errors']['companion_mails']
-    || $_SESSION['errors']['guardian_name'] ?? null
-    || $_SESSION['errors']['guardian_email'] ?? null
+    // || $_SESSION['errors']['guardian_name']
+    // || $_SESSION['errors']['guardian_email']
 ) {
+    var_dump($_SESSION['errors']);
+    die();
     $_SESSION['message_error'] = '登録に失敗しました。再度情報を入力してください。';
     $result = false;
 }

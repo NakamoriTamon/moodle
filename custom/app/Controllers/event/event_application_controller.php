@@ -89,7 +89,7 @@ class EventApplicationController
             $params = $formdata['params'];
         }
         foreach ($fieldList as $fields) {
-            $passage .= '<li class="long_item"><p class="list_label">' . $fields['field_name'] . '</p>';
+            $passage .= '<li class="long_item"><p class="list_label">' . $fields['name'] . '</p>';
             if ($fields['field_type'] == 3) {
                 $passage .= '<div class="list_field list_col">';
                 $options = explode(",", $fields['selection']);

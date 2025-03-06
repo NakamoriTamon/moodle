@@ -100,7 +100,44 @@ $events = $reserve_controller->events();
     <div class="modal_bg js_close"></div>
     <div class="modal_cont inner_m">
         <span class="cross js_close"></span>
-        <div id="modal_pdf_content"></div>
+        <ul class="pdf_list">
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+            <li>
+                <p class="name">PDF1</p>
+                <a href="" class="open-pdf btn btn_navy pdf">PDF資料</a>
+            </li>
+        </ul>
     </div>
 </div>
 
@@ -134,9 +171,10 @@ $events = $reserve_controller->events();
         });
         $(window).scrollTop(srlpos);
     });
+    $(document).ready(function() {
+        $(".open-pdf").on("click", function() {
+            const pdfUrl = "/uploads/material/sample.pdf";
+            window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
+        });
+    });
 </script>
-
-<?php include($CFG->dirroot . '/custom/app/Views/common/footer.php'); ?>
-</body>
-
-</html>

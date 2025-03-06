@@ -22,10 +22,10 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                 <ul class="event_status">
                     <li class="no"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
                     <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                        <?php if($key != DEADLINE_END && $key == $event['deadline_status']): ?>
-                        <li class="active"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
-                        <?php elseif($key == DEADLINE_END && $key == $event['deadline_status']): ?>
-                        <li class="end"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
+                        <?php if ($key != DEADLINE_END && $key == $event['deadline_status']): ?>
+                            <li class="active"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
+                        <?php elseif ($key == DEADLINE_END && $key == $event['deadline_status']): ?>
+                            <li class="end"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
                         <?php endif ?>
                     <?php endforeach; ?>
                 </ul>
@@ -48,7 +48,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                         class="obj">
                                     </object>
                                 <?php } ?>
-                                <p class="txt"><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $categorys[array_search($select_category, array_column($categorys, 'id'))]['name'] ?></p>
+                                <p class="txt"><?php if (in_array($select_category, array_column($categorys, 'id'))) ?><?= $select_category['name'] ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -84,7 +84,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                 </li>
                                 <li>
                                     <p class="term">対象</p>
-                                    <p class="desc"><?= $targets[($event['target'] ?? DEADLINE_END)-1]['name'] ?></p>
+                                    <p class="desc"><?= $targets[($event['target'] ?? DEADLINE_END) - 1]['name'] ?></p>
                                 </li>
                                 <li>
                                     <p class="term">定員</p>
@@ -143,7 +143,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             </div>
                         </div>
                     </div>
-                    <?php if(DEADLINE_END != $event['deadline_status']): ?>
+                    <?php if (DEADLINE_END != $event['deadline_status']): ?>
                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
@@ -154,7 +154,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                         <?php foreach ($event['select_course'] as $no => $course): ?>
                             <div class="program">
                                 <h4 class="sub_ttl">【第<?= $no ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
-                                    <p class="sent">
+                                    <p class="sent program_sent">
                                         <?= nl2br($course['details'][0]['program']) ?>
                                     </p>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>

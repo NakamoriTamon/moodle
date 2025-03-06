@@ -149,13 +149,13 @@ unset($SESSION->formdata);
                 <?php endif; ?>
             </ul>
             <ul class="result_pg">
-                <?php if ($currentPage >= 1 && $totalCount > 10): ?>
+                <?php if ($currentPage >= 1 && $totalCount > $perPage): ?>
                     <li><a href="?page=<?= intval($currentPage) - 1 ?>" class="prev"></a></li>
                 <?php endif; ?>
-                <?php for ($i = 1; $i <= ceil($totalCount / 10); $i++): ?>
+                <?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
                     <li><a href="?page=<?= $i ?>" class="num <?= $i == $currentPage ? 'active' : '' ?>"><?= $i ?></a></li>
                 <?php endfor; ?>
-                <?php if ($currentPage >= 0 && $totalCount > 10): ?>
+                <?php if ($currentPage >= 0 && $totalCount > $perPage): ?>
                     <li><a href="?page=<?= intval($currentPage) + 1 ?>" class="next"></a></li>
                 <?php endif; ?>
             </ul>
@@ -170,8 +170,4 @@ unset($SESSION->formdata);
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
-<script>
-    document.getElementById('clear_button').addEventListener('click', function() {
-        document.getElementById('search_cont').reset();
-    });
-</script>
+<script src="/custom/public/assets/js/search_input_reset.js"></script>
