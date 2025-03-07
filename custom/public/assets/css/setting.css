@@ -73,6 +73,10 @@
 .pass_mail .set_form .btn_red {
   margin-top: 60px !important;
 }
+.pass_reset_sent{
+  text-align: center !important;
+  margin-bottom: 10px;
+}
 
 /*  mobile & smart phone
 ---------------------------------------------- */
