@@ -165,7 +165,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 					<div class="modal-dialog modal-dialog-centered">
 						<div class="modal-content">
 							<div class="modal-body text-center p-5 fs-4">
-								講義動画をアップロード中です<p id="percent" class="mt-1 me-2 fs-4">100%</p>
+								講義動画をアップロード中です<p id="percent" class="mt-1 me-2 fs-4 fw-bold">100%</p>
 							</div>
 						</div>
 					</div>
@@ -324,13 +324,12 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 			const total_chunks = Math.ceil(file.size / chunk_size);
 			let current_chunk = 0;
 
-			// upsert_formのデータをFormDataに追加
-			const form_data = new FormData();
-
+			// ファイルをチャンクごとに送信
 			function upload_chunk() {
 				if (current_chunk >= total_chunks) {
+					// チャンク送信完了後の最終処理
 					$.ajax({
-						url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // 同一URLで最終処理
+						url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
 						type: 'POST',
 						data: {
 							file_name: file.name,
@@ -358,33 +357,41 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 				const end = Math.min(start + chunk_size, file.size);
 				const chunk = file.slice(start, end);
 
-				// フォーム内の特定のデータを追加
+				// 新しいFormDataオブジェクトを作成
+				const form_data = new FormData();
 				form_data.append('id', $('#upsert_form').find('[name="id"]').val());
 				form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
 				form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
 				form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
+				form_data.append('file', chunk); // チャンクを追加
+				form_data.append('chunk_index', current_chunk); // チャンク番号
+				form_data.append('total_chunks', total_chunks); // チャンクの総数
+				form_data.append('file_name', file.name); // ファイル名
+				form_data.append('total_file_size', file.size);
 
-				// FormDataに動画チャンクと追加データを追加
-				form_data.append('file', chunk);
-				form_data.append('chunk_index', current_chunk);
-				form_data.append('total_chunks', total_chunks);
-				form_data.append('file_name', file.name);
+				function wait(ms) {
+					return new Promise(resolve => setTimeout(resolve, ms));
+				}
 
 				$.ajax({
-					url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // 同一URLで処理
+					url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // チャンクを送信
 					type: 'POST',
 					data: form_data,
 					processData: false,
 					contentType: false,
 					dataType: 'json',
-					success: function(response) {
+					success: async function(response) {
 						if (response.status === 'error') {
 							location.href = "/custom/admin/app/Views/event/movie.php";
 							return;
 						}
+
+						// アップロード進捗を表示
 						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
 						$('#percent').text(`${percentage}%`);
+
 						current_chunk++;
+						await wait(1000); // 少し待機してから次のチャンクをアップロード
 						upload_chunk(); // 次のチャンクをアップロード
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -393,6 +400,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 				});
 			}
 
+			// チャンクのアップロードを開始
 			upload_chunk();
 		});
 	});
