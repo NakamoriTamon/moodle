@@ -38,7 +38,7 @@ $_SESSION['errors']['end_hour'] = validate_time($end_hour, '終了時間', true)
 $access = $_POST['access'] ?? null; // 交通アクセス
 $_SESSION['errors']['access'] = validate_text($access, '交通アクセス', 500, false); // バリデーションチェック
 $google_map = $_POST['google_map'] ?? null; // Google Map
-$is_top = $_POST['is_top'] == null ? 0 : 1; // トップに固定
+$is_top = !isset($_POST['is_top']) ? 0 : $_POST['is_top']; // トップに固定
 $program = $_POST['program'] ?? null; // プログラム
 $_SESSION['errors']['program'] = validate_text($program, 'プログラム', 500, false); // バリデーションチェック
 $sponsor = $_POST['sponsor'] ?? null; // 主催
@@ -104,13 +104,15 @@ if ($event_kbn == 1) {
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                 'program' => $_POST["program_{$lectureNumber}"],
                 'course_date' => $_POST["event_date"],
-                'release_date' => $_POST["release_date"]
+                'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
+                'deadline_date' => $deadline
             ];
         }
     }
 } elseif ($event_kbn == 2) {
     $required_flg = true;
     $count = 0;
+    $deadline_date = null;
     // イベント区分が 2 の場合: tutor_id_番号_番号 の形式
     foreach ($_POST as $key => $value) {
         if (preg_match('/^tutor_id_(\d+)_(\d+)$/', $key, $matches)) {
@@ -151,9 +153,18 @@ if ($event_kbn == 1) {
             }
 
             // 各フィールドを収集
+            if($lectureNumber != 1) {
+                $course_date = optional_param("course_date_{$lectureNumber}", '', PARAM_RAW);
+                $date = new DateTime($course_date);
+                $date->modify('-' . $all_deadline . 'days');
+                $deadline_date = $date->format('Y-m-d 23:59:59'); // YYYY-MM-DD形式に変換
+            } else {
+                $deadline_date = $deadline;
+            }
             $lectures[$lectureNumber] = [
                 'course_date' => $_POST["course_date_{$lectureNumber}"],
-                'release_date' => $_POST["release_date_{$lectureNumber}"]
+                'release_date' => empty($_POST["release_date_{$lectureNumber}"]) ? null : $_POST["release_date_{$lectureNumber}"],
+                'deadline_date' => $deadline_date
             ];
             $lectures[$lectureNumber]["detail"][$count] = [
                 'tutor_id' => $value,
@@ -189,7 +200,11 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['note']
     || $error_flg) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
-    header('Location: /custom/admin/app/Views/event/upsert.php');
+    if($id) {
+        header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $id);
+    } else {
+        header('Location: /custom/admin/app/Views/event/upsert.php');
+    }
     exit;
 }
 
@@ -513,10 +528,10 @@ try {
         // mdl_courseへのINSERT
         $stmt = $pdo->prepare("
             INSERT INTO mdl_course_info (
-                created_at, updated_at, no, course_date, release_date
+                created_at, updated_at, no, course_date, release_date, deadline_date
             )
             VALUES (
-                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date
             )
         ");
     
@@ -524,6 +539,7 @@ try {
             ':no' => $key, // mdl_eventの挿入IDを使用
             ':course_date' => $lecture["course_date"],
             ':release_date' => $lecture["release_date"],
+            ':deadline_date' => $lecture["deadline_date"],
         ]);
         $courseInfoId = $pdo->lastInsertId();
 

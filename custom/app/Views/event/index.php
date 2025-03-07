@@ -3,6 +3,10 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/event/event_controller.php');
 
+
+$now = new DateTime();
+$now = $now->format('Ymd');
+
 $event_statuses = EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
 unset($SESSION->formdata);
@@ -119,7 +123,7 @@ unset($SESSION->formdata);
                                 <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <li class="no"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
+                                        <li class="<?php if($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
                                         <?php foreach (DEADLINE_LIST as $key => $status): ?>
                                             <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
                                             <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
@@ -130,12 +134,23 @@ unset($SESSION->formdata);
                                     </ul>
                                     <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
                                     <div class="event_sched">
-                                        <p class="term">開催日</p>
-                                        <div class="date">
-                                            <?php foreach ($row['select_course'] as $no => $course): ?>
-                                                <p class="dt01"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                                            <?php endforeach; ?>
-                                        </div>
+                                        <?php if($row['event_status'] <= 2): ?>
+                                            <p class="term">開催日</p>
+                                            <div class="date">
+                                                <?php foreach ($row['select_course'] as $no => $course): ?>
+                                                    <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                                                    <?php $count = 0; ?>
+                                                    <?php if($course_date >= $now): ?>
+                                                        <?php $count++; ?>
+                                                        <p class="dt01"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                                                    <?php endif ?>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="date">
+                                                <p class="dt01">全日程終了</p>
+                                            </div>
+                                        <?php endif ?>
                                     </div>
                                     <ul class="event_category">
                                         <?php foreach ($row['select_categorys'] as $select_category): ?>

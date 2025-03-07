@@ -20,7 +20,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
             <div class="desc_info">
                 <h3 class="event_ttl"><?= htmlspecialchars($event['name']); ?></h3>
                 <ul class="event_status">
-                    <li class="no"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
+                    <li class="<?php if($event['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
                     <?php foreach (DEADLINE_LIST as $key => $status): ?>
                         <?php if ($key != DEADLINE_END && $key == $event['deadline_status']): ?>
                             <li class="active"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
@@ -33,7 +33,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                     <p class="term">開催日</p>
                     <div class="date">
                         <?php foreach ($event['select_course'] as $no => $course): ?>
-                            <p class="dt01"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                            <p class="dt01"><?php if(count($event['select_course']) > 1): ?><?= $no ?>回目：<?php endif; ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -102,7 +102,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">参加費</p>
-                                    <p class="desc">1回 <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
+                                    <p class="desc"><?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
                                         <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
                                     </p>
                                 </li>
@@ -110,7 +110,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                     <p class="term">申込締切</p>
                                     <p class="desc">
                                         <?php if (count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
-                                        ＜各回受講＞開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
+                                        <?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
                                     </p>
                                 </li>
                             </ul>
@@ -143,7 +143,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             </div>
                         </div>
                     </div>
-                    <?php if (DEADLINE_END != $event['deadline_status']): ?>
+                    <?php if(DEADLINE_END != $event['deadline_status']): ?>
                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
@@ -154,10 +154,14 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                         <?php foreach ($event['select_course'] as $no => $course): ?>
                             <div class="program">
                                 <h4 class="sub_ttl">【第<?= $no ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
-                                    <p class="sent program_sent">
-                                        <?= nl2br($course['details'][0]['program']) ?>
-                                    </p>
+                            </div>
+                            <p class="sent">
+                                <?= nl2br($course['details'][0]['program']) ?>
+                            </p>
+                            <div class="program">
+                                <?php if(DEADLINE_END != $event['deadline_status']): ?>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -195,7 +199,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
 <ul id="pankuzu" class="inner_l">
     <li><a href="/custom/app/Views/index.php">トップページ</a></li>
     <li><a href="/custom/app/Views/event/index.php">イベント一覧</a></li>
-    <li>○○○○講座名が入ります</li>
+    <li><?= htmlspecialchars($event['name']); ?></li>
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
