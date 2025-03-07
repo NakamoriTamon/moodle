@@ -26,6 +26,7 @@ $phone = $_POST['phone'] ?? null;
 $birthday = $_POST['birthdate'] ?? null;
 $guardian_name = $_POST['guardian_name'] ?? null;
 $guardian_email = $_POST['guardian_email'] ?? null;
+$guardian_phone = $_POST['guardian_phone'] ?? null;
 $child_name =  $_POST['child_name'] ?? null;
 $description = $_POST['discription'] ?? null;
 
@@ -80,6 +81,7 @@ if (empty($birthday_error) && strtotime($timestamp_format) >= strtotime(date("Y-
 // 年齢取得
 $guardian_name_error = null;
 $guardian_email_error = null;
+$guardian_phone_error = null;
 if (empty($birthday_error)) {
     $current_date = new DateTime();
     $birthday_obj = new DateTime($birthday);
@@ -89,7 +91,17 @@ if (empty($birthday_error)) {
             $guardian_name_error = '保護者の氏名は必須です。';
         }
         if (empty($guardian_email)) {
-            $guardian_email_error = '保護者連絡先は必須です。';
+            $guardian_email_error = '保護者メールアドレスは必須です。';
+        }
+        if (empty($guardian_phone)) {
+            $guardian_phone_error = '保護者電話番号は必須です。';
+        } else {
+            if (strlen($guardian_phone) > 15) {
+                $guardian_phone_error = '無効な電話番号です。';
+            }
+            if (!preg_match('/^\d+$/', $guardian_phone)) {
+                $guardian_phone_error = '無効な電話番号です。';
+            }
         }
     }
 }
@@ -116,6 +128,7 @@ $_SESSION['errors'] = [
     'birthdate' => $birthday_error,
     'guardian_name' => $guardian_name_error,
     'guardian_email' => $guardian_email_error,
+    'guardian_phone' => $guardian_phone_error,
     'child_name' => $child_name_error
 ];
 
@@ -146,6 +159,7 @@ try {
     $record->name_kana = $kana;
     $record->guardian_name = $guardian_name;
     $record->guardian_email = $guardian_email;
+    $record->guardian_phone = $guardian_phone;
     $record->child_name = $child_name;
     $record->description = $description;
 
