@@ -36,7 +36,7 @@ class LoginController
             
             // `user` ロール (ID:7) は `/custom/admin` にアクセス不可
             if (in_array('user', $roles)) {
-                redirect('/custom/app/Views/front/index.php'); // 一般画面へリダイレクト
+                redirect('/custom/app/Views/index.php'); // 一般画面へリダイレクト
                 exit;
             }
             

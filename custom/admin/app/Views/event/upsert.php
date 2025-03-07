@@ -132,9 +132,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<!-- プレビュー画像がここに表示されます -->
 										</div>
 										<?php if(isset($eventData['thumbnail_img'])): ?>
+											<div class="mb-3">
 												<img class="fit-picture"
+													id="thumbnail_img_tag"
 													src="<?= htmlspecialchars($eventData['thumbnail_img']) ?>"
 													width="300" />
+													<button type="button" class="delete-link delete_btn btn btn-danger ms-auto me-0" data-id="<?= $id ?>">削除</button>
+											</div>
 										<?php endif; ?>
 										<?php if (!empty($errors['thumbnail_img'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['thumbnail_img']); ?></div>
@@ -250,7 +254,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input name="is_top" type="checkbox" value="1" checked class="form-check-input">
+											<input name="is_top" type="checkbox" value="1" <?php if($eventData['is_top']): ?>checked<?php endif; ?> class="form-check-input">
 											<span class="form-check-label">トップに固定する</span>
 										</label>
 									</div>
@@ -535,6 +539,29 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 						</div>
 					</div>
 				</div>
+				<!-- 削除モーダル -->
+				<div class="modal fade" id="delete_confirm_modal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="deleteConfirmModalLabel">削除確認</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<form method="POST" action="/custom/admin/app/Controllers/event/thumbnail_delete_controller.php">
+								<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="id" value="<?= htmlspecialchars($id ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="thumbnail_img" value="<?= htmlspecialchars($eventData['thumbnail_img'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<div class="modal-body">
+									本当にこのサムネール画像を削除しますか？
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+									<button type="submit" id="confirm_delete" class="btn btn-danger">削除</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 	</div>
@@ -684,25 +711,70 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 	});
 
 	$(document).ready(function () {
-            $('#thumbnail_img').on('change', function (event) {
-                const file = event.target.files[0]; // 選択されたファイルを取得
+		$('#thumbnail_img').on('change', function (event) {
+			const file = event.target.files[0]; // 選択されたファイルを取得
 
-                // ファイルが画像であるか確認
-                if (file && file.type.match('image.*')) {
-                    const reader = new FileReader(); // FileReader のインスタンスを作成
+			// ファイルが画像であるか確認
+			if (file && file.type.match('image.*')) {
+				const reader = new FileReader(); // FileReader のインスタンスを作成
 
-                    // ファイルの読み込みが完了したらプレビューを表示
-                    reader.onload = function (e) {
-                        $('#image-preview').html(
-                            `<img src="${e.target.result}" alt="プレビュー" class="preview">`
-                        );
-                    };
+				// ファイルの読み込みが完了したらプレビューを表示
+				reader.onload = function (e) {
+					$('#image-preview').html(
+						`<img src="${e.target.result}" alt="プレビュー" class="preview">`
+					);
+				};
 
-                    reader.readAsDataURL(file); // ファイルを読み込む
-                } else {
-                    alert('画像ファイルを選択してください。');
-                    $('#image-preview').html(''); // プレビューをクリア
-                }
-            });
-        });
+				reader.readAsDataURL(file); // ファイルを読み込む
+			} else {
+				alert('画像ファイルを選択してください。');
+				$('#image-preview').html(''); // プレビューをクリア
+			}
+		});
+
+		let selectedId;
+		// 削除リンクがクリックされたとき
+		$('.delete-link').on('click', function(event) {
+			event.preventDefault();
+			selectedId = $(this).data('id');
+			$('#delete_confirm_modal').modal('show');
+		});
+		// モーダル内の削除ボタンがクリックされたとき
+		$('#confirm_delete').on('click', function (e) {
+			e.preventDefault();
+
+			var form = $(this).closest('form');
+			var formData = new FormData(form[0]);
+
+			fetch(form.attr('action'), {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => response.json()) // JSON を解析
+			.then(data => {
+				// 取得した結果を変数に格納
+				var result = data;
+
+				if (result.success) {
+					alert(result.message);
+
+					// サムネイル画像を完全に削除
+					$('#thumbnail_img_tag').remove();
+
+					// モーダルを閉じる
+					var modal = bootstrap.Modal.getInstance($('#delete_confirm_modal'));
+					modal.hide();
+				} else {
+					alert(result.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error.message);
+				
+				// モーダルを閉じる
+				var modal = bootstrap.Modal.getInstance($('#delete_confirm_modal'));
+				modal.hide();
+			});
+		});
+	});
 </script>
