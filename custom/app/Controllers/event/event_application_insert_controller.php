@@ -333,7 +333,7 @@ if ($result) {
                 'currency' => 'JPY',
                 'external_order_num' => uniqid(),
                 'return_url' => $CFG->wwwroot . '/custom/app/Views/event/complete.php?id=' . $eventId, // 決済成功後のリダイレクトURL
-                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/detail.php?id=' . $eventId, // キャンセル時のリダイレクトURL
+                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courses['id'], // キャンセル時のリダイレクトURL
                 'metadata' => [
                     'user_name' => $_SESSION['USER']->name,
                     'event_id' => $eventId,
