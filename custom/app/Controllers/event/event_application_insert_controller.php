@@ -324,18 +324,21 @@ if ($result) {
             $paymentType = $paymentTypeModel->getPaymentTypesById($pay_method);
             $type = $paymentType['payment_type'];
 
+            $_SESSION['payment_method_type'] = $pay_method;
+
             // 決済データ（サンプル）
             $data = [
                 'payment_types' => [$type], // 利用可能な決済手段
                 'amount' => $price,
                 'currency' => 'JPY',
                 'external_order_num' => uniqid(),
-                'return_url' => $CFG->wwwroot . '/custom/app/Views/event/detail.php?id=' . $eventId, // 決済成功後のリダイレクトURL
-                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/detail.php?id=' . $eventId, // キャンセル時のリダイレクトURL
+                'return_url' => $CFG->wwwroot . '/custom/app/Views/event/complete.php?id=' . $eventId, // 決済成功後のリダイレクトURL
+                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courses['id'], // キャンセル時のリダイレクトURL
                 'metadata' => [
                     'user_name' => $_SESSION['USER']->name,
                     'event_id' => $eventId,
                     'event_application_id' => $eventApplicationId,
+                    'payment_method_type' => $pay_method,
                 ],
             ];
 

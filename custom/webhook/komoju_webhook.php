@@ -16,17 +16,18 @@ $dotenv->load();
 
 // POSTリクエストの内容を取得
 $input = file_get_contents('php://input');
-$data = json_decode($input, true);
+$data_list = json_decode($input, true);
+$data = $data_list['data'];
 
 // KOMOJUの署名検証（セキュリティ対策）
 $headers = getallheaders();
 $signature = $headers['X-Komoju-Signature'] ?? '';
 
 // 本番環境のではコメント解除
-// if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
-//     http_response_code(400);
-//     exit('Invalid signature');
-// }
+if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
+    http_response_code(400);
+    exit('Invalid signature');
+}
 
 // 決済完了のステータスをチェック
 if ($data['status'] === 'captured') {
@@ -38,15 +39,21 @@ if ($data['status'] === 'captured') {
         $name = $data['metadata']['user_name'] ?? null;
         $event_id = $data['metadata']['event_id'] ?? null;
         $event_application_id = $data['metadata']['event_application_id'] ?? null;
-    
+        $payment_method_type = $data['metadata']['payment_method_type'] ?? null;
+
+        // クレジットの2重送信を回避する
+        if (empty($payment_method_type)) {
+            exit;
+        }
+
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
         $eventApplicationModel = new EventApplicationModel();
         $eventApplication = $eventApplicationModel->getEventApplicationByEventId($event_application_id);
-    
+
         // 支払日を取得
         $capturedAt = $data['captured_at'] ?? null;
-    
+
         if ($capturedAt) {
             // UTC → 日本時間に変換
             $capturedAtJP = (new DateTime($capturedAt))
@@ -66,7 +73,7 @@ if ($data['status'] === 'captured') {
             ':payment_date' => $capturedAtJP,
             ':id' => $event_application_id // 一意の識別子をWHERE条件として設定
         ]);
-        
+
         // ISO 8601形式の日時を MySQL の DATETIME 形式に変換
         $captured_at = date('Y-m-d H:i:s', strtotime($data['captured_at']));
 
@@ -84,8 +91,8 @@ if ($data['status'] === 'captured') {
             ':metadata' => json_encode($data['metadata']),
             ':event_application_id' => $event_application_id
         ]);
-        
-        foreach($eventApplication['course_infos'] as $course) {
+
+        foreach ($eventApplication['course_infos'] as $course) {
             // QR生成
             $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
             $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
@@ -96,9 +103,9 @@ if ($data['status'] === 'captured') {
             $qrCodeBase64 = base64_encode($qrCodeImage);
             $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
             file_put_contents($temp_file, $qrCodeImage);
-        
+
             $mail = new PHPMailer(true);
-        
+
             $mail->isSMTP();
             $test = getenv('MAIL_HOST');
             $mail->Host = $_ENV['MAIL_HOST'];
@@ -108,17 +115,17 @@ if ($data['status'] === 'captured') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->CharSet = PHPMailer::CHARSET_UTF8;
             $mail->Port = $_ENV['MAIL_PORT'];
-        
+
             $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
             $mail->addAddress($course['participant_mail'], 'Recipient Name');
-        
+
             $sendAdresses = ['tamonswallow@gmail.com'];
             foreach ($sendAdresses as $sendAdress) {
                 $mail->addAddress($sendAdress, 'Recipient Name');
             }
             $mail->addReplyTo('no-reply@example.com', 'No Reply');
             $mail->isHTML(true);
-            
+
             $day = new DateTime($course["course_date"]);
             $course_date = $day->format('Ymd');
             $ymd = $day->format('Y/m/d');
@@ -129,7 +136,7 @@ if ($data['status'] === 'captured') {
             $qr_img = 'qr_code_' . $course_date . '.png';
             // QRをインライン画像で追加
             $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
-        
+
             $htmlBody = "
                 <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                     <p style=\"text-align: left; font-weight:bold;\">" . $name . "</p>
@@ -145,12 +152,12 @@ if ($data['status'] === 'captured') {
                     あらかじめご了承ください。</p>
                 </div>
             ";
-        
+
             $name = "";
-        
+
             $mail->Subject = 'チケットの購入が完了しました';
             $mail->Body = $htmlBody;
-        
+
             $mail->SMTPOptions = array(
                 'ssl' => array(
                     'verify_peer' => false,
@@ -158,7 +165,7 @@ if ($data['status'] === 'captured') {
                     'allow_self_signed' => true
                 )
             );
-        
+
             $mail->send();
             unlink($temp_file);
         }
@@ -174,9 +181,4 @@ if ($data['status'] === 'captured') {
     // レスポンスを返す（KOMOJUに成功を通知）
     http_response_code(200);
     echo json_encode(['message' => 'Webhook received']);
-} else {
-    http_response_code(400);
-    echo json_encode(["error" => "Invalid signature"]);
-    exit;
 }
-?>
