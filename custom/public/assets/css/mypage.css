@@ -113,6 +113,22 @@
   font-size: 1.8rem;
 }
 
+.card-wrapper {
+  position: relative;
+  display: block; /* ← inline-block から block に変更 */
+  margin: 0 auto; /* ← 中央寄せにするために追加 */
+  width: fit-content; /* ← 必要に応じて追加。コンテンツに合わせて幅を調整 */
+}
+.inactive-text {
+  position: absolute;
+  bottom: 0;
+  right: 0; /* right: 0; はそのまま */
+  padding: 10px;
+  font-size: 20px;
+  color: #ff0000;
+  text-align: right; /* テキスト自体を右寄せにする (念のため) */
+}
+
 /*-------------------------------------
  info_wrap
  -------------------------------------*/
@@ -273,6 +289,22 @@
   }
   #card .card_pres .card_pres_name {
     font-size: 1.6rem;
+  }
+
+  .card-wrapper {
+    position: relative;
+    display: block; /* ← inline-block から block に変更 */
+    margin: 0 auto; /* ← 中央寄せにするために追加 */
+    width: fit-content; /* ← 必要に応じて追加。コンテンツに合わせて幅を調整 */
+  }
+  .inactive-text {
+    position: absolute;
+    bottom: 0;
+    right: 0; /* right: 0; はそのまま */
+    padding: 10px;
+    font-size: 20px;
+    color: #ff0000;
+    text-align: right; /* テキスト自体を右寄せにする (念のため) */
   }
 
   /*-------------------------------------

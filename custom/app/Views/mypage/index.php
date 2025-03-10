@@ -48,6 +48,7 @@
     <!-- heading -->
     <section id="mypage" class="inner_l">
         <?php if ($tekijuku_commemoration !== false): ?>
+        <div class="card-wrapper">
             <div id="card">
                 <p class="card_head">適塾記念会デジタル会員証</p>
                 <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
@@ -62,11 +63,15 @@
                     <p class="card_pres_name">熊ノ郷 淳</p>
                 </div>
             </div>
+            <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                <div class="inactive-text">（退会済み）</div>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
         <div id="user_form">
             <div id="form" class="mypage_cont">
                 <h3 class="mypage_head">知の広場 会員情報</h3>
-                <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php">
+                <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
                     <div class="whitebox form_cont">
                         <div class="inner_m">
                             <!-- 仮ですが何か出さないと結果がわからないので・・・　デザインは考えます -->
@@ -98,14 +103,14 @@
                                 <li class="list_item04 req">
                                     <p class="list_label">お住いの都道府県</p>
                                     <div class="list_field f_select select">
-                                        <select name="city">
-                                            <?php foreach ($prefectures as $prefecture): ?>
-                                                <option value="<?php echo htmlspecialchars($prefecture); ?>"
-                                                    <?= isSelected($prefecture, $old_input['city'] ?? null, null) ? 'selected' : '' ?>>
-                                                    <?php echo htmlspecialchars($prefecture); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
+                                    <select name="city">
+                                    <?php foreach ($prefectures as $key => $prefecture): ?>
+                                        <option value="<?php echo htmlspecialchars($key); ?>"
+                                            <?= ($key === ($old_input['city'] ?? $user->city ?? null)) ? 'selected' : '' ?>>
+                                            <?php echo htmlspecialchars($prefecture); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                                         <?php if (!empty($errors['city'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
                                         <?php endif; ?>
@@ -213,7 +218,8 @@
                     </div>
                     <div class="form_btn">
                         <input type="hidden" name="post_kbn" value="update_user">
-                        <input type="submit" class="btn btn_red box_bottom_btn submit_btn" value="知の広場会員情報の変更を確定する" name="update_user"/>
+                        <!-- <input type="submit" class="btn btn_red box_bottom_btn submit_btn" value="知の広場会員情報の変更を確定する" name="update_user"/> -->
+                        <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="user_form_button">知の広場会員情報の変更を確定する</a>
                     </div>
                 </form>
             </div>
@@ -222,8 +228,12 @@
         <?php if ($tekijuku_commemoration !== false): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
-                    <h3 class="mypage_head">適塾記念会 会員情報</h3>
-                    <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php">
+                    <h3 class="mypage_head">適塾記念会 会員情報 
+                        <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                            <div class="inactive-text">（退会済み）</div>
+                        <?php endif; ?>
+                    </h3>
+                    <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
                         <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo $tekijuku_commemoration->id ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
@@ -363,7 +373,7 @@
                         </div>
                         <div class="form_btn">
                             <input type="hidden" name="post_kbn" value="update_membership">
-                            <input type="submit" class="btn btn_red box_bottom_btn" value="適塾記念会会員情報の変更を確定する" name="update_membership" />
+                            <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="tekijuku_form_button">適塾記念会会員情報の変更を確定する</a>
                         </div>
                     </form>
                 </div>
@@ -481,7 +491,7 @@
                 <input type="checkbox" id="email-notifications" <?php echo ($user->notification_kbn == 1) ? 'checked' : ''; ?> /> 受け取る
             </label>
             <div id="notification-message" style="display:none;"></div>
-            <a href="" class="btn btn_blue box_bottom_btn arrow">前へ戻る</a>
+            <a href="/custom/app/Views/logout/index.php" class="btn btn_blue box_bottom_btn arrow">ログアウト</a>
         </div>
     </section>
 </main>
@@ -659,7 +669,7 @@
         $('#email-notifications').change(function() {
             var isChecked = $(this).is(':checked'); // チェックの状態を取得
             $.ajax({
-                url: '/custom/app/Controllers/mypage/mypage_update_controller.php', // ここに実際のAPIのエンドポイントを指定
+                url: '/custom/app/Controllers/mypage/mypage_update_controller.php',
                 method: 'POST',
                 data: {
                     email_notification: isChecked ? 1 : 0, 
@@ -677,4 +687,57 @@
         });
     });
 
+
+    $(document).ready(function() {
+        // 退会ボタンクリック時
+        var exec = '';
+        console.log('ここまで');
+        $('#user_form_button').on('click', function() {
+            console.log('ここまでOK');
+            exec = 'user';
+            showModal('知の広場 会員情報','編集します。本当によろしいですか？');
+        });
+        $('#tekijuku_form_button').on('click', function() {
+            console.log('ここまでOK');
+            exec = 'tekijuku';
+            showModal('適塾記念会 会員情報 ','編集します。本当によろしいですか？');
+        });
+
+        $(document).on('click', '.edit', function() {
+            switch (exec) {
+                case "user":
+                    $('#user_edit_form').submit();
+                    break
+                case "tekijuku":
+                        
+                    $('#tekijuku_edit_form').submit();
+                    break
+                default :
+                    break
+            }
+        });
+    });
+
+    // モーダル表示
+    function showModal(title, message) {
+        var modalHtml = `
+            <div id="confirmation-modal">
+                <div class="modal_cont">
+                    <h2>${title}</h2>
+                    <p>${message}</p>
+                    <div class="modal-buttons">
+                        <button class="modal-withdrawal edit">編集</button>
+                        <button class="modal-close">閉じる</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(modalHtml);
+        $('#confirmation-modal').show();
+    }
+
+    // モーダルの閉じるボタン
+    $(document).on('click', '.modal-close', function() {
+        $('#confirmation-modal').remove();
+    });
 </script>

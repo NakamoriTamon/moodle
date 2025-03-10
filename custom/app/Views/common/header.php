@@ -1,6 +1,7 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/tekijuku/tekijuku_index_controller.php');
 
 // CSRF動的トークン生成
 if (empty($_SESSION['csrf_token'])) {
@@ -8,6 +9,9 @@ if (empty($_SESSION['csrf_token'])) {
 }
 // ログインユーザーID
 $login_id = $_SESSION['user_id'] ?? null;
+
+$tekijuku_index_controller = new TekijukuIndexController;
+$footre_tekijuku_commemoration = $tekijuku_index_controller->getTekijukuCommemoration();
 $basic_error = $_SESSION['message_error'] ?? null;
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];

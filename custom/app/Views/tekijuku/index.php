@@ -73,15 +73,20 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                 <p class="sent">
                     まずは、本システムでユーザー登録をしていただき、その後、適塾記念会ホームページより、入会のお申し込みをしてください。
                 </p>
-                <?php if (!$isTekijukuCommemorationMember) : ?>
+                <?php if ($isTekijukuCommemorationMember === 'isNotMember') : ?>
                     <div id="entry_btn-container" class="btn-container">
                         <form action="/custom/app/Controllers/tekijuku/tekijuku_index_controller.php" method="POST">
+                            <input type="hidden" name="post_kbn" value="tekijuku_route">    
                             <button type="submit" class="btn arrow btn_entry btn_red">入会する</button>
                         </form>
                     </div>
-                <?php else : ?>
+                <?php elseif ($isTekijukuCommemorationMember === 'isActive'): ?>
                     <div class="btn-container">
                         <button class="btn btn_gray" disabled>入会済み</button>
+                    </div>
+                <?php else: ?>
+                    <div class="btn-container">
+                        <button class="btn btn_gray" disabled>退会済み</button>
                     </div>
                 <?php endif ?>
             </div>

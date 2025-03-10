@@ -65,6 +65,12 @@ $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
 $type_code_list = [1 => '普通会員', 2 => '賛助会員'];
 define('TYPE_CODE_LIST', $type_code_list);
+define('TEKIJUKU_COMMEMORATION_IS_DELETE', [ //　適塾記念会　退会状況
+  'ACTIVE' => 0,   // 未退会
+  'INACTIVE' => 1  // 退会
+]);
+
+
 // 都道府県プルダウン
 $prefectures = [
   '北海道' => '北海道',
