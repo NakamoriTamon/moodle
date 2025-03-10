@@ -15,6 +15,8 @@ if ($token) {
         echo "トークンの有効期限が切れています。再度リクエストしてください。";
         exit;
     }
+    $errors = $_SESSION['result_message'] ?? [];
+    unset($_SESSION['result_message']); // 一度表示したら削除
 ?>
 
 <body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
@@ -36,6 +38,9 @@ if ($token) {
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
                                             <input class="form-control form-control-lg" type="password" name="password" placeholder="新しいパスワード" required />
+                                            <?php if (!empty($errors)): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors); ?></div>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">パスワード(確認)</label>

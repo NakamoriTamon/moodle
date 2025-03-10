@@ -27,18 +27,18 @@ $eventId = htmlspecialchars(required_param('event_id', PARAM_INT), ENT_QUOTES, '
 $courseInfoId = htmlspecialchars(optional_param('course_info_id', 0, PARAM_INT));
 $courseInfoId = $courseInfoId == 0 ? null : $courseInfoId;
 $eventModel = new eventModel();
-if(!is_null($courseInfoId)) {
+if (!is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
 } else {
     $event = $eventModel->getEventById($eventId);
 }
 
 // イベント情報がなかった場合
-if(is_null($event)) {
+if (is_null($event)) {
     header('Location: /custom/app/Views/event/index.php');
     return;
 }
-        
+
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $categorys = $categoryModel->getCategories();
@@ -47,11 +47,11 @@ $lectureFormats = $lectureFormatModel->getLectureFormats();
 $select_lecture_formats = [];
 $select_categorys = [];
 $select_courses = [];
-if(!empty($event)) {
-    
-    foreach($event['lecture_formats'] as $lecture_format) {
+if (!empty($event)) {
+
+    foreach ($event['lecture_formats'] as $lecture_format) {
         $lecture_format_id = $lecture_format['lecture_format_id'];
-    
+
         foreach ($lectureFormats as $lectureFormat) {
             if ($lectureFormat['id'] == $lecture_format_id) {
                 $select_lecture_formats[] = $lectureFormat;
@@ -60,9 +60,9 @@ if(!empty($event)) {
         }
     }
 
-    foreach($event['categorys'] as $select_category) {
+    foreach ($event['categorys'] as $select_category) {
         $category_id = $select_category['category_id'];
-    
+
         foreach ($categorys as $category) {
             if ($category['id'] == $category_id) {
                 $select_categorys[] = $category;
@@ -71,7 +71,7 @@ if(!empty($event)) {
         }
     }
 
-    foreach($event['course_infos'] as $select_course) {
+    foreach ($event['course_infos'] as $select_course) {
         $select_courses[$select_course['no']] = $select_course;
     }
 }
@@ -83,13 +83,13 @@ $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-
 $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
 $price =  htmlspecialchars(required_param('price', PARAM_INT), ENT_QUOTES, 'UTF-8');
-if($price != $ticket * ($event['participation_fee'] * count($select_courses))) {
+if ($price != $ticket * ($event['participation_fee'] * count($select_courses))) {
     $_SESSION['message_error'] = '支払い料金が変更されました。ご確認の上、再度お申し込みしてください。';
     $result = false;
 }
 $triggers = htmlspecialchars(required_param('triggers', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['triggers'] = validate_array($triggers, '', true) ? "どこで本イベントを知ったか選択してください。" : null;
-if(is_null($_SESSION['errors']['triggers'])) {
+if (is_null($_SESSION['errors']['triggers'])) {
     // カンマで分割して配列にする
     $triggerArray = explode(',', $triggers);
 } else {
@@ -101,7 +101,7 @@ $pay_method = htmlspecialchars(required_param('pay_method', PARAM_INT), ENT_QUOT
 $_SESSION['errors']['pay_method'] = validate_select($pay_method, '支払方法', true); // バリデーションチェック
 $note = htmlspecialchars(optional_param('note', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['note'] = validate_textarea($note, '備考欄', false);
-if($ticket > 1) {
+if ($ticket > 1) {
     $companion_mails = htmlspecialchars(optional_param('companion_mails', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
     $companion_mails = explode(',', $companion_mails);
 } else {
@@ -110,9 +110,9 @@ if($ticket > 1) {
 $_SESSION['errors']['companion_mails'] = null;
 $mails = [];
 $mails[] = $email;
-foreach($companion_mails as $companion_mail) {
+foreach ($companion_mails as $companion_mail) {
     $_SESSION['errors']['companion_mails'] = validate_custom_email($companion_mail) ? "受講する人のメールアドレスを入力してください。" : null;
-    if(!is_null($_SESSION['errors']['companion_mails'])) {
+    if (!is_null($_SESSION['errors']['companion_mails'])) {
         $result = false;
     } else {
         $mails[] = $companion_mail;
@@ -126,7 +126,7 @@ $guardian_name = htmlspecialchars(optional_param('guardian_name', '', PARAM_TEXT
 $guardian_email = htmlspecialchars(optional_param('guardian_email', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-if(empty($guardian_kbn)) {
+if (empty($guardian_kbn)) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
 } else {
@@ -138,7 +138,7 @@ $eventCustomFieldModel = new eventCustomFieldModel();
 $fieldList = [];
 $fieldInputDataList = [];
 $params = [];
-if(!empty($event_customfield_category_id)) {
+if (!empty($event_customfield_category_id)) {
     $fieldList = $eventCustomFieldModel->getCustomFieldById($event_customfield_category_id);
     foreach ($fieldList as $fields) {
         $input_value = null;
@@ -148,10 +148,10 @@ if(!empty($event_customfield_category_id)) {
             $input_data = explode(",", $input_data);
             $params[$tag_name] = $input_data;
             $options = explode(",", $fields['selection']);
-            
+
             foreach ($options as $i => $option) {
-                if(in_array($option, $input_data)) {
-                    if($i == 0) {
+                if (in_array($option, $input_data)) {
+                    if ($i == 0) {
                         $input_value = $option;
                         continue;
                     }
@@ -162,13 +162,13 @@ if(!empty($event_customfield_category_id)) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $options = explode(",", $fields['selection']);
             foreach ($options as $i => $option) {
-                if($option == $input_value) {
+                if ($option == $input_value) {
                     $input_value = $option;
                     $params[$tag_name] = $input_value;
                     break;
                 }
             }
-            if(!isset($params[$tag_name])) {
+            if (!isset($params[$tag_name])) {
                 $params[$tag_name] = "";
             }
         } else {
@@ -176,21 +176,25 @@ if(!empty($event_customfield_category_id)) {
             $params[$tag_name] = $input_value;
         }
 
-        if(!empty($input_value)) {
+        if (!empty($input_value)) {
             $fieldInputDataList[] = ['event_customfield_id' => $fields['id'], 'field_type' => $fields['field_type'], 'input_data' => $input_value];
         }
     }
 }
 
 // エラーがある場合
-if($_SESSION['errors']['ticket']
-|| $_SESSION['errors']['pay_method']
-|| $_SESSION['errors']['triggers']
-|| $_SESSION['errors']['trigger_other']
-|| $_SESSION['errors']['note']
-|| $_SESSION['errors']['companion_mails']
-|| $_SESSION['errors']['guardian_name']
-|| $_SESSION['errors']['guardian_email']) {
+if (
+    $_SESSION['errors']['ticket']
+    || $_SESSION['errors']['pay_method']
+    || $_SESSION['errors']['triggers']
+    || $_SESSION['errors']['trigger_other']
+    || $_SESSION['errors']['note']
+    || $_SESSION['errors']['companion_mails']
+    // || $_SESSION['errors']['guardian_name']
+    // || $_SESSION['errors']['guardian_email']
+) {
+    var_dump($_SESSION['errors']);
+    die();
     $_SESSION['message_error'] = '登録に失敗しました。再度情報を入力してください。';
     $result = false;
 }
@@ -201,7 +205,7 @@ if ($result) {
         $baseModel = new BaseModel();
         $pdo = $baseModel->getPdo();
         $pdo->beginTransaction();
-        
+
         // 1. イベントのcapacityと現在のチケット枚数をロック
         $stmt = $pdo->prepare("
             SELECT e.capacity, COALESCE(SUM(a.ticket_count), 0) AS current_count
@@ -234,30 +238,30 @@ if ($result) {
                     , :note , :contact_phone , :guardian_name , :guardian_email
                 )
             ");
-            
+
             $itmt->execute([
-                ':event_id' => $eventId
-                , ':user_id' => $user_id
-                , ':event_custom_field_id' => $event_customfield_category_id
-                , ':field_value' => ''
-                , ':name' => $name
-                , ':name_kana' => $kana
-                , ':email' => $email
-                , ':ticket_count' => $ticket
-                , ':price' => $price
-                , ':pay_method' => $pay_method
-                , ':request_mail_kbn' => $notification_kbn
-                , ':applicant_kbn' => $applicant_kbn
-                , ':note' => $note
-                , ':contact_phone' => $contact_phone
-                , ':guardian_name' => $guardian_name
-                , ':guardian_email' => $guardian_email
+                ':event_id' => $eventId,
+                ':user_id' => $user_id,
+                ':event_custom_field_id' => $event_customfield_category_id,
+                ':field_value' => '',
+                ':name' => $name,
+                ':name_kana' => $kana,
+                ':email' => $email,
+                ':ticket_count' => $ticket,
+                ':price' => $price,
+                ':pay_method' => $pay_method,
+                ':request_mail_kbn' => $notification_kbn,
+                ':applicant_kbn' => $applicant_kbn,
+                ':note' => $note,
+                ':contact_phone' => $contact_phone,
+                ':guardian_name' => $guardian_name,
+                ':guardian_email' => $guardian_email
             ]);
-    
-            
+
+
             // mdl_eventの挿入IDを取得
             $eventApplicationId = $pdo->lastInsertId();
-    
+
             // 知った経由　mdl_event_application_cognition
             $itmt2 = $pdo->prepare("
                 INSERT INTO mdl_event_application_cognition (created_at, updated_at, event_application_id, cognition_id, note) 
@@ -270,27 +274,27 @@ if ($result) {
                     ':note' => $trigger_other
                 ]);
             }
-    
-            
-                // 知った経由　mdl_event_application_course_info
-                $itmt3 = $pdo->prepare("
+
+
+            // 知った経由　mdl_event_application_course_info
+            $itmt3 = $pdo->prepare("
                     INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail) 
                     VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail)
                 ");
-                foreach($mails as $mail) {
-                    foreach ($select_courses as $courses) {
-                        $itmt3->execute([
-                            ':event_id' => $eventId,
-                            ':event_application_id' => $eventApplicationId,
-                            ':course_info_id' => $courses['id'], // 空白を除去
-                            ':participant_mail' => $mail
-                        ]);
-                    }
+            foreach ($mails as $mail) {
+                foreach ($select_courses as $courses) {
+                    $itmt3->execute([
+                        ':event_id' => $eventId,
+                        ':event_application_id' => $eventApplicationId,
+                        ':course_info_id' => $courses['id'], // 空白を除去
+                        ':participant_mail' => $mail
+                    ]);
                 }
-            
+            }
+
             // カスタムフィールドがある場合
-            if(!empty($event_customfield_category_id)) {
-                foreach($fieldInputDataList as $fieldInputData) {
+            if (!empty($event_customfield_category_id)) {
+                foreach ($fieldInputDataList as $fieldInputData) {
                     $itmt4 = $pdo->prepare("
                         INSERT INTO mdl_event_application_customfield (created_at, updated_at, event_application_id, event_customfield_id, field_type, input_data) 
                         VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_application_id, :event_customfield_id, :field_type, :input_data)
@@ -303,7 +307,7 @@ if ($result) {
                     ]);
                 }
             }
-            
+
             $itmt5 = $pdo->prepare("
                 UPDATE mdl_user
                 SET 
@@ -319,7 +323,7 @@ if ($result) {
             $paymentTypeModel = new PaymentTypeModel();
             $paymentType = $paymentTypeModel->getPaymentTypesById($pay_method);
             $type = $paymentType['payment_type'];
-            
+
             // 決済データ（サンプル）
             $data = [
                 'payment_types' => [$type], // 利用可能な決済手段
@@ -362,7 +366,7 @@ if ($result) {
             // セッションURLが取得できたらリダイレクト
             if (isset($result['session_url'])) {
                 $pdo->commit();
-                
+
                 // セッションをクリア
                 unset($SESSION->formdata);
                 // header("Location: " . $result['session_url']);
@@ -377,7 +381,7 @@ if ($result) {
             // ロールバック
             $pdo->rollBack();
             $_SESSION['message_error'] = '定員を超えているため、申込できません。';
-            if(!is_null($courseInfoId)) {
+            if (!is_null($courseInfoId)) {
                 header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
                 $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
             } else {
@@ -388,7 +392,7 @@ if ($result) {
     } catch (Exception $e) {
         $pdo->rollBack();
         $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
-        if(!is_null($courseInfoId)) {
+        if (!is_null($courseInfoId)) {
             header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
             $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
         } else {
@@ -396,32 +400,31 @@ if ($result) {
         }
         exit;
     }
-
 } else {
     // セッションをクリア
     unset($_SESSION['errors']);
     // 修正(申込登録画面に戻る)
     // 入力画面に戻る
     $SESSION->formdata = [
-        'id' => $eventId
-        , 'course_info_id' => $courseInfoId
-        , 'name' => $name
-        , 'kana' => $kana
-        , 'email' => $email
-        , 'price' => $price
-        , 'ticket' => $ticket
-        , 'trigger_other' => $trigger_other
-        , 'pay_method' => $pay_method
-        , 'notification_kbn' => $notification_kbn
-        , 'triggers' => $triggers
-        , 'note' => $note
-        , 'companion_mails' => $companion_mails
-        , 'applicant_kbn' => $applicant_kbn
-        , 'guardian_kbn' => $guardian_kbn
-        , 'guardian_name' => $guardian_name
-        , 'guardian_email' => $guardian_email
-        , 'event_customfield_category_id' => $event_customfield_category_id
-        , 'params' => $params
+        'id' => $eventId,
+        'course_info_id' => $courseInfoId,
+        'name' => $name,
+        'kana' => $kana,
+        'email' => $email,
+        'price' => $price,
+        'ticket' => $ticket,
+        'trigger_other' => $trigger_other,
+        'pay_method' => $pay_method,
+        'notification_kbn' => $notification_kbn,
+        'triggers' => $triggers,
+        'note' => $note,
+        'companion_mails' => $companion_mails,
+        'applicant_kbn' => $applicant_kbn,
+        'guardian_kbn' => $guardian_kbn,
+        'guardian_name' => $guardian_name,
+        'guardian_email' => $guardian_email,
+        'event_customfield_category_id' => $event_customfield_category_id,
+        'params' => $params
     ];
     redirect(new moodle_url('/custom/app/Views/event/apply.php?id=' . $eventId));
 }

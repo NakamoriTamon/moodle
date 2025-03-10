@@ -44,7 +44,7 @@ $custom_list = $custom_upsert_controller->index();
 											<th>ID</th>
 											<th>イベントカテゴリ区分</th>
 											<th>紐づけられているイベント</th>
-											<th class="text-center">Actions</th>
+											<th class="text-center w-100px">Actions</th>
 										</tr>
 									</thead>
 									<tbody>

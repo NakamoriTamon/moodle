@@ -9,7 +9,8 @@
 
     <div class="inner_l">
         <section id="setting" class="pass_mail">
-            <form method="" action="pass_reset.php" class="whitebox set_form">
+            <form method="POST" action="/custom/app/Controllers/user/user_pass_mail_controller.php" class="whitebox set_form">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="set_inner">
                     <p class="sent">
                         パスワード再設定用のURLを<br class="pc" />メールにてお送りいたします。<br />
@@ -19,11 +20,15 @@
                         <li class="list_item01">
                             <p class="list_label">メールアドレス</p>
                             <div class="list_field f_txt">
-                                <input type="email" />
+                                <input type="email" name="email" value="<?= htmlspecialchars($old_input['email'] ?? '') ?>" />
+                                <?php if (!empty($errors['email'])): ?>
+                                    <div class="error-msg mt-2">
+                                        <?= htmlspecialchars($errors['email']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
-
                     <input type="submit" class="btn btn_red" value="送信する" />
                 </div>
             </form>

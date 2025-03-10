@@ -1,5 +1,8 @@
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php'); ?>
+require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php'); 
+$now = new DateTime();
+$now = $now->format('Ymd');
+?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
 <main>
   <section id="mv">
@@ -77,7 +80,10 @@ require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.p
                       <p class="term">開催日</p>
                       <div class="date">
                         <?php foreach ($row['select_course'] as $no => $course): ?>
-                          <p class="dt0<?= $no ?>"><?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                          <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                          <?php if($course_date >= $now): ?>
+                            <p class="dt0<?= $no ?>"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                          <?php endif; ?>
                         <?php endforeach; ?>
                       </div>
                     </div>

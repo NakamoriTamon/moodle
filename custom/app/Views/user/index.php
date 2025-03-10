@@ -1,4 +1,7 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');  ?>
+<?php
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
+
+unset($_SESSION['errors'], $_SESSION['old_input']); ?>
 <?php $prefectures = PREFECTURES; ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -14,7 +17,7 @@
                 <li class="active">入力</li>
                 <li>完了</li>
             </ul>
-            <form method="POST" action="/custom/app/Controllers/user/user_controller.php" class="whitebox form_cont">
+            <form id="user_form" method="POST" action="/custom/app/Controllers/user/user_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="inner_m">
                     <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
@@ -109,7 +112,7 @@
                             </div>
                         </li>
                         <li class="list_item09 req">
-                            <p class="list_label">電話番号（携帯もしくは自宅）</p>
+                            <p class="list_label">電話番号（ハイフンなし）</p>
                             <div class="list_field f_txt">
                                 <input type="tel" name="phone" value="<?= htmlspecialchars($old_input['phone'] ?? '') ?>" />
                                 <?php if (!empty($errors['phone'])): ?>
@@ -163,12 +166,23 @@
                                 </div>
                             </li>
                             <li class="list_item12 req">
-                                <p class="list_label">保護者連絡先</p>
+                                <p class="list_label">保護者メールアドレス</p>
                                 <div class="list_field f_txt">
                                     <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? '') ?>" />
                                     <?php if (!empty($errors['guardian_email'])): ?>
                                         <div class="error-msg mt-2">
                                             <?= htmlspecialchars($errors['guardian_email']); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                            <li class="list_item13 req">
+                                <p class="list_label">保護者電話番号 <br class="responsive_br">（ハイフンなし）</p>
+                                <div class="list_field f_txt">
+                                    <input type="tel" name="guardian_phone" value="<?= htmlspecialchars($old_input['guardian_phone'] ?? '') ?>" />
+                                    <?php if (!empty($errors['guardian_phone'])): ?>
+                                        <div class="error-msg mt-2">
+                                            <?= htmlspecialchars($errors['guardian_phone']); ?>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -287,6 +301,10 @@
                 $('#submit').prop('disabled', true);
             }
         }
+
+        $('#user_form').on('submit', function() {
+            $(this).find('input[type=submit]').prop('disabled', true); // 送信ボタンを無効化
+        });
     });
 </script>
 </body>
