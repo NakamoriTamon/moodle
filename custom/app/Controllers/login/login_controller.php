@@ -33,11 +33,11 @@ global $DB;
 // $password = password_hash($password, PASSWORD_DEFAULT);
 
 // 管理者のメールアカウントも含む
-$user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1]);
+$user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1, 'deleted' => 0]);
 
 if (!$user_list) {
     $user_id = ltrim($email, '0');
-    $user_list = $DB->get_records('user', ['id' => $user_id, 'confirmed' => 1]);
+    $user_list = $DB->get_records('user', ['id' => $user_id, 'confirmed' => 1, 'deleted' => 0]);
 }
 // ユーザー情報がなければログイン不可
 if (!$user_list) {

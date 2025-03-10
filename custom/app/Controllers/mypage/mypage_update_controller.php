@@ -44,7 +44,12 @@ class MypageUpdateController {
         
         $email = required_param('email', PARAM_TEXT);
         $_SESSION['errors']['email'] = validate_custom_email($email);
-        $user_list = $DB->get_records_select('user', 'email = :email AND id != :user_id', ['email' => $email, 'user_id' => $user_id]);
+
+        $user_list = $DB->get_records_select(
+            'user',
+            'email = :email AND id != :user_id AND deleted = 0',
+            ['email' => $email, 'user_id' => $user_id]
+        );
         
         if (!empty($user_list)) {
             foreach ($user_list as $user) {
@@ -59,7 +64,7 @@ class MypageUpdateController {
         $birthday = empty($_POST['birthday']) ? null : $_POST['birthday']; // 生年月日
         // ユーザー重複チェック(管理者含む)
         $timestamp_format = date("Y-m-d H:i:s", strtotime($birthday));
-        $user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana]);
+        $user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana, 'deleted' => 0]);
         if (!empty($user_list)) {
             foreach ($user_list as $user) {
                 $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
@@ -197,9 +202,14 @@ class MypageUpdateController {
         $_SESSION['errors']['address'] = validate_max_text($address, '住所', $size, true);
         $email = required_param('tekijuku_email', PARAM_TEXT);
         $_SESSION['errors']['tekijuku_email'] = validate_custom_email($email);
-        $tekijuku_commem_count = $DB->get_records_select('tekijuku_commemoration', 'email = :email AND fk_user_id != :fk_user_id', ['is_delete' => false, 'email' => $email, 'fk_user_id' => $user_id]);
+        $techiku_commem_count = $DB->get_records_select(
+            'tekijuku_commemoration', 
+            'email = :email AND fk_user_id != :fk_user_id AND is_delete = 0', 
+            ['email' => $email, 'fk_user_id' => $user_id]
+        );
         
-        if (count($tekijuku_commem_count) > 0) {
+        // 結果が空でないかをチェック
+        if (!empty($techiku_commem_count)) {
             $_SESSION['errors']['email'] = '既に登録されています。';
         }
 

@@ -218,7 +218,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                     </div>
                     <div class="form_btn">
                         <input type="hidden" name="post_kbn" value="update_user">
-                        <!-- <input type="submit" class="btn btn_red box_bottom_btn submit_btn" value="知の広場会員情報の変更を確定する" name="update_user"/> -->
                         <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="user_form_button">変更を確定する</a>
                     </div>
                 </form>
@@ -491,7 +490,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                 <input type="checkbox" id="email-notifications" <?php echo ($user->notification_kbn == 1) ? 'checked' : ''; ?> /> 受け取る
             </label>
             <div id="notification-message" style="display:none;"></div>
-            <a href="/custom/app/Views/logout/index.php" class="btn btn_blue box_bottom_btn arrow">ログアウト</a>
+            <a href="/custom/app/Views/logout/index.php" class="btn btn_red box_bottom_btn arrow">ログアウト</a>
         </div>
     </section>
 </main>

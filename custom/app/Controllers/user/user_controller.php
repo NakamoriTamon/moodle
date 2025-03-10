@@ -52,7 +52,7 @@ $confirm_email_error = confirm_validation($email_confirm, $email, 'メールア�
 $confirm_password_error = confirm_validation($password_confirm, $password, 'パスワード', $confirm_password_error);
 
 // メールアドレス重複チェック(管理者含む)
-$user_list = $DB->get_records('user', ['email' => $email]);
+$user_list = $DB->get_records('user', ['email' => $email, 'deleted' => 0]);
 if (!empty($user_list)) {
     foreach ($user_list as $user) {
         $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
@@ -64,7 +64,7 @@ if (!empty($user_list)) {
 }
 // ユーザー重複チェック(管理者含む)
 $timestamp_format = date("Y-m-d H:i:s", strtotime($birthday));
-$user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana]);
+$user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana, 'deleted' => 0]);
 if (!empty($user_list)) {
     foreach ($user_list as $user) {
         $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);

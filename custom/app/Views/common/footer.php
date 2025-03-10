@@ -19,9 +19,10 @@
                     <li><a href="/custom/app/Views/contact/index.php">お問い合わせ</a></li>
                     <!-- <li><a href="quest/index.html">アンケート</a></li> -->
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
-                    <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/logout/index.php" ?>><?=empty($login_id) ? 'ログイン' : 'ログアウト'?></a></li>
+                    <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
+                    <li><a href="javascript:void(0);" id="user-withdrawal-button">ユーザー退会</a></li>
                         <?php if ($footre_tekijuku_commemoration->id !== 0 && !is_null($footre_tekijuku_commemoration->id) && $footre_tekijuku_commemoration->is_delete !== '1') :?>
-                    <li><a href="javascript:void(0);" id="withdrawal-button">適塾記念会退会</a></li>
+                            <li><a href="javascript:void(0);" id="tekijuku-withdrawal-button">適塾記念会退会</a></li>
                     <?php endif; ?>
                 </ul>
                 <ul class="menu_btm">
@@ -46,12 +47,15 @@
     $(document).ready(function() {
         var tekijuku_commemoration = <?php echo json_encode($footre_tekijuku_commemoration); ?>;
         // 退会ボタンクリック時
-        $('#withdrawal-button').on('click', function() {
-            showModalInactive('適塾記念会退会フォーム','退会後も期限内は利用が可能です。また退会すると元には戻せません。本当によろしいですか？');
+        $('#tekijuku-withdrawal-button').on('click', function() {
+            showModalInactive('適塾記念会退会フォーム','会員登録を解除します。本当によろしいですか？なお、次回の会費支払期限までは会員情報を保持し、引き続きご利用いただけます。', 'tekijuku-inactive');
+        });
+        $('#user-withdrawal-button').on('click', function() {
+            showModalInactive('ユーザー退会フォーム','ユーザー登録を解除します。既に支払済みの参加費は返金されませんが、解除してよろしいですか？', 'user-inactive');
         });
 
         // モーダルの「退会」ボタンがクリックされたとき
-        $(document).on('click', '.inactive', function() {
+        $(document).on('click', '.tekijuku-inactive', function() {
             // APIを使って退会処理を実行
             $.ajax({
                 url: '/custom/app/Controllers/tekijuku/tekijuku_index_controller.php',
@@ -70,17 +74,37 @@
                 }
             });
         });
+
+        $(document).on('click', '.user-inactive', function() {
+            // APIを使って退会処理を実行
+            $.ajax({
+                url: '/custom/app/Controllers/mypage/mypage_controller.php',
+                method: 'POST',
+                data: {
+                    post_kbn: 'user_delete'
+                },
+                success: function(response) {
+                    alert('退会が完了しました。');
+                    window.location.href = '/custom/app/Views/index.php'
+                },
+                error: function(xhr, status, error) {
+                    var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : '退会処理に失敗しました。';
+                    alert(errorMessage);
+                }
+            });
+
+        });
     });
 
     // モーダル表示
-    function showModalInactive(title,message) {
+    function showModalInactive(title, message, withdrawalClass) {
         var modalHtml = `
             <div id="confirmation-modal">
                 <div class="modal_cont">
                     <h2>${title}</h2>
                     <p>${message}</p>
                     <div class="modal-buttons">
-                        <button class="modal-withdrawal inactive">退会</button>
+                        <button class="modal-withdrawal ${withdrawalClass}">退会</button>
                         <button class="modal-close">閉じる</button>
                     </div>
                 </div>

@@ -129,12 +129,12 @@ class TekijukuIndexController {
             if (isloggedin() && isset($_SESSION['USER'])) {
                 $transaction = $this->DB->start_delegated_transaction();
         
+                $tekijuku_commemoration = $this->tekijukuCommemoration();
                 $data = new stdClass();
                 $data->id = (int)$id;
                 $data->is_delete = 1;
                 // DB更新       
                 $this->DB->update_record_raw('tekijuku_commemoration', $data);
-                $tekijuku_commemoration = $this->tekijukuCommemoration();
                 $name = $tekijuku_commemoration->name ?? '';
                 $email = $tekijuku_commemoration->email;
                 if (empty($email)) {
@@ -215,11 +215,11 @@ class TekijukuIndexController {
         /**
      * retrun bool ログインかつ適塾情報が有ればtrue
      */
-    public function tekijukuCommemoration() {
+    private function tekijukuCommemoration() {
         if (isloggedin() && isset($_SESSION['USER'])) {
             return $this->DB->get_record(
                 'tekijuku_commemoration',
-                ['fk_user_id' => $this->USER->id],
+                ['fk_user_id' => $this->USER->id, 'is_delete' => 0],
                 'email, name'
             );
         }
