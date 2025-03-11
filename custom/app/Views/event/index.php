@@ -125,10 +125,27 @@ unset($SESSION->formdata);
                                     <ul class="event_status">
                                         <li class="<?php if($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
                                         <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                                            <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
-                                            <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                            <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
-                                            <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php
+                                                if($row['event_kbn'] != 3) { 
+                                                    $deadline = (new DateTime($row['deadline']))->format('Ymd 23:59:59');
+                                                } else {
+                                                    $deadline = null;
+                                                }
+                                            ?>
+                                            <?php if(!is_null($deadline)): ?>
+                                                <?php if(intval($now) <= intval($deadline)): ?>
+                                                    <?php if(($key == 1 || $key == 2) && $key == $row['set_event_deadline_status']): ?>
+                                                        <li class="active"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
+                                                    <?php elseif($key == 3 && $key == $row['set_event_deadline_status']): ?>
+                                                        <li class="end"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
+                                                    <?php endif ?>
+                                                <?php else: ?>
+                                                    <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                                                        <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                    <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
+                                                        <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                    <?php endif ?>
+                                                <?php endif ?>
                                             <?php endif ?>
                                         <?php endforeach; ?>
                                     </ul>
@@ -137,14 +154,18 @@ unset($SESSION->formdata);
                                         <?php if($row['event_status'] <= 2): ?>
                                             <p class="term">開催日</p>
                                             <div class="date">
-                                                <?php foreach ($row['select_course'] as $no => $course): ?>
-                                                    <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
-                                                    <?php $count = 0; ?>
-                                                    <?php if($course_date >= $now): ?>
-                                                        <?php $count++; ?>
-                                                        <p class="dt01"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                                                    <?php endif ?>
-                                                <?php endforeach; ?>
+                                                <?php if($row['event_kbn'] != 3): ?>
+                                                    <?php foreach ($row['select_course'] as $no => $course): ?>
+                                                        <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                                                        <?php $count = 0; ?>
+                                                        <?php if($course_date >= $now): ?>
+                                                            <?php $count++; ?>
+                                                            <p class="dt01"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <?= (new DateTime($row['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($row['end_event_date']))->format('Y年m月d日'); ?>
+                                                <?php endif; ?>
                                             </div>
                                         <?php else: ?>
                                             <div class="date">

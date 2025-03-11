@@ -198,6 +198,44 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<?php if (!is_mobile_device()): ?>
+									<div class="mb-3 term_area sp-none">
+										<div class="form-label d-flex align-items-center">
+											<label class="me-2">開催期間</label>
+											<span class="badge bg-danger">必須</span>
+										</div>
+										<div style="display: flex;">
+										<input type="date" name="start_event_date" class="form-control"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['start_event_date'] ?? '', $old_input['start_event_date'] ?? '')) ?>" /> <span class="ps-2 pe-2">～</span>
+										<input type="date" name="end_event_date" class="form-control"
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['end_event_date'] ?? '', $old_input['end_event_date'] ?? '')) ?>" />
+										</div>
+										<?php if (!empty($errors['start_event_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_event_date']); ?></div>
+										<?php endif; ?>
+										<?php if (!empty($errors['end_event_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_event_date']); ?></div>
+										<?php endif; ?>
+									</div>
+									<?php endif; ?>
+									<?php if (is_mobile_device()): ?>
+										<div class="mb-3 term_area pc-none">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催期間( 開始日 )</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input type="date" name="event_date" class="form-control w-100"
+												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>" />
+										</div>
+										<div class="mb-3 term_area pc-none">
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">開催期間( 終了日 )</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input type="date" name="event_date" class="form-control w-100"
+												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>" />
+										</div>
+									<?php endif; ?>
+									<?php if (!is_mobile_device()): ?>
 										<div class=" mb-3 sp-none">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">時間</label>
@@ -254,13 +292,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input name="is_top" type="checkbox" value="1" <?php if($eventData['is_top']): ?>checked<?php endif; ?> class="form-check-input">
+											<input name="is_top" type="checkbox" value="1" <?php if(isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
 											<span class="form-check-label">トップに固定する</span>
 										</label>
 									</div>
-									<div class="mb-3 onetime_area">
+									<div class="mb-3 one_area">
 									<?php foreach ($details[1] as $key => $detail): ?>
-										<div class="mb-3 onetime_area">
+										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">アーカイブ公開日</label>
 											</div>
@@ -450,7 +488,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">定員</label>
-										<span class="badge bg-danger">必須</span>
+										<span id="capacity_req" class="badge bg-danger">必須</span>
 										<input name="capacity" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
 										<?php if (!empty($errors['capacity'])): ?>
@@ -459,17 +497,26 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == 2): ?>( 全て受講 )<?php endif; ?></label>
-										<span class="badge bg-danger">必須</span>
+										<span class="badge bg-danger" id="participation_fee_req">必須</span>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>" />
 										<?php if (!empty($errors['participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
 										<?php endif; ?>
 									</div>
+									<div class="mb-3 repeatedly_area">
+										<label class="form-label" id="single_participation_fee_label">参加費</label>
+										<span class="badge bg-danger">必須</span>
+										<input name="single_participation_fee" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['single_participation_fee'] ?? ($old_input['single_participation_fee'] ?? '')) ?>" />
+										<?php if (!empty($errors['single_participation_fee'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['single_participation_fee']); ?></div>
+										<?php endif; ?>
+									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">申し込み締切日</label>
-											<span class="badge bg-danger">必須</span>
+											<label id="deadline_label" class="me-2">申し込み締切日</label>
+											<span id="deadline_req" class="badge bg-danger">必須</span>
 										</div>
 										<input name="deadline" class=" form-control" type="date"
                                             value="<?= explode (' ', htmlspecialchars($eventData['deadline'] ?? ($old_input['deadline'] ?? '')))[0] ?>" />
@@ -477,10 +524,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3 repeatedly_area">
+									<div class="mb-3 all_deadline_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">各回申し込み締切日</label>
-											<span class="badge bg-danger">必須</span>
+											<span id="all_deadline_req" class="badge bg-danger">必須</span>
 										</div>
 										<input name="all_deadline" class="form-control" type="number"
                                             value="<?= explode (' ', htmlspecialchars($eventData['all_deadline'] ?? ($old_input['all_deadline'] ?? '')))[0] ?>" />
@@ -573,16 +620,58 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
 		const eventKbnElement = document.querySelector('select[name="event_kbn"]');
-		const repeatedlyArea =$('.repeatedly_area');
-		const onetimeArea = $('.onetime_area');
+		const onetimeArea = $('.onetime_area'); // 1：単発イベントに必要な項目を表示している箇所
+		const repeatedlyArea =$('.repeatedly_area'); // 2：複数回イベントに必要な項目を表示している箇所
+		const termArea = $('.term_area'); // 3：期間内毎日イベントに必要な項目を表示している箇所
 		const event_id = $('#event_id').val();
-		const participationFeeLabel = $('#participation_fee_label');
+		const capacityReq = $('#capacity_req');
+		const participationFeeLabel = $('#participation_fee_label'); // 参加費のlabelタグ
+		const participationFeeReq = $('#participation_fee_req'); // 参加費の必須表示
+		const deadlineLabel = $('#deadline_label'); // 各回申し込み締切日のlabelタグ
+		const deadlineReq = $('#deadline_req'); // 申し込み締切日の必須表示
+		const allDeadlineArea = $('.all_deadline_area'); // 各回申し込み締切日を表示している箇所
+		const allDeadlineReq = $('#all_deadline_req'); // 各回申し込み締切日の必須表示
+		const oneArea = $('#one_area');
 
 		// 初期表示で value="2" の場合は表示
 		if (eventKbnElement.value == '2') {
 			onetimeArea.css('display', 'none');
+			oneArea.css('display', 'none');
 			repeatedlyArea.css('display', 'block');
+			allDeadlineArea.css('display', 'block');
+			termArea.css('display', 'none');
+
 			participationFeeLabel.text("参加費( 全て受講 )");
+			deadlineLabel.text("申し込み締切日( 全て受講 )");
+			capacityReq.css('display', 'inline-block');
+			participationFeeReq.css('display', 'inline-block');
+			deadlineReq.css('display', 'block');
+			allDeadlineReq.css('display', 'block');
+		} else if (eventKbnElement.value == '3') { // 3：期間内に毎日開催のイベント
+			onetimeArea.css('display', 'none');
+			oneArea.css('display', 'block');
+			repeatedlyArea.css('display', 'none');
+			allDeadlineArea.css('display', 'block');
+			termArea.css('display', 'block');
+
+			participationFeeLabel.text("参加費");
+			deadlineLabel.text("申し込み締切日");
+			capacityReq.css('display', 'none');
+			participationFeeReq.css('display', 'none');
+			deadlineReq.css('display', 'none');
+			allDeadlineReq.css('display', 'none');
+		} else { // 1：単発のイベント
+			onetimeArea.css('display', 'block');
+			oneArea.css('display', 'block');
+			repeatedlyArea.css('display', 'none');
+			allDeadlineArea.css('display', 'none');
+			termArea.css('display', 'none');
+
+			participationFeeLabel.text("参加費");
+			deadlineLabel.text("申し込み締切日");
+			capacityReq.css('display', 'inline-block');
+			participationFeeReq.css('display', 'inline-block');
+			deadlineReq.css('display', 'block');
 		}
 		
 		const ids = ['lecture_format_id', 'category_id'];
@@ -598,14 +687,40 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		});
 		// select要素が変更された時にアラートを表示
 		$('select[name="event_kbn"]').on('change', function() {
-			if ($(this).val() == 2) {
+			if ($(this).val() == 3) {
+				onetimeArea.css('display', 'none');
+				oneArea.css('display', 'block');
+				repeatedlyArea.css('display', 'none');
+				allDeadlineArea.css('display', 'block');
+				termArea.css('display', 'block');
+				capacityReq.css('display', 'none');
+				participationFeeReq.css('display', 'none');
+				participationFeeLabel.text("参加費");
+				deadlineLabel.text("申し込み締切日");
+				deadlineReq.css('display', 'none');
+				allDeadlineReq.css('display', 'none');
+			} else if ($(this).val() == 2) {
 				onetimeArea.css('display', 'none');
 				repeatedlyArea.css('display', 'block');
+				allDeadlineArea.css('display', 'block');
+				termArea.css('display', 'none');
+				capacityReq.css('display', 'inline-block');
+				participationFeeReq.css('display', 'inline-block');
 				participationFeeLabel.text("参加費( 全て受講 )");
+				deadlineLabel.text("申し込み締切日( 全て受講 )");
+				deadlineReq.css('display', 'block');
+				allDeadlineReq.css('display', 'block');
 			} else {
 				onetimeArea.css('display', 'block');
+				oneArea.css('display', 'block');
 				repeatedlyArea.css('display', 'none');
+				allDeadlineArea.css('display', 'none');
+				termArea.css('display', 'none');
+				capacityReq.css('display', 'inline-block');
+				participationFeeReq.css('display', 'inline-block');
 				participationFeeLabel.text("参加費");
+				deadlineLabel.text("申し込み締切日");
+				deadlineReq.css('display', 'block');
 			}
 		});
 		let itemCount = 1; // 初期値として1を設定

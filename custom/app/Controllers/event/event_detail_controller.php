@@ -50,7 +50,25 @@ if(!empty($event)) {
 
     $tutor_ids = [];
     foreach($event['course_infos'] as $select_course) {
-        $event['select_course'][$select_course['no']] = $select_course;
+        $course_date = new DateTime($select_course['course_date']);
+        // event_kbn:3　期間内毎日イベント開催の場合
+        if($event['event_kbn'] == EVERY_DAY_EVENT && empty($event['deadline']) && empty($event['all_deadline'])) {
+            // event_kbn:3
+            // `end_hour` の時刻を設定
+            list($hour, $minute, $second) = explode(':', $event['end_hour']);
+            $course_date->setTime($hour, $minute, $second);
+            
+            // 現在時刻のUNIXタイムスタンプ
+            $current_timestamp = new DateTime();
+            if($current_timestamp > $course_date) {
+                $select_course['close_date'] = 1;
+            }
+            
+            $event['select_course'][$select_course['no']] = $select_course;
+        } else {
+            $event['select_course'][$select_course['no']] = $select_course;
+        }
+        
         if(isset($select_course['details'])) {
             $tutor_id = $select_course['details'][0]['tutor_id'];
             if(count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))){
