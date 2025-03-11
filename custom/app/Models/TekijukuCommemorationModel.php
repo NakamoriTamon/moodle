@@ -20,6 +20,11 @@ class TekijukuCommemorationModel extends BaseModel
                     $where .= " AND t.name LIKE :keyword";
                     $params[':keyword'] = $searchTerm;
                 }
+                if (!empty($filters['deadline_date'])) {
+                    $searchTerm = $filters['deadline_date'];
+                    $where .= " AND t.created_at < :deadline_date";
+                    $params[':deadline_date'] = $searchTerm;
+                }
 
                 // ページネーション用のオフセットを計算
                 $offset = ($page - 1) * $perPage;

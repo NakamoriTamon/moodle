@@ -94,18 +94,19 @@ unset($_SESSION['old_input']);
                                     <table class="table table-responsive table-striped table_list" style="width:100%">
                                         <thead>
                                             <tr>
-                                                <th class="ps-4 pe-4">会員ID</th>
-                                                <th class="ps-4 pe-4">ユーザー名</th>
-                                                <th class="ps-4 pe-4">メールアドレス</th>
-                                                <th class="ps-4 pe-4">メニュー</th>
-                                                <th class="ps-4 pe-4">口数</th>
-                                                <th class="ps-4 pe-4">所属部局</th>
-                                                <th class="ps-4 pe-4">部課・専攻名</th>
+                                                <th class="ps-4 pe-4 text-nowrap">会員ID</th>
+                                                <th class="ps-4 pe-4 text-nowrap">ユーザー名</th>
+                                                <th class="ps-4 pe-4 text-nowrap">メールアドレス</th>
+                                                <th class="ps-4 pe-4 text-nowrap">メニュー</th>
+                                                <th class="ps-4 pe-4 text-nowrap">口数</th>
+                                                <th class="ps-4 pe-4 text-nowrap">所属部局</th>
+                                                <th class="ps-4 pe-4 text-nowrap">部課・専攻名</th>
                                                 <th class="ps-4 pe-4 text-nowrap">職名・学年</th>
-                                                <th class="ps-4 pe-4">決済状況</th>
-                                                <th class="ps-4 pe-4">決済方法</th>
-                                                <th class="ps-4 pe-4">支払日</th>
-                                                <th class="ps-4 pe-4">申込日</th>
+                                                <th class="ps-4 pe-4 text-nowrap">決済状況</th>
+                                                <th class="ps-4 pe-4 text-nowrap">決済方法</th>
+                                                <th class="ps-4 pe-4 text-nowrap">支払日</th>
+                                                <th class="ps-4 pe-4 text-nowrap">申込日</th>
+                                                <th class="ps-4 pe-4 text-nowrap">旧会員番号</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -135,6 +136,7 @@ unset($_SESSION['old_input']);
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($payment_select_list[$result['payment_method']]) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($paid_date) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['old_number']) ?></td>
                                                 </tr>
                                             <? } ?>
                                         </tbody>
@@ -234,7 +236,7 @@ unset($_SESSION['old_input']);
 
     });
     $('#search-button').on('click', function(event) {
-        $('.search-area').css('display', 'block');
+        $('input[name="page"]').val(1);
     });
     // ページネーション押下時
     $(document).on("click", ".paginate_button a", function(e) {
