@@ -1,6 +1,7 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_controller.php');
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/event/event_application_controller.php');
 // unset($SESSION->formdata);
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
@@ -24,6 +25,7 @@ $kana = "";
 $email = "";
 $guardian_kbn = "";
 $guardian_name = "";
+$guardian_kana = "";
 $guardian_email = "";
 $event = $responce['event'];
 $event_customfield_category_id = $event['event_customfield_category_id'];
@@ -49,11 +51,12 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 
     // 必要な情報を取得
     $userData = $DB->get_record('user', ['id' => $USER->id], 'name, name_kana, guardian_kbn
-    , guardian_name, guardian_email');
+    , guardian_name, guardian_kana, guardian_email');
     $name = $userData->name ?? '';
     $kana = $userData->name_kana ?? '';
     $email = $_SESSION['USER']->email ?? "";
     $guardian_name = $userData->guardian_name ?? '';
+    $guardian_kana = $userData->guardian_kana ?? '';
     $guardian_kbn = $userData->guardian_kbn ?? "";
     $guardian_email = $userData->guardian_email ?? "";
 }
@@ -67,6 +70,7 @@ if (!empty($old_input)) {
     $mailsArray = isset($old_input['companion_mails']) ? $old_input['companion_mails'] : [];
     $notification_kbn = isset($old_input['notification_kbn']) ? $old_input['notification_kbn'] : null;
     $guardian_name = isset($old_input['guardian_name']) ? $old_input['guardian_name'] : $guardian_name;
+    $guardian_kana = isset($old_input['guardian_kana']) ? $old_input['guardian_kana'] : $guardian_kana;
     $guardian_kbn = isset($old_input['guardian_kbn']) ? $old_input['guardian_kbn'] : $guardian_kbn;
     $guardian_email = isset($old_input['guardian_email']) ? $old_input['guardian_email'] : $guardian_email;
 } else if (!is_null($formdata) && empty($errors)) {
@@ -90,6 +94,7 @@ if (!empty($old_input)) {
     $notification_kbn = isset($formdata['notification_kbn']) ? $formdata['notification_kbn'] : null;
     $applicant_kbn = isset($formdata['applicant_kbn']) ? $formdata['applicant_kbn'] : $applicant_kbn;
     $guardian_name = isset($formdata['guardian_name']) ? $formdata['guardian_name'] : $guardian_name;
+    $guardian_kana = isset($formdata['guardian_kana']) ? $formdata['guardian_kana'] : $guardian_kana;
     $guardian_email = isset($formdata['guardian_email']) ? $formdata['guardian_email'] : $guardian_email;
 }
 
@@ -320,6 +325,17 @@ if (!empty($old_input)) {
                                     <p class="list_label">保護者名</p>
                                     <div class="list_field f_txt" id="guardian_name">
                                         <input type="text" style="margin-right: 2rem" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" ;>
+                                    </div>
+                                </li>
+                                <span class="error-msg" id="guardian_kana-error">
+                                    <?php if (!empty($errors['guardian_kana'])): ?>
+                                        <?= htmlspecialchars($errors['guardian_kana']); ?>
+                                    <?php endif; ?>
+                                </span>
+                                <li class="long_item">
+                                    <p class="list_label">保護者名フリガナ</p>
+                                    <div class="list_field f_txt" id="guardian_kana">
+                                        <input type="text" style="margin-right: 2rem" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" ;>
                                     </div>
                                 </li>
                                 <span class="error-msg" id="guardian_email-error">

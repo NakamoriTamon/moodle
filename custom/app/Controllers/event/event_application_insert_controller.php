@@ -133,6 +133,7 @@ if (empty($guardian_kbn)) {
     $_SESSION['errors']['guardian_name'] = null;
     $_SESSION['errors']['guardian_email'] = null;
 }
+
 $event_customfield_category_id =  htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $eventCustomFieldModel = new eventCustomFieldModel();
 $fieldList = [];

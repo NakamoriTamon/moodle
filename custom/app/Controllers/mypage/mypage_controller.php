@@ -26,18 +26,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-class MypageController {
+class MypageController
+{
     private $DB;
     private $USER;
     private $eventApplicationModel;
     private $dotenv;
 
-    public function __construct() {
-        global $DB, $USER; 
+    public function __construct()
+    {
+        global $DB, $USER;
         $this->DB = $DB;
         $this->USER = $USER;
         $this->eventApplicationModel = new EventApplicationModel();
-        
+
         $this->dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
         $this->dotenv->load();
     }
@@ -45,16 +47,18 @@ class MypageController {
     // $lastname_kana = "";
     // $firstname_kana = "";
     // ユーザー情報を取得
-    public function getUser() {
+    public function getUser()
+    {
         return $this->DB->get_record(
             'user',
             ['id' => $this->USER->id],
-            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn', 
+            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn',
         );
     }
 
     // 適塾記念情報を取得
-    public function getTekijukuCommemoration() {
+    public function getTekijukuCommemoration()
+    {
         return $this->DB->get_record(
             'tekijuku_commemoration',
             ['fk_user_id' => $this->USER->id],
@@ -63,7 +67,8 @@ class MypageController {
     }
 
     // イベント申し込み情報を取得
-    public function getEventApplications($offset = 0, $limit = 1, $page = 1, $get_application = 'booking') {
+    public function getEventApplications($offset = 0, $limit = 1, $page = 1, $get_application = 'booking')
+    {
         try {
 
             // limit と offset を整数にキャスト
@@ -203,7 +208,8 @@ class MypageController {
         return $pagenete_data;
     }
 
-    private function getTotalEventApplicationsCount($get_application) {
+    private function getTotalEventApplicationsCount($get_application)
+    {
         try {
             $sql = $get_application == 'booking' ? "
                 WITH filtered_applications AS (
@@ -244,7 +250,7 @@ class MypageController {
                 FROM filtered_applications fa
                 WHERE fa.user_id = :user_id;
             ";
-        
+
             $params = ['user_id' => $this->USER->id];
             $count = $this->DB->get_record_sql($sql, $params)->count;
         } catch (Exception $e) {
@@ -253,13 +259,14 @@ class MypageController {
         return $count;
     }
 
-    
+
     /**
      * マイページアカウント停止
      * 適塾アカウント停止
      * メールを送る
      */
-    public function disableAccount() {
+    public function disableAccount()
+    {
         $id = $this->USER->id;
         if ($id === 0 && is_null($id)) {
             // IDが無効な場合、エラーを返す
@@ -271,7 +278,7 @@ class MypageController {
         try {
             if (isloggedin() && isset($_SESSION['USER'])) {
                 $transaction = $this->DB->start_delegated_transaction();
-        
+
                 $user = $this->getUser();
                 $name = $user->name;
                 $email = $user->email;
@@ -281,7 +288,7 @@ class MypageController {
                 // DB更新       
                 $this->DB->update_record_raw('user', $data);
                 $tekijuku_commemoration = $this->tekijukuCommemoration();
-                
+
                 if ($tekijuku_commemoration) { // 適塾側DB更新
                     $tekijuku_data = new stdClass();
                     $tekijuku_data->id = (int)$tekijuku_commemoration->id;
@@ -350,10 +357,11 @@ class MypageController {
         }
     }
 
-        /**
+    /**
      * retrun bool ログインかつ適塾情報が有ればtrue
      */
-    private function tekijukuCommemoration() {
+    private function tekijukuCommemoration()
+    {
         if (isloggedin() && isset($_SESSION['USER'])) {
             return $this->DB->get_record(
                 'tekijuku_commemoration',

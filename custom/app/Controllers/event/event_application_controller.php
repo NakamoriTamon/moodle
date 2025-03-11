@@ -10,7 +10,8 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
-class EventApplicationController {
+class EventApplicationController
+{
 
     private $eventModel;
     private $eventCustomFieldModel;
@@ -30,25 +31,26 @@ class EventApplicationController {
         $this->categoryModel = new CategoryModel();
         $this->lectureFormatModel = new LectureFormatModel();
     }
-    
-    public function getEvenApplication($eventId, $courseInfoId, $formdata) {
-        if(!empty($courseInfoId)) {
+
+    public function getEvenApplication($eventId, $courseInfoId, $formdata)
+    {
+        if (!empty($courseInfoId)) {
             $event = $this->eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
         } else {
             $event = $this->eventModel->getEventById($eventId);
         }
-        
+
         $categorys = $this->categoryModel->getCategories();
         $lectureFormats = $this->lectureFormatModel->getLectureFormats();
 
         $select_lecture_formats = [];
         $select_categorys = [];
         $select_courses = [];
-        if(!empty($event)) {
-            
-            foreach($event['lecture_formats'] as $lecture_format) {
+        if (!empty($event)) {
+
+            foreach ($event['lecture_formats'] as $lecture_format) {
                 $lecture_format_id = $lecture_format['lecture_format_id'];
-            
+
                 foreach ($lectureFormats as $lectureFormat) {
                     if ($lectureFormat['id'] == $lecture_format_id) {
                         $select_lecture_formats[] = $lectureFormat;
@@ -56,10 +58,10 @@ class EventApplicationController {
                     }
                 }
             }
-        
-            foreach($event['categorys'] as $select_category) {
+
+            foreach ($event['categorys'] as $select_category) {
                 $category_id = $select_category['category_id'];
-            
+
                 foreach ($categorys as $category) {
                     if ($category['id'] == $category_id) {
                         $select_categorys[] = $category;
@@ -67,23 +69,23 @@ class EventApplicationController {
                     }
                 }
             }
-        
-            foreach($event['course_infos'] as $select_course) {
+
+            foreach ($event['course_infos'] as $select_course) {
                 $event['select_course'][$select_course['no']] = $select_course;
             }
         }
-        
+
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
         $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)['sum_ticket_count'] ?? 0;
 
         $cognitions = $this->cognitionModel->getCognition();
         $paymentTypes = $this->paymentTypeModel->getPaymentTypes();
-        
+
         $passage = '';
         $checked = '';
         $customfield_type_list = CUSTOMFIELD_TYPE_LIST;
         $params = null;
-        if(!is_null($formdata) && isset($formdata['params'])) {
+        if (!is_null($formdata) && isset($formdata['params'])) {
             $params = $formdata['params'];
         }
         foreach ($fieldList as $fields) {
@@ -109,7 +111,7 @@ class EventApplicationController {
                     $name = "";
                     $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
                     $checked_param = is_null($params) || !isset($params[$name]) ? "" : $params[$name];
-                    if(!is_null($params)) {
+                    if (!is_null($params)) {
                         $checked = isSelected($option, $checked_param, null) ? 'checked' : '';
                     } else {
                         $checked = '';
@@ -136,5 +138,11 @@ class EventApplicationController {
 
         return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'sum_ticket_count' => $sum_ticket_count];
     }
+
+    public function getEvenApplicationById($eventId)
+    {
+        $event = $this->eventApplicationModel->getEventApplicationCourseInfos($eventId);
+
+        return $event;
+    }
 }
-?>

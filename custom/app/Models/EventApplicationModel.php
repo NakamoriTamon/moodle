@@ -22,7 +22,7 @@ class EventApplicationModel extends BaseModel
 
         return [];
     }
-    
+
     // 各イベントごとのアンケートカスタムフィールドを取得
     public function getSumTicketCountByEventId($eventId = null)
     {
@@ -40,7 +40,7 @@ class EventApplicationModel extends BaseModel
 
         return [];
     }
-    
+
     // ユーザIDからイベントを取得
     public function getEventApplicationByUserId($userId = null)
     {
@@ -61,7 +61,7 @@ class EventApplicationModel extends BaseModel
 
         return [];
     }
-    
+
     // ユーザIDからイベントを取得
     public function getOldEventApplicationByUserId($userId = null)
     {
@@ -93,7 +93,7 @@ class EventApplicationModel extends BaseModel
                 $stmt->bindParam(':eventApplicationID', $eventApplicationID, PDO::PARAM_INT);
                 $stmt->execute();
                 $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
+
                 return $course_infos;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();

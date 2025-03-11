@@ -62,4 +62,58 @@ class UserModel extends BaseModel
 
         return [];
     }
+
+    // ユーザIDに基づいてユーザ詳細を取得
+    private function getUserDetails($userID)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_each WHERE event_id = :userID");
+                $stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
+                $stmt->execute();
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    // ユーザ単件取得
+    public function getUserById($id = null)
+    {
+        if ($this->pdo) {
+            try {
+                $sql = "SELECT 
+                    u.*, 
+                    r.id AS role_id,
+                    r.sortorder AS role_sortorder,
+                    r.shortname AS role
+                FROM mdl_user u
+                JOIN mdl_role_assignments ra ON u.id = ra.userid
+                JOIN mdl_role r ON ra.roleid = r.id";
+
+                $params[':id'] = $id;
+
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!empty($user)) {
+                    $user['details'] = $this->getUserDetails($user['id']);
+                }
+
+                return  $user;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 }
