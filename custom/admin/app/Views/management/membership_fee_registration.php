@@ -42,7 +42,7 @@ unset($_SESSION['old_input']);
                 <div class="col-12 col-lg-12">
                     <div class="card">
                         <div class="card-body p-025 p-055">
-                            <form method="POST" action="/custom/admin/app/Views/management/membership_fee_registration.php">
+                            <form method="POST" id="search-form" action="/custom/admin/app/Views/management/membership_fee_registration.php">
                                 <input type="hidden" name="page" value="<?= $page ?>">
                                 <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-3 w-100">
@@ -243,6 +243,6 @@ unset($_SESSION['old_input']);
         e.preventDefault();
         const nextPage = $(this).data("page");
         $('input[name="page"]').val(nextPage);
-        $('#search-button').click();
+        $('#search-form').submit();
     });
 </script>
