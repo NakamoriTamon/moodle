@@ -159,10 +159,17 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item08 req">
+                                <li class="list_item08">
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
-                                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($old_input['birthday'] ?? $birthday); ?>" />
+                                        <?php
+                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : '未設定';
+                                        ?>
+
+                                        <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
+                                        <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
                                         <?php if (!empty($errors['birthday'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
                                         <?php endif; ?>
@@ -262,16 +269,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                             <?php if (!empty($errors['kana'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
                                             <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item04 req">
-                                        <p class="list_label">性別</p>
-                                        <div class="list_field f_select select">
-                                            <select name="sex">
-                                                <option selected value=1 <?= isSelected(1, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>男性</option>
-                                                <option value=2 <?= isSelected(2, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>女性</option>
-                                                <option value=3 <?= isSelected(3, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>その他</option>
-                                            </select>
                                         </div>
                                     </li>
                                     <li class="list_item05 req">

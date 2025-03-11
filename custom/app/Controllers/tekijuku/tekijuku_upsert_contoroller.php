@@ -10,7 +10,6 @@ $values = $_SESSION['old_input'];
 $type_code = (int)$values['type_code'];
 $name = $values['name'];
 $kana = $values['kana'];
-$sex = (int)$values['sex'];
 $post_code = (int)$values['post_code'];
 $address = $values['address'];
 $tell_number = $values['combine_tell_number'];
@@ -39,7 +38,6 @@ try {
     $tekijuku_commemoration->type_code = $type_code;
     $tekijuku_commemoration->name = $name;
     $tekijuku_commemoration->kana = $kana;
-    $tekijuku_commemoration->sex = $sex;
     $tekijuku_commemoration->post_code = $post_code;
     $tekijuku_commemoration->address = $address;
     $tekijuku_commemoration->tell_number = $tell_number;

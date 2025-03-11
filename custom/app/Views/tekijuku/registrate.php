@@ -56,16 +56,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item04 req">
-                            <p class="list_label">性別</p>
-                            <div class="list_field f_select select">
-                                <select name="sex">
-                                    <option selected value=1 <?= isSelected(1, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>男性</option>
-                                    <option value=2 <?= isSelected(2, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>女性</option>
-                                    <option value=3 <?= isSelected(3, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>その他</option>
-                                </select>
-                            </div>
-                        </li>
                         <li class="list_item05 req">
                             <p class="list_label">郵便番号（ハイフンなし）</p>
                             <div class="list_field f_txt a">

@@ -179,7 +179,6 @@ class MypageUpdateController {
         $_SESSION['errors']['tekijuku_name'] = validate_text($name, 'お名前', $name_size, true);
         $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['kana'] = validate_kana($kana, $name_size);
-        $sex = htmlspecialchars(required_param('sex', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
         $post_code = htmlspecialchars(required_param('post_code', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         
@@ -235,7 +234,6 @@ class MypageUpdateController {
                 $data->id = (int)$id;
                 $data->name = $name;
                 $data->kana = $kana;
-                $data->sex = $sex;
                 $data->post_code = $post_code;
                 $data->address = $address;
                 $data->tell_number = $tell_number;

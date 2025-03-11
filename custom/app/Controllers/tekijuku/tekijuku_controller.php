@@ -7,7 +7,6 @@ require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 
 $name = $_POST['name'];
 $kana = $_POST['kana'];
-$sex = $_POST['sex'];
 $post_code = $_POST['post_code'];
 $address = $_POST['address'];
 $tell_number = $_POST['tell_number'];

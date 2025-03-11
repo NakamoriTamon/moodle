@@ -44,12 +44,6 @@ global $old_input;
                                 <p><?= htmlspecialchars($old_input['kana']) ?></p>
                             </div>
                         </li>
-                        <li class="list_item04">
-                            <p class="list_label">性別</p>
-                            <div class="list_field">
-                                <p><?= htmlspecialchars($sex_list[$old_input['sex']]) ?></p>
-                            </div>
-                        </li>
                         <li class="list_item05">
                             <p class="list_label">郵便番号</p>
                             <div class="list_field">
