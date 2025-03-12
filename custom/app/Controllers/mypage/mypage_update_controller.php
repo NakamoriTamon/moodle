@@ -184,7 +184,6 @@ class MypageUpdateController {
         $_SESSION['errors']['tekijuku_name'] = validate_text($name, 'お名前', $name_size, true);
         $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['kana'] = validate_kana($kana, $name_size);
-        $sex = htmlspecialchars(required_param('sex', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
         $post_code = htmlspecialchars(required_param('post_code', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         
@@ -225,6 +224,15 @@ class MypageUpdateController {
         $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
         $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
 
+        $official = htmlspecialchars(required_param('official', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $is_university_member = optional_param('is_university_member', 0, PARAM_INT);
+        $department = htmlspecialchars(required_param('department', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $_SESSION['errors']['department'] = validate_text($department, '所属部局（学部・研究科）', $name_size, $is_university_member === 0 ? false : true);
+        $major = htmlspecialchars(required_param('major', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $_SESSION['errors']['major'] = validate_text($major, '講座/部課/専攻名', $name_size, false);
+        $official = htmlspecialchars(required_param('official', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $_SESSION['errors']['official'] = validate_text($official, '職名・学年', $name_size, $is_university_member === 0 ? false : true);
+
         foreach ($_SESSION['errors'] as $error) {
             if (!empty($error)) {
                 $_SESSION['old_input'] = $_POST;
@@ -245,7 +253,6 @@ class MypageUpdateController {
                 $data->id = (int)$id;
                 $data->name = $name;
                 $data->kana = $kana;
-                $data->sex = $sex;
                 $data->post_code = $post_code;
                 $data->address = $address;
                 $data->tell_number = $tell_number;
@@ -254,9 +261,12 @@ class MypageUpdateController {
                 $data->note = $note;
                 $data->is_published = $is_published;
                 $data->is_subscription = $is_subscription;
-        
-                
-                $DB->update_record('tekijuku_commemoration', $data);
+                $data->department = $department;
+                $data->major = $major;
+                $data->official = $official;
+                $data->is_university_member = $is_university_member;
+
+                $DB->update_record_raw('tekijuku_commemoration', $data);
         
                 $pdo->commit();
                 $_SESSION['message_success'] = '登録が完了しました';

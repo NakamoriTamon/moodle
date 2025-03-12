@@ -10,13 +10,18 @@ $values = $_SESSION['old_input'];
 $type_code = (int)$values['type_code'];
 $name = $values['name'];
 $kana = $values['kana'];
-$sex = (int)$values['sex'];
 $post_code = (int)$values['post_code'];
 $address = $values['address'];
 $tell_number = $values['combine_tell_number'];
 $email = $values['email'];
+$unit = (int)$values['unit'];
+$price = (int)$values['price'];
 $payment_method = (int)$values['payment_method'];
 $note = $values['note'];
+$department = $values['department'];
+$is_university_member = (int)$values['is_university_member'];
+$major = $values['major'];
+$official = $values['official'];
 $is_published = (int)$values['is_published'];
 $is_subscription = (int)$values['is_subscription'];
 try {
@@ -39,7 +44,6 @@ try {
     $tekijuku_commemoration->type_code = $type_code;
     $tekijuku_commemoration->name = $name;
     $tekijuku_commemoration->kana = $kana;
-    $tekijuku_commemoration->sex = $sex;
     $tekijuku_commemoration->post_code = $post_code;
     $tekijuku_commemoration->address = $address;
     $tekijuku_commemoration->tell_number = $tell_number;
@@ -50,8 +54,14 @@ try {
     $tekijuku_commemoration->is_subscription = $is_subscription;
     $tekijuku_commemoration->paid_date = date('Y-m-d H:i:s');
     $tekijuku_commemoration->fk_user_id = $fk_user_id;
-
-    $id = $DB->insert_record('tekijuku_commemoration', $tekijuku_commemoration);
+    
+    $tekijuku_commemoration->department = $department;
+    $tekijuku_commemoration->major = $major;
+    $tekijuku_commemoration->official = $official;
+    $tekijuku_commemoration->unit = $unit;
+    $tekijuku_commemoration->price = $price;
+    $tekijuku_commemoration->is_university_member = $is_university_member;
+    $id = $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration, true);
     $amount = $type_code === 1 ? 2000 : 10000;
     // 決済データ（サンプル）
     $data = [

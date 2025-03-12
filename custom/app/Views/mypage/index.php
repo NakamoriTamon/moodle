@@ -159,10 +159,17 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item08 req">
+                                <li class="list_item08">
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
-                                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($old_input['birthday'] ?? $birthday); ?>" />
+                                        <?php
+                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : '未設定';
+                                        ?>
+
+                                        <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
+                                        <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
                                         <?php if (!empty($errors['birthday'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
                                         <?php endif; ?>
@@ -241,11 +248,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                         <p class="list_label">ユーザーID</p>
                                         <div class="list_field f_txt"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></div>
                                     </li>
-                                    <li class="list_item01 req">
-                                        <p class="list_label">会員種別</p>
-                                        <div class="list_field f_txt"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration->type_code] ?></div>
-                                    </li>
                                     <li class="list_item02 req">
+                                        <p class="list_label">会員種別</p>
+                                        <div class="list_field f_txt"id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration->type_code) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration->type_code] ?></div>
+                                    </li>
+                                    <li class="list_item03 req">
                                         <p class="list_label">お名前</p>
                                         <div class="list_field f_txt">
                                             <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration->name); ?>">
@@ -254,23 +261,13 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item03 req">
+                                    <li class="list_item04 req">
                                         <p class="list_label">フリガナ</p>
                                         <div class="list_field f_txt">
                                             <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration->kana) ?>">
                                             <?php if (!empty($errors['kana'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
                                             <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item04 req">
-                                        <p class="list_label">性別</p>
-                                        <div class="list_field f_select select">
-                                            <select name="sex">
-                                                <option selected value=1 <?= isSelected(1, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>男性</option>
-                                                <option value=2 <?= isSelected(2, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>女性</option>
-                                                <option value=3 <?= isSelected(3, $old_input['sex'] ?? null, null) ? 'selected' : '' ?>>その他</option>
-                                            </select>
                                         </div>
                                     </li>
                                     <li class="list_item05 req">
@@ -350,6 +347,41 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                         </div>
                                     </li>
                                     <li class="list_item11">
+                                        <div class="list_field">
+                                            <label class="checkbox_label">
+                                                <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration->is_university_member) == '1' ? 'checked' : ''; ?>>
+                                                <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="list_item12 req" id="department_field">
+                                        <p class="list_label">所属部局（学部・研究科）</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="department" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration->department); ?>">
+                                            <?php if (!empty($errors['department'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item13" id="major_field">
+                                        <p class="list_label">講座/部課/専攻名</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration->major); ?>">
+                                            <?php if (!empty($errors['major'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item14 req" id="official_field">
+                                        <p class="list_label">職名・学年</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration->official); ?>">
+                                            <?php if (!empty($errors['official'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item15">
                                         <div class="area name">
                                             <label class="checkbox_label" for="">
                                                 <input type="hidden" name="is_published" value="0">
@@ -358,7 +390,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                             </label>
                                         </div>
                                     </li>
-                                    <li class="list_item12 is_subscription_area">
+                                    <li class="list_item16 is_subscription_area">
                                         <div class="area plan">
                                             <label class="checkbox_label" for="">
                                                 <input type="hidden" name="is_subscription" value="0">
@@ -736,4 +768,77 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
     $(document).on('click', '.modal-close', function() {
         $('#confirmation-modal').remove();
     });
+
+    
+    // 会員種別ごとの単価
+    const PRICE_REGULAR_MEMBER = 2000;  // 普通会員単価
+    const PRICE_SUPPORTING_MEMBER = 10000;  // 賛助会員単価
+
+    // 現在選ばれている会員種別の単価を決定
+    let currentUnitPrice = PRICE_REGULAR_MEMBER;
+
+    // 会員種別が変更されたときの処理
+    function updatePrice() {
+        // 会員種別の選択を取得
+        const typeCode = document.getElementById('type_code').getAttribute('data-type-code');
+        // 会員種別によって単価を決定
+        if (typeCode == 1) {
+            currentUnitPrice = PRICE_REGULAR_MEMBER;
+        } else if (typeCode == 2) {
+            currentUnitPrice = PRICE_SUPPORTING_MEMBER;
+        }
+
+        // 枚数を取得
+        const unitCount = parseInt(document.getElementById('unit').value) || 0;
+
+        // 金額を計算
+        const totalPrice = currentUnitPrice * unitCount;
+
+        // 金額欄に表示
+        document.getElementById('price').textContent = totalPrice.toLocaleString() + "円";
+        document.getElementById('price_value').value = totalPrice;
+    }
+
+    // 枚数が増減したときの処理
+    function updateUnitCount(delta) {
+        const unitInput = document.getElementById('unit');
+        let currentCount = parseInt(unitInput.value) || 0;
+        currentCount += delta;
+
+        // 0未満にはならないように、1を最低枚数に設定
+        if (currentCount < 1) currentCount = 1;
+
+        unitInput.value = currentCount;
+
+        // 金額の再計算
+        updatePrice();
+    }
+
+    // ページ読み込み時に金額を初期化
+    window.onload = updatePrice;
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.querySelector('input[name="is_university_member"]');
+        const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
+
+        function toggleFields() {
+            fields.forEach(field => {
+                if (checkbox.checked) {
+                    field.classList.remove("hidden");
+                } else {
+                    field.classList.add("hidden");
+                    // 入力値をクリア
+                    field.querySelector("input").value = "";
+                }
+            });
+        }
+
+        // 初期状態を設定
+        toggleFields();
+
+        // チェック状態が変更されたら切り替え
+        checkbox.addEventListener("change", toggleFields);
+    });
+
 </script>
