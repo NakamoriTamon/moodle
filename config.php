@@ -1,10 +1,16 @@
 <?php  // Moodle configuration file
 
+require '/var/www/vendor/autoload.php';
+use Dotenv\Dotenv;
+use core\context\system;
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
 unset($CFG);
 global $CFG;
 $CFG = new stdClass();
 
-if (in_array($_SERVER['HTTP_HOST'], ['localhost:8000', '127.0.0.1'])) {
+$env = $_ENV['APP_ENV'] ?? 'development'; // ENV設定無い人は開発環境になる
+if ($env === 'development') { // 開発環境
   $CFG->dbtype    = 'mysqli';
   $CFG->dblibrary = 'native';
   $CFG->dbhost    = 'db';
@@ -22,7 +28,7 @@ if (in_array($_SERVER['HTTP_HOST'], ['localhost:8000', '127.0.0.1'])) {
   $CFG->wwwroot   = 'http://localhost:8000';
   $CFG->dataroot  = '/var/www/moodledata';
   $CFG->admin     = 'admin';
-} else {
+} else { // 本番環境
   $CFG->dbtype    = 'mysqli';
   $CFG->dblibrary = 'native';
   $CFG->dbhost    = 'osaka-univ-db.cisr8k3leqdh.ap-northeast-1.rds.amazonaws.com';
