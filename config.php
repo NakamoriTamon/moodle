@@ -59,8 +59,10 @@ $every_day_event = 3;
 define('EVERY_DAY_EVENT', $every_day_event);
 $event_kbn_list = [$single_event => '単発のイベント', $plural_event => '複数回シリーズのイベント', $every_day_event => '期間内に毎日開催のイベント'];
 define('EVENT_KBN_LIST', $event_kbn_list);
-$event_status_list = ['0' => '',1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+$event_status_list = ['0' => '', 1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_LIST', $event_status_list);
+$display_status_list = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+define('DISPLAY_EVENT_STATUS_LIST', $display_status_list);
 $lang_default = "jp";
 define('LANG_DEFAULT', $lang_default);
 $guardian_kbn_default = 0;
@@ -156,6 +158,13 @@ define('DEADLINE_LIST', $deadline_list);
 $deadline_end = 3;
 define('DEADLINE_END', $deadline_end);
 
+$display_deadline_list = [
+  '1' => '受付中',
+  '2' => 'もうすぐ締め切り',
+  '3' => '受付終了'
+];
+define('DISPLAY_DEADLINE_LIST', $display_deadline_list);
+
 //  URLでの暗号化共通キー
 $url_secret_key = 'my_secret_key_1234567890';
 
@@ -163,7 +172,7 @@ $weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '�
 define('WEEKDAYS', $weekdays);
 
 // 成人年齢
-$adult_age =18;
+$adult_age = 18;
 define('ADULT_AGE', $adult_age);
 
 // There is no php closing tag in this file,
