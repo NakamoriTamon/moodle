@@ -169,7 +169,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         <?php foreach ($event['select_course'] as $no => $course): ?>
                             <div class="program">
                                 <h4 class="sub_ttl">【<?php if(count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
-                                <?php if(DEADLINE_END == $event['deadline_status'] || isset($course['close_date'])): ?>
+                                <?php if(isset($course['close_date'])): ?>
                                     <span style="color: red;">(終了)</span>
                                 <?php endif; ?>
                             </div>
@@ -177,7 +177,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?= nl2br($course['details'][0]['program']) ?>
                             </p>
                             <div class="program">
-                                <?php if(DEADLINE_END != $event['deadline_status'] && !isset($course['close_date'])): ?>
+                                <?php if(!isset($course['close_date'])): ?>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
                                 <?php endif; ?>
                             </div>
