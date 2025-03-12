@@ -16,6 +16,10 @@ $targetModel = new TargetModel();
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $tutors = $tutorModel->getTutors();
+$tutor_options = "";
+foreach($tutors as $tutor) {
+    $tutor_options .= "<option value=" . $tutor['id'] . ">" . $tutor['name'] . "</option>";
+}
 $event_category_list = $customFieldCategoryModel->getCustomFieldCategory();
 $targets = $targetModel->getTargets();
 

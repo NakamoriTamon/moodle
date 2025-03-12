@@ -633,10 +633,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 
 </html>
 <script>
+	let tutor_options = '<?php echo $tutor_options ?>';
+
 	document.addEventListener('DOMContentLoaded', () => {
 		const eventKbnElement = document.querySelector('select[name="event_kbn"]');
 		const onetimeArea = $('.onetime_area'); // 1：単発イベントに必要な項目を表示している箇所
-		const repeatedlyArea =$('.repeatedly_area'); // 2：複数回イベントに必要な項目を表示している箇所
+		const repeatedlyArea = $('.repeatedly_area'); // 2：複数回イベントに必要な項目を表示している箇所
 		const termArea = $('.term_area'); // 3：期間内毎日イベントに必要な項目を表示している箇所
 		const event_id = $('#event_id').val();
 		const capacityReq = $('#capacity_req');
@@ -754,12 +756,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				</div>
 				<select id="tutor_id_${itemCount}" class="form-control mb-3" name="tutor_id_${itemCount}">
 					<optgroup label="">
-					<option value="1">海道 尊</option>
-					<option value="2">川上 潤</option>
+					<option value="">講師無し</option>
+					${tutor_options}
 					</optgroup>
 				</select>
 				</div>
-				<div class="mb-3">
+				<div id="tutor_name_area_${itemCount}" class="mb-3">
 				<div class="form-label align-items-center">
 					<label class="me-2">講義名</label>
 					<span class="badge bg-danger">必須</span>
@@ -805,12 +807,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					<label class="form-label">講師</label>
 					<select id="tutor_id_${targetLecture}_${newItemCount}" class="form-control mb-3" name="tutor_id_${targetLecture}_${newItemCount}">
 					<optgroup label="">
-						<option value="1">海道 尊</option>
-						<option value="2">川上 潤</option>
+						<option value="">講師無し</option>
+						${tutor_options}
 					</optgroup>
 					</select>
 				</div>
-				<div id="tutor_name_area_<?= $key+1 ?>" class="mb-3">
+				<div id="tutor_name_area_${targetLecture}_${newItemCount}" class="mb-3">
 					<div class="form-label d-flex align-items-center">
 					<label class="me-2">講師名</label>
 					<span class="badge bg-danger">必須</span>
@@ -848,22 +850,23 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		});
 	});
 
+	// 講師のセレクトボックスを変更した時
+	// 講師名のテキストエリアを表示
+	$(document).on('change', 'select[id^="tutor_id_"]', function() {
+		let selectedValue = $(this).val();
+		let selectId = $(this).attr('id'); // セレクトボックスのIDを取得
+
+		// tutor_id_ を tutor_name_area_ に変換して、対応する div の ID を取得
+		let divId = selectId.replace("tutor_id_", "tutor_name_area_");
+
+		if (selectedValue !== "") {
+			$('#' + divId).css('display', 'none'); // 非表示
+		} else {
+			$('#' + divId).css('display', 'block'); // 表示
+		}
+	});
+
 	$(document).ready(function () {
-		// 講師のセレクトボックスを変更した時
-		// 講師名のテキストエリアを表示
-		$('select[id^="tutor_id_"]').on('change', function() {
-			let selectedValue = $(this).val();
-			let selectId = $(this).attr('id'); // セレクトボックスのIDを取得
-
-			// tutor_id_ を tutor_name_area_ に変換して、対応する div の ID を取得
-			let divId = selectId.replace("tutor_id_", "tutor_name_area_");
-
-			if (selectedValue !== "") {
-				$('#' + divId).css('display', 'none'); // 非表示
-			} else {
-				$('#' + divId).css('display', 'block'); // 表示
-			}
-		});
 
 		$('#thumbnail_img').on('change', function (event) {
 			const file = event.target.files[0]; // 選択されたファイルを取得

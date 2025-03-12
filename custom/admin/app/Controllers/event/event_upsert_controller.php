@@ -80,7 +80,7 @@ if($event_kbn == PLURAL_EVENT) {
 $deadline = empty($_POST['deadline']) ?  null : $_POST['deadline']; // 申し込み締切日　必須
 if($event_kbn == EVERY_DAY_EVENT) {
     $capacity = empty($_POST['capacity']) ? 0 : $_POST['capacity']; // 定員
-    $_SESSION['errors']['capacity'] = validate_int($capacity, '定員', false); // バリデーションチェック
+    $_SESSION['errors']['capacity'] = validate_int_zero_ok($capacity, '定員', false); // バリデーションチェック
     $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
     $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
 
@@ -174,7 +174,7 @@ if ($event_kbn == SINGLE_EVENT) {
             }
 
             // 初期化
-            if (!isset($lectures[$lectureNumber])) {
+            if (empty($lectures[$lectureNumber])) {
                 $lectures[$lectureNumber] = [];
                 $event_date = $_POST["course_date_1"];
             }
@@ -209,17 +209,21 @@ if ($event_kbn == SINGLE_EVENT) {
             $date->modify('-' . $all_deadline . 'days');
             $deadline_date = $date->format('Y-m-d 23:59:59'); // YYYY-MM-DD形式に変換
             // 各フィールドを収集
-            $lectures[$lectureNumber] = [
-                'course_date' => $_POST["course_date_{$lectureNumber}"],
-                'release_date' => empty($_POST["release_date_{$lectureNumber}"]) ? null : $_POST["release_date_{$lectureNumber}"],
-                'deadline_date' => $deadline_date
-            ];
+            if (empty($lectures[$lectureNumber])) {
+                $lectures[$lectureNumber] = [
+                    'course_date' => $_POST["course_date_{$lectureNumber}"],
+                    'release_date' => empty($_POST["release_date_{$lectureNumber}"]) ? null : $_POST["release_date_{$lectureNumber}"],
+                    'deadline_date' => $deadline_date
+                ];
+            }
+            $lectures[$lectureNumber]["detail"][$count] = [];
             $lectures[$lectureNumber]["detail"][$count] = [
                 'tutor_id' => empty($value) ? null : $value,
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}_{$itemNumber}"],
                 'program' => $_POST["program_{$lectureNumber}_{$itemNumber}"],
                 'tutor_name' => $_POST["tutor_name_{$lectureNumber}_{$itemNumber}"]
             ];
+            $count++;
         }
     }
 } elseif ($event_kbn == EVERY_DAY_EVENT) {
@@ -284,9 +288,10 @@ if ($event_kbn == SINGLE_EVENT) {
                         'deadline_date' => $deadlineDate->format('Y-m-d H:i:s') // `YYYY-MM-DD HH:MM:SS` 形式
                     ];
                     $lectures[$count]["detail"][0] = [
-                        'tutor_id' => $value,
+                        'tutor_id' => empty($value) ? null : $value,
                         'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                         'program' => $_POST["program_{$lectureNumber}"],
+                        'tutor_name' => $_POST["tutor_name_{$lectureNumber}"]
                     ];
                     $count++;
                 }
