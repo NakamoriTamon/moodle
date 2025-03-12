@@ -72,7 +72,9 @@ if (!empty($event)) {
         if(isset($select_course['details'])) {
             $tutor_id = $select_course['details'][0]['tutor_id'];
             if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                $tutor_ids[] = $tutor_id;
+                if(!empty($tutor_id)) {
+                    $tutor_ids[] = $tutor_id;
+                }
             }
         }
     }

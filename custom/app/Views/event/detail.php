@@ -183,6 +183,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <?php if(count($select_tutor) > 0): ?>
                     <div class="detail_item">
                         <h2 class="block_ttl">登壇者</h2>
                         <?php foreach ($select_tutor as $turor): ?>
@@ -197,6 +198,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <?php endif; ?>
                     <a href="/custom/app/Views/contact/index.php" class="btn btn_contact btn_navy">このイベントを問い合わせる</a>
                 </div>
             </div>
