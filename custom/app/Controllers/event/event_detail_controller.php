@@ -49,12 +49,22 @@ if (!empty($event)) {
     }
 
     $tutor_ids = [];
-    foreach ($event['course_infos'] as $select_course) {
+    foreach($event['course_infos'] as $select_course) {
+        $deadline_date = new DateTime($select_course['deadline_date']);
+        // 現在時刻のUNIXタイムスタンプ
+        $current_timestamp = new DateTime();
+        if($current_timestamp > $deadline_date) {
+            $select_course['close_date'] = 1;
+        }
+        
         $event['select_course'][$select_course['no']] = $select_course;
-        if (isset($select_course['details'])) {
+        
+        if(isset($select_course['details'])) {
             $tutor_id = $select_course['details'][0]['tutor_id'];
             if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                $tutor_ids[] = $tutor_id;
+                if(!empty($tutor_id)) {
+                    $tutor_ids[] = $tutor_id;
+                }
             }
         }
     }

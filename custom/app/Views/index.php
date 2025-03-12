@@ -1,5 +1,5 @@
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php'); 
+require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php');
 $now = new DateTime();
 $now = $now->format('Ymd');
 ?>
@@ -61,36 +61,36 @@ $now = $now->format('Ymd');
     <div class="swiper new_swiper">
       <ul class="swiper-wrapper" id="event">
         <?php if (isset($events) && !empty($events)): ?>
-            <?php foreach ($events as $row): ?>
-              <li class="swiper-slide event_item">
-                <a href="event/detail.php?id=<?= htmlspecialchars($row['id']) ?>">
-                  <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
-                  <div class="event_info">
-                    <ul class="event_status">
-                      <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                        <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
-                          <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                        <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
-                          <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                        <?php endif ?>
+          <?php foreach ($events as $row): ?>
+            <li class="swiper-slide event_item">
+              <a href="event/detail.php?id=<?= htmlspecialchars($row['id']) ?>">
+                <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
+                <div class="event_info">
+                  <ul class="event_status">
+                    <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                      <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                        <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                      <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
+                        <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                      <?php endif ?>
+                    <?php endforeach; ?>
+                  </ul>
+                  <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
+                  <div class="event_sched">
+                    <p class="term">開催日</p>
+                    <div class="date">
+                      <?php foreach ($row['select_course'] as $no => $course): ?>
+                        <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                        <?php if ($course_date >= $now): ?>
+                          <p class="dt0<?= $no ?>"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                        <?php endif; ?>
                       <?php endforeach; ?>
-                    </ul>
-                    <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
-                    <div class="event_sched">
-                      <p class="term">開催日</p>
-                      <div class="date">
-                        <?php foreach ($row['select_course'] as $no => $course): ?>
-                          <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
-                          <?php if($course_date >= $now): ?>
-                            <p class="dt0<?= $no ?>"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                          <?php endif; ?>
-                        <?php endforeach; ?>
-                      </div>
                     </div>
                   </div>
-                </a>
-              </li>
-            <?php endforeach; ?>
+                </div>
+              </a>
+            </li>
+          <?php endforeach; ?>
         <?php endif; ?>
       </ul>
       <div class="new_btns">
@@ -109,93 +109,93 @@ $now = $now->format('Ymd');
     </h2>
     <!-- とりあえずイベント一覧へ飛ばします！！ -->
     <form method="" action="/custom/app/Controllers/event/event_controller.php" id="search_cont" class="whitebox">
-        <input type="hidden" name="action" value="index">
-        <div class="inner_s">
-            <ul class="search_list">
-                <li>
-                    <p class="term">開催ステータス</p>
-                    <div class="field f_check">
-                        <?php foreach (EVENT_STATUS_LIST as $key => $name): ?>
-                            <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
-                        <?php endforeach; ?>
-                    </div>
-                </li>
-                <li>
-                    <p class="term">
-                        申し込み<br />
-                        ステータス
-                    </p>
-                    <div class="field f_check">
-                        <?php foreach (DEADLINE_LIST as $key => $name): ?>
-                            <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
-                        <?php endforeach; ?>
-                    </div>
-                </li>
-                <li>
-                    <p class="term">イベント形式</p>
-                    <div class="field f_check">
-                        <?php foreach ($lectureFormats as $lectureFormat): ?>
-                            <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if (isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
-                        <?php endforeach; ?>
-                    </div>
-                </li>
-                <li>
-                    <p class="term">対象</p>
-                    <div class="field f_select select">
-                        <select>
-                            <option value="" disabled selected>選択してください</option>
-                            <?php foreach ($targets as $target): ?>
-                              <option value="<?= htmlspecialchars($target['id']) ?>"
-                                <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($target['name']) ?>
-                              </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </li>
-                <li>
-                    <p class="term">キーワード</p>
-                    <div class="field f_txt">
-                        <input type="text" name="keyword" value="<?php if (isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
-                    </div>
-                </li>
-                <li>
-                    <p class="term">開催日時</p>
-                    <div class="field f_date">
-                        <p>
-                            <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
-                        </p>
-                        <span>～</span>
-                        <p>
-                            <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
-                        </p>
-                    </div>
-                </li>
-                <li>
-                    <p class="term">カテゴリー</p>
-                    <div class="field" id="category">
-                        <?php foreach ($categorys as $row): ?>
-                            <div class="cat_item category0<?= htmlspecialchars($row['id']) ?>">
-                                <input type="checkbox" id="cat0<?= htmlspecialchars($row['id']) ?>" name="category[]" value="<?= htmlspecialchars($row['id']) ?>" <?php if (isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
-                                <label for="cat0<?= htmlspecialchars($row['id']) ?>" class="cat_btn <?= empty($row['path']) ? 'justify_center' : ''; ?>">
-                                    <?php if (!empty($row['path'])) { ?>
-                                        <object
-                                            type="image/svg+xml"
-                                            data="<?= htmlspecialchars($row['path']) ?>"
-                                            class="obj"></object>
-                                    <?php } ?>
-                                    <p class="txt"><?= htmlspecialchars($row['name']) ?></p>
-                                </label>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </li>
-            </ul>
-            <div class="search_btn">
-                <button type="button" class="btn btn_clear" id="clear_button">クリア</button>
-                <button type="submit" class="btn btn_red">検索する</button>
+      <input type="hidden" name="action" value="index">
+      <div class="inner_s">
+        <ul class="search_list">
+          <li>
+            <p class="term">開催ステータス</p>
+            <div class="field f_check">
+              <?php foreach (DISPLAY_EVENT_STATUS_LIST as $key => $name): ?>
+                <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+              <?php endforeach; ?>
             </div>
+          </li>
+          <li>
+            <p class="term">
+              申し込み<br />
+              ステータス
+            </p>
+            <div class="field f_check">
+              <?php foreach (DISPLAY_DEADLINE_LIST as $key => $name): ?>
+                <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+              <?php endforeach; ?>
+            </div>
+          </li>
+          <li>
+            <p class="term">イベント形式</p>
+            <div class="field f_check">
+              <?php foreach ($lectureFormats as $lectureFormat): ?>
+                <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if (isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
+              <?php endforeach; ?>
+            </div>
+          </li>
+          <li>
+            <p class="term">対象</p>
+            <div class="field f_select select">
+              <select>
+                <option value="" disabled selected>選択してください</option>
+                <?php foreach ($targets as $target): ?>
+                  <option value="<?= htmlspecialchars($target['id']) ?>"
+                    <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($target['name']) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </li>
+          <li>
+            <p class="term">キーワード</p>
+            <div class="field f_txt">
+              <input type="text" name="keyword" value="<?php if (isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
+            </div>
+          </li>
+          <li>
+            <p class="term">開催日時</p>
+            <div class="field f_date">
+              <p>
+                <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
+              </p>
+              <span>～</span>
+              <p>
+                <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
+              </p>
+            </div>
+          </li>
+          <li>
+            <p class="term">カテゴリー</p>
+            <div class="field" id="category">
+              <?php foreach ($categorys as $row): ?>
+                <div class="cat_item category0<?= htmlspecialchars($row['id']) ?>">
+                  <input type="checkbox" id="cat0<?= htmlspecialchars($row['id']) ?>" name="category[]" value="<?= htmlspecialchars($row['id']) ?>" <?php if (isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
+                  <label for="cat0<?= htmlspecialchars($row['id']) ?>" class="cat_btn <?= empty($row['path']) ? 'justify_center' : ''; ?>">
+                    <?php if (!empty($row['path'])) { ?>
+                      <object
+                        type="image/svg+xml"
+                        data="<?= htmlspecialchars($row['path']) ?>"
+                        class="obj"></object>
+                    <?php } ?>
+                    <p class="txt"><?= htmlspecialchars($row['name']) ?></p>
+                  </label>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </li>
+        </ul>
+        <div class="search_btn">
+          <button type="button" class="btn btn_clear" id="clear_button">クリア</button>
+          <button type="submit" class="btn btn_red">検索する</button>
         </div>
+      </div>
     </form>
   </section>
   <!-- search -->

@@ -64,7 +64,7 @@ $course_id = $result_list['course_info'] ?? [];
 												<label class="form-label" for="notyf-message">開催ステータス</label>
 												<select name="event_status_id" class="form-control">
 													<option value="">すべて</option>
-													<?php foreach ($event_status_list as $key => $event_status) { ?>
+													<?php foreach ($display_status_list as $key => $event_status) { ?>
 														<option value="<?= $key ?>" <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
 															<?= htmlspecialchars($event_status) ?>
 														</option>

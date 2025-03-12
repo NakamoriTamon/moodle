@@ -150,6 +150,8 @@ function validate_int($val, $title, $required)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
+    } elseif(is_null($val) && !$required) {
+        return null;
     }
     if (is_int($val)) {
         return $title . 'は数字を入力してください。';
@@ -158,6 +160,22 @@ function validate_int($val, $title, $required)
     $limt_32bit = 2147483647;
     if ($val > $limt_32bit) {
         return $title . 'は21億を超えることはできません。';
+    }
+    return null;
+}
+
+/**
+ * バリデーション: 整数チェック
+ */
+function validate_int_zero_ok($val, $title, $required)
+{
+    if (empty($val) && $required) {
+        return $title . 'は必須です。';
+    } elseif(is_null($val) && !$required) {
+        return null;
+    }
+    if (!is_numeric($val)) {
+        return $title . 'は数字を入力してください。';
     }
     return null;
 }
@@ -173,13 +191,15 @@ function validate_date($val, $title, $required)
         return null;
     }
 
-    $format = 'Y-m-d'; // 期待される日付フォーマット
-    $d = DateTime::createFromFormat($format, $val);
-    // フォーマットが正しいかつ、有効な日付であることを確認
-    if ($d && $d->format($format) === $val) {
-        return null;
-    } else {
-        return $title . "形式が違っています。";
+    if($required && !is_null($val)) {
+        $format = 'Y-m-d'; // 期待される日付フォーマット
+        $d = DateTime::createFromFormat($format, $val);
+        // フォーマットが正しいかつ、有効な日付であることを確認
+        if ($d && $d->format($format) === $val) {
+            return null;
+        } else {
+            return $title . "形式が違っています。";
+        }
     }
     return null;
 }
