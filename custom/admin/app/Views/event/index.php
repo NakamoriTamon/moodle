@@ -120,8 +120,20 @@ $old_input = $_SESSION['old_input'] ?? [];
 															<?php endforeach; ?>
 														</td>
 														<td class="ps-4 pe-4"><?= htmlspecialchars($event['venue_name']); ?></td>
-														<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['capacity'])); ?>人</td>
-														<td class="ps-4 pe-4"><?= htmlspecialchars(number_format($event['participation_fee'])); ?>円</td>
+														<td class="ps-4 pe-4">
+															<?php if($event['event_kbn'] == 3 && $event['capacity'] < 1):  ?>
+																無制限
+															<?php else: ?>
+																<?= htmlspecialchars(number_format($event['capacity'])); ?>人
+															<?php endif; ?>
+														</td>
+														<td class="ps-4 pe-4">
+															<?php if($event['event_kbn'] == 3 && $event['participation_fee'] < 1):  ?>
+																無料
+															<?php else: ?>
+																<?= htmlspecialchars(number_format($event['participation_fee'])); ?>円
+															<?php endif; ?>
+														</td>
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 															<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>

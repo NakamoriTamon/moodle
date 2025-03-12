@@ -6,6 +6,7 @@ $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
 $start_hour = $dateTime->format('H:i'); // "00:00"
 $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
 $end_hour = $dateTime->format('H:i'); // "00:00"
+unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -32,9 +33,13 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                 <div class="event_sched">
                     <p class="term">開催日</p>
                     <div class="date">
-                        <?php foreach ($event['select_course'] as $no => $course): ?>
-                            <p class="dt01"><?php if(count($event['select_course']) > 1): ?><?= $no ?>回目：<?php endif; ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                        <?php endforeach; ?>
+                        <?php if($event['event_kbn'] != 3): ?>
+                            <?php foreach ($event['select_course'] as $no => $course): ?>
+                                <p class="dt01"><?php if(count($event['select_course']) > 1): ?><?= $no ?>回目：<?php endif; ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="dt01"><?= (new DateTime($event['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($event['end_event_date']))->format('Y年m月d日'); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="category" id="category">
@@ -76,7 +81,13 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">開催日</p>
-                                    <p class="desc"><?= (new DateTime($event['event_date']))->format('Y年m月d日') . '（' . WEEKDAYS[(new DateTime($event['event_date']))->format('w')] . '）'; ?></p>
+                                    <p class="desc">
+                                    <?php if($event['event_kbn'] != 3): ?>
+                                        <?= (new DateTime($event['event_date']))->format('Y年m月d日') . '（' . WEEKDAYS[(new DateTime($event['event_date']))->format('w')] . '）'; ?>
+                                    <?php else: ?>
+                                        <?= (new DateTime($event['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($event['end_event_date']))->format('Y年m月d日'); ?>
+                                    <?php endif; ?>
+                                    </p>
                                 </li>
                                 <li>
                                     <p class="term">時間</p>
@@ -109,8 +120,12 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                                 <li>
                                     <p class="term">申込締切</p>
                                     <p class="desc">
+                                    <?php if($event['event_kbn'] != 3): ?>
                                         <?php if (count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
                                         <?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
+                                    <?php else: ?>
+                                        各イベント開催日の終了時間まで
+                                    <?php endif; ?>
                                     </p>
                                 </li>
                             </ul>
@@ -143,7 +158,7 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                             </div>
                         </div>
                     </div>
-                    <?php if(DEADLINE_END != $event['deadline_status']): ?>
+                    <?php if($event['event_kbn'] == 2 && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1): ?>
                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
@@ -153,13 +168,16 @@ $end_hour = $dateTime->format('H:i'); // "00:00"
                         <h2 class="block_ttl">プログラム</h2>
                         <?php foreach ($event['select_course'] as $no => $course): ?>
                             <div class="program">
-                                <h4 class="sub_ttl">【第<?= $no ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?></p>
+                                <h4 class="sub_ttl">【<?php if(count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
+                                <?php if(DEADLINE_END == $event['deadline_status'] || isset($course['close_date'])): ?>
+                                    <span style="color: red;">(終了)</span>
+                                <?php endif; ?>
                             </div>
                             <p class="sent">
                                 <?= nl2br($course['details'][0]['program']) ?>
                             </p>
                             <div class="program">
-                                <?php if(DEADLINE_END != $event['deadline_status']): ?>
+                                <?php if(DEADLINE_END != $event['deadline_status'] && !isset($course['close_date'])): ?>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
                                 <?php endif; ?>
                             </div>

@@ -11,6 +11,7 @@ $ticket = "";
 $trigger_other = "";
 $pay_method  = null;
 $notification_kbn = null;
+$now_notification = null;
 $triggers = [];
 $triggersString = "";
 $note = "";
@@ -20,9 +21,11 @@ $applicant_kbn = null;
 $guardian_kbn = null;
 $guardian_name = "";
 $guardian_email = "";
+$guardian_phone = "";
 $event_customfield_category_id = null;
 $cognitions = [];
 $paymentType = null;
+
 
 if (isset($SESSION->formdata)) {
     $formdata = $SESSION->formdata;
@@ -36,6 +39,7 @@ if (isset($SESSION->formdata)) {
     $price = $formdata['price'];
     $pay_method = $formdata['pay_method'];
     $notification_kbn = $formdata['notification_kbn'];
+    $now_notification = $formdata['now_notification'];
     $trigger_other = $formdata['trigger_other'];
     $triggers = $formdata['triggers'];
     $triggersString = $formdata['triggersString'];
@@ -46,6 +50,7 @@ if (isset($SESSION->formdata)) {
     $guardian_kbn = $formdata['guardian_kbn'];
     $guardian_name = $formdata['guardian_name'];
     $guardian_email = $formdata['guardian_email'];
+    $guardian_phone = $formdata['guardian_phone'];
     $event_customfield_category_id = $formdata['event_customfield_category_id'];
     $cognitions = $formdata['cognitions'];
     $select_courses = $formdata['select_courses'];
@@ -87,12 +92,14 @@ if(!is_null($courseInfoId)) {
                 <input type="hidden" name="trigger_other" value="<?= htmlspecialchars($trigger_other); ?>">
                 <input type="hidden" name="pay_method" value="<?= htmlspecialchars($pay_method); ?>">
                 <input type="hidden" name="notification_kbn" value="<?= htmlspecialchars($notification_kbn); ?>">
+                <input type="hidden" name="now_notification" value="<?= htmlspecialchars($now_notification); ?>">
                 <input type="hidden" name="companion_mails" value="<?= htmlspecialchars($companionMailsString); ?>">
                 <input type="hidden" name="note" value="<?= htmlspecialchars($note); ?>">
                 <?php if($guardian_kbn == 1): ?>
                 <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
                 <input type="hidden" name="guardian_name" value="<?= htmlspecialchars($guardian_name); ?>">
                 <input type="hidden" name="guardian_email" value="<?= htmlspecialchars($guardian_email); ?>">
+                <input type="hidden" name="guardian_phone" value="<?= htmlspecialchars($guardian_phone); ?>">
                 <?php endif ?>
                 <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id); ?>">
                 <?php echo $hiddens ?>
@@ -124,14 +131,16 @@ if(!is_null($courseInfoId)) {
                             <p class="list_label">枚数選択</p>
                             <p class="list_field"><?= htmlspecialchars($ticket) ?>枚</p>
                         </li>
+                        <?php if(!empty($price)): ?>
                         <li class="list_item05">
                             <p class="list_label">金額</p>
                             <p class="list_field f_txt"><?= htmlspecialchars($price) ?>円</p>
                         </li>
-                        <li class="list_item06 req">
-                            <p class="list_label">お支払方法</p>
-                            <p class="list_field"><?= htmlspecialchars($paymentType['name']) ?></p>
-                        </li>
+                            <li class="list_item06 req">
+                                <p class="list_label">お支払方法</p>
+                                <p class="list_field"><?= htmlspecialchars($paymentType['name']) ?></p>
+                            </li>
+                        <?php endif ?>
                         <?php if(!empty($companion_mails)): ?>
                         <li class="list_item07 long_item">
                             <p class="list_label">複数チケット申し込みの場合お連れ様のメールアドレス</p>
@@ -142,12 +151,14 @@ if(!is_null($courseInfoId)) {
                             </div>
                         </li>
                         <?php endif; ?>
+                        <?php if ("1" != $now_notification): ?>
                         <li class="list_item08 req">
                             <p class="list_label">
                                 今後大阪大学からのメールによるイベントのご案内を希望されますか？
                             </p>
                             <p class="list_field"><?= $notification_kbn == 1 ? "希望する" : "希望しない"; ?></p>
                         </li>
+                        <?php endif; ?>
                         <li class="list_item09 long_item">
                             <p class="list_label">
                                 本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
@@ -183,6 +194,10 @@ if(!is_null($courseInfoId)) {
                             <li>
                                 <p class="list_label">保護者連絡先メールアドレス</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_email) ?></p>
+                            </li>
+                            <li>
+                                <p class="list_label">保護者連絡先電話番号</p>
+                                <p class="list_field"><?= htmlspecialchars($guardian_phone) ?></p>
                             </li>
                         <?php endif ?>
                     </ul>

@@ -51,14 +51,22 @@ require_once(__DIR__ . '/lib/setup.php');
 $customfield_select_list = [1 => 'テキスト', 2 => 'テキストエリア', 3 => 'チェックボックス', 4 => 'ラジオ', 5 => '日付'];
 $customfield_type_list = [1 => 'text', 2 => 'textarea', 3 => 'checkbox', 4 => 'radio', 5 => 'date'];
 define('CUSTOMFIELD_TYPE_LIST', $customfield_type_list);
-$event_kbn_list = [1 => '単発のイベント', 2 => '複数回シリーズのイベント'];
+$single_event = 1;
+define('SINGLE_EVENT', $single_event);
+$plural_event = 2;
+define('PLURAL_EVENT', $plural_event);
+$every_day_event = 3;
+define('EVERY_DAY_EVENT', $every_day_event);
+$event_kbn_list = [$single_event => '単発のイベント', $plural_event => '複数回シリーズのイベント', $every_day_event => '期間内に毎日開催のイベント'];
 define('EVENT_KBN_LIST', $event_kbn_list);
-$event_status_list = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+$event_status_list = ['0' => '',1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_LIST', $event_status_list);
 $lang_default = "jp";
 define('LANG_DEFAULT', $lang_default);
 $guardian_kbn_default = 0;
 define('GUARDIAN_KBN_DEFAULT', $guardian_kbn_default);
+$free_event = 4;
+define('FREE_EVENT', $free_event);
 $payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込'];
 define('PAYMENT_SELECT_LIST', $payment_select_list);
 $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
@@ -129,7 +137,7 @@ $roles = [
 ];
 define('ROLES', $roles);
 
-$default_thumbnail = '/custom/public/assets/img/event/event02.jpg';
+$default_thumbnail = '/custom/public/assets/img/no_image.jpg';
 define('DEFAULT_THUMBNAIL', $default_thumbnail);
 
 // 決済情報
@@ -139,6 +147,7 @@ $payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer'
 $komoju_webhook_secret_key = 'secret_key_y7scduh5di2edddcfah6e58c6'; // テスト用秘密鍵
 
 $deadline_list = [
+  '0' => '',
   '1' => '受付中',
   '2' => 'もうすぐ締め切り',
   '3' => '受付終了'
@@ -152,6 +161,10 @@ $url_secret_key = 'my_secret_key_1234567890';
 
 $weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
 define('WEEKDAYS', $weekdays);
+
+// 成人年齢
+$adult_age =18;
+define('ADULT_AGE', $adult_age);
 
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
