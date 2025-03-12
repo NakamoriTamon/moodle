@@ -13,8 +13,9 @@
 /* モーダル本体 */
 #confirmation-modal .modal_cont {
     background: white;
-    width: 350px;
-    padding: 40px 20px 70px;
+    width: 500px;
+    max-width: 80%;
+    padding: 40px 50px 55px;
     border-top: 20px solid #81bfda;
     border-radius: 8px;
     position: absolute;
@@ -28,30 +29,42 @@
 
 /* メッセージテキスト */
 #confirmation-modal .modal_cont p {
-    font-size: 1.4rem;
+    font-size: 18px;
     line-height: 2;
     letter-spacing: 0.012em;
-    font-weight: 700;
-    color: #333;
+    text-align: center;
+    color: #373737;
+    font-weight: 570;
+}
+#confirmation-modal .modal_cont h2 {
+    font-size: 20px;
+    line-height: 2;
+    letter-spacing: 0.012em;
+    font-weight: bold;
+    color: #373737;
+    font-family: "Noto Sans JP", serif;
+    margin-bottom: 40px;
 }
 
 /* ボタンのスタイル */
 #confirmation-modal .modal_cont .modal-buttons {
-    margin-top: 30px;
+    margin-top: 40px;
 }
 
 #confirmation-modal .modal_cont button {
     border: none;
-    padding: 12px 30px;
-    font-size: 1.4rem;
-    border-radius: 5px;
+    padding: 10px 15px;
+    border-radius: 60px;
     cursor: pointer;
     transition: 0.3s;
-    margin: 5px;
+    width: 40%;
+    max-width: 150px;
+    font-size: 16px;
 }
 
 /* 退会ボタン（赤） */
 .modal-withdrawal {
+    border-radius: 60px;
     background: #d9534f;
     color: white;
     font-weight: bold;
@@ -66,6 +79,7 @@
     background: #777;
     color: white;
     font-weight: bold;
+    margin-left: 15px !important;
 }
 
 .modal-close:hover {
@@ -122,6 +136,7 @@
 .modal-withdrawal {
     background: #d9534f;
     color: white;
+    margin-right: 15px !important;
 }
 
 .modal-withdrawal:hover {
@@ -132,8 +147,38 @@
 #modal-close {
     background: #777;
     color: white;
+    margin-left: 15px !important;
 }
 
 #modal-close:hover {
     background: #555;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+    /* 退会ボタン（赤） */
+    .modal-withdrawal {
+        margin-right: 0px !important;
+        font-size: 14px !important;;
+    }
+    /* 閉じるボタン（グレー） */
+    #modal-close {
+        background: #777;
+        color: white;
+        margin-left: 0px !important;
+    }
+    #confirmation-modal .modal_cont button{
+        margin: 5px;
+        font-size: 14px !important;
+    }
+    .modal-content button {
+        font-size: 14px;
+        margin: 5px;
+    }
+    /* モーダル本体 */
+    #confirmation-modal .modal_cont {
+        padding: 40px 30px 55px;
+    }
+
 }

@@ -558,10 +558,31 @@ select {
  -------------------------------------*/
 .event_item {
   /* aspect-ratio: 10/13; */
+  position: relative;
   background: #fff;
   border-radius: 10px;
   box-shadow: 2px 8px 12px rgba(71, 71, 71, 0.15);
   overflow: hidden;
+}
+.event_item.rec::before {
+  content: "おすすめ!";
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #81bfda;
+  pointer-events: none;
+  z-index: 2;
+  font-size: 11px;
+  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 .event_item .img {
   aspect-ratio: 3/2;

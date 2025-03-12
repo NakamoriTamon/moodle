@@ -24,6 +24,7 @@ $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
+$tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
 $startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
@@ -35,7 +36,7 @@ if ($currentDate < $startDate) {
 }
 
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
-unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_']);
+unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_success'], $_SESSION['message_']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -48,25 +49,25 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
     <!-- heading -->
     <section id="mypage" class="inner_l">
         <?php if ($tekijuku_commemoration !== false): ?>
-        <div class="card-wrapper">
-            <div id="card">
-                <p class="card_head">適塾記念会デジタル会員証</p>
-                <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
-                <p class="card_name"><?php echo $tekijuku_commemoration->name ?? ''; ?></p>
-                <p class="card_id"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></p>
-                <ul class="card_desc">
-                    <li>・本会員証は他人への貸与や譲渡はできません。</li>
-                    <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
-                </ul>
-                <div class="card_pres">
-                    <p class="card_pres_pos">適塾記念会会長</p>
-                    <p class="card_pres_name">熊ノ郷 淳</p>
+            <div class="card-wrapper">
+                <div id="card">
+                    <p class="card_head">適塾記念会デジタル会員証</p>
+                    <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
+                    <p class="card_name"><?php echo $tekijuku_commemoration->name ?? ''; ?></p>
+                    <p class="card_id"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></p>
+                    <ul class="card_desc">
+                        <li>・本会員証は他人への貸与や譲渡はできません。</li>
+                        <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
+                    </ul>
+                    <div class="card_pres">
+                        <p class="card_pres_pos">適塾記念会会長</p>
+                        <p class="card_pres_name">熊ノ郷 淳</p>
+                    </div>
                 </div>
+                <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                    <div class="inactive-text">（退会済み）</div>
+                <?php endif; ?>
             </div>
-            <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                <div class="inactive-text">（退会済み）</div>
-            <?php endif; ?>
-        </div>
         <?php endif; ?>
         <div id="user_form">
             <div id="form" class="mypage_cont">
@@ -74,9 +75,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                 <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
                     <div class="whitebox form_cont">
                         <div class="inner_m">
-                            <!-- 仮ですが何か出さないと結果がわからないので・・・　デザインは考えます -->
                             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
-                            <?php if (!empty($success)) { ?><p class="success"> <?= $success ?></p><?php } ?>
+                            <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
                             <ul class="list">
                                 <li class="list_item01">
                                     <p class="list_label">ユーザーID</p>
@@ -103,14 +103,14 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                 <li class="list_item04 req">
                                     <p class="list_label">お住いの都道府県</p>
                                     <div class="list_field f_select select">
-                                    <select name="city">
-                                    <?php foreach ($prefectures as $key => $prefecture): ?>
-                                        <option value="<?php echo htmlspecialchars($key); ?>"
-                                            <?= ($key === ($old_input['city'] ?? $user->city ?? null)) ? 'selected' : '' ?>>
-                                            <?php echo htmlspecialchars($prefecture); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                        <select name="city">
+                                            <?php foreach ($prefectures as $key => $prefecture): ?>
+                                                <option value="<?php echo htmlspecialchars($key); ?>"
+                                                    <?= ($key === ($old_input['city'] ?? $user->city ?? null)) ? 'selected' : '' ?>>
+                                                    <?php echo htmlspecialchars($prefecture); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
                                         <?php if (!empty($errors['city'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
                                         <?php endif; ?>
@@ -163,9 +163,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
                                         <?php
-                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
-                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
-                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : '未設定';
+                                        $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                        $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                        $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : '未設定';
                                         ?>
 
                                         <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
@@ -234,7 +234,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
         <?php if ($tekijuku_commemoration !== false): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
-                    <h3 class="mypage_head">適塾記念会 会員情報 
+                    <h3 class="mypage_head">適塾記念会 会員情報
                         <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
                             <div class="inactive-text">（退会済み）</div>
                         <?php endif; ?>
@@ -243,6 +243,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                         <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo $tekijuku_commemoration->id ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
+                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+                                <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= $tekijuku_success ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
                                         <p class="list_label">ユーザーID</p>
@@ -250,7 +252,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                                     </li>
                                     <li class="list_item02 req">
                                         <p class="list_label">会員種別</p>
-                                        <div class="list_field f_txt"id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration->type_code) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration->type_code] ?></div>
+                                        <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration->type_code) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration->type_code] ?></div>
                                     </li>
                                     <li class="list_item03 req">
                                         <p class="list_label">お名前</p>
@@ -466,7 +468,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
         <a href="/custom/app/Views/event/register.php" class="btn btn_blue box_bottom_btn arrow">申し込みイベント一覧</a>
 
         <div class="mypage_cont history">
-            <h3 id="event_histories" class="mypage_head">イベント履歴</h3>
+            <h3 id="event_histories" class="mypage_head btn_acc">イベント履歴<span class="acc"></span></h3>
 
             <?php $allHistoryCourseDateNull = true; ?>
             <?php if (!empty($event_histories['data'])): ?>
@@ -479,21 +481,23 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                     ?>
                     <div class="info_wrap js_pay">
                         <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont">
-                            <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
-                            <button type="submit" class="info_wrap_cont_btn">
-                                <p class="date">
-                                    <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
-                                </p>
-                                <div class="txt">
-                                    <p class="txt_ttl">
-                                        <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
+                            <div class="acc_wrap">
+                                <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
+                                <button type="submit" class="info_wrap_cont_btn">
+                                    <p class="date">
+                                        <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
                                     </p>
-                                    <ul class="txt_other">
-                                        <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
-                                    </ul>
-                                </div>
-                            </button>
+                                    <div class="txt">
+                                        <p class="txt_ttl">
+                                            <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
+                                        </p>
+                                        <ul class="txt_other">
+                                            <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
+                                            <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
+                                        </ul>
+                                    </div>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 <?php endforeach; ?>
@@ -596,12 +600,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                 $('.is_subscription_area').css('display', 'none');
                 $('#is_subscription_checkbox').prop('checked', false);
             }
-        }
-        // 登録成功文章を消す
-        if ($('.success').length > 0) {
-            setTimeout(function() {
-                $('.success').fadeOut();
-            }, 2000);
         }
     });
 
@@ -724,11 +722,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
         var exec = '';
         $('#user_form_button').on('click', function() {
             exec = 'user';
-            showModal('知の広場 会員情報','編集します。本当によろしいですか？');
+            showModal('知の広場 会員情報', '変更を確定してもよろしいですか？');
         });
         $('#tekijuku_form_button').on('click', function() {
             exec = 'tekijuku';
-            showModal('適塾記念会 会員情報 ','編集します。本当によろしいですか？');
+            showModal('適塾記念会 会員情報 ', '変更を確定してもよろしいですか？');
         });
 
         $(document).on('click', '.edit', function() {
@@ -737,10 +735,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                     $('#user_edit_form').submit();
                     break
                 case "tekijuku":
-                        
+
                     $('#tekijuku_edit_form').submit();
                     break
-                default :
+                default:
                     break
             }
         });
@@ -754,8 +752,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
                     <h2>${title}</h2>
                     <p>${message}</p>
                     <div class="modal-buttons">
-                        <button class="modal-withdrawal edit">編集</button>
-                        <button class="modal-close">閉じる</button>
+                        <button class="modal-withdrawal edit">確定する</button>
+                        <button class="modal-close">いいえ</button>
                     </div>
                 </div>
             </div>
@@ -769,10 +767,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
         $('#confirmation-modal').remove();
     });
 
-    
     // 会員種別ごとの単価
-    const PRICE_REGULAR_MEMBER = 2000;  // 普通会員単価
-    const PRICE_SUPPORTING_MEMBER = 10000;  // 賛助会員単価
+    const PRICE_REGULAR_MEMBER = 2000; // 普通会員単価
+    const PRICE_SUPPORTING_MEMBER = 10000; // 賛助会員単価
 
     // 現在選ばれている会員種別の単価を決定
     let currentUnitPrice = PRICE_REGULAR_MEMBER;
@@ -816,9 +813,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
 
     // ページ読み込み時に金額を初期化
     window.onload = updatePrice;
-
-
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const checkbox = document.querySelector('input[name="is_university_member"]');
         const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
 
@@ -841,4 +836,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['message_'
         checkbox.addEventListener("change", toggleFields);
     });
 
+    // アコーディオン
+    $(function() {
+        $(".btn_acc").click(function() {
+            $(this).next(".acc_wrap").slideToggle();
+            $(this).toggleClass("js-open");
+        });
+    });
 </script>
