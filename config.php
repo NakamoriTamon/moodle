@@ -131,7 +131,7 @@ $roles = [
 ];
 define('ROLES', $roles);
 
-$default_thumbnail = '/custom/public/assets/img/event/event02.jpg';
+$default_thumbnail = '/custom/public/assets/img/no_image.jpg';
 define('DEFAULT_THUMBNAIL', $default_thumbnail);
 
 // 決済情報

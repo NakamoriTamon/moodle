@@ -1,4 +1,5 @@
 <?php
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/lib/moodlelib.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
@@ -11,6 +12,12 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
 require_once($CFG->libdir . '/filelib.php');
+
+use Dotenv\Dotenv;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // ログイン判定
 if (isloggedin() && isset($_SESSION['USER'])) {
@@ -233,7 +240,7 @@ if ($result) {
         $capacity = (int)$event_capacity['capacity'];
         $currentCount = (int)$event_capacity['current_count'];
         // 2. 定員超過のチェック 受付済みのチケット枚数 + 注文しているチケット枚数
-        if (($event['event_kbn'] == EVERY_DAY_EVENT && $price < 1 )|| ($event['participation_fee'] > 0 && ($currentCount + $ticket) <= $capacity)) {
+        if (($event['event_kbn'] == EVERY_DAY_EVENT && $price < 1 ) || ($event['participation_fee'] > 0 && ($currentCount + $ticket) <= $capacity)) {
             $itmt = $pdo->prepare("
                 INSERT INTO mdl_event_application (
                     event_id, user_id, event_custom_field_id, field_value
@@ -332,7 +339,92 @@ if ($result) {
 
             if ($event['event_kbn'] == EVERY_DAY_EVENT && $price < 1 ) {
                 $pdo->commit();
-                header('Location: /custom/app/Views/event/reserve.php?id=' . $eventId);
+                
+                $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+                $dotenv->load();
+
+                $eventApplicationModel = new EventApplicationModel();
+                $eventApplication = $eventApplicationModel->getEventApplicationByEventId($eventApplicationId);
+
+                foreach($eventApplication['course_infos'] as $course) {
+                    // QR生成
+                    $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
+                    $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
+                        . $eventApplicationId . '&event_application_course_info=' . $course['id']);
+                    $writer = new PngWriter();
+                    $qrCodeImage = $writer->write($qrCode)->getString();
+                    $temp_file = tempnam(sys_get_temp_dir(), 'qr_');
+                    $qrCodeBase64 = base64_encode($qrCodeImage);
+                    $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
+                    file_put_contents($temp_file, $qrCodeImage);
+                
+                    $mail = new PHPMailer(true);
+                
+                    $mail->isSMTP();
+                    $test = getenv('MAIL_HOST');
+                    $mail->Host = $_ENV['MAIL_HOST'];
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $_ENV['MAIL_USERNAME'];
+                    $mail->Password = $_ENV['MAIL_PASSWORD'];
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->CharSet = PHPMailer::CHARSET_UTF8;
+                    $mail->Port = $_ENV['MAIL_PORT'];
+                
+                    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
+                    $mail->addAddress($course['participant_mail'], 'Recipient Name');
+                
+                    $sendAdresses = ['tamonswallow@gmail.com'];
+                    foreach ($sendAdresses as $sendAdress) {
+                        $mail->addAddress($sendAdress, 'Recipient Name');
+                    }
+                    $mail->addReplyTo('no-reply@example.com', 'No Reply');
+                    $mail->isHTML(true);
+                    
+                    $day = new DateTime($course["course_date"]);
+                    $course_date = $day->format('Ymd');
+                    $ymd = $day->format('Y/m/d');
+                    $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
+                    $start_hour = $dateTime->format('H:i'); // "00:00"
+                    $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
+                    $end_hour = $dateTime->format('H:i'); // "00:00"
+                    $qr_img = 'qr_code_' . $course_date . '.png';
+                    // QRをインライン画像で追加
+                    $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
+                
+                    $htmlBody = "
+                        <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                            <p style=\"text-align: left; font-weight:bold;\">" . $name . "</p>
+                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
+                            <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
+                            <div>
+                                <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                            </div>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p>
+                            <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                            あらかじめご了承ください。</p>
+                        </div>
+                    ";
+                
+                    $name = "";
+                
+                    $mail->Subject = 'チケットの購入が完了しました';
+                    $mail->Body = $htmlBody;
+                
+                    $mail->SMTPOptions = array(
+                        'ssl' => array(
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true
+                        )
+                    );
+                
+                    $mail->send();
+                    unlink($temp_file);
+                }
+            
+                header('Location: /custom/app/Views/mypage/index.php');
                 exit;
             } else {
                 $paymentTypeModel = new PaymentTypeModel();
@@ -346,7 +438,7 @@ if ($result) {
                 'amount' => $price,
                 'currency' => 'JPY',
                 'external_order_num' => uniqid(),
-                'return_url' => $CFG->wwwroot . '/custom/app/Views/event/detail.php?id=' . $eventId, // 決済成功後のリダイレクトURL
+                'return_url' => $CFG->wwwroot . '/custom/app/Views/mypage/index.php', // 決済成功後のリダイレクトURL
                 'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/detail.php?id=' . $eventId, // キャンセル時のリダイレクトURL
                 'metadata' => [
                     'user_name' => $_SESSION['USER']->name,

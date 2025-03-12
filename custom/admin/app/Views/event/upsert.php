@@ -24,6 +24,7 @@ for($i = 1; $i < 10; $i++){
 				'tutor_id' => $old_input["tutor_id_{$i}_{$n}"] ?? null,
 				'name' =>  $old_input["lecture_name_{$i}_{$n}"] ?? null,
 				'program' => $old_input["program_{$i}_{$n}"] ?? null,
+				'tutor_name' => $old_input["tutor_name_{$i}_{$n}"] ?? null,
 			];
 			$j++;
 			$n++;
@@ -314,15 +315,26 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 										<select id="tutor_id_<?= $key+1 ?>" class=" form-control mb-3" name="tutor_id_<?= $key+1 ?>">
 											<optgroup label="">
-												<option value="">選択してください</option>
+												<option value="">講師無し</option>
 												<?php foreach ($tutors as $tutor): ?>
 													<option value="<?= htmlspecialchars($tutor['id']) ?>"
-												<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key+1] ?? null) ? 'selected' : '' ?>>
+													<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key+1] ?? null) ? 'selected' : '' ?>>
 														<?= htmlspecialchars($tutor['name']) ?>
 													</option>
 												<?php endforeach; ?>
 											</optgroup>
 										</select>
+										<div id="tutor_name_area_<?= $key+1 ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">講師名</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<input type="text" name="tutor_name_<?= $key+1 ?>" class="form-control" placeholder=""
+												value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key+1] ?? '')) ?>" />
+											<?php if (!empty($errors['tutor_name_' . $key+1])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key+1]); ?></div>
+											<?php endif; ?>
+										</div>
 										<?php if (!empty($errors['tutor_id_' . $key+1])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key+1]); ?></div>
 										<?php endif; ?>
@@ -388,7 +400,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
 														<select id="tutor_id_<?= $i ?>_<?= $key+1 ?>" class="form-control mb-3" name="tutor_id_<?= $i ?>_<?= $key+1 ?>">
-															<option value="">選択してください</option>
+															<option value="">講師無し</option>
 															<?php foreach ($tutors as $tutor): ?>
 																<option value="<?= htmlspecialchars($tutor['id']) ?>"
 																	<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, null) ? 'selected' : '' ?>>
@@ -398,6 +410,17 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 														</select>
 														<?php if (!empty($errors['tutor_id_' . $i . '_' . $key+1])): ?>
 															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $i . '_' . $key+1]); ?></div>
+														<?php endif; ?>
+													</div>
+													<div id="tutor_name_area_<?= $i ?>_<?= $key+1 ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講師名</label>
+															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
+														</div>
+														<input type="text" name="tutor_name_<?= $i ?>_<?= $key+1 ?>" class="form-control"
+															value="<?= htmlspecialchars($detail['tutor_name'] ?? '') ?>">
+														<?php if (!empty($errors['tutor_name_' . $i . '_' . $key+1])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $i . '_' . $key+1]); ?></div>
 														<?php endif; ?>
 													</div>
 													<div class="mb-3">
@@ -431,14 +454,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											</div>
 										<?php endfor; ?>
 									</div>
-									<!-- <div class="mb-3">
-										<label class="form-label">講義名</label>
-										<input name="lecture_name" class=" form-control" type="text">
-									</div>
-									<div class="mb-3">
-										<label class="form-label">講義概要</label>
-										<textarea name="lecture_outline" class="form-control" rows="5"></textarea>
-									</div> -->
 									<div class="mb-3">
 										<label class="form-label">プログラム</label>
 										<textarea name="program" class=" form-control" rows="5"><?= htmlspecialchars($eventData['program'] ?? ($old_input['program'] ?? '')) ?></textarea>
@@ -631,7 +646,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const deadlineReq = $('#deadline_req'); // 申し込み締切日の必須表示
 		const allDeadlineArea = $('.all_deadline_area'); // 各回申し込み締切日を表示している箇所
 		const allDeadlineReq = $('#all_deadline_req'); // 各回申し込み締切日の必須表示
-		const oneArea = $('#one_area');
+		const oneArea = $('.one_area');
 
 		// 初期表示で value="2" の場合は表示
 		if (eventKbnElement.value == '2') {
@@ -701,6 +716,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				allDeadlineReq.css('display', 'none');
 			} else if ($(this).val() == 2) {
 				onetimeArea.css('display', 'none');
+				oneArea.css('display', 'none');
 				repeatedlyArea.css('display', 'block');
 				allDeadlineArea.css('display', 'block');
 				termArea.css('display', 'none');
@@ -794,6 +810,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					</optgroup>
 					</select>
 				</div>
+				<div id="tutor_name_area_<?= $key+1 ?>" class="mb-3">
+					<div class="form-label d-flex align-items-center">
+					<label class="me-2">講師名</label>
+					<span class="badge bg-danger">必須</span>
+					</div>
+					<input type="text" name="tutor_name_${targetLecture}_${newItemCount}" class="form-control" placeholder="">
+				</div>
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">
 					<label class="me-2">講義名</label>
@@ -826,6 +849,22 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 	});
 
 	$(document).ready(function () {
+		// 講師のセレクトボックスを変更した時
+		// 講師名のテキストエリアを表示
+		$('select[id^="tutor_id_"]').on('change', function() {
+			let selectedValue = $(this).val();
+			let selectId = $(this).attr('id'); // セレクトボックスのIDを取得
+
+			// tutor_id_ を tutor_name_area_ に変換して、対応する div の ID を取得
+			let divId = selectId.replace("tutor_id_", "tutor_name_area_");
+
+			if (selectedValue !== "") {
+				$('#' + divId).css('display', 'none'); // 非表示
+			} else {
+				$('#' + divId).css('display', 'block'); // 表示
+			}
+		});
+
 		$('#thumbnail_img').on('change', function (event) {
 			const file = event.target.files[0]; // 選択されたファイルを取得
 

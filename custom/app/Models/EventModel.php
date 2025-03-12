@@ -515,7 +515,7 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT cid.tutor_id, cid.name, cid.program  FROM mdl_course_info_detail cid
+                $stmt = $this->pdo->prepare("SELECT cid.*  FROM mdl_course_info_detail cid
                     LEFT JOIN mdl_course_info ci ON ci.id = cid.course_info_id 
                     WHERE cid.course_info_id = :courseInfoID");
                 $stmt->bindParam(':courseInfoID', $courseInfoID, PDO::PARAM_INT);
