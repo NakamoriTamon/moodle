@@ -1,4 +1,29 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/event_registration_controller.php');
+include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+$event_registration_controller = new EventRegistrationController();
+$result_list = $event_registration_controller->index();
+
+// バリデーションエラー
+$errors   = $_SESSION['errors']   ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// 情報取得
+$count = 0;
+$category_list = $result_list['category_list'] ?? [];
+$event_list = $result_list['event_list']  ?? [];
+$application_list = $result_list['application_list'];
+
+// ページネーション
+$total_count = $result_list['total_count'];
+$per_page = $result_list['per_page'];
+$current_page = $result_list['current_page'];
+$page = $result_list['page'];
+?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
     <div class="wrapper">
@@ -28,234 +53,175 @@
                 <div class="col-12 col-lg-12">
                     <div class="card">
                         <div class="card-body p-025 p-055">
-                            <div class="d-flex sp-block justify-content-between">
-                                <div class="mb-3 w-100">
-                                    <label class="form-label" for="notyf-message">カテゴリー</label>
-                                    <select name="category_id" class="form-control">
-                                        <option value=1>未選択</option>
-                                        <option value=2>医療・健康</option>
-                                        <option value=3>科学・技術</option>
-                                        <option value=4>生活・福祉</option>
-                                        <option value=5>文化・芸術</option>
-                                        <option value=6>社会・経済</option>
-                                        <option value=7>自然・環境</option>
-                                        <option value=8>子ども・教育</option>
-                                        <option value=9>国際・言語</option>
-                                        <option value=10>その他</option>
-                                    </select>
-                                </div>
-                                <div class="ms-3 sp-ms-0 mb-3 w-100">
-                                    <label class="form-label" for="notyf-message">開催ステータス</label>
-                                    <select name="category_id" class="form-control">
-                                        <option value=1>未選択</option>
-                                        <option value=1>開催前</option>
-                                        <option value=2>開催中</option>
-                                        <option value=3>開催終了</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="d-flex sp-block justify-content-between">
-                                <div class="mb-3 w-100">
-                                    <label class="form-label" for="notyf-message">イベント名</label>
-                                    <select name="event_id" class="form-control">
-                                        <option value="">未選択</option>
-                                        <option value=1>タンパク質の精製技術の基礎</option>
-                                        <option value=2>AIと機械学習の基礎講座</option>
-                                        <option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
-                                        <option value=4>気候変動と持続可能なエネルギーソリューション</option>
-                                        <option value=5>心理学で学ぶ意思決定と行動経済学</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4 ms-3 sp-ms-0 w-100">
-                                    <label class="form-label" for="notyf-message">フリーワード</label>
-                                    <input id="notyf-message" name="notyf-message" type="text" class="form-control" placeholder="田中 翔太">
-                                </div>
-                            </div>
-                            <!-- <hr> -->
-                            <div class="d-flex w-100">
-                                <button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="result_card" class="col-12 col-lg-12 d-none">
-                        <div class="card min-70vh">
-                            <div class="card-body p-0">
-                                <div class="d-flex w-100 align-items-center justify-content-between mt-3">
-                                    <div></div>
-                                    <div class="d-flex align-items-center button-div mr-025">
-                                        <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
-                                            <i class="align-middle me-1" data-feather="download"></i>CSV出力
-                                        </button>
+                            <form id="form" method="POST" action="/custom/admin/app/Views/management/event_registration.php" class="w-100">
+                                <input type="hidden" name="page" value="<?= $page ?>">
+                                <div class="d-flex sp-block justify-content-between">
+                                    <div class="mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">カテゴリー</label>
+                                        <select name="category_id" class="form-control">
+                                            <option value="">すべて</option>
+                                            <?php foreach ($category_list as $category) { ?>
+                                                <option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($category['name']) ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="ms-3 sp-ms-0 mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">開催ステータス</label>
+                                        <select name="event_status_id" class="form-control">
+                                            <option value="">すべて</option>
+                                            <?php foreach ($event_status_list as $key => $event_status) { ?>
+                                                <option value=<?= $key ?> <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($event_status) ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="card m-auto mb-5 w-95">
-                                    <table class="table table-responsive table-striped table_list">
-                                        <thead>
-                                            <tr>
-                                                <th class="ps-4 pe-4">ID</th>
-                                                <th class="ps-4 pe-4">イベント名</th>
-                                                <th class="ps-4 pe-4">講座回数</th>
-                                                <th class="ps-4 pe-4">ユーザーID</th>
-                                                <th class="ps-4 pe-4">ユーザー名</th>
-                                                <th class="ps-4 pe-4">メールアドレス</th>
-                                                <th class="ps-4 pe-4">決済方法</th>
-                                                <th class="ps-4 pe-4">決済状況</th>
-                                                <th class="ps-4 pe-4">決済日</th>
-                                                <th class="ps-4 pe-4">申込日</th>
-                                                <th class="ps-4 pe-4">参加状態</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第1講座</td>
-                                                <td class="ps-4 pe-4">1937 8274</td>
-                                                <td class="ps-4 pe-4">田中 翔太</td>
-                                                <td class="ps-4 pe-4">tanaka@gmail.com</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="" selected>参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第1講座</td>
-                                                <td class="ps-4 pe-4">1628 7451</td>
-                                                <td class="ps-4 pe-4">山田 健太</td>
-                                                <td class="ps-4 pe-4">yamada@gmail.com</td>
-                                                <td class="ps-4 pe-4">銀行振込</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/6/5</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="" selected>参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第1講座</td>
-                                                <td class="ps-4 pe-4">1524 8472</td>
-                                                <td class="ps-4 pe-4">中村 優衣</td>
-                                                <td class="ps-4 pe-4">nakamura@gmail.com</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4 text-danger">未決済</td>
-                                                <td class="ps-4 pe-4">2024/10/21</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="" selected>参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第2講座</td>
-                                                <td class="ps-4 pe-4 text-nowrap">0000 0821</td>
-                                                <td class="ps-4 pe-4">佐藤 夢</td>
-                                                <td class="ps-4 pe-4">sato@gmail.com</td>
-                                                <td class="ps-4 pe-4">銀行振込</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="">参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第2講座</td>
-                                                <td class="ps-4 pe-4">1938 5756</td>
-                                                <td class="ps-4 pe-4">高橋 美咲</td>
-                                                <td class="ps-4 pe-4">takahashi@gmail.com</td>
-                                                <td class="ps-4 pe-4">銀行振込</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="" selected>参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第2講座</td>
-                                                <td class="ps-4 pe-4">1231 9374</td>
-                                                <td class="ps-4 pe-4">伊藤 大輔</td>
-                                                <td class="ps-4 pe-4">ito@gmail.com</td>
-                                                <td class="ps-4 pe-4">コンビニ決済</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="" selected>参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第3講座</td>
-                                                <td class="ps-4 pe-4">1827 4651</td>
-                                                <td class="ps-4 pe-4">清水 由佳</td>
-                                                <td class="ps-4 pe-4">shimizu@gmail.com</td>
-                                                <td class="ps-4 pe-4">コンビニ決済</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="">参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1</td>
-                                                <td class="ps-4 pe-4">タンパク質の精製技術の基礎</td>
-                                                <td class="ps-4 pe-4">第3講座</td>
-                                                <td class="ps-4 pe-4">1281 7362</td>
-                                                <td class="ps-4 pe-4">加藤 拓也</td>
-                                                <td class="ps-4 pe-4">kato@gmail.com</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/12/20</td>
-                                                <td class="ps-4 pe-4">
-                                                    <select class="form-control min-100">
-                                                        <option value="">未参加</option>
-                                                        <option value="">参加済</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="d-flex sp-block justify-content-between">
+                                    <div class="mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">イベント名</label>
+                                        <select name="event_id" class="form-control">
+                                            <option value="" selected disabled>未選択</option>
+                                            <?php foreach ($event_list as $event): ?>
+                                                <option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                                    <?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="sp-ms-0 ms-3 mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">回数</label>
+                                        <div class="d-flex align-items-center">
+                                            <select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+                                                <option value="" selected disabled>未選択</option>
+                                                <?php for ($i = 1; $i < 10; $i++) { ?>
+                                                    <option value=<?= $i ?>
+                                                        <?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= "第" . $i . "回" ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex sp-block justify-content-between">
+                                    <div class="mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">フリーワード</label>
+                                        <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars($old_input['keyword'], ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
+                                    </div>
+                                    <div class="mb-3 w-100"></div>
+                                </div>
+                                <!-- <hr> -->
+                                <div class="d-flex w-100">
+                                    <button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <?php if (!empty($application_list)) { ?>
+                        <div id="result_card" class="col-12 col-lg-12">
+                            <div class="card min-70vh">
+                                <div class="card-body p-0">
+                                    <div class="d-flex w-100 align-items-center justify-content-between mt-3">
+                                        <div></div>
+                                        <div class="d-flex align-items-center button-div mr-025">
+                                            <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
+                                                <i class="align-middle me-1" data-feather="download"></i>CSV出力
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card m-auto mb-5 w-95">
+                                        <table class="table table-responsive table-striped table_list">
+                                            <thead>
+                                                <tr>
+                                                    <th class="ps-4 pe-4">ID</th>
+                                                    <th class="ps-4 pe-4">イベント名</th>
+                                                    <th class="ps-4 pe-4">講座回数</th>
+                                                    <th class="ps-4 pe-4">ユーザーID</th>
+                                                    <th class="ps-4 pe-4">ユーザー名</th>
+                                                    <th class="ps-4 pe-4">メールアドレス</th>
+                                                    <th class="ps-4 pe-4">決済方法</th>
+                                                    <th class="ps-4 pe-4">決済状況</th>
+                                                    <th class="ps-4 pe-4">決済日</th>
+                                                    <th class="ps-4 pe-4">申込日</th>
+                                                    <th class="ps-4 pe-4">参加状態</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($application_list as $key => $application) {
+                                                    $result_application = $application['application'][$count];
+                                                    $payment_status = !empty($result_application['payment_date']) ? '決済済' : '未決済';
+                                                    $application_date = new DateTime($result_application['application_date']);
+                                                    $payment_date = null;
+                                                    if (!empty($result_application['payment_date'])) {
+                                                        $payment_date = new DateTime($result_application['payment_date']);
+                                                        $payment_date = $payment_date->format("Y年n月j日");
+                                                    }
+                                                    $participation_kbn = $result_application['participation_kbn'];
+                                                    $formatted_id = str_pad($result_application["user"]['id'], 8, "0", STR_PAD_LEFT);
+                                                    $user_id  = substr_replace($formatted_id, ' ', 4, 0);
+                                                ?>
+                                                    <tr>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $application['id'] ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application['event']['name'] ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap">第<?= $application["course_info"]['no'] ?>講座</td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $user_id ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application["user"]['name'] ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application["user"]['email'] ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $payment_select_list[$result_application["pay_method"]] ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap <?= $payment_status === '未決済' ? 'text-danger' : ''; ?>"><?= $payment_status ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $payment_date ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= $application_date->format("Y年n月j日") ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap">
+                                                            <select class="form-control min-100">
+                                                                <option value=1 <?= $participation_kbn == 1 ? 'selected' : '' ?>>未参加</option>
+                                                                <option value=2 <?= $participation_kbn == 2 ? 'selected' : '' ?>>参加済</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                        <ul class="pagination">
+                                            <?php
+                                            $total_pages = ceil($total_count / $per_page);
+                                            $start_page = max(1, $current_page - 1); // 最小1
+                                            $end_page = min($total_pages, $start_page + 2); // 最大3つ
+
+                                            // 前のページボタン
+                                            if ($current_page > 1): ?>
+                                                <li class="paginate_button page-item previous">
+                                                    <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+                                                </li>
+                                            <?php endif; ?>
+
+                                            <?php
+                                            // ページ番号の表示
+                                            for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                                <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+                                                    <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+                                                </li>
+                                            <?php endfor; ?>
+
+                                            <?php
+                                            // 次のページボタン
+                                            if ($current_page < $total_pages): ?>
+                                                <li class="paginate_button page-item next">
+                                                    <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <?php } ?>
                 </div>
             </main>
         </div>
@@ -266,10 +232,25 @@
 </html>
 <script>
     $(document).ready(function() {
-        let selectedId;
-        // 削除リンクがクリックされたとき
+        // 検索フォームから検索時URLを動的に変更
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = $('input[name="page"]').val();
+        params.set('page', currentPage);
+        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+
+        // 検索
+        $('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+            $("#form").submit();
+        });
         $('#search-button').on('click', function(event) {
-            $('#result_card').removeClass('d-none');
+            $('input[name="page"]').val(1);
+        });
+        // ページネーション押下時
+        $(document).on("click", ".paginate_button a", function(e) {
+            e.preventDefault();
+            const nextPage = $(this).data("page");
+            $('input[name="page"]').val(nextPage);
+            $('#form').submit();
         });
     });
 </script>
