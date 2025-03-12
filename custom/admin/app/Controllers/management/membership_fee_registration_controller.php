@@ -68,7 +68,8 @@ class MembershipFeeRegistrationController
                 } else {
                     $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
                 }
-            } else {
+            }
+            if (empty($tekijuku_commemoration_list[$key]['display_depo'])) {
                 $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
             }
         }
