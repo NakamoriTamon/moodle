@@ -69,6 +69,18 @@ global $old_input;
                             </div>
                         </li>
                         <li class="list_item09">
+                            <p class="list_label">口数</p>
+                            <div class="list_field">
+                                <p><?= htmlspecialchars($old_input['unit']) ?></p>
+                            </div>
+                        </li>
+                        <li class="list_item09">
+                            <p class="list_label">金額金額</p>
+                            <div class="list_field">
+                                <p><?= htmlspecialchars($old_input['price']) ?></p>
+                            </div>
+                        </li>
+                        <li class="list_item09">
                             <p class="list_label">支払方法</p>
                             <div class="list_field">
                                 <p><?= htmlspecialchars($payment_mehod_list[$old_input['payment_method']]) ?></p>
@@ -80,6 +92,37 @@ global $old_input;
                                 <p><?= nl2br($old_input['note']) ?></p>
                             </div>
                         </li>
+                        
+                        
+                        <li class="list_item11">
+                            <div class="list_field">
+                                <label class="checkbox_label">
+                                    <input class="checkbox_input" type="checkbox" disabled name="is_university_member" <?php if ($old_input['is_university_member'] === '1') { ?>checked <?php } ?>>
+                                    大阪大学教職員・学生の方はこちらにチェックしてください。
+                                </label>
+                            </div>
+                        </li>
+                        <?php if ($old_input['is_university_member'] === '1') { ?>
+                            <li class="list_item02">
+                                <p class="list_label">所属部局（学部・研究科）</p>
+                                <div class="list_field">
+                                    <p><?= htmlspecialchars($old_input['department']) ?></p>
+                                </div>
+                            </li>
+                            <li class="list_item02">
+                                <p class="list_label">講座/部課/専攻名</p>
+                                <div class="list_field">
+                                    <p><?= htmlspecialchars($old_input['major']) ?></p>
+                                </div>
+                            </li>
+                            <li class="list_item02">
+                                <p class="list_label">職名・学年</p>
+                                <div class="list_field">
+                                    <p><?= htmlspecialchars($old_input['official']) ?></p>
+                                </div>
+                            </li>
+
+                        <?php } ?>
                         <li class="list_item11">
                             <div class="list_field">
                                 <label class="checkbox_label">

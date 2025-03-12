@@ -31,7 +31,7 @@ class MypageController {
         return $this->DB->get_record(
             'tekijuku_commemoration',
             ['fk_user_id' => $this->USER->id],
-            'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, note, is_published, is_subscription, is_delete'
+            'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, note, is_published, is_subscription, is_delete, department, major, official, is_university_member'
         );
     }
 

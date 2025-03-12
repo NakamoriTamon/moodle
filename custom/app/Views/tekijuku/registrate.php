@@ -20,7 +20,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
         <h2 class="head_ttl" data-en="TEKIJUKU COMMEMORATION CENTER REGISTER">適塾記念会会員登録</h2>
     </section>
     <div class="inner_l">
-        <section id="form" class="user confirm">
+        <section id="form" class="user tekijuku">
             <ul id="flow">
                 <li class="active">入力</li>
                 <li>確認</li>
@@ -32,7 +32,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                         <li class="list_item01 req">
                             <p class="list_label">会員種別</p>
                             <div class="list_field f_select select">
-                                <select name="type_code">
+                                <select name="type_code" id="type_code" onchange="updatePrice()">
                                     <option value=1 <?= isSelected(1, $old_input['type_code'] ?? null, null) ? 'selected' : '' ?>>普通会員</option>
                                     <option value=2 <?= isSelected(2, $old_input['type_code'] ?? null, null) ? 'selected' : '' ?>>賛助会員</option>
                                 </select>
@@ -56,7 +56,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item05 req">
+                        <li class="list_item04 req">
                             <p class="list_label">郵便番号（ハイフンなし）</p>
                             <div class="list_field f_txt a">
                                 <div class="post_code">
@@ -71,7 +71,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item06 req">
+                        <li class="list_item05 req">
                             <p class="list_label">住所</p>
                             <div class="list_field f_txt">
                                 <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? '') ?>">
@@ -80,7 +80,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item07 req">
+                        <li class="list_item06 req">
                             <p class="list_label">電話番号（ハイフンなし）</p>
                             <div class="list_field f_txt">
                                 <div class="phone-input">
@@ -94,7 +94,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 </div>
                             </div>
                         </li>
-                        <li class="list_item08 req">
+                        <li class="list_item07 req">
                             <p class="list_label">メールアドレス</p>
                             <div class="list_field f_txt">
                                 <input type="email" readonly name="email" value="<?= htmlspecialchars($old_input['email'] ?? $user_data->email) ?>"
@@ -106,7 +106,20 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item09 req">
+                        <li class="list_item08 req">
+                            <p class="list_label">口数</p>
+                            <div class="list_field f_num">
+                                <button type="button" class="num_min" onclick="updateUnitCount(-1)">ー</button>
+                                <input type="number" id="unit" name="unit" value="<?= htmlspecialchars($old_input['unit'] ?? 1) ?>" class="num_txt" onchange="updatePrice()"/>
+                                <button type="button" class="num_plus" onclick="updateUnitCount(1)">＋</button>
+                            </div>
+                        </li>
+                        <li class="list_item09">
+                            <p class="list_label">金額</p>
+                            <p class="list_field" id="price"><?= htmlspecialchars(number_format($price)) ?>円</p>
+                            <input type="hidden" id="price_value" name="price" value="<?= $price ?>" />
+                        </li>
+                        <li class="list_item10 req">
                             <p class="list_label">支払方法</p>
                             <div class="list_field f_txt radio-group">
                                 <?php foreach ($payment_select_list as $key => $value) { ?>
@@ -119,7 +132,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php } ?>
                             </div>
                         </li>
-                        <li class="list_item10">
+                        <li class="list_item11">
                             <p class="list_label">備考</p>
                             <div class="list_field f_txt">
                                 <textarea name="note" rows=5><?= htmlspecialchars($old_input['note']); ?></textarea>
@@ -128,7 +141,42 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item11">
+                        <li class="list_item12">
+                            <div class="list_field">
+                                <label class="checkbox_label">
+                                    <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php if ($old_input['is_university_member'] == '1') { ?>checked <?php } ?>>
+                                    <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                </label>
+                            </div>
+                        </li>
+                        <li class="list_item13 req" id="department_field">
+                            <p class="list_label">所属部局（学部・研究科）</p>
+                            <div class="list_field f_txt">
+                                <input type="text" name="department" value="<?= htmlspecialchars($old_input['department']); ?>">
+                                <?php if (!empty($errors['department'])): ?>
+                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item14" id="major_field">
+                            <p class="list_label">講座/部課/専攻名</p>
+                            <div class="list_field f_txt">
+                                <input type="text" name="major" value="<?= htmlspecialchars($old_input['major']); ?>">
+                                <?php if (!empty($errors['major'])): ?>
+                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item15 req" id="official_field">
+                            <p class="list_label">職名・学年</p>
+                            <div class="list_field f_txt">
+                                <input type="text" name="official" value="<?= htmlspecialchars($old_input['official']); ?>">
+                                <?php if (!empty($errors['official'])): ?>
+                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <li class="list_item16">
                             <div class="list_field">
                                 <label class="checkbox_label">
                                     <input class="checkbox_input" id="is_published" type="checkbox" name="is_published" value=1 <?php if ($old_input['is_published'] == '1') { ?>checked <?php } ?>>
@@ -136,7 +184,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 </label>
                             </div>
                         </li>
-                        <li class="list_item12 is_subscription_area">
+                        <li class="list_item17 is_subscription_area">
                             <div class="list_field">
                                 <label class="checkbox_label" for="">
                                     <input class="checkbox_input" id="is_subscription" type="checkbox" name="is_subscription" value=1 <?php if ($old_input['is_subscription'] == '1') { ?>checked <?php } ?>>
@@ -160,8 +208,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 </ul>
 
 </html>
-
-
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
@@ -202,5 +248,77 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                 $('#is_subscription').prop('checked', false);
             }
         }
+    });
+
+    // 会員種別ごとの単価
+    const PRICE_REGULAR_MEMBER = 2000;  // 普通会員単価
+    const PRICE_SUPPORTING_MEMBER = 10000;  // 賛助会員単価
+
+    // 現在選ばれている会員種別の単価を決定
+    let currentUnitPrice = PRICE_REGULAR_MEMBER;
+
+    // 会員種別が変更されたときの処理
+    function updatePrice() {
+        // 会員種別の選択を取得
+        const typeCode = document.getElementById('type_code').value;
+        
+        // 会員種別によって単価を決定
+        if (typeCode == 1) {
+            currentUnitPrice = PRICE_REGULAR_MEMBER;
+        } else if (typeCode == 2) {
+            currentUnitPrice = PRICE_SUPPORTING_MEMBER;
+        }
+
+        // 枚数を取得
+        const unitCount = parseInt(document.getElementById('unit').value) || 0;
+
+        // 金額を計算
+        const totalPrice = currentUnitPrice * unitCount;
+
+        // 金額欄に表示
+        document.getElementById('price').textContent = totalPrice.toLocaleString() + "円";
+        document.getElementById('price_value').value = totalPrice;
+    }
+
+    // 枚数が増減したときの処理
+    function updateUnitCount(delta) {
+        const unitInput = document.getElementById('unit');
+        let currentCount = parseInt(unitInput.value) || 0;
+        currentCount += delta;
+
+        // 0未満にはならないように、1を最低枚数に設定
+        if (currentCount < 1) currentCount = 1;
+
+        unitInput.value = currentCount;
+
+        // 金額の再計算
+        updatePrice();
+    }
+
+    // ページ読み込み時に金額を初期化
+    window.onload = updatePrice;
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.querySelector('input[name="is_university_member"]');
+        const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
+
+        function toggleFields() {
+            fields.forEach(field => {
+                if (checkbox.checked) {
+                    field.classList.remove("hidden");
+                } else {
+                    field.classList.add("hidden");
+                    // 入力値をクリア
+                    field.querySelector("input").value = "";
+                }
+            });
+        }
+
+        // 初期状態を設定
+        toggleFields();
+
+        // チェック状態が変更されたら切り替え
+        checkbox.addEventListener("change", toggleFields);
     });
 </script>

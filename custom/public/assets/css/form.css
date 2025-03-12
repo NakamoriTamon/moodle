@@ -308,6 +308,30 @@
   margin-top: 60px;
 }
 
+
+#form.mypage_cont .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.mypage_cont .form_cont .list li .f_num #unit {
+  width: 20%;
+}
+#form.mypage_cont .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.mypage_cont .hidden {
+  display: none !important;
+}
+
 /*-------------------------------------
 tekijuku
 -------------------------------------*/
@@ -318,6 +342,28 @@ tekijuku
 }
 #subpage .is_subscription_area{
   display: none;
+}
+#form.tekijuku .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.tekijuku .form_cont .list li .f_num #unit {
+  width: 20%;
+}
+#form.tekijuku .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.tekijuku .hidden {
+  display: none !important;
 }
 
 /*-------------------------------------
