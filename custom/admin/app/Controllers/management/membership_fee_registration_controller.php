@@ -58,8 +58,16 @@ class MembershipFeeRegistrationController
             if (!empty($tekijuku_commemoration[$target]) && $tekijuku_commemoration[$target] == 1) {
                 $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
                 $tekijuku_commemoration_list[$key]['paid_date'] = $year . '-04-01 00:00:00';
-            } else if (!empty($tekijuku_commemoration['paid_date'])) {
-                $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
+            }
+            if ($tekijuku_commemoration[$target] != 1 && !empty($tekijuku_commemoration['paid_date'])) {
+                $start_date = new DateTime($year . '-04-01 00:00:00');
+                $end_date = new DateTime($year + 1 . '-04-01 00:00:00');
+                $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
+                if ($start_date <= $paid_date && $paid_date < $end_date) {
+                    $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
+                } else {
+                    $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
+                }
             } else {
                 $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
             }

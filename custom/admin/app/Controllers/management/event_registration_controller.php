@@ -93,7 +93,6 @@ class EventRegistrationController
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
-            var_dump($event_id);
         }
 
         // ユーザー情報がなければ配列から排除する

@@ -138,7 +138,7 @@ unset($_SESSION['old_input']);
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['old_number']) ?></td>
                                                 </tr>
-                                            <? } ?>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
