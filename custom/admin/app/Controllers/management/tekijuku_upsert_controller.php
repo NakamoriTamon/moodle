@@ -114,7 +114,7 @@ try {
                 // 枚数(仮)
                 $unit = $params['2024（R6)'];
                 $post_code = !empty($params['郵便番号']) ?  str_replace('-', '', $params['郵便番号']) : '';
-                $is_published = !empty($params['『適塾』氏名掲載不可 ']) ? true : false;
+                $is_published = empty($params['『適塾』氏名掲載不可']) ? true : false;
                 $note = $params['備考'];
                 $department = $params['部局名'] ?? '';
                 $major = $params['学科・専攻名'] ?? '';
@@ -145,7 +145,7 @@ try {
                     $post_code,
                     $address,
                     $params['電話番号'],
-                    $params['『適塾』氏名掲載不可 '],
+                    $params['『適塾』氏名掲載不可'],
                     $note,
                     $params['2024（R6)'],
                     $params['2025（R7)'],
