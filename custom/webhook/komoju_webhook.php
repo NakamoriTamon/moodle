@@ -31,113 +31,139 @@ if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signa
 
 // 決済完了のステータスをチェック
 if ($data['status'] === 'captured') {
-
     $baseModel = new BaseModel();
     $pdo = $baseModel->getPdo();
     $pdo->beginTransaction();
     try {
-        $name = $data['metadata']['user_name'] ?? null;
-        $event_id = $data['metadata']['event_id'] ?? null;
-        $event_application_id = $data['metadata']['event_application_id'] ?? null;
-        $payment_method_type = $data['metadata']['payment_method_type'] ?? null;
+        if (!empty($data['metadata']['tekujuku_id'])) {
+            $payment_method_type = $data['metadata']['payment_method_type'] ?? null;
+            // クレジットの2重送信を回避する
+            if (empty($payment_method_type)) {
+                exit;
+            }
+            $capturedAt = $data['captured_at'] ?? null;
+            if ($capturedAt) {
+                // UTC → 日本時間に変換
+                $capturedAtJP = (new DateTime($capturedAt))
+                    ->setTimezone(new DateTimeZone('Asia/Tokyo'))
+                    ->format('Y-m-d H:i:s');
+            }
 
-        // クレジットの2重送信を回避する
-        if (empty($payment_method_type)) {
-            exit;
-        }
+            $stmt = $pdo->prepare("
+                UPDATE mdl_tekijuku_commemoration
+                SET 
+                    paid_date = :paid_date
+                WHERE id = :id
+            ");
 
-        $eventModel = new EventModel();
-        $event = $eventModel->getEventById($event_id);
-        $eventApplicationModel = new EventApplicationModel();
-        $eventApplication = $eventApplicationModel->getEventApplicationByEventId($event_application_id);
+            $stmt->execute([
+                ':paid_date' => $capturedAtJP,
+                ':id' => $data['metadata']['tekujuku_id']
+            ]);
+        } else {
 
-        // 支払日を取得
-        $capturedAt = $data['captured_at'] ?? null;
+            $name = $data['metadata']['user_name'] ?? null;
+            $event_id = $data['metadata']['event_id'] ?? null;
+            $event_application_id = $data['metadata']['event_application_id'] ?? null;
+            $payment_method_type = $data['metadata']['payment_method_type'] ?? null;
 
-        if ($capturedAt) {
-            // UTC → 日本時間に変換
-            $capturedAtJP = (new DateTime($capturedAt))
-                ->setTimezone(new DateTimeZone('Asia/Tokyo'))
-                ->format('Y-m-d H:i:s');
-        }
+            // クレジットの2重送信を回避する
+            if (empty($payment_method_type)) {
+                exit;
+            }
 
-        // mdl_event_applicationのpayment_date(支払日)を更新
-        $stmt = $pdo->prepare("
+            $eventModel = new EventModel();
+            $event = $eventModel->getEventById($event_id);
+            $eventApplicationModel = new EventApplicationModel();
+            $eventApplication = $eventApplicationModel->getEventApplicationByEventId($event_application_id);
+
+            // 支払日を取得
+            $capturedAt = $data['captured_at'] ?? null;
+
+            if ($capturedAt) {
+                // UTC → 日本時間に変換
+                $capturedAtJP = (new DateTime($capturedAt))
+                    ->setTimezone(new DateTimeZone('Asia/Tokyo'))
+                    ->format('Y-m-d H:i:s');
+            }
+
+            // mdl_event_applicationのpayment_date(支払日)を更新
+            $stmt = $pdo->prepare("
             UPDATE mdl_event_application
             SET 
                 payment_date = :payment_date
             WHERE id = :id
-        ");
+            ");
 
-        $stmt->execute([
-            ':payment_date' => $capturedAtJP,
-            ':id' => $event_application_id // 一意の識別子をWHERE条件として設定
-        ]);
+            $stmt->execute([
+                ':payment_date' => $capturedAtJP,
+                ':id' => $event_application_id // 一意の識別子をWHERE条件として設定
+            ]);
 
-        // ISO 8601形式の日時を MySQL の DATETIME 形式に変換
-        $captured_at = date('Y-m-d H:i:s', strtotime($data['captured_at']));
+            // ISO 8601形式の日時を MySQL の DATETIME 形式に変換
+            $captured_at = date('Y-m-d H:i:s', strtotime($data['captured_at']));
 
-        // KOMOJUの情報を登録
-        $stmt2 = $pdo->prepare("INSERT INTO moodle.mdl_komojus 
+            // KOMOJUの情報を登録
+            $stmt2 = $pdo->prepare("INSERT INTO moodle.mdl_komojus 
             (id, status, amount, currency, payment_method_type, captured_at, metadata, event_application_id, created_at, updated_at)
             VALUES(:id, :status, :amount, :currency, :payment_method_type, :captured_at, :metadata, :event_application_id,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);");
-        $stmt2->execute([
-            ':id' => $data['id'],
-            ':status' => $data['status'],
-            ':amount' => $data['amount'],
-            ':currency' => $data['currency'],
-            ':payment_method_type' => $data['payment_method_type'],
-            ':captured_at' => $captured_at,
-            ':metadata' => json_encode($data['metadata']),
-            ':event_application_id' => $event_application_id
-        ]);
+            $stmt2->execute([
+                ':id' => $data['id'],
+                ':status' => $data['status'],
+                ':amount' => $data['amount'],
+                ':currency' => $data['currency'],
+                ':payment_method_type' => $data['payment_method_type'],
+                ':captured_at' => $captured_at,
+                ':metadata' => json_encode($data['metadata']),
+                ':event_application_id' => $event_application_id
+            ]);
 
-        foreach ($eventApplication['course_infos'] as $course) {
-            // QR生成
-            $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
-            $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
-                . $event_application_id . '&event_application_course_info=' . $course['id']);
-            $writer = new PngWriter();
-            $qrCodeImage = $writer->write($qrCode)->getString();
-            $temp_file = tempnam(sys_get_temp_dir(), 'qr_');
-            $qrCodeBase64 = base64_encode($qrCodeImage);
-            $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
-            file_put_contents($temp_file, $qrCodeImage);
+            foreach ($eventApplication['course_infos'] as $course) {
+                // QR生成
+                $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
+                $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
+                    . $event_application_id . '&event_application_course_info=' . $course['id']);
+                $writer = new PngWriter();
+                $qrCodeImage = $writer->write($qrCode)->getString();
+                $temp_file = tempnam(sys_get_temp_dir(), 'qr_');
+                $qrCodeBase64 = base64_encode($qrCodeImage);
+                $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
+                file_put_contents($temp_file, $qrCodeImage);
 
-            $mail = new PHPMailer(true);
+                $mail = new PHPMailer(true);
 
-            $mail->isSMTP();
-            $test = getenv('MAIL_HOST');
-            $mail->Host = $_ENV['MAIL_HOST'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $_ENV['MAIL_USERNAME'];
-            $mail->Password = $_ENV['MAIL_PASSWORD'];
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->CharSet = PHPMailer::CHARSET_UTF8;
-            $mail->Port = $_ENV['MAIL_PORT'];
+                $mail->isSMTP();
+                $test = getenv('MAIL_HOST');
+                $mail->Host = $_ENV['MAIL_HOST'];
+                $mail->SMTPAuth = true;
+                $mail->Username = $_ENV['MAIL_USERNAME'];
+                $mail->Password = $_ENV['MAIL_PASSWORD'];
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->CharSet = PHPMailer::CHARSET_UTF8;
+                $mail->Port = $_ENV['MAIL_PORT'];
 
-            $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-            $mail->addAddress($course['participant_mail'], 'Recipient Name');
+                $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
+                $mail->addAddress($course['participant_mail'], 'Recipient Name');
 
-            $sendAdresses = ['tamonswallow@gmail.com'];
-            foreach ($sendAdresses as $sendAdress) {
-                $mail->addAddress($sendAdress, 'Recipient Name');
-            }
-            $mail->addReplyTo('no-reply@example.com', 'No Reply');
-            $mail->isHTML(true);
+                $sendAdresses = ['tamonswallow@gmail.com'];
+                foreach ($sendAdresses as $sendAdress) {
+                    $mail->addAddress($sendAdress, 'Recipient Name');
+                }
+                $mail->addReplyTo('no-reply@example.com', 'No Reply');
+                $mail->isHTML(true);
 
-            $day = new DateTime($course["course_date"]);
-            $course_date = $day->format('Ymd');
-            $ymd = $day->format('Y/m/d');
-            $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
-            $start_hour = $dateTime->format('H:i'); // "00:00"
-            $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
-            $end_hour = $dateTime->format('H:i'); // "00:00"
-            $qr_img = 'qr_code_' . $course_date . '.png';
-            // QRをインライン画像で追加
-            $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
+                $day = new DateTime($course["course_date"]);
+                $course_date = $day->format('Ymd');
+                $ymd = $day->format('Y/m/d');
+                $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
+                $start_hour = $dateTime->format('H:i'); // "00:00"
+                $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
+                $end_hour = $dateTime->format('H:i'); // "00:00"
+                $qr_img = 'qr_code_' . $course_date . '.png';
+                // QRをインライン画像で追加
+                $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
 
-            $htmlBody = "
+                $htmlBody = "
                 <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                     <p style=\"text-align: left; font-weight:bold;\">" . $name . "</p>
                     <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
@@ -153,21 +179,22 @@ if ($data['status'] === 'captured') {
                 </div>
             ";
 
-            $name = "";
+                $name = "";
 
-            $mail->Subject = 'チケットの購入が完了しました';
-            $mail->Body = $htmlBody;
+                $mail->Subject = 'チケットの購入が完了しました';
+                $mail->Body = $htmlBody;
 
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
 
-            $mail->send();
-            unlink($temp_file);
+                $mail->send();
+                unlink($temp_file);
+            }
         }
 
         $pdo->commit();

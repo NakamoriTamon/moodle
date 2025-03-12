@@ -40,7 +40,7 @@ try {
     $tekijuku_commemoration = new stdClass();
     $tekijuku_commemoration->created_at = date('Y-m-d H:i:s');
     $tekijuku_commemoration->updated_at = date('Y-m-d H:i:s');
-    $tekijuku_commemoration->number = $max_number;
+    $tekijuku_commemoration->number = $fk_user_id;
     $tekijuku_commemoration->type_code = $type_code;
     $tekijuku_commemoration->name = $name;
     $tekijuku_commemoration->kana = $kana;
@@ -52,9 +52,9 @@ try {
     $tekijuku_commemoration->note = $note;
     $tekijuku_commemoration->is_published = $is_published;
     $tekijuku_commemoration->is_subscription = $is_subscription;
-    $tekijuku_commemoration->paid_date = date('Y-m-d H:i:s');
+    $tekijuku_commemoration->paid_date = null;
     $tekijuku_commemoration->fk_user_id = $fk_user_id;
-    
+
     $tekijuku_commemoration->department = $department;
     $tekijuku_commemoration->major = $major;
     $tekijuku_commemoration->official = $official;
@@ -69,9 +69,15 @@ try {
         'amount' => $amount,
         'currency' => 'JPY',
         'external_order_num' => uniqid(),
-        'return_url' => $CFG->wwwroot . '/custom/app/Views/mypage/index.php', // 決済成功後のリダイレクトURL
+        'return_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/complete.php', // 決済成功後のリダイレクトURL
         'cancel_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // キャンセル時のリダイレクトURL
+        'metadata' => [
+            'tekujuku_id' => (string)$id,
+            'payment_method_type' => (string)$payment_method,
+        ],
     ];
+
+    $_SESSION['payment_method_type'] = $payment_method;
 
     // ヘッダーの設定
     $headers = [
