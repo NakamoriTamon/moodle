@@ -21,7 +21,7 @@
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
                     <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
                     <li><a href="javascript:void(0);" id="user-withdrawal-button">ユーザー退会</a></li>
-                        <?php if ($footre_tekijuku_commemoration->id !== 0 && !is_null($footre_tekijuku_commemoration->id) && $footre_tekijuku_commemoration->is_delete !== '1') :?>
+                        <?php if (!empty($footre_tekijuku_commemoration) && $footre_tekijuku_commemoration->id !== 0 && !is_null($footre_tekijuku_commemoration->id) && $footre_tekijuku_commemoration->is_delete !== '1') :?>
                             <li><a href="javascript:void(0);" id="tekijuku-withdrawal-button">適塾記念会退会</a></li>
                     <?php endif; ?>
                 </ul>
