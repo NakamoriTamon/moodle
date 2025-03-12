@@ -21,8 +21,8 @@
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
                     <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
                     <li><a href="javascript:void(0);" id="user-withdrawal-button">ユーザー退会</a></li>
-                        <?php if (!empty($footre_tekijuku_commemoration) && $footre_tekijuku_commemoration->id !== 0 && !is_null($footre_tekijuku_commemoration->id) && $footre_tekijuku_commemoration->is_delete !== '1') :?>
-                            <li><a href="javascript:void(0);" id="tekijuku-withdrawal-button">適塾記念会退会</a></li>
+                    <?php if (!empty($footre_tekijuku_commemoration) && $footre_tekijuku_commemoration->id !== 0 && !is_null($footre_tekijuku_commemoration->id) && $footre_tekijuku_commemoration->is_delete !== '1') : ?>
+                        <li><a href="javascript:void(0);" id="tekijuku-withdrawal-button">適塾記念会退会</a></li>
                     <?php endif; ?>
                 </ul>
                 <ul class="menu_btm">
@@ -48,10 +48,10 @@
         var tekijuku_commemoration = <?php echo json_encode($footre_tekijuku_commemoration); ?>;
         // 退会ボタンクリック時
         $('#tekijuku-withdrawal-button').on('click', function() {
-            showModalInactive('適塾記念会退会フォーム','会員登録を解除します。本当によろしいですか？なお、次回の会費支払期限までは会員情報を保持し、引き続きご利用いただけます。', 'tekijuku-inactive');
+            showModalInactive('適塾記念会退会', '会員登録を解除します。本当によろしいですか？なお、次回の会費支払期限までは会員情報を保持し、引き続きご利用いただけます。', 'tekijuku-inactive');
         });
         $('#user-withdrawal-button').on('click', function() {
-            showModalInactive('ユーザー退会フォーム','ユーザー登録を解除します。既に支払済みの参加費は返金されませんが、解除してよろしいですか？', 'user-inactive');
+            showModalInactive('ユーザー退会', 'ユーザー登録を解除します。既に支払済みの参加費は返金されませんが、解除してよろしいですか？', 'user-inactive');
         });
 
         // モーダルの「退会」ボタンがクリックされたとき
