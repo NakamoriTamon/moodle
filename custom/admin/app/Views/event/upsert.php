@@ -72,7 +72,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					</ul>
 				</div>
 			</nav>
-
 			<main class="content">
 				<div class="col-12 col-lg-12">
 					<div class="card">
@@ -590,14 +589,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input type="checkbox" checked name="is_double_speed" class="form-check-input">
-											<span name="is_double_speed" class=" form-check-label">動画倍速機能</span>
+											<input type="checkbox" name="is_double_speed" class="form-check-input" 
+												<?= $eventData['is_double_speed'] === 1 ? 'checked' : '' ?>>
+											<span class="form-check-label">動画倍速機能</span>
 										</label>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input type="checkbox" checked name="is_apply_btn" class="form-check-input">
-											<span name="is_apply_btn" class=" form-check-label">申込みボタンを表示する</span>
+											<input type="checkbox" name="is_apply_btn" class="form-check-input" 
+												<?= $eventData['is_apply_btn'] === 1 ? 'checked' : '' ?>>
+											<span class="form-check-label">申込みボタンを表示する</span>
 										</label>
 									</div>
 									<div class="mb-3">
