@@ -118,7 +118,7 @@ unset($SESSION->formdata);
             <ul class="result_list" id="event">
                 <?php if (isset($events) && !empty($events)): ?>
                     <?php foreach ($events as $row): ?>
-                        <li class="event_item rec">
+                        <li class="<?php echo ($row['is_top'] === 1) ? 'rec ' : ''; ?>event_item">
                             <a href="/custom/app/Views/event/detail.php?id=<?= $row['id'] ?>">
                                 <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
