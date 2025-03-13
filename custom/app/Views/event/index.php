@@ -58,10 +58,10 @@ unset($SESSION->formdata);
                                 <select>
                                     <option value="" disabled selected>選択してください</option>
                                     <?php foreach ($targets as $target): ?>
-                                    <option value="<?= htmlspecialchars($target['id']) ?>"
-                                        <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($target['name']) ?>
-                                    </option>
+                                        <option value="<?= htmlspecialchars($target['id']) ?>"
+                                            <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($target['name']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -118,31 +118,31 @@ unset($SESSION->formdata);
             <ul class="result_list" id="event">
                 <?php if (isset($events) && !empty($events)): ?>
                     <?php foreach ($events as $row): ?>
-                        <li class="event_item">
+                        <li class="event_item rec">
                             <a href="/custom/app/Views/event/detail.php?id=<?= $row['id'] ?>">
                                 <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <li class="<?php if($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
+                                        <li class="<?php if ($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
                                         <?php foreach (DEADLINE_LIST as $key => $status): ?>
                                             <?php
-                                                if($row['event_kbn'] != 3) { 
-                                                    $deadline = (new DateTime($row['deadline']))->format('Ymd 23:59:59');
-                                                } else {
-                                                    $deadline = null;
-                                                }
+                                            if ($row['event_kbn'] != 3) {
+                                                $deadline = (new DateTime($row['deadline']))->format('Ymd 23:59:59');
+                                            } else {
+                                                $deadline = null;
+                                            }
                                             ?>
-                                            <?php if(!is_null($deadline)): ?>
-                                                <?php if(intval($now) <= intval($deadline)): ?>
-                                                    <?php if(($key == 1 || $key == 2) && $key == $row['set_event_deadline_status']): ?>
+                                            <?php if (!is_null($deadline)): ?>
+                                                <?php if (intval($now) <= intval($deadline)): ?>
+                                                    <?php if (($key == 1 || $key == 2) && $key == $row['set_event_deadline_status']): ?>
                                                         <li class="active"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
-                                                    <?php elseif($key == 3 && $key == $row['set_event_deadline_status']): ?>
+                                                    <?php elseif ($key == 3 && $key == $row['set_event_deadline_status']): ?>
                                                         <li class="end"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
                                                     <?php endif ?>
                                                 <?php else: ?>
-                                                    <?php if(($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                                                    <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
                                                         <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                                    <?php elseif($key == 3 && $key == $row['deadline_status']): ?>
+                                                    <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
                                                         <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
                                                     <?php endif ?>
                                                 <?php endif ?>
@@ -151,16 +151,16 @@ unset($SESSION->formdata);
                                     </ul>
                                     <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
                                     <div class="event_sched">
-                                        <?php if($row['event_status'] <= 2): ?>
+                                        <?php if ($row['event_status'] <= 2): ?>
                                             <p class="term">開催日</p>
                                             <div class="date">
-                                                <?php if($row['event_kbn'] != 3): ?>
+                                                <?php if ($row['event_kbn'] != 3): ?>
                                                     <?php foreach ($row['select_course'] as $no => $course): ?>
                                                         <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
                                                         <?php $count = 0; ?>
-                                                        <?php if($course_date >= $now): ?>
+                                                        <?php if ($course_date >= $now): ?>
                                                             <?php $count++; ?>
-                                                            <p class="dt01"><?php if(count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                                                            <p class="dt01"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>

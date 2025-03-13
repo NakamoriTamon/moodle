@@ -10,14 +10,6 @@ use core\context\system;
 try {
     $transaction = $DB->start_delegated_transaction();
 
-    // 将来的にはユニークにするので下記制約は不要となる(確認中)
-    $max_number = $DB->get_record_sql("
-        SELECT number FROM {tekijuku_commemoration} 
-        ORDER BY number DESC 
-        LIMIT 1
-    ");
-    $max_number = $max_number->number + 1;
-
     // CSVヘッダー
     $csv_list[0] = [
         '会員番号',
@@ -122,7 +114,7 @@ try {
                 // 枚数(仮)
                 $unit = $params['2024（R6)'];
                 $post_code = !empty($params['郵便番号']) ?  str_replace('-', '', $params['郵便番号']) : '';
-                $is_published = !empty($params['『適塾』氏名掲載不可 ']) ? true : false;
+                $is_published = empty($params['『適塾』氏名掲載不可']) ? true : false;
                 $note = $params['備考'];
                 $department = $params['部局名'] ?? '';
                 $major = $params['学科・専攻名'] ?? '';
@@ -153,7 +145,7 @@ try {
                     $post_code,
                     $address,
                     $params['電話番号'],
-                    $params['『適塾』氏名掲載不可 '],
+                    $params['『適塾』氏名掲載不可'],
                     $note,
                     $params['2024（R6)'],
                     $params['2025（R7)'],
@@ -166,7 +158,6 @@ try {
                     $password,
                 ];
 
-
                 $csv_list[$count - 1] = $csv_array;
 
                 // 適塾記念会会員情報登録
@@ -174,7 +165,7 @@ try {
                 $tekijuku_commemoration->created_at = date('Y-m-d H:i:s');
                 $tekijuku_commemoration->updated_at = date('Y-m-d H:i:s');
                 $tekijuku_commemoration->type_code = (int)$type_code;
-                $tekijuku_commemoration->number = (int)$max_number;
+                $tekijuku_commemoration->number = (int)$id;
                 $tekijuku_commemoration->name = $name;
                 $tekijuku_commemoration->kana = $kana;
                 $tekijuku_commemoration->post_code = rtrim($post_code, " 　");

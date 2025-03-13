@@ -52,7 +52,7 @@ class MypageController
         return $this->DB->get_record(
             'user',
             ['id' => $this->USER->id],
-            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn',
+            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn, child_name',
         );
     }
 

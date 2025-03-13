@@ -8,6 +8,7 @@
   margin-top: 80px;
 }
 .mypage_head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -26,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 60px 0 140px;
+  margin: 60px 0 30px;
   cursor: pointer;
 }
 #mypage .radio_input, .radio_label{
@@ -34,6 +35,18 @@
 }
 #home .radio_label{
   margin-right: 10px;
+}
+#main_success_message{
+  margin: auto;
+  background: #81bfda;
+  color: #fff;
+  padding: 8px 5px;
+  border-radius: 4px;
+  margin-bottom: 5rem;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  font-weight: bold;
 }
 
 /*-------------------------------------
@@ -202,6 +215,39 @@
 }
 
 /*-------------------------------------
+ history
+ -------------------------------------*/
+.btn_acc {
+  cursor: pointer;
+}
+.acc {
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background: #ccc;
+  border-radius: 50%;
+}
+.acc::after {
+  content: "";
+  position: relative;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  background: url(../common/img/icon_arrow.svg) no-repeat center / contain;
+  transform: rotate(90deg);
+}
+.btn_acc.js-open .acc::after {
+  transform: rotate(-90deg);
+  top: 2px;
+}
+.mypage_cont.history .acc_wrap {
+  display: none;
+}
+
+/*-------------------------------------
  modal
  -------------------------------------*/
 #modal.modal_ticket .modal_cont {
@@ -244,7 +290,7 @@
     height: 30px;
   }
   .set_check {
-    margin: 40px 0 60px;
+    margin: 40px 0 20px;
   }
 
   /*-------------------------------------

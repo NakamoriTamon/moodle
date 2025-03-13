@@ -130,7 +130,7 @@ unset($_SESSION['old_input']);
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['department']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['major']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['official']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap <?php if ($result['display_depo'] == '未決済') { ?>text-danger<? } ?>">
+                                                    <td class="ps-4 pe-4 text-nowrap <?php if ($result['display_depo'] == '未決済') { ?>text-danger<?php } ?>">
                                                         <?= htmlspecialchars($result['display_depo']) ?>
                                                     </td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($payment_select_list[$result['payment_method']]) ?></td>
@@ -138,7 +138,7 @@ unset($_SESSION['old_input']);
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['old_number']) ?></td>
                                                 </tr>
-                                            <? } ?>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
