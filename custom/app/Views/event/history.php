@@ -1,4 +1,22 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<?php
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
+include('/var/www/html/moodle/custom/app/Controllers/event/event_application_history_controller.php');
+
+$event_application_history_controller = new EventHistoryController();
+$result_list = $event_application_history_controller->index($_POST);
+
+$common_array = $result_list['common_array'];
+$common_application = $result_list['common_application'];
+$event_name = $result_list['event_name'];
+$price = $result_list['price'];
+$pay_method = $result_list['pay_method'];
+$is_payment = $result_list['is_payment'];
+$companion_array = $result_list['companion_array'];
+$child_name = $result_list['child_name'];
+?>
+
+
+
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 <main id="subpage">
   <section id="heading" class="inner_l">
@@ -13,43 +31,49 @@
           <ul class="list">
             <li class="list_item01">
               <p class="list_label">氏名</p>
-              <p class="list_field f_txt">阪大太郎</p>
+              <p class="list_field f_txt">
+                <?= htmlspecialchars($common_application['name']) ?>
+              </p>
             </li>
             <li class="list_item02">
               <p class="list_label">フリガナ</p>
-              <p class="list_field f_txt">ハンダイタロウ</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($common_application['name_kana']) ?></p>
             </li>
             <li class="list_item03 long_item">
               <p class="list_label">チケット名称</p>
               <p class="list_field f_txt">
-                大阪大学ミュージアム・リンクス講座 「大阪文化の多様性と創造性をさぐる
-                －地域の歴史に即して－」　船場と美術　伝統と今が出会う街
+                <?= htmlspecialchars($event_name) ?>
               </p>
             </li>
             <li class="list_item04">
               <p class="list_label">枚数選択</p>
-              <p class="list_field f_txt">1枚</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($common_application['ticket_count']) ?>枚</p>
             </li>
             <li class="list_item05">
               <p class="list_label">金額</p>
-              <p class="list_field f_txt">0,000円</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($price) ?></p>
             </li>
             <li class="list_item06">
               <p class="list_label">お支払方法</p>
-              <p class="list_field f_txt">コンビニ決済</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($pay_method) ?></p>
             </li>
             <li class="list_item07">
               <p class="list_label">決済状況</p>
-              <p class="list_field f_txt">決済済</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($is_payment) ?></p>
             </li>
             <li class="list_item08">
               <p class="list_label">お連れ様の氏名</p>
-              <p class="list_field f_txt">阪大次郎</p>
+              <p class="list_field f_txt"><?= htmlspecialchars($child_name) ?></p>
             </li>
-            <li class="list_item09">
-              <p class="list_label">お連れ様のメールアドレス</p>
-              <p class="list_field f_txt">abcdefgh@gmail.com</p>
-            </li>
+            <?php if (!empty($companion_array)) { ?>
+              <li class="list_item09 flex-wrap">
+                <p class="list_label">お連れ様のメールアドレス</p>
+                <?php foreach ($companion_array as $key => $companion_email) { ?>
+                  <?php if ($key > 0) { ?><p class="list_label ano_list_label"><? } ?>
+                    <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<? } ?> "><?= htmlspecialchars($companion_email) ?></p>
+                  <? } ?>
+              </li>
+            <?php } ?>
           </ul>
         </div>
       </div>

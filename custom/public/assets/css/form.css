@@ -411,6 +411,15 @@ pagination
   cursor: not-allowed;
 }
 
+.flex-wrap{
+  flex-wrap: wrap;
+}
+
+.flex-wrap .ano_f_txt,
+.flex-wrap .ano_list_label{
+  padding-top: 15px;
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
@@ -535,4 +544,14 @@ pagination
   #form.mypage_cont .box_bottom_btn {
     margin-top: 40px;
   }
+
+  /*-------------------------------------
+ history
+ -------------------------------------*/
+  
+ .flex-wrap .ano_f_txt,
+ .flex-wrap .ano_list_label {
+    padding-top: 0px;
+  }
+
 }
