@@ -70,15 +70,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 													class="form-control <?php if ($i < $detail_count) { ?>readonly readonly-select <?php } ?>"
 													value="<?= htmlspecialchars(isSetValue($details[$i]['name'] ?? '', ($old_input['item_name'][$i] ?? ''))) ?>">
 											</div>
-											<div class=" mb-3">
-												<div class="form-label d-flex align-items-center">
-													<label class="me-2">フィールド名</label>
-													<span class="badge bg-danger">必須</span>
-												</div>
-												<input type="text" name="field_name[]"
-													class="form-control <?php if ($i < $detail_count) { ?>readonly readonly-select <?php } ?>"
-													value="<?= htmlspecialchars(isSetValue($details[$i]['field_name'] ?? '', ($old_input['field_name'][$i] ?? ''))) ?>">
-											</div>
 											<div class="mb-3">
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">表示順</label>
@@ -166,13 +157,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 						<span class="badge bg-danger">必須</span>
 					</div>
 					<input type="text" name="item_name[]" class="form-control">
-				</div>
-				<div class="mb-3">
-					<div class="form-label d-flex align-items-center">
-						<label class="me-2">フィールド名</label>
-						<span class="badge bg-danger">必須</span>
-					</div>
-					<input type="text" name="field_name[]" class="form-control">
 				</div>
 				<div class="mb-3">
 					<div class="form-label d-flex align-items-center">

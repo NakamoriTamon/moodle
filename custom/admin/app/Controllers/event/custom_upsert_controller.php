@@ -14,7 +14,6 @@ $name = $_POST['name'] ?? null;
 $sorts = $_POST['sort'] ?? null;
 $selections = $_POST['selection'] ?? null;
 $item_names = $_POST['item_name'] ?? null;
-$field_names = $_POST['field_name'] ?? null;
 $field_types = $_POST['field_type'] ?? null;
 $event_customfield_ids = $_POST['event_customfield_id'] ?? [];
 
@@ -82,17 +81,13 @@ try {
         $sort = $sorts[$index] ?? null;
         $selection = $selections[$index] ?? null;
         $field_type = $field_types[$index] ?? null;
-        $field_name = $field_names[$index] ?? null;
         $event_customfield_id = $event_customfield_ids[$index] ?? null;
-
-        $target_list = ['field_name' => $field_name, 'sort' => $sort, 'item,_name' => $item_name];
 
         $customfield = new stdClass();
         if (!$event_customfield_id) {
             $customfield->created_at = date('Y-m-d H:i:s');
             $customfield->updated_at = date('Y-m-d H:i:s');
             $customfield->name = $item_name;
-            $customfield->field_name = $field_name;
             $customfield->sort = (int)$sort;
             $customfield->field_type = $field_type;
             $customfield->selection = $selection;
