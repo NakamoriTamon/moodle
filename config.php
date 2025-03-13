@@ -47,6 +47,7 @@ if ($env === 'development') { // 開発環境
   $CFG->dataroot  = '/var/www/moodledata';
   $CFG->admin     = 'admin';
 }
+$CFG->libdir = '/var/www/html/moodle/lib'; 
 
 $CFG->slasharguments = 0;
 $CFG->directorypermissions = 0777;

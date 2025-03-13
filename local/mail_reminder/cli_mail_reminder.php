@@ -1,60 +1,79 @@
 <?php
 define('CLI_SCRIPT', true);
-
-// Moodleの設定ファイルを読み込む
+require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/CourseInfoModel.php');
 require(__DIR__.'/../../config.php');
 use Dotenv\Dotenv;
 use core\context\system;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-
+$model = new CourseInfoModel();
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
-
 // Moodleのメーラーオブジェクトを使用
 global $DB, $CFG;
-$email = 'shibuya@trans-it.net';
-$name = '澁谷';
-// メール送信処理
-$mail = new PHPMailer(true);
-$mail->isSMTP();
-$mail->Host        = $_ENV['MAIL_HOST'];
-$mail->SMTPAuth    = true;
-$mail->Username    = $_ENV['MAIL_USERNAME'];
-$mail->Password    = $_ENV['MAIL_PASSWORD'];
-$mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
-$mail->CharSet     = PHPMailer::CHARSET_UTF8;
-$mail->Port        = $_ENV['MAIL_PORT'];
-$mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-$mail->addAddress($email, 'Recipient Name');
-$mail->addReplyTo('no-reply@example.com', 'No Reply');
-$mail->isHTML(true);
+$targets = $model->getReminderTargets();
 
-$htmlBody = "
-<div style=\"text-align: center; font-family: Arial, sans-serif;\">
-    <p style=\"text-align: left; font-weight:bold;\">{$name}様</p><br>
-    <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">これはテストメールです</p><br>
-    <p style=\"text-align: left; font-size: 13px; margin:0; \">これはテストメールです</p><br>
-    <br>
-    <p style=\"text-align: left; font-size: 13px; margin:0; \">これはテストメールです</p><br>
-    <p style=\"text-align: left; font-size: 13px; margin:0; \">これはテストメールです</p><br>
-    <br>
-    <p style=\"text-align: left; font-size: 13px; margin:0; \">なお、再度ご利用をご希望される場合は、新規登録が必要となります。</p><br>
-    <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">
-        このメールは、配信専用アドレスから送信されています。<br>
-        このメールに返信いただいても、返信内容の確認及びご返信はできません。<br>
-    </p>
-</div>
-";
-$mail->Subject = 'これはテストメールです';
-$mail->Body = $htmlBody;
+foreach ($targets as $index => $target) {
+    $email = $target->participant_mail;
+    $start_hour = $target->start_hour;
+    $tomorrow = date('Y年m月d日', strtotime('tomorrow'));
+    $evnt_name = $target->name;
+    $venue_name = $target->venue_name;
+    $start_hour = $target->start_hour;
+    $no = $target->no;
+    // メール送信処理
+    $mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host        = $_ENV['MAIL_HOST'];
+    $mail->SMTPAuth    = true;
+    $mail->Username    = $_ENV['MAIL_USERNAME'];
+    $mail->Password    = $_ENV['MAIL_PASSWORD'];
+    $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->CharSet     = PHPMailer::CHARSET_UTF8;
+    $mail->Port        = $_ENV['MAIL_PORT'];
+    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
+    $mail->addAddress($email, 'Recipient Name');
+    $mail->addReplyTo('no-reply@example.com', 'No Reply');
+    $mail->isHTML(true);
 
-$mail->SMTPOptions = array(
-    'ssl' => array(
-        'verify_peer'       => false,
-        'verify_peer_name'  => false,
-        'allow_self_signed' => true
-    )
-);
-$mail->send();
+    $htmlBody = "
+    <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+        <p style=\"text-align: left; font-weight:bold;\">関係各位</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">平素よりお世話になっております。</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">大阪大学より、明日開催予定のイベントについてご案内申し上げます。</p><br>
+        <br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">■ 開催概要</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">日程:{$tomorrow}</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">イベント名:【第{$no}回】{$evnt_name}</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">会場:{$venue_name}</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">開始時間:{$start_hour}</p><br>
+        <br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">ご不明な点がございましたら、お気軽にお問い合わせください。</p><br>
+        <p style=\"text-align: left; font-size: 13px; margin:0; \">何卒よろしくお願い申し上げます。</p><br>
+        <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">
+            このメールは、配信専用アドレスから送信されています。<br>
+            このメールに返信いただいても、返信内容の確認及びご返信はできません。<br>
+        </p>
+    </div>
+    ";
+    $mail->Subject = '大阪大学イベント開催のご案内（' . $tomorrow . '）';
+    $mail->Body = $htmlBody;
+
+    $mail->SMTPOptions = array(
+        'ssl' => array(
+            'verify_peer'       => false,
+            'verify_peer_name'  => false,
+            'allow_self_signed' => true
+        )
+    );
+    
+    // メール送信の試行
+    try {
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("メール送信失敗: " . $e->getMessage());
+        continue;
+    }
+}
