@@ -469,9 +469,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
         <div class="mypage_cont history">
             <h3 id="event_histories" class="mypage_head btn_acc">イベント履歴<span class="acc"></span></h3>
-
             <?php $allHistoryCourseDateNull = true; ?>
-            <?php if (!empty($event_histories['data'])): ?>
+            <?php if (!empty($event_histories['data'])): var_dump($event_histories); ?>
                 <?php foreach ($event_histories['data'] as $history): ?>
                     <?php
                     if (is_null($history->course_date)) {
@@ -480,24 +479,23 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                     $allHistoryCourseDateNull = false;
                     ?>
                     <div class="info_wrap js_pay">
-                        <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont">
-                            <div class="acc_wrap">
-                                <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
-                                <button type="submit" class="info_wrap_cont_btn">
-                                    <p class="date">
-                                        <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
+                        <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont acc_wrap">
+                            <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
+                            <input type="hidden" name="course_id" value="<?php echo $history->course_id ?>">
+                            <button type="submit" class="info_wrap_cont_btn">
+                                <p class="date">
+                                    <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
+                                </p>
+                                <div class="txt">
+                                    <p class="txt_ttl">
+                                        <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
                                     </p>
-                                    <div class="txt">
-                                        <p class="txt_ttl">
-                                            <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
-                                        </p>
-                                        <ul class="txt_other">
-                                            <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
-                                            <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
-                                        </ul>
-                                    </div>
-                                </button>
-                            </div>
+                                    <ul class="txt_other">
+                                        <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
+                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
+                                    </ul>
+                                </div>
+                            </button>
                         </form>
                     </div>
                 <?php endforeach; ?>
@@ -767,79 +765,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
         $('#confirmation-modal').remove();
     });
 
-    // 会員種別ごとの単価
-    const PRICE_REGULAR_MEMBER = 2000; // 普通会員単価
-    const PRICE_SUPPORTING_MEMBER = 10000; // 賛助会員単価
-
-    // 現在選ばれている会員種別の単価を決定
-    let currentUnitPrice = PRICE_REGULAR_MEMBER;
-
-    // 会員種別が変更されたときの処理
-    function updatePrice() {
-        // 会員種別の選択を取得
-        const typeCode = document.getElementById('type_code').getAttribute('data-type-code');
-        // 会員種別によって単価を決定
-        if (typeCode == 1) {
-            currentUnitPrice = PRICE_REGULAR_MEMBER;
-        } else if (typeCode == 2) {
-            currentUnitPrice = PRICE_SUPPORTING_MEMBER;
-        }
-
-        // 枚数を取得
-        const unitCount = parseInt(document.getElementById('unit').value) || 0;
-
-        // 金額を計算
-        const totalPrice = currentUnitPrice * unitCount;
-
-        // 金額欄に表示
-        document.getElementById('price').textContent = totalPrice.toLocaleString() + "円";
-        document.getElementById('price_value').value = totalPrice;
-    }
-
-    // 枚数が増減したときの処理
-    function updateUnitCount(delta) {
-        const unitInput = document.getElementById('unit');
-        let currentCount = parseInt(unitInput.value) || 0;
-        currentCount += delta;
-
-        // 0未満にはならないように、1を最低枚数に設定
-        if (currentCount < 1) currentCount = 1;
-
-        unitInput.value = currentCount;
-
-        // 金額の再計算
-        updatePrice();
-    }
-
-    // ページ読み込み時に金額を初期化
-    window.onload = updatePrice;
-    document.addEventListener("DOMContentLoaded", function() {
-        const checkbox = document.querySelector('input[name="is_university_member"]');
-        const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
-
-        function toggleFields() {
-            fields.forEach(field => {
-                if (checkbox.checked) {
-                    field.classList.remove("hidden");
-                } else {
-                    field.classList.add("hidden");
-                    // 入力値をクリア
-                    field.querySelector("input").value = "";
-                }
-            });
-        }
-
-        // 初期状態を設定
-        toggleFields();
-
-        // チェック状態が変更されたら切り替え
-        checkbox.addEventListener("change", toggleFields);
-    });
-
     // アコーディオン
     $(function() {
         $(".btn_acc").click(function() {
-            $(this).next(".acc_wrap").slideToggle();
+            $(".acc_wrap").slideToggle();
             $(this).toggleClass("js-open");
         });
     });
