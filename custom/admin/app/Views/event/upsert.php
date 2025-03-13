@@ -152,7 +152,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<div id="image-preview" class="mb-3">
 											<!-- プレビュー画像がここに表示されます -->
 										</div>
-										<?php if(isset($eventData['thumbnail_img'])): ?>
+										<?php if(isset($eventData['thumbnail_img']) && !empty($eventData['thumbnail_img'])): ?>
 											<div class="mb-3">
 												<img class="fit-picture"
 													id="thumbnail_img_tag"
@@ -266,9 +266,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<label class="me-2">時間</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input name="start_hour" class="timepicker" type="text" placeholder="12:00"
+											<input name="start_hour" class="timepicker" type="text" 
 												value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>" /> <span class="ps-2 pe-2">～</span>
-											<input name="end_hour" class="timepicker" type="text" placeholder="12:00"
+											<input name="end_hour" class="timepicker" type="text" 
 												value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>" />
 											<?php if (!empty($errors['start_hour'])): ?>
 												<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_hour']); ?></div>
@@ -480,13 +480,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											</div>
 										<?php endfor; ?>
 									</div>
-									<div class="mb-3">
+									<!-- <div class="mb-3">
 										<label class="form-label">プログラム</label>
 										<textarea name="program" class=" form-control" rows="5"><?= htmlspecialchars($eventData['program'] ?? ($old_input['program'] ?? '')) ?></textarea>
 										<?php if (!empty($errors['program'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['program']); ?></div>
 										<?php endif; ?>
-									</div>
+									</div> -->
 									<div class="mb-3">
 										<label class="form-label">主催</label>
 										<input name="sponsor" class=" form-control" type="text"
@@ -563,7 +563,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span id="deadline_req" class="badge bg-danger">必須</span>
 										</div>
 										<input name="deadline" class=" form-control" type="date"
-                                            value="<?= explode (' ', htmlspecialchars($eventData['deadline'] ?? ($old_input['deadline'] ?? '')))[0] ?>" />
+                                            value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['deadline'] ?? '', $old_input['deadline'] ?? '')))[0] ?>" />
 										<?php if (!empty($errors['deadline'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
 										<?php endif; ?>
@@ -574,7 +574,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span id="all_deadline_req" class="badge bg-danger">必須</span>
 										</div>
 										<input name="all_deadline" class="form-control" type="number"
-                                            value="<?= explode (' ', htmlspecialchars($eventData['all_deadline'] ?? ($old_input['all_deadline'] ?? '')))[0] ?>" />
+                                            value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['all_deadline'] ?? '', $old_input['all_deadline'] ?? '')) ?? '')[0] ?>" />
 										<?php if (!empty($errors['all_deadline'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['all_deadline']); ?></div>
 										<?php endif; ?>
@@ -589,16 +589,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input type="checkbox" name="is_double_speed" class="form-check-input" 
-												<?= $eventData['is_double_speed'] === 1 ? 'checked' : '' ?>>
-											<span class="form-check-label">動画倍速機能</span>
+											<input type="checkbox" name="is_double_speed" class="form-check-input" <?= isSelected(1, $eventData['is_double_speed'] ?? null, $old_input['is_double_speed'] ?? null) ? 'checked' : '' ?>>
+											<span name="is_double_speed" class=" form-check-label">動画倍速機能</span>
 										</label>
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input type="checkbox" name="is_apply_btn" class="form-check-input" 
-												<?= $eventData['is_apply_btn'] === 1 ? 'checked' : '' ?>>
-											<span class="form-check-label">申込みボタンを表示する</span>
+											<input type="checkbox" name="is_apply_btn" class="form-check-input" <?= isSelected(1, $eventData['is_apply_btn'] ?? null, $old_input['is_apply_btn'] ?? null) ? 'checked' : '' ?>>
+											<span name="is_apply_btn" class=" form-check-label">申込みボタンを表示する</span>
 										</label>
 									</div>
 									<div class="mb-3">
@@ -627,7 +625,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<?php if(isset($event) && $event['event_status'] != EVENT_END): ?>
+										<?php if(!isset($event) || (isset($event) && $event['event_status'] != EVENT_END)): ?>
 											<input type="submit" id="submit" class="btn btn-primary" value="登録">
 										<?php endif ?>
 									</div>

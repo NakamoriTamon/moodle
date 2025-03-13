@@ -518,3 +518,16 @@ function validate_survey_no_good_enviroment_reason($holding_enviroment, $no_good
     }
     return null;
 }
+
+function validate_date_comparison($start_date, $end_date, $text1, $text2) {
+    // 日付を DateTime オブジェクトに変換
+    $start = new DateTime($start_date);
+    $end = new DateTime($end_date);
+
+    // $start_date が $end_date より未来ならエラー
+    if ($start > $end) {
+        return $text1 . 'は' . $text2 . 'より前の日付になっています。';
+    }
+
+    return null;
+}
