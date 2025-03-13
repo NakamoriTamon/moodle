@@ -482,7 +482,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
         <div class="mypage_cont history">
             <h3 id="event_histories" class="mypage_head btn_acc">イベント履歴<span class="acc"></span></h3>
             <?php $allHistoryCourseDateNull = true; ?>
-            <?php if (!empty($event_histories['data'])): var_dump($event_histories); ?>
+            <?php if (!empty($event_histories['data'])): ?>
                 <?php foreach ($event_histories['data'] as $history): ?>
                     <?php
                     if (is_null($history->course_date)) {
