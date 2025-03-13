@@ -4,8 +4,17 @@ require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_re
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_detail_controller.php');
 include($CFG->dirroot . '/custom/app/Views/common/header.php');
 
+// コントローラーのインスタンスを作成
 $reserve_controller = new EventRegisterController();
-$events = $reserve_controller->events();
+
+// ページ数と1ページあたりの件数を設定（ここでは例として1ページあたり12件）
+$currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$perPage = 12;
+
+// ページネーション対応のイベント情報を取得
+$eventsData = $reserve_controller->events($currentPage, $perPage);
+$events = $eventsData['data'];
+$pagination = $eventsData['pagination'];
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -23,13 +32,16 @@ $events = $reserve_controller->events();
             <ul class="result_list" id="event">
                 <?php foreach ($events as $event): ?>
                     <?php
-                    $eventDate = new DateTime($event->event_date);
+                    $pdf_list = $reserve_controller->pdf_list($event->id);
+                    $movie_list = $reserve_controller->movie_list($event->id);
+                    $course_info_list = $reserve_controller->course_info_list($event->id);
+                    $course_list = $reserve_controller->course_list($course_info_list->course_info_id);
+
+                    $eventDate = new DateTime($course_list->release_date);
                     $interval = new DateInterval('P' . intval($event->archive_streaming_period) . 'D');
                     $eventDate->add($interval);
+                    $now = new DateTime();
                     $formattedDate = $eventDate->format('Y年m月d日');
-                    $pdf_list = $reserve_controller->pdf_list($event->id);
-
-                    $course_info_list = $reserve_controller->course_info_list($event->id);
                     ?>
                     <li class="event_item">
                         <figure class="img">
@@ -37,24 +49,34 @@ $events = $reserve_controller->events();
                         </figure>
                         <div class="event_info">
                             <p class="event_ttl">
-                                【第<?= htmlspecialchars($course_info_list->course_info_id) ?>回】
+                                【第<?= htmlspecialchars($course_list->no) ?>回】
                                 <?= htmlspecialchars($event->name) ?>
                             </p>
                             <div class="event_btns">
-                                <?php if ($pdf_list) {
+                                <?php if ($eventDate < $now) {
+                                    echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
+                                } else if ($pdf_list) {
                                     echo "<a href='#' class='btn_pdf' data-event-id='" . htmlspecialchars($event->id) . "'>PDF資料</a>";
                                 } else {
                                     echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
                                 }
                                 ?>
 
-                                <?php if ($movie_list) {
+                                <?php if ($eventDate < $now) {
+                                    echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
+                                } else if ($movie_list) {
                                     echo '<a href="movie.php?event_id=' . htmlspecialchars($event->id) . '" class="btn_movie">イベント動画</a>';
                                 } else {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
                                 }
                                 ?>
-                                <a href="../survey/index.php?event_id=<?= htmlspecialchars($event->id) ?>" class="btn_answer">アンケートに回答する</a>
+
+                                <?php if ($eventDate < $now) {
+                                    echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
+                                } else {
+                                    echo "<a href='../survey/index.php?event_id=" . htmlspecialchars($event->id) . "' class='btn_answer'>アンケートに回答する</a>";
+                                }
+                                ?>
                             </div>
                             <p class="event_term">
                                 閲覧期間<span>～<?= htmlspecialchars($formattedDate) ?>まで</span>
@@ -66,13 +88,15 @@ $events = $reserve_controller->events();
             <div class="navigation" style="position: relative; z-index: 0;">
                 <a href="/custom/app/Views/mypage/index.php" class="btn btn_blue arrow box_bottom_btn">前へ戻る</a>
                 <ul class="result_pg">
-                    <li><a href="" class="prev"></a></li>
-                    <li><a href="" class="num active">1</a></li>
-                    <li><a href="" class="num">2</a></li>
-                    <li><a href="" class="num">3</a></li>
-                    <li><a href="" class="num">4</a></li>
-                    <li><a href="" class="num">5</a></li>
-                    <li><a href="" class="next"></a></li>
+                    <?php if ($pagination['current_page'] > 1): ?>
+                        <li><a href="?page=<?= intval($pagination['current_page']) - 1 ?>" class="prev"></a></li>
+                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                        <li><a href="?page=<?= $i ?>" class="num <?= $i == $pagination['current_page'] ? 'active' : '' ?>"><?= $i ?></a></li>
+                    <?php endfor; ?>
+                    <?php if ($pagination['current_page'] < $pagination['total_pages']): ?>
+                        <li><a href="?page=<?= intval($pagination['current_page']) + 1 ?>" class="next"></a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </section>
@@ -83,7 +107,6 @@ $events = $reserve_controller->events();
     <?php foreach ($events as $event): ?>
         <?php
         $pdf_list = $reserve_controller->pdf_list($event->id);
-        $movie_list = $reserve_controller->movie_list($event->id);
         ?>
         <div id="pdf_content_<?= htmlspecialchars($event->id) ?>">
             <ul class="pdf_list">
