@@ -94,6 +94,10 @@ define('TEKIJUKU_COMMEMORATION_IS_DELETE', [ //　適塾記念会　退会状況
   'ACTIVE' => 0,   // 未退会
   'INACTIVE' => 1  // 退会
 ]);
+define('IS_APPLY_BTN', [ //　申し込みボタンを表示
+  'DISABLED' => 0,   // 非表示
+  'ENABLED' => 1  // 表示
+]);
 
 
 // 都道府県プルダウン

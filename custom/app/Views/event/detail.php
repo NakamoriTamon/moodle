@@ -158,7 +158,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                         </div>
                     </div>
-                    <?php if($event['event_kbn'] == 2 && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1): ?>
+                    <?php if($event['event_kbn'] == 2 && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
@@ -177,7 +177,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?= nl2br($course['details'][0]['program']) ?>
                             </p>
                             <div class="program">
-                                <?php if(!isset($course['close_date'])): ?>
+                                <?php if(!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
                                 <?php endif; ?>
                             </div>
