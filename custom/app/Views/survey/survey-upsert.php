@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['old_input'] = $_POST;
             $_SESSION['event_id'] = $eventid;
             $_SESSION['message_error'] = '登録に失敗しました。';
-            header("Location: /custom/app/Views/survey/index.php");
+            header("Location: /custom/app/Views/survey/index.php?event_id=" . $eventid);
             exit;
         }
     } elseif (empty($participation)) {
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['event_id'] = $eventid;
         $_SESSION['message_error'] = '登録に失敗しました。';
         $_SESSION['errors'] = ['participation' => '選択をお願いします。'];
-        header("Location: /custom/app/Views/survey/index.php");
+        header("Location: /custom/app/Views/survey/index.php?event_id=" . $eventid);
         exit;
     }
 }

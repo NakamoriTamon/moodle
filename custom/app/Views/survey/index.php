@@ -1,7 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/survey/survey_application_controller.php');
-include($CFG->dirroot . '/custom/app/Views/common/header.php');
 
 global $DB;
 
@@ -27,10 +26,10 @@ $diffSeconds = $endTimestamp - $startTimestamp;
 $diffMinutes = $diffSeconds / 60;
 
 if ($survey_list) {
-    echo "既にアンケートは回答済みです。再度送信することはできません。";
+    header("Location: /custom/app/Views/event/register.php");
     exit;
 }
-
+include($CFG->dirroot . '/custom/app/Views/common/header.php');
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/survey.css" />
 
