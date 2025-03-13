@@ -48,11 +48,13 @@ if (!$user_list) {
 foreach ($user_list as $user) {
     $login_user = $DB->get_record('role_assignments', ['userid' => $user->id]);
 
-    if ($login_user
+    if (
+        $login_user
         && validate_internal_user_password($user, $password) // パスワードが通らない時は一時的にこの行をコメントアウト後userのpasswordをUIで変更してください。
-     ) {
+    ) {
         complete_user_login($user); // 追加　セッションに$USER情報を入れる
         $_SESSION['user_id'] = $user->id; // DBから取得したユーザーIDを保存
+        unset($_SESSION['old_input']['email']);
         header('Location: /custom/app/Views/index.php');
         exit;
     }
