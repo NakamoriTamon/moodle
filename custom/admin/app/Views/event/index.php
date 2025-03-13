@@ -136,7 +136,9 @@ $old_input = $_SESSION['old_input'] ?? [];
 														</td>
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-															<a class="delete-link"><i class=" align-middle" data-feather="trash"></i></a>
+															<?php if($event['event_status'] != EVENT_END): ?>
+																<a class="delete-link" data-id="<?= htmlspecialchars($event['id']) ?>"><i class=" align-middle" data-feather="trash"></i></a>
+															<?php endif; ?>
 														</td>
 													</tr>
 												<?php endforeach; ?>
@@ -146,21 +148,25 @@ $old_input = $_SESSION['old_input'] ?? [];
 								</div>
 								<!-- 削除確認モーダル -->
 								<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-									<div class="modal-dialog modal-dialog-centered">
-										<div class="modal-content">
-											<div class="modal-header">
-												<h5 class="modal-title">削除確認</h5>
-												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-											</div>
-											<div class="modal-body">
-												<p class="mt-3">「イベントタイトル」を削除します。本当によろしいですか</p>
-											</div>
-											<div class="modal-footer">
-												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-												<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
+									<form id="deleteForm" method="POST" action="/custom/admin/app/Controllers/event/event_delete_controller.php" enctype="multipart/form-data">
+										<div class="modal-dialog modal-dialog-centered">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title">削除確認</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body">
+													<p class="mt-3">「イベントタイトル」を削除します。本当によろしいですか</p>
+												</div>
+												<div class="modal-footer">
+														<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+														<input type="hidden" id="del_event_id" name="del_event_id" value="">
+														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+														<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
+												</div>
 											</div>
 										</div>
-									</div>
+									</form>
 								</div>
 								<div class="d-flex">
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
@@ -207,10 +213,12 @@ $old_input = $_SESSION['old_input'] ?? [];
 		$('.delete-link').on('click', function(event) {
 			event.preventDefault();
 			selectedId = $(this).data('id');
+			$('#del_event_id').val(selectedId);
 			$('#confirmDeleteModal').modal('show');
 		});
 		// モーダル内の削除ボタンがクリックされたとき
 		$('#confirmDeleteButton').on('click', function() {
+			$('#deleteForm').submit();
 			$('#confirmDeleteModal').modal('hide');
 			$(`.delete-link[data-id="${selectedId}"]`).closest('li').remove();
 		});

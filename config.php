@@ -59,6 +59,14 @@ $every_day_event = 3;
 define('EVERY_DAY_EVENT', $every_day_event);
 $event_kbn_list = [$single_event => '単発のイベント', $plural_event => '複数回シリーズのイベント', $every_day_event => '期間内に毎日開催のイベント'];
 define('EVENT_KBN_LIST', $event_kbn_list);
+$event_before = 1;
+define('EVENT_BEFORE', $event_before);
+$event_start = 2;
+define('EVENT_start', $event_start);
+$event_end = 3;
+define('EVENT_END', $event_end);
+$event_status_selects = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+define('EVENT_STATUS_SELECTS', $event_status_selects);
 $event_status_list = ['0' => '',1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_LIST', $event_status_list);
 $lang_default = "jp";
@@ -146,6 +154,12 @@ $komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エ�
 $payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
 $komoju_webhook_secret_key = 'secret_key_y7scduh5di2edddcfah6e58c6'; // テスト用秘密鍵
 
+$deadline_selects = [
+  '1' => '受付中',
+  '2' => 'もうすぐ締め切り',
+  '3' => '受付終了'
+];
+define('DEADLINE_SELECTS', $deadline_selects);
 $deadline_list = [
   '0' => '',
   '1' => '受付中',

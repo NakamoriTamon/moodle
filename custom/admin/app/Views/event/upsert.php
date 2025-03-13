@@ -9,6 +9,16 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 // コントローラに id を渡す
 $controller = new EventEditController();
 $eventData = $controller->getEventData($id);
+if(!empty($id)) {
+	$ticket_count = $controller->getTicketCount($id);
+} else {
+	$ticket_count = null;
+}
+
+$start_event_flg = false;
+if(!is_null($id) && !empty($eventData)) {
+	$start_event_flg = true;
+}
 
 // セッションからエラーメッセージを取得
 $errors = $_SESSION['errors'] ?? [];
@@ -21,10 +31,12 @@ for($i = 1; $i < 10; $i++){
 		$n = 1;
 		while (isset($old_input["tutor_id_{$i}_{$n}"])) {
 			$details[$i][$j] = [
+				'id' => $old_input["course_info_id_{$i}_{$n}"] ?? null,
 				'tutor_id' => $old_input["tutor_id_{$i}_{$n}"] ?? null,
 				'name' =>  $old_input["lecture_name_{$i}_{$n}"] ?? null,
 				'program' => $old_input["program_{$i}_{$n}"] ?? null,
 				'tutor_name' => $old_input["tutor_name_{$i}_{$n}"] ?? null,
+				'no' => $i,
 			];
 			$j++;
 			$n++;
@@ -65,15 +77,24 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<p class="content_title p-3">イベント登録</p>
+							<p class="content_title p-3">イベント登録<?php if($ticket_count > 0): ?><span style="color: red;"> ※すでに申込があるため一部更新ができません。</span><?php endif; ?></p>
 							<div class="form-wrapper">
+								<?php if($start_event_flg): ?>
+									<form method="POST" action="/custom/admin/app/Controllers/event/event_delete_controller.php" enctype="multipart/form-data">
+										<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+										<input type="hidden" name="del_event_id" value="<?= $id ?? '' ?>">
+										<span class="form-label d-flex align-items-center">
+											<button type="submit" id="del_submit" class="add_colum_lecture btn btn-danger ms-auto me-0">イベント削除</button>
+										</span>
+									</form>
+								<?php endif ?>
 								<form method="POST" action="/custom/admin/app/Controllers/event/event_upsert_controller.php" enctype="multipart/form-data">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 									<input type="hidden" name="action" value="createUpdate">
 									<input type="hidden" id="event_id" name="id" value="<?= $id ?? '' ?>">
 									<div class=" mb-3">
-										<label class="form-label">イベント区分</label>
-										<select name="event_kbn" class="form-control mb-3">
+										<label class="form-label">イベント区分　※一度登録すると変更できません。間違えた場合はイベントを削除してください。</label>
+										<select name="event_kbn" class="form-control mb-3" <?php if($start_event_flg): ?>style="pointer-events: none; background-color: #e6e6e6;" tabindex="-1"<?php endif ?>>
 											<?php foreach ($event_kbns as $kbn_id => $name): ?>
 												<option value="<?= htmlspecialchars($kbn_id) ?>"
         											<?= isSelected($kbn_id, $eventData['event_kbn'] ?? null, $old_input['event_kbn'] ?? null) ? 'selected' : '' ?>>
@@ -202,13 +223,15 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3 term_area sp-none">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">開催期間</label>
-											<span class="badge bg-danger">必須</span>
+											<span class="badge bg-danger">必須</span><label>　※一度登録すると変更できません。間違えた場合はイベントを削除してください。</label>
 										</div>
 										<div style="display: flex;">
 										<input type="date" name="start_event_date" class="form-control"
-                                            value="<?= htmlspecialchars(isSetDate ($eventData['start_event_date'] ?? '', $old_input['start_event_date'] ?? '')) ?>" /> <span class="ps-2 pe-2">～</span>
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['start_event_date'] ?? '', $old_input['start_event_date'] ?? '')) ?>"
+											<?php if($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> /> <span class="ps-2 pe-2">～</span>
 										<input type="date" name="end_event_date" class="form-control"
-                                            value="<?= htmlspecialchars(isSetDate ($eventData['end_event_date'] ?? '', $old_input['end_event_date'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetDate ($eventData['end_event_date'] ?? '', $old_input['end_event_date'] ?? '')) ?>"
+											<?php if($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										</div>
 										<?php if (!empty($errors['start_event_date'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_event_date']); ?></div>
@@ -225,7 +248,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<span class="badge bg-danger">必須</span>
 											</div>
 											<input type="date" name="event_date" class="form-control w-100"
-												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>" />
+												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>"
+												<?php if($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										</div>
 										<div class="mb-3 term_area pc-none">
 											<div class="form-label d-flex align-items-center">
@@ -233,7 +257,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<span class="badge bg-danger">必須</span>
 											</div>
 											<input type="date" name="event_date" class="form-control w-100"
-												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>" />
+												value="<?= htmlspecialchars(isSetDate ($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>"
+												<?php if($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										</div>
 									<?php endif; ?>
 									<?php if (!is_mobile_device()): ?>
@@ -298,69 +323,70 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</label>
 									</div>
 									<div class="mb-3 one_area">
-									<?php foreach ($details[1] as $key => $detail): ?>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">アーカイブ公開日</label>
+										<?php foreach ($details[1] as $key => $detail): ?>
+											<input type="hidden" id="course_info_id" name="course_info_id" value="<?= $detail['course_info_id'] ?? '' ?>">
+											<div class="mb-3">
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">アーカイブ公開日</label>
+												</div>
+													<input name="release_date" class="form-control" type="date"
+												value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
+													<?php if (!empty($errors['release_date'])): ?>
+														<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
+													<?php endif; ?>
 											</div>
-												<input name="release_date" class="form-control" type="date"
-                                            value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
-												<?php if (!empty($errors['release_date'])): ?>
-													<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
+											<div class="form-label d-flex align-items-center">
+												<label class="me-2">講師</label>
+												<span class="badge bg-danger">必須</span>
+											</div>
+											<select id="tutor_id_<?= $key+1 ?>" class=" form-control mb-3" name="tutor_id_<?= $key+1 ?>">
+												<optgroup label="">
+													<option value="">講師無し</option>
+													<?php foreach ($tutors as $tutor): ?>
+														<option value="<?= htmlspecialchars($tutor['id']) ?>"
+														<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key+1] ?? null) ? 'selected' : '' ?>>
+															<?= htmlspecialchars($tutor['name']) ?>
+														</option>
+													<?php endforeach; ?>
+												</optgroup>
+											</select>
+											<div id="tutor_name_area_<?= $key+1 ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">講師名</label>
+													<span class="badge bg-danger">必須</span>
+												</div>
+												<input type="text" name="tutor_name_<?= $key+1 ?>" class="form-control" placeholder=""
+													value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key+1] ?? '')) ?>" />
+												<?php if (!empty($errors['tutor_name_' . $key+1])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key+1]); ?></div>
 												<?php endif; ?>
-										</div>
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">講師</label>
-											<span class="badge bg-danger">必須</span>
-										</div>
-										<select id="tutor_id_<?= $key+1 ?>" class=" form-control mb-3" name="tutor_id_<?= $key+1 ?>">
-											<optgroup label="">
-												<option value="">講師無し</option>
-												<?php foreach ($tutors as $tutor): ?>
-													<option value="<?= htmlspecialchars($tutor['id']) ?>"
-													<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key+1] ?? null) ? 'selected' : '' ?>>
-														<?= htmlspecialchars($tutor['name']) ?>
-													</option>
-												<?php endforeach; ?>
-											</optgroup>
-										</select>
-										<div id="tutor_name_area_<?= $key+1 ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">講師名</label>
-												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="text" name="tutor_name_<?= $key+1 ?>" class="form-control" placeholder=""
-												value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key+1] ?? '')) ?>" />
-											<?php if (!empty($errors['tutor_name_' . $key+1])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key+1]); ?></div>
+											<?php if (!empty($errors['tutor_id_' . $key+1])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key+1]); ?></div>
 											<?php endif; ?>
-										</div>
-										<?php if (!empty($errors['tutor_id_' . $key+1])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key+1]); ?></div>
-										<?php endif; ?>
-										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">講義名</label>
-												<span class="badge bg-danger">必須</span>
+											<div class="mb-3">
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">講義名</label>
+													<span class="badge bg-danger">必須</span>
+												</div>
+												<input type="text" name="lecture_name_<?= $key+1 ?>" class="form-control" placeholder=""
+													value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key+1] ?? '')) ?>" />
+												<?php if (!empty($errors['lecture_name_' . $key+1])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key+1]); ?></div>
+												<?php endif; ?>
 											</div>
-											<input type="text" name="lecture_name_<?= $key+1 ?>" class="form-control" placeholder=""
-												value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key+1] ?? '')) ?>" />
-											<?php if (!empty($errors['lecture_name_' . $key+1])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key+1]); ?></div>
-											<?php endif; ?>
-										</div>
-										<div class="mb-5">
-											<div class="form-label d-flex align-items-center">
-												<label class="me-2">講義概要</label>
-												<span class="badge bg-danger">必須</span>
+											<div class="mb-5">
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">講義概要</label>
+													<span class="badge bg-danger">必須</span>
+												</div>
+												<textarea name="program_<?= $key+1 ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key+1] ?? '')) ?></textarea>
+												<?php if (!empty($errors['program_' . $key+1])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key+1]); ?></div>
+												<?php endif; ?>
 											</div>
-											<textarea name="program_<?= $key+1 ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key+1] ?? '')) ?></textarea>
-											<?php if (!empty($errors['program_' . $key+1])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key+1]); ?></div>
-											<?php endif; ?>
-										</div>
-										<hr>
-									<?php endforeach; ?>
+											<hr>
+										<?php endforeach; ?>
 										<div class="mb-3">
 											<div class="form-label d-flex align-items-center">
 												<button type="button" class="add_colum btn btn-primary ms-auto me-0" data-target="">項目追加</button>
@@ -370,6 +396,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 
 									<div class="repeatedly_area">
 										<?php for($i = 1; $i < 10; $i++): ?>
+											<input type="hidden" id="course_info_id_<?= $i ?>" name="course_info_id_<?= $i ?>" value="<?= $eventData['select_course'][$i]['id'] ?? '' ?>">
 											<div class="mb-3">
 												<P class="fs-5 fw-bold">第<?= $i ?>講座</P>
 												<div class="form-label d-flex align-items-center">
@@ -502,7 +529,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">定員</label>
+										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label>
 										<span id="capacity_req" class="badge bg-danger">必須</span>
 										<input name="capacity" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
@@ -512,18 +539,21 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == 2): ?>( 全て受講 )<?php endif; ?></label>
-										<span class="badge bg-danger" id="participation_fee_req">必須</span>
+										<span class="badge bg-danger" id="participation_fee_req">必須</span><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>"
+											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
+											 />
 										<?php if (!empty($errors['participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3 repeatedly_area">
 										<label class="form-label" id="single_participation_fee_label">参加費</label>
-										<span class="badge bg-danger">必須</span>
+										<span class="badge bg-danger">必須</span><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="single_participation_fee" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['single_participation_fee'] ?? ($old_input['single_participation_fee'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars($eventData['single_participation_fee'] ?? ($old_input['single_participation_fee'] ?? '')) ?>"
+											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										<?php if (!empty($errors['single_participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['single_participation_fee']); ?></div>
 										<?php endif; ?>
@@ -595,7 +625,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
 									</div>
-									<input type="submit" id="submit" class="btn btn-primary" value="登録">
+									<div class="mb-3">
+										<?php if(isset($event) && $event['event_status'] != EVENT_END): ?>
+											<input type="submit" id="submit" class="btn btn-primary" value="登録">
+										<?php endif ?>
+									</div>
 								</form>
 							</div>
 						</div>

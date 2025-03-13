@@ -28,7 +28,7 @@ unset($SESSION->formdata);
                         <li>
                             <p class="term">開催ステータス</p>
                             <div class="field f_check">
-                                <?php foreach (EVENT_STATUS_LIST as $key => $name): ?>
+                                <?php foreach (EVENT_STATUS_SELECTS as $key => $name): ?>
                                     <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
                                 <?php endforeach; ?>
                             </div>
@@ -39,7 +39,7 @@ unset($SESSION->formdata);
                                 ステータス
                             </p>
                             <div class="field f_check">
-                                <?php foreach (DEADLINE_LIST as $key => $name): ?>
+                                <?php foreach (DEADLINE_SELECTS as $key => $name): ?>
                                     <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
                                 <?php endforeach; ?>
                             </div>

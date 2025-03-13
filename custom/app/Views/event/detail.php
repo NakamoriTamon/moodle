@@ -122,7 +122,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <p class="desc">
                                     <?php if($event['event_kbn'] != 3): ?>
                                         <?php if (count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
-                                        <?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
+                                        <?php if($event['event_kbn'] == 2): ?><?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前<?php endif; ?>
                                     <?php else: ?>
                                         各イベント開催日の終了時間まで
                                     <?php endif; ?>

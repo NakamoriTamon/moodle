@@ -37,6 +37,10 @@ if ($event_kbn == SINGLE_EVENT) {
     if($event_kbn == EVERY_DAY_EVENT) {
         $start_event_date = empty($_POST['start_event_date']) ? null : $_POST['start_event_date']; // 開催日
         $end_event_date = empty($_POST['end_event_date']) ? null : $_POST['end_event_date']; // 開催日
+        if(!empty($id)) {
+            $start_event_date = (new DateTime($start_event_date))->format('Y-m-d');
+            $end_event_date = (new DateTime($end_event_date))->format('Y-m-d');
+        }
         $_SESSION['errors']['start_event_date'] = validate_date($start_event_date, '開催日(開始日)', true);
         $_SESSION['errors']['end_event_date'] = validate_date($end_event_date, '開催日(終了日)', true);
     } else {
@@ -100,8 +104,8 @@ if($event_kbn == EVERY_DAY_EVENT) {
 }
 $archive_streaming_period = empty($_POST['archive_streaming_period']) ? null : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
-$is_double_speed = $_POST['is_double_speed'] == null ? 0 : 1; // 動画倍速機能
-$is_apply_btn = $_POST['is_apply_btn'] == null ? 0 : 1; // 申込みボタンを表示する
+$is_double_speed = isset($_POST['is_double_speed']) ? 1 : 0; // 動画倍速機能
+$is_apply_btn = isset($_POST['is_apply_btn']) ? 1 : 0; // 申込みボタンを表示する
 $event_customfield_category_id = empty($_POST['event_customfield_category_id']) ? 0 : $_POST['event_customfield_category_id']; // イベントカスタム区分
 $_SESSION['errors']['event_customfield_category_id'] = validate_select($event_customfield_category_id, 'イベントカスタム区分', false); // バリデーションチェック
 $survey_custom_id = empty($_POST['survey_custom_id']) ? 0 : $_POST['survey_custom_id']; // アンケートカスタム区分
@@ -113,6 +117,13 @@ $_SESSION['errors']['note'] = validate_textarea($note, 'その他', false); // �
 // 講師、講義名、講義概要のデータ構造
 $lectures = [];
 $error_flg = false;
+
+// 接続情報取得
+$baseModel = new BaseModel();
+$eventModel = new EventModel();
+$pdo = $baseModel->getPdo();
+
+$pdo->beginTransaction();
 
 if ($event_kbn == SINGLE_EVENT) {
     // イベント区分が 1 の場合: tutor_id_番号 の形式
@@ -139,6 +150,7 @@ if ($event_kbn == SINGLE_EVENT) {
             }
             // データ収集
             $lectures[$lectureNumber] = [
+                'course_info_id' => $_POST["course_info_id"],
                 'tutor_id' => empty($value) ? null : $value,
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                 'program' => $_POST["program_{$lectureNumber}"],
@@ -211,6 +223,7 @@ if ($event_kbn == SINGLE_EVENT) {
             // 各フィールドを収集
             if (empty($lectures[$lectureNumber])) {
                 $lectures[$lectureNumber] = [
+                    'course_info_id' => $_POST["course_info_id_{$lectureNumber}"],
                     'course_date' => $_POST["course_date_{$lectureNumber}"],
                     'release_date' => empty($_POST["release_date_{$lectureNumber}"]) ? null : $_POST["release_date_{$lectureNumber}"],
                     'deadline_date' => $deadline_date
@@ -253,9 +266,6 @@ if ($event_kbn == SINGLE_EVENT) {
                 ) {
                     $error_flg = true;
                 }
-                // データ収集
-                // start_event_date　から　end_event_date　の期間の全ての日付をcourse_dateに設定
-                // deadline_dateにcourse_dateへ設定した日付 + $_POST["end_hour"]　を設定
 
                 // `start_event_date` と `end_event_date` を取得
                 if(!is_null($start_event_date)) {
@@ -275,14 +285,33 @@ if ($event_kbn == SINGLE_EVENT) {
                     }
                 }
 
+                if(!empty($id)) {
+                    $stmt = $pdo->prepare("
+                        SELECT course_info_id
+                        FROM mdl_event_course_info 
+                        WHERE event_id = :event_id
+                    ");
+                    $stmt->execute([':event_id' => $id]);
+                    $eventCourseInfos = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
+                } else {
+                    $eventCourseInfos = null;
+                }
+
                 // 各 `course_date` ごとに `deadline_date` を設定
-                foreach ($courseDates as $courseDate) {
+                foreach ($courseDates as $key => $courseDate) {
                     $deadlineDate = new DateTime($courseDate);
                     if($event_kbn == EVERY_DAY_EVENT && empty($_POST['deadline'])) {
                         $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
                     }
 
+                    if(isset($eventCourseInfos[$key])) {
+                        $course_info_id = $eventCourseInfos[$key];
+                    } else {
+                        $course_info_id = null;
+                    }
+
                     $lectures[$count] = [
+                        'course_info_id' => $course_info_id,
                         'course_date' => $courseDate,
                         'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
                         'deadline_date' => $deadlineDate->format('Y-m-d H:i:s') // `YYYY-MM-DD HH:MM:SS` 形式
@@ -326,6 +355,8 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['event_customfield_category_id']
     || $_SESSION['errors']['survey_custom_id']
     || $_SESSION['errors']['note']
+    || $_SESSION['errors']['start_event_date']
+    || $_SESSION['errors']['end_event_date']
     || $error_flg) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if($id) {
@@ -338,11 +369,6 @@ if($_SESSION['errors']['name']
 
 // データの確認 (デバッグ用)
 // print_r($lectures);
-
-// 接続情報取得
-$baseModel = new BaseModel();
-$eventModel = new EventModel();
-$pdo = $baseModel->getPdo();
 
 $isTop = 1;
 $isDoubleSpeed = 1;
@@ -358,7 +384,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 try {
-    $pdo->beginTransaction();
 
     if(!empty($id)) {
         $stmt = $pdo->prepare("
@@ -628,57 +653,55 @@ try {
         ]);
     }
 
-    // **mdl_event_course_info から削除対象の course_info_id を取得**
-    $stmt = $pdo->prepare("
-        SELECT course_info_id 
-        FROM mdl_event_course_info 
-        WHERE event_id = :event_id
-    ");
-    $stmt->execute([':event_id' => $eventId]);
-    $courseInfoIds = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
-
-    if (!empty($courseInfoIds)) {
-        // **mdl_course_info_detail の削除**
-        $stmt = $pdo->prepare("
-            DELETE FROM mdl_course_info_detail 
-            WHERE course_info_id IN (" . implode(',', array_fill(0, count($courseInfoIds), '?')) . ")
-        ");
-        $stmt->execute($courseInfoIds);
-
-        // **mdl_course_info の削除**
-        $stmt = $pdo->prepare("
-            DELETE FROM mdl_course_info 
-            WHERE id IN (" . implode(',', array_fill(0, count($courseInfoIds), '?')) . ")
-        ");
-        $stmt->execute($courseInfoIds);
-    }
-
-    // **mdl_event_course_info の削除**
-    $stmt = $pdo->prepare("
-        DELETE FROM mdl_event_course_info 
-        WHERE event_id = :event_id
-    ");
-    $stmt->execute([':event_id' => $eventId]);
-
     // 講座登録登録処理
     foreach($lectures as $key => $lecture) {
-        // mdl_courseへのINSERT
-        $stmt = $pdo->prepare("
-            INSERT INTO mdl_course_info (
-                created_at, updated_at, no, course_date, release_date, deadline_date
-            )
-            VALUES (
-                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date
-            )
-        ");
-    
-        $stmt->execute([
-            ':no' => $key,
-            ':course_date' => $lecture["course_date"],
-            ':release_date' => $lecture["release_date"],
-            ':deadline_date' => $lecture["deadline_date"],
-        ]);
-        $courseInfoId = $pdo->lastInsertId();
+        if (!empty($lecture['course_info_id'])) {
+            $courseInfoId = $lecture['course_info_id'];
+
+            if($event_kbn != EVERY_DAY_EVENT) {
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_course_info
+                    SET 
+                        course_date = :course_date,
+                        release_date = :release_date,
+                        deadline_date = :deadline_date,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+        
+                $stmt->execute([
+                    ':course_date' => $lecture["course_date"],
+                    ':release_date' => $lecture["release_date"],
+                    ':deadline_date' => $lecture["deadline_date"],
+                    ':id' => $courseInfoId
+                ]);
+            }
+            
+            // **mdl_course_info_detail の削除**
+            $stmt = $pdo->prepare("
+                DELETE FROM mdl_course_info_detail 
+                WHERE course_info_id = :course_info_id
+            ");
+            $stmt->execute([':course_info_id' => $courseInfoId]);
+        } else {
+            // mdl_courseへのINSERT
+            $stmt = $pdo->prepare("
+                INSERT INTO mdl_course_info (
+                    created_at, updated_at, no, course_date, release_date, deadline_date
+                )
+                VALUES (
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date
+                )
+            ");
+        
+            $stmt->execute([
+                ':no' => $key,
+                ':course_date' => $lecture["course_date"],
+                ':release_date' => $lecture["release_date"],
+                ':deadline_date' => $lecture["deadline_date"],
+            ]);
+            $courseInfoId = $pdo->lastInsertId();
+        }
 
         // 講座詳細登録処理
         if($event_kbn != SINGLE_EVENT) {
@@ -721,27 +744,37 @@ try {
             ]);
         }
 
-        // mdl_courseへのINSERT
-        $stmt = $pdo->prepare("
-            INSERT INTO mdl_event_course_info (
-                created_at, updated_at, event_id, course_info_id
-            )
-            VALUES (
-                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :course_info_id
-            )
-        ");
-    
-        $stmt->execute([
-            ':event_id' => $eventId, // mdl_eventの挿入IDを使用
-            ':course_info_id' => $courseInfoId
-        ]);
+        // 講義IDがない場合
+        if (empty($lecture['course_info_id'])) {
+            // mdl_courseへのINSERT
+            $stmt = $pdo->prepare("
+                INSERT INTO mdl_event_course_info (
+                    created_at, updated_at, event_id, course_info_id
+                )
+                VALUES (
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :course_info_id
+                )
+            ");
+        
+            $stmt->execute([
+                ':event_id' => $eventId, // mdl_eventの挿入IDを使用
+                ':course_info_id' => $courseInfoId
+            ]);
+        }
     }
 
     $pdo->commit();
     $_SESSION['message_success'] = '登録が完了しました';
     header('Location: /custom/admin/app/Views/event/index.php');
 } catch (PDOException $e) {
-    $pdo->rollBack();
-    $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
-    header('Location: /custom/admin/app/Views/event/index.php');
+    try {
+        $pdo->rollBack();
+        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        header('Location: /custom/admin/app/Views/event/index.php');
+        exit;
+    } catch (Exception $rollbackException) {
+        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        redirect('/custom/admin/app/Views/event/index.php');
+        exit;
+    }
 }

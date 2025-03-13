@@ -1,6 +1,7 @@
 <?php
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
@@ -26,10 +27,12 @@ $targets = $targetModel->getTargets();
 class EventEditController {
 
     private $eventModel;
+    private $eventApplicationModel;
 
     public function __construct()
     {
         $this->eventModel = new EventModel();
+        $this->eventApplicationModel = new EventApplicationModel();
     }
     
     public function getEventData($id) {
@@ -63,6 +66,20 @@ class EventEditController {
         }
 
         return $events;
+    }
+
+    // 購入枚数を表示
+    public function getTicketCount($id) {
+        if ($id === null) {
+            return null; // 新規作成の場合
+        }
+        $ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($id);
+
+        if(empty($ticket_count) || $ticket_count['sum_ticket_count'] == 0) {
+            return null;
+        }
+
+        return $ticket_count['sum_ticket_count'];
     }
 }
 ?>
