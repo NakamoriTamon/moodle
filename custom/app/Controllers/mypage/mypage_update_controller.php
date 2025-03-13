@@ -64,6 +64,10 @@ class MypageUpdateController
             }
         }
         $birthday = empty($_POST['birthday']) ? null : $_POST['birthday']; // 生年月日
+        
+        $child_name = htmlspecialchars(required_param('child_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $_SESSION['errors']['child_name'] = validate_text($child_name, 'お子様の氏名', $name_size, false);
+
         // ユーザー重複チェック(管理者含む)
         $timestamp_format = date("Y-m-d H:i:s", strtotime($birthday));
         $user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana, 'deleted' => 0]);
@@ -124,6 +128,7 @@ class MypageUpdateController
             || $_SESSION['errors']['phone']
             || $_SESSION['errors']['birthday']
             || $_SESSION['errors']['description']
+            || $_SESSION['errors']['child_name']
         ) {
             $result = true;
         }
@@ -161,6 +166,7 @@ class MypageUpdateController
                 $data->description = $description;
                 $data->guardian_name = $guardian_name;
                 $data->guardian_email = $guardian_email;
+                $data->child_name = $child_name;
 
                 if (!empty($password)) {
                     $data->password = password_hash($password, PASSWORD_DEFAULT);

@@ -175,7 +175,19 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item09 long_item">
+                                <li class="list_item09">
+                                    <p class="list_label">お子様の氏名</p>
+                                    <div class="list_field f_txt">
+                                        <input type="text" name="child_name" value="<?php echo htmlspecialchars($old_input['child_name'] ?? $user->child_name); ?>" />
+                                        <?php if (!empty($errors['child_name'])): ?>
+                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['child_name']); ?></div>
+                                        <?php endif; ?>
+                                        <p class="note">
+                                            保護者が代理入力している場合記入してください。
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="list_item10 long_item">
                                     <p class="list_label">備考</p>
                                     <div class="list_field f_txtarea">
                                         <textarea name="description"><?php echo htmlspecialchars($old_input['description'] ?? $user->description); ?></textarea>
@@ -185,7 +197,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     </div>
                                 </li>
                                 <div id="parents_input_area">
-                                    <li class="list_item10 req">
+                                    <li class="list_item11 req">
                                         <p class="list_label">保護者の氏名</p>
                                         <div class="list_field f_txt">
                                             <input type="text" name="guardian_name" value="<?= htmlspecialchars($old_input['guardian_name'] ?? $user->guardian_name) ?>" />
@@ -196,7 +208,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item11 req">
+                                    <li class="list_item12 req">
                                         <p class="list_label">保護者連絡先</p>
                                         <div class="list_field f_txt">
                                             <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? $user->guardian_email) ?>" />
