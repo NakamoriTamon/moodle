@@ -72,7 +72,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					</ul>
 				</div>
 			</nav>
-
 			<main class="content">
 				<div class="col-12 col-lg-12">
 					<div class="card">
