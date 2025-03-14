@@ -79,7 +79,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success']);
                   <?php $email_count = 0; ?>
                   <?php foreach ($companion_array as $companion_email) { ?>
                     <?php if ($email_count > 0) { ?><p class="list_label ano_list_label"><?php } ?>
-                      <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<?php } ?> ">
+                      <p class="list_field f_txt <?php if ($email_count > 0) { ?>ano_f_txt<?php } ?> ">
                         <?= htmlspecialchars($companion_email['participant_mail']) ?>
                       </p>
                     <?php $email_count = $email_count + 1;

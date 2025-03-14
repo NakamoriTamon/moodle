@@ -16,6 +16,7 @@ class EventHistoryController
 
     public function index($data)
     {
+        global $USER;
         $course_id = $data['course_id'];
         $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
 
@@ -31,13 +32,20 @@ class EventHistoryController
 
         $companion_array = [];
         foreach ($histry_list as $histry) {
-            $companion_array[] = $histry['participant_mail'];
+            foreach ($histry['application'] as $application) {
+                if ($USER->id == $application['user_id']) {
+                    $target_id = $application['id'];
+                    break;
+                }
+            }
         }
+
+        $companion_email_array = $this->eventApplicationCourseInfoModel->getByApplicationId($target_id, $course_id);
 
         // 本人のメールアドレスは排除
         $email = $common_application['email'];
-        $companion_array = array_filter($companion_array, function ($item) use ($email) {
-            return $item !== $email;
+        $companion_array = array_filter($companion_email_array, function ($item) use ($email) {
+            return $item['participant_mail'] !== $email;
         });
 
         // インデックスが再割り当てされているので、必要なら再インデックス化する

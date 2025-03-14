@@ -68,10 +68,11 @@ $child_name = $result_list['child_name'];
             <?php if (!empty($companion_array)) { ?>
               <li class="list_item09 flex-wrap">
                 <p class="list_label">お連れ様のメールアドレス</p>
-                <?php foreach ($companion_array as $key => $companion_email) { ?>
-                  <?php if ($key > 0) { ?><p class="list_label ano_list_label"><? } ?>
-                    <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<? } ?> "><?= htmlspecialchars($companion_email) ?></p>
-                  <? } ?>
+                <?php $email_count = 0; ?>
+                <?php foreach ($companion_array as $companion_email) { ?>
+                  <?php if ($email_count > 0) { ?><p class="list_label ano_list_label"><?php } ?>
+                    <p class="list_field f_txt <?php if ($email_count > 0) { ?>ano_f_txt<?php } ?> "><?= htmlspecialchars($companion_email['participant_mail']) ?></p>
+                  <?php } ?>
               </li>
             <?php } ?>
           </ul>
