@@ -25,7 +25,9 @@ $child_name = $result_list['child_name'];
   <!-- heading -->
   <div class="inner_l">
     <section id="form" class="event confirm">
-      <form action="">
+      <form id="upsert_form" method="POST" action="/custom/app/Controllers/event/event_application_reserve_upsert_controller.php">
+        <input type="hidden" name="application_id" value="<?= $common_application['id'] ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <div class="whitebox form_cont">
           <div class="inner_m">
             <ul class="list">
@@ -62,7 +64,7 @@ $child_name = $result_list['child_name'];
               </li>
               <li class="list_item08">
                 <p class="list_label">お連れ様の氏名</p>
-                <input class="list_field" type="text" value="<?= htmlspecialchars($child_name) ?>">
+                <input class="list_field" type="text" name="companion_name" value="<?= htmlspecialchars($child_name) ?>">
                 </p>
               </li>
               <?php if (!empty($companion_array)) { ?>
@@ -74,7 +76,7 @@ $child_name = $result_list['child_name'];
                     <? } ?>
                 </li>
               <?php } ?>
-              <a href="/custom/app/Views/mypage/index.php" class="btn btn_red arrow box_bottom_btn">更新する</a>
+              <a id="submit" class="btn btn_red arrow box_bottom_btn">更新する</a>
             </ul>
           </div>
         </div>
@@ -93,3 +95,9 @@ $child_name = $result_list['child_name'];
 </body>
 
 </html>
+
+<script>
+  $('#submit').on("click", function() {
+    $('#upsert_form').submit();
+  });
+</script>
