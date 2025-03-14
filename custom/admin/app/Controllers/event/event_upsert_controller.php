@@ -134,6 +134,7 @@ $pdo = $baseModel->getPdo();
 
 $pdo->beginTransaction();
 
+$count = 0;
 if ($event_kbn == SINGLE_EVENT) {
     if(!empty($deadline) && is_null($_SESSION['errors']['event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $event_date, '申し込み締切日', '開催日');
@@ -168,23 +169,27 @@ if ($event_kbn == SINGLE_EVENT) {
                 $deadline_date = $deadline;
             }
             // データ収集
-            $lectures[$lectureNumber] = [
-                'course_info_id' => $_POST["course_info_id"],
+            if (empty($lectures[1])) {
+                $lectures[1] = [
+                    'course_info_id' => $_POST["course_info_id"],
+                    'course_date' => $event_date,
+                    'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
+                    'deadline_date' => $deadline_date
+                ];
+            }
+            
+            $lectures[1]["detail"][$lectureNumber] = [];
+            $lectures[1]["detail"][$lectureNumber] = [
                 'tutor_id' => empty($value) ? null : $value,
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                 'program' => $_POST["program_{$lectureNumber}"],
-                'course_date' => $event_date,
-                'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
-                'deadline_date' => $deadline_date,
                 'tutor_name' => $_POST["tutor_name_{$lectureNumber}"]
             ];
-
-            break;
+            $count++;
         }
     }
 } elseif ($event_kbn == PLURAL_EVENT) {
     $required_flg = true;
-    $count = 0;
     $deadline_date = null;
     // イベント区分が 2 の場合: tutor_id_番号_番号 の形式
     foreach ($_POST as $key => $value) {
@@ -273,6 +278,7 @@ if ($event_kbn == SINGLE_EVENT) {
         && $_SESSION['errors']['end_hour'] == null) {
 
         $count = 1;
+        $detail = [];
         foreach ($_POST as $key => $value) {
             if (preg_match('/^tutor_id_(\d+)$/', $key, $matches)) {
                 $lectureNumber = $matches[1]; // 講座番号
@@ -312,50 +318,49 @@ if ($event_kbn == SINGLE_EVENT) {
                         $startDate->modify('+1 day'); // 1日ずつ増やす
                     }
                 }
-
-                if(!empty($id)) {
-                    $stmt = $pdo->prepare("
-                        SELECT course_info_id
-                        FROM mdl_event_course_info 
-                        WHERE event_id = :event_id
-                    ");
-                    $stmt->execute([':event_id' => $id]);
-                    $eventCourseInfos = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
-                } else {
-                    $eventCourseInfos = null;
-                }
-
-                // 各 `course_date` ごとに `deadline_date` を設定
-                foreach ($courseDates as $key => $courseDate) {
-                    $deadlineDate = new DateTime($courseDate);
-                    if($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
-                        $deadlineDate->modify('-' . $all_deadline . 'days');
-                    }
-                    $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
-
-                    if(isset($eventCourseInfos[$key])) {
-                        $course_info_id = $eventCourseInfos[$key];
-                    } else {
-                        $course_info_id = null;
-                    }
-
-                    $lectures[$count] = [
-                        'course_info_id' => $course_info_id,
-                        'course_date' => $courseDate,
-                        'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
-                        'deadline_date' => $deadlineDate->format('Y-m-d H:i:s') // `YYYY-MM-DD HH:MM:SS` 形式
-                    ];
-                    $lectures[$count]["detail"][0] = [
-                        'tutor_id' => empty($value) ? null : $value,
-                        'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
-                        'program' => $_POST["program_{$lectureNumber}"],
-                        'tutor_name' => $_POST["tutor_name_{$lectureNumber}"]
-                    ];
-                    $count++;
-                }
-
-                break;
+                $detail[] = [
+                    'tutor_id' => empty($value) ? null : $value,
+                    'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
+                    'program' => $_POST["program_{$lectureNumber}"],
+                    'tutor_name' => $_POST["tutor_name_{$lectureNumber}"]
+                ];
             }
+        }
+
+        if(!empty($id)) {
+            $stmt = $pdo->prepare("
+                SELECT course_info_id
+                FROM mdl_event_course_info 
+                WHERE event_id = :event_id
+            ");
+            $stmt->execute([':event_id' => $id]);
+            $eventCourseInfos = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
+        } else {
+            $eventCourseInfos = null;
+        }
+
+        // 各 `course_date` ごとに `deadline_date` を設定
+        foreach ($courseDates as $key => $courseDate) {
+            $deadlineDate = new DateTime($courseDate);
+            if($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
+                $deadlineDate->modify('-' . $all_deadline . 'days');
+            }
+            $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
+
+            if(isset($eventCourseInfos[$key])) {
+                $course_info_id = $eventCourseInfos[$key];
+            } else {
+                $course_info_id = null;
+            }
+
+            $lectures[$count] = [
+                'course_info_id' => $course_info_id,
+                'course_date' => $courseDate,
+                'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
+                'deadline_date' => $deadlineDate->format('Y-m-d H:i:s') // `YYYY-MM-DD HH:MM:SS` 形式
+            ];
+            $lectures[$count]["detail"] = $detail;
+            $count++;
         }
     }
 }
@@ -733,27 +738,7 @@ try {
         }
 
         // 講座詳細登録処理
-        if($event_kbn != SINGLE_EVENT) {
-            foreach($lecture["detail"] as $key => $detail) {
-                // mdl_course_info_detailへのINSERT
-                $stmt = $pdo->prepare("
-                    INSERT INTO mdl_course_info_detail (
-                        created_at, updated_at, course_info_id, tutor_id, name, program, tutor_name
-                    )
-                    VALUES (
-                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :course_info_id, :tutor_id, :name, :program, :tutor_name
-                    )
-                ");
-            
-                $stmt->execute([
-                    ':course_info_id' => $courseInfoId,
-                    ':tutor_id' => $detail["tutor_id"],
-                    ':name' => $detail["lecture_name"],
-                    ':program' => $detail["program"],
-                    ':tutor_name' => $detail["tutor_name"],
-                ]);
-            }
-        } else {
+        foreach($lecture["detail"] as $key => $detail) {
             // mdl_course_info_detailへのINSERT
             $stmt = $pdo->prepare("
                 INSERT INTO mdl_course_info_detail (
@@ -766,10 +751,10 @@ try {
         
             $stmt->execute([
                 ':course_info_id' => $courseInfoId,
-                ':tutor_id' => $lecture["tutor_id"],
-                ':name' => $lecture["lecture_name"],
-                ':program' => $lecture["program"],
-                ':tutor_name' => $lecture["tutor_name"],
+                ':tutor_id' => $detail["tutor_id"],
+                ':name' => $detail["lecture_name"],
+                ':program' => $detail["program"],
+                ':tutor_name' => $detail["tutor_name"],
             ]);
         }
 
