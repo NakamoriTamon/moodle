@@ -55,7 +55,7 @@ unset($SESSION->formdata);
                         <li>
                             <p class="term">対象</p>
                             <div class="field f_select select">
-                                <select>
+                                <select name="target">
                                     <option value="" disabled selected>選択してください</option>
                                     <?php foreach ($targets as $target): ?>
                                         <option value="<?= htmlspecialchars($target['id']) ?>"
