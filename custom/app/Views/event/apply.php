@@ -302,7 +302,7 @@ if (!empty($old_input)) {
                                     <?= htmlspecialchars($errors['pay_method']); ?>
                                 <?php endif; ?>
                             </span>
-                            <?php if($event_kbn == EVERY_DAY_EVENT): ?>
+                            <?php if($event_kbn == EVERY_DAY_EVENT || $participation_fee === 0): ?>
                                 <input type="hidden" name="pay_method" value="<?= FREE_EVENT ?>">
                             <?php else: ?>
                                 <li class="list_item06 req">

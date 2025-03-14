@@ -99,7 +99,13 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 </li>
                                 <li>
                                     <p class="term">定員</p>
-                                    <p class="desc"><?= htmlspecialchars(number_format($event['capacity'])); ?>名</p>
+                                    <p class="desc">
+                                        <?php if ($event['capacity'] == 0): ?>
+                                            定員無し
+                                        <?php else: ?>
+                                            <?= htmlspecialchars(number_format($event['capacity'])); ?>名
+                                        <?php endif; ?>
+                                    </p>
                                 </li>
                                 <li>
                                     <p class="term">講義形式</p>
@@ -113,9 +119,13 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">参加費</p>
-                                    <p class="desc"><?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
-                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
-                                    </p>
+                                    <?php if ($event['participation_fee'] == 0): ?>
+                                        無料
+                                    <?php else: ?>
+                                        <p class="desc"><?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
+                                            <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
+                                        </p>
+                                    <?php endif; ?>
                                 </li>
                                 <li>
                                     <p class="term">申込締切</p>
