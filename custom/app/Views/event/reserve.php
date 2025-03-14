@@ -74,7 +74,7 @@ $child_name = $result_list['child_name'];
                     <? } ?>
                 </li>
               <?php } ?>
-              <a href="/custom/app/Views/mypage/index.php" class="btn btn_blue arrow box_bottom_btn">更新する</a>
+              <a href="/custom/app/Views/mypage/index.php" class="btn btn_red arrow box_bottom_btn">更新する</a>
             </ul>
           </div>
         </div>

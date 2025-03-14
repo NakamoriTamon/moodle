@@ -22,6 +22,18 @@ $event_histories = $mypage_controller->getEventApplications($event_history_offse
 $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
 $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
+// イベント状態を取得
+$event_id_list = [];
+foreach ($event_applications as $event_application) {
+    foreach ($event_application as $application) {
+        if (!empty($application->event_id)) {
+            $event_id_list = [$application->event_id];
+        }
+    }
+}
+// 講義形式を持ってくる
+$event_lecture_formats = $mypage_controller->getEventLectureFormats($event_id_list);
+
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
@@ -436,10 +448,19 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                     $allCourseDateNull = false;
                     $event_name = '【第' . $application->no . '回】' . $application->event_name;
                     $date = date('Y/m/d', strtotime($application->course_date));
-                    $weekday = ['日', '月', '火', '水', '木', '金', '土'][date('w', strtotime($date))];
+                    $weekday = $weekdays[date('w', strtotime($date))];
                     $format_date = $date . " ($weekday)";
+                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' : '無料';
+                    // QR表示判定
+                    $qr_class = '';
+                    foreach ($event_lecture_formats as $format) {
+                        if ($format && !empty($application->payment_date)) {
+                            $qr_class = 'js_pay';
+                            break;
+                        }
+                    }
                     ?>
-                    <div class="info_wrap js_pay">
+                    <div class="info_wrap <?= $qr_class ?>">
                         <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
                             <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
                             <input type="hidden" name="course_id" value="<?php echo $application->course_id ?>">
@@ -453,14 +474,14 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     </p>
                                     <ul class="txt_other">
                                         <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
+                                        <li>【受講料】<span class="txt_other_money"><?php echo $price ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
-                                        <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済' : '未決済' ?></span></li>
+                                        <li>【決済】<span class="txt_other_pay <?= empty($application->payment_date) ? 'payment-text-red' : '' ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
                                     </ul>
                                 </div>
                             </button>
                         </form>
-                        <a class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
+                        <a href="#" disabled class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                             <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
@@ -495,6 +516,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             continue;
                         }
                         $allHistoryCourseDateNull = false;
+                        $history_price = $history->price > 0 ? '￥' . number_format($history->price) . '円' : '無料';
                         ?>
 
                         <div class="info_wrap js_pay">
@@ -511,7 +533,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         </p>
                                         <ul class="txt_other">
                                             <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
-                                            <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
+                                            <li>【受講料】<span class="txt_other_money"><?php echo $history_price ?></span></li>
                                         </ul>
                                     </div>
                                 </button>
