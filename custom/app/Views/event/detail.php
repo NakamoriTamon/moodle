@@ -6,6 +6,7 @@ $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
 $start_hour = $dateTime->format('H:i'); // "00:00"
 $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
 $end_hour = $dateTime->format('H:i'); // "00:00"
+$index = array_search($event['target'], array_column($targets, 'id'));
 unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
@@ -95,7 +96,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 </li>
                                 <li>
                                     <p class="term">対象</p>
-                                    <p class="desc"><?= $targets[($event['target'] ?? DEADLINE_END) - 1]['name'] ?></p>
+                                    <?= $index !== false ? htmlspecialchars($targets[$index]['name']) : '対象なし' ?>
                                 </li>
                                 <li>
                                     <p class="term">定員</p>
