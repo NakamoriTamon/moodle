@@ -507,13 +507,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 													<hr>
 												<?php endforeach; ?>
 											<?php else: ?>
-												<div id="area_<?= $i ?>_<?= $key+1 ?>">
+												<div id="area_<?= $i ?>_1">
 													<div class="mb-3">
 														<div class="form-label d-flex align-items-center">
 															<label class="me-2">講師</label>
 															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
-														<select id="tutor_id_<?= $i ?>_<?= $key+1 ?>" class="form-control mb-3" name="tutor_id_<?= $i ?>_<?= $key+1 ?>">
+														<select id="tutor_id_<?= $i ?>_1" class="form-control mb-3" name="tutor_id_<?= $i ?>_1">
 															<option value="">講師無し</option>
 															<?php foreach ($tutors as $tutor): ?>
 																<option value="<?= htmlspecialchars($tutor['id']) ?>">
@@ -521,18 +521,18 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 																</option>
 															<?php endforeach; ?>
 														</select>
-														<?php if (!empty($errors['tutor_id_' . $i . '_' . $key+1])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $i . '_' . $key+1]); ?></div>
+														<?php if (!empty($errors['tutor_id_' . $i . '_1'])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $i . '_1']); ?></div>
 														<?php endif; ?>
 													</div>
-													<div id="tutor_name_area_<?= $i ?>_<?= $key+1 ?>" class="mb-3">
+													<div id="tutor_name_area_<?= $i ?>_1" class="mb-3">
 														<div class="form-label d-flex align-items-center">
 															<label class="me-2">講師名</label>
 															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
-														<input type="text" name="tutor_name_<?= $i ?>_<?= $key+1 ?>" class="form-control" value="">
-														<?php if (!empty($errors['tutor_name_' . $i . '_' . $key+1])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $i . '_' . $key+1]); ?></div>
+														<input type="text" name="tutor_name_<?= $i ?>_1" class="form-control" value="">
+														<?php if (!empty($errors['tutor_name_' . $i . '_1'])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $i . '_1']); ?></div>
 														<?php endif; ?>
 													</div>
 													<div class="mb-3">
@@ -540,9 +540,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 															<label class="me-2">講義名</label>
 															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
-														<input type="text" name="lecture_name_<?= $i ?>_<?= $key+1 ?>" class="form-control" value="">
-														<?php if (!empty($errors['lecture_name_' . $i . '_' . $key+1])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $i . '_' . $key+1]); ?></div>
+														<input type="text" name="lecture_name_<?= $i ?>_1" class="form-control" value="">
+														<?php if (!empty($errors['lecture_name_' . $i . '_1'])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $i . '_1']); ?></div>
 														<?php endif; ?>
 													</div>
 													<div class="mb-3">
@@ -550,9 +550,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 															<label class="me-2">講義概要</label>
 															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
-														<textarea name="program_<?= $i ?>_<?= $key+1 ?>" class="form-control"></textarea>
-														<?php if (!empty($errors['program_' . $i . '_' . $key+1])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $i . '_' . $key+1]); ?></div>
+														<textarea name="program_<?= $i ?>_1" class="form-control"></textarea>
+														<?php if (!empty($errors['program_' . $i . '_1'])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $i . '_1']); ?></div>
 														<?php endif; ?>
 													</div>
 												</div>
