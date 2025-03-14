@@ -37,16 +37,16 @@ if($event_kbn == EVERY_DAY_EVENT && $responce['event']['capacity'] == 0) {
 }
 
 $event_customfield_category_id = $event['event_customfield_category_id'];
-if(is_null($courseInfoId)) {
-    $participation_fee = $event['participation_fee'];
-} else {
+if($event_kbn === PLURAL_EVENT) {
     $participation_fee = $event['single_participation_fee'];
+} else {
+    $participation_fee = $event['participation_fee'];
 }
 $price = 0;
 $event_name = $event['name'];
 $triggerOther = "";
 $payMethod = null;
-$ticket = 0;
+$ticket = 1;
 $notification_kbn = 1;
 $now_notification = null;
 $note = "";
@@ -88,7 +88,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 }
 if (!empty($old_input)) {
     $payMethod = isset($old_input['pay_method']) ? $old_input['pay_method'] : null;
-    $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : 0;
+    $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : 1;
     $price = $ticket * $participation_fee;
     $triggerOther = isset($old_input['trigger_other']) ? $old_input['trigger_other'] : "";
     $note = isset($old_input['note']) ? $old_input['note'] : "";
@@ -102,7 +102,7 @@ if (!empty($old_input)) {
     $guardian_phone = isset($old_input['guardian_phone']) ? $old_input['guardian_phone'] : $guardian_phone;
 } else if (!is_null($formdata) && empty($errors)) {
     $payMethod = isset($formdata['pay_method']) ? $formdata['pay_method'] : null;
-    $ticket = isset($formdata['ticket']) ? $formdata['ticket'] : 0;
+    $ticket = isset($formdata['ticket']) ? $formdata['ticket'] : 1;
     $price = $ticket * $participation_fee;
     $triggerOther = isset($formdata['trigger_other']) ? $formdata['trigger_other'] : "";
     $note = isset($formdata['note']) ? $formdata['note'] : "";
@@ -128,6 +128,7 @@ if (!empty($old_input)) {
 
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event_apply.css" />
 
 <main id="subpage">
     <section id="heading" class="inner_l">
@@ -191,6 +192,7 @@ if (!empty($old_input)) {
                     <input type="hidden" id="aki_ticket" name="aki_ticket" value="<?= htmlspecialchars($aki_ticket) ?>">
                     <input type="hidden" id="price" name="price" value="<?= htmlspecialchars($price) ?>">
                     <input type="hidden" id="now_notification" name="now_notification" value="<?= htmlspecialchars($now_notification) ?>">
+                    <input type="hidden" id="event_kbn" name="event_kbn" value="<?= htmlspecialchars($event_kbn) ?>">
                     <div class="inner_m">
                         <ul class="list">
                             <span class="error-msg">
@@ -229,7 +231,7 @@ if (!empty($old_input)) {
                                 <p class="list_label">枚数選択</p>
                                 <div class="list_field f_num">
                                     <button type="button" class="num_min">ー</button>
-                                    <input type="text" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
+                                    <input type="number" min="1" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
                                     <button type="button" class="num_plus">＋</button>
                                     <?php if($event_kbn == EVERY_DAY_EVENT): ?>
                                         (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
@@ -510,7 +512,7 @@ if (!empty($old_input)) {
             return total_numner;
         }
         //ロード時
-        $(window).on("load", function() {
+        $(document).ready(function() {
             $input.each(function() {
                 number = Number($(this).val());
                 if (number == max) {
@@ -530,7 +532,7 @@ if (!empty($old_input)) {
         $minus.on("click", function() {
             total();
             number = Number($(this).next($input).val());
-            if (number > 0) {
+            if (number > 1) {
                 $(this)
                     .next($input)
                     .val(number - 1);

@@ -1,0 +1,9 @@
+@charset "utf-8";
+
+input[type="number"],
+textarea,
+.select {
+  width: 30%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
