@@ -240,8 +240,9 @@ if ($result) {
 
         $capacity = (int)$event_capacity['capacity'];
         $currentCount = (int)$event_capacity['current_count'];
-        // 2. 定員超過のチェック 受付済みのチケット枚数 + 注文しているチケット枚数
-        if (($event['event_kbn'] == EVERY_DAY_EVENT && $price < 1 ) || ($event['participation_fee'] > 0 && ($currentCount + $ticket) <= $capacity)) {
+        $participation_fee = (int)$event['participation_fee'];
+        // 2. 定員超過のチェック 定員：無制限(0)、または定員数1人以上で定員数1が受付済みのチケット枚数 + 注文しているチケット枚数以下であること
+        if ($capacity < 1 || ($capacity > 0 && ($currentCount + $ticket) <= $capacity)) {
             $itmt = $pdo->prepare("
                 INSERT INTO mdl_event_application (
                     event_id, user_id, event_custom_field_id, field_value
@@ -338,7 +339,8 @@ if ($result) {
                 ':id' => $user_id // 一意の識別子をWHERE条件として設定
             ]);
 
-            if ($event['event_kbn'] == EVERY_DAY_EVENT && $price < 1 ) {
+            // 無料の場合
+            if ($event['participation_fee'] < 1 ) {
                 $pdo->commit();
                 
                 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');

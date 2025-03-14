@@ -29,15 +29,16 @@ $guardian_email = "";
 $guardian_phone = "";
 $event = $responce['event'];
 $event_kbn = $event['event_kbn'];
+$capacity = $event['capacity'];
 
-if($event_kbn == EVERY_DAY_EVENT && $responce['event']['capacity'] == 0) {
+if($responce['event']['capacity'] == 0) {
     $aki_ticket = 50;
 } else {
     $aki_ticket = $responce['event']['capacity'] - $responce['sum_ticket_count'];
 }
 
 $event_customfield_category_id = $event['event_customfield_category_id'];
-if($event_kbn === PLURAL_EVENT) {
+if($event_kbn === PLURAL_EVENT && !is_null($courseInfoId)) {
     $participation_fee = $event['single_participation_fee'];
 } else {
     $participation_fee = $event['participation_fee'];
@@ -53,7 +54,7 @@ $note = "";
 $triggersArray = [];
 $mailsArray = [];
 // 値をDateTimeオブジェクトに変換
-if(is_null($courseInfoId) && !is_null($deadline)) {
+if(is_null($courseInfoId)) {
     $deadline = $event['deadline'];
 } else {
     foreach ($event['select_course'] as $no => $course) {
@@ -151,7 +152,7 @@ if (!empty($old_input)) {
                 </form>
             </section>
         </div>
-    <?php elseif ($aki_ticket <= 0): ?>
+    <?php elseif ($capacity != 0 && $aki_ticket <= 0): ?>
         <div class="inner_l">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <section id="form" class="event entry">
@@ -302,7 +303,7 @@ if (!empty($old_input)) {
                                     <?= htmlspecialchars($errors['pay_method']); ?>
                                 <?php endif; ?>
                             </span>
-                            <?php if($event_kbn == EVERY_DAY_EVENT): ?>
+                            <?php if($participation_fee < 1): ?>
                                 <input type="hidden" name="pay_method" value="<?= FREE_EVENT ?>">
                             <?php else: ?>
                                 <li class="list_item06 req">
