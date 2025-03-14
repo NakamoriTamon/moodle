@@ -14,7 +14,7 @@ if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST[
     exit;
 }
 
-$upload_dir = $CFG->dirroot . '/uploads/material';
+$upload_dir = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/';
 $ids        = $_POST['ids'] ?? [];
 $event_id   = $_POST['event_id'] ?? '';
 $course_no  = $_POST['course_no'] ?? '';
@@ -35,7 +35,7 @@ if (isset($_FILES['file'])) {
         mkdir($upload_dir, 0755, true);
     }
 
-    $storage_upload_dir = '/var/www/html/moodle/uploads/material/';
+    $storage_upload_dir = '/var/www/html/moodle/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/';
     $total_file_size    = $_POST['total_file_size'] ?? 0;
     if (!check_storage_limit($storage_upload_dir, $total_file_size)) {
         $_SESSION['message_error'] = 'ストレージ容量が不足しています';
@@ -103,6 +103,11 @@ if (isset($_FILES['file'])) {
 
             if (in_array($original_file_name, $existingFileNames)) {
                 $duplicate_material = $DB->get_record('course_material', array('file_name' => $original_file_name));
+                $posted_id = $_POST['id'] ?? 0;
+                if ($posted_id && $posted_id == $duplicate_material->id) {
+                    continue;
+                }
+
                 $duplicate_course = $DB->get_record('course_info', array('id' => $duplicate_material->course_info_id));
                 $duplicate_event_course = $DB->get_record('event_course_info', array('course_info_id' => $duplicate_material->course_info_id));
                 if ($event_id != $duplicate_event_course->event_id) {
@@ -110,22 +115,11 @@ if (isset($_FILES['file'])) {
                         "SELECT * FROM {event} WHERE id = ?",
                         [$duplicate_event_course->event_id]
                     );
-
-                    $_SESSION['message_error'] = '既に' . $duplicate_event->name . 'の第' . $duplicate_course->no . '回目で登録されています';
-                    exit;
                 } elseif ($course_no == $duplicate_course->no) {
                     $_SESSION['message_error'] = '既に' . $original_file_name . 'は登録されています';
                     exit;
-                } else {
-                    $existing_file_path = $CFG->dirroot . '/uploads/material/' . $original_file_name;
-                    if (file_exists($existing_file_path)) {
-                        unlink($existing_file_path);
-                        $DB->delete_records('course_material', array('file_name' => $original_file_name));
-                    }
                 }
             }
-
-
 
 
             $data = new stdClass();
@@ -170,7 +164,7 @@ foreach ($material_list as $key => $material_record) {
         if ($target_id > 0) {
             $record = $DB->get_record('course_material', array('id' => $target_id));
             if ($record) {
-                $file_path = $CFG->dirroot . '/uploads/material/' . $record->file_name;
+                $file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $record->file_name;
                 if (file_exists($file_path)) {
                     unlink($file_path);
                 }

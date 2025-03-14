@@ -86,6 +86,10 @@ class MaterialController
                 if ($course_info) {
                     $material = $DB->get_records('course_material', array('course_info_id' => $course_info->id));
                     $is_display = true;
+                } else {
+                    $event_course_info_single = $DB->get_record_sql("SELECT * FROM {event_course_info} WHERE event_id = ?", [$event_id]);
+                    $material = $DB->get_records('course_material', array('course_info_id' => $event_course_info_single->course_info_id));
+                    $is_display = true;
                 }
             }
         }
