@@ -14,9 +14,9 @@ class EventReserveController
     }
 
 
-    public function index($data)
+    public function index($course_id)
     {
-        $course_id = $data['course_id'];
+
         $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
 
         // 各種情報を切り分ける
@@ -27,7 +27,8 @@ class EventReserveController
         $price = $common_application['price'] != 0 ? number_format($common_application['price']) . '円' : '無料';
         $pay_method = PAYMENT_SELECT_LIST[$common_application['pay_method']];
         $is_payment = empty($common_applicationt['payment_date']) ? '未決済' : '決済済';
-        $child_name = $common_application['user']['child_name'];
+        $child_name = $common_application['companion_name'] ?? $common_application['user']['child_name'];
+
 
         $companion_array = [];
         foreach ($histry_list as $histry) {
