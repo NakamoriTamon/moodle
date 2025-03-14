@@ -156,12 +156,7 @@ unset($SESSION->formdata);
                                             <div class="date">
                                                 <?php if ($row['event_kbn'] != 3): ?>
                                                     <?php foreach ($row['select_course'] as $no => $course): ?>
-                                                        <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
-                                                        <?php $count = 0; ?>
-                                                        <?php if ($course_date >= $now): ?>
-                                                            <?php $count++; ?>
-                                                            <p class="dt01"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                                                        <?php endif; ?>
+                                                        <p class="dt01"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <?= (new DateTime($row['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($row['end_event_date']))->format('Y年m月d日'); ?>
@@ -186,13 +181,13 @@ unset($SESSION->formdata);
             </ul>
             <ul class="result_pg">
                 <?php if ($currentPage >= 1 && $totalCount > $perPage): ?>
-                    <li><a href="?page=<?= intval($currentPage) - 1 ?>" class="prev"></a></li>
+                    <li><a href="?page=<?= intval($currentPage) - 1 ?>&<?= $queryString ?>" class="prev"></a></li>
                 <?php endif; ?>
                 <?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
-                    <li><a href="?page=<?= $i ?>" class="num <?= $i == $currentPage ? 'active' : '' ?>"><?= $i ?></a></li>
+                    <li><a href="?page=<?= $i ?>&<?= $queryString ?>" class="num <?= $i == $currentPage ? 'active' : '' ?>"><?= $i ?></a></li>
                 <?php endfor; ?>
                 <?php if ($currentPage >= 0 && $totalCount > $perPage): ?>
-                    <li><a href="?page=<?= intval($currentPage) + 1 ?>" class="next"></a></li>
+                    <li><a href="?page=<?= intval($currentPage) + 1 ?>&<?= $queryString ?>" class="next"></a></li>
                 <?php endif; ?>
             </ul>
         </section>
