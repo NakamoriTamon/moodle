@@ -164,6 +164,10 @@ class EventModel extends BaseModel
                     $where .= ' AND ci.course_date <= :event_end_date';
                     $params[':event_end_date'] = $filters['event_end_date'];
                 }
+                if (!empty($filters['target'])) {
+                    $where .= ' AND e.target = :target';
+                    $params[':target'] = $filters['target'];
+                }
                 // キーワード　フリー入力
                 if (!empty($filters['keyword'])) {
                     // 開催場所、イベント名、講師名の部分一致検索
@@ -377,6 +381,10 @@ class EventModel extends BaseModel
                 if (!empty($filters['event_end_date'])) {
                     $where .= ' AND ci.course_date <= :event_end_date';
                     $params[':event_end_date'] = $filters['event_end_date'];
+                }
+                if (!empty($filters['target'])) {
+                    $where .= ' AND e.target = :target';
+                    $params[':target'] = $filters['target'];
                 }
                 // キーワード　フリー入力
                 if (!empty($filters['keyword'])) {
