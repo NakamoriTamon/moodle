@@ -35,7 +35,9 @@ $courseInfoId = htmlspecialchars(optional_param('course_info_id', 0, PARAM_INT))
 $courseInfoId = $courseInfoId == 0 ? null : $courseInfoId;
 $participation_fee = 0;
 $eventModel = new eventModel();
-if (!is_null($courseInfoId)) {
+
+$event_kbn = htmlspecialchars(optional_param('event_kbn', '' , PARAM_INT));
+if ($event_kbn == PLURAL_EVENT) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     $participation_fee = $event['single_participation_fee'];
 } else {
@@ -210,8 +212,6 @@ if (
     || $_SESSION['errors']['guardian_email']
     || $_SESSION['errors']['guardian_phone']
 ) {
-    var_dump($_SESSION['errors']);
-    die();
     $_SESSION['message_error'] = '登録に失敗しました。再度情報を入力してください。';
     $result = false;
 }

@@ -27,7 +27,9 @@ $courseInfoId = htmlspecialchars(optional_param('course_info_id', 0, PARAM_INT))
 $courseInfoId = $courseInfoId == 0 ? null : $courseInfoId;
 $participation_fee = 0;
 $eventModel = new eventModel();
-if (!is_null($courseInfoId)) {
+
+$event_kbn = htmlspecialchars(optional_param('event_kbn', '' , PARAM_INT));
+if ($event_kbn == PLURAL_EVENT) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     $participation_fee = $event['single_participation_fee'];
 } else {
