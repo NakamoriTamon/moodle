@@ -23,6 +23,8 @@ $event_start_date = $date = date('Y-m-d 00:00:00');;
 $events = $eventModel->getEvents([
     'event_start_date' => $event_start_date
 ], $currentPage, $perPage);
+$now = new DateTime();
+$now = $now->format('Ymd');
 
 if(!empty($events)) {
     foreach($events as &$event) { 
@@ -40,8 +42,17 @@ if(!empty($events)) {
         }
         $event['select_categorys'] = $select_categorys;
 
+        $count = 1;
         foreach($event['course_infos'] as $select_course) {
-            $event['select_course'][$select_course['no']] = $select_course;
+            if($count > 2) {
+                break;
+            }
+            $course_date = (new DateTime($select_course['course_date']))->format('Ymd');
+            if ($course_date >= $now) {
+                $event['select_course'][$select_course['no']] = $select_course;
+            }
+
+            $count++;
         }
     }
     

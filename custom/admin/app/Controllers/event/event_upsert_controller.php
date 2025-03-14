@@ -6,6 +6,8 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
+global $USER;
+$userid = $USER->id;
 $event_kbns = EVENT_KBN_LIST;
 // フォームからのデータを受け取る
 $id = $_POST['id'] ?? null;
@@ -70,26 +72,28 @@ $plan = $_POST['plan'] ?? null; // 企画
 $_SESSION['errors']['plan'] = validate_text($plan, '企画', 225, false); // バリデーションチェック
 // 複数回シリーズのイベント　の場合
 if($event_kbn == PLURAL_EVENT) {
-    $single_participation_fee = $_POST['single_participation_fee'] ?? null; // 単体の参加費
-    $_SESSION['errors']['single_participation_fee'] = validate_int($single_participation_fee, '参加費', true);
+    $single_participation_fee = $_POST['single_participation_fee'] ?? 0; // 単体の参加費
+    $_SESSION['errors']['single_participation_fee'] = validate_int_zero_ok($single_participation_fee, '参加費', false);
     $title = "参加費( 全て受講 )";
+    $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
+    $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
     $all_deadline = $_POST['all_deadline'] ?? null; // 各回申し込み締切日　必須
     $_SESSION['errors']['all_deadline'] = validate_int($all_deadline, '各回申し込み締切日', true);
 } else {
     $title = "参加費";
+    $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
+    $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
     $all_deadline = 0;
-    $single_participation_fee = 0;
+    $single_participation_fee = $participation_fee;
 }
 
 $deadline = empty($_POST['deadline']) ?  null : $_POST['deadline']; // 申し込み締切日　必須
+$_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', false);
+$capacity = empty($_POST['capacity']) ? 0 : $_POST['capacity']; // 定員
+$_SESSION['errors']['capacity'] = validate_int_zero_ok($capacity, '定員', false); // バリデーションチェック
+// イベント毎日開催の場合
 if($event_kbn == EVERY_DAY_EVENT) {
-    $capacity = empty($_POST['capacity']) ? 0 : $_POST['capacity']; // 定員
-    $_SESSION['errors']['capacity'] = validate_int_zero_ok($capacity, '定員', false); // バリデーションチェック
-    $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
-    $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
-
-    $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', true);
-    
+    // 開始日
     if(!empty($deadline) && is_null($_SESSION['errors']['start_event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $start_event_date, '申し込み締切日', '開催日(開始日)');
     }
@@ -98,15 +102,14 @@ if($event_kbn == EVERY_DAY_EVENT) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $end_event_date, '申し込み締切日', '開催日(終了日)');
     }
 
-    if(!is_null($deadline)) {
-        $deadline = $_POST['deadline'] . ' 23:59:59';
-    }
-} else {
-    $capacity = empty($_POST['capacity']) ? null : $_POST['capacity']; // 定員
-    $_SESSION['errors']['capacity'] = validate_int($capacity, '定員', true); // バリデーションチェック
-    $participation_fee = $_POST['participation_fee'] ?? null; // 参加費
-    $_SESSION['errors']['participation_fee'] = validate_int($participation_fee, $title, true); // バリデーションチェック
-    $deadline = $_POST['deadline'] . ' 23:59:59';    
+}
+// 23時59分59秒を付ける
+if(!is_null($deadline)) {
+    $deadline = $deadline . ' 23:59:59';
+} elseif($event_kbn != EVERY_DAY_EVENT && is_null($deadline) && !is_null($event_date)) {
+    $date = new DateTime($event_date);
+    $date->modify('-1days');
+    $deadline = $date->format('Y-m-d 23:59:59');
 }
 $archive_streaming_period = empty($_POST['archive_streaming_period']) ? null : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
@@ -132,6 +135,9 @@ $pdo = $baseModel->getPdo();
 $pdo->beginTransaction();
 
 if ($event_kbn == SINGLE_EVENT) {
+    if(!empty($deadline) && is_null($_SESSION['errors']['event_date']) && is_null($_SESSION['errors']['deadline'])) {
+        $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $event_date, '申し込み締切日', '開催日');
+    }
     // イベント区分が 1 の場合: tutor_id_番号 の形式
     foreach ($_POST as $key => $value) {
         if (preg_match('/^tutor_id_(\d+)$/', $key, $matches)) {
@@ -145,14 +151,21 @@ if ($event_kbn == SINGLE_EVENT) {
             }
             $_SESSION['errors']["lecture_name_{$lectureNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}"], '講義名', 225, true); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}"] = validate_textarea($_POST["program_{$lectureNumber}"], '講義概要', true); // バリデーションチェック;
+            $_SESSION['errors']["release_date"] = validate_select($_POST["release_date"], "アーカイブ公開日", false);
 
             if(!$error_flg 
                 && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
                 || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
                 || $_SESSION['errors']["program_{$lectureNumber}"]
-                || $_SESSION['errors']["tutor_name_{$lectureNumber}"])
+                || $_SESSION['errors']["tutor_name_{$lectureNumber}"]
+                || $_SESSION['errors']["release_date"])
             ) {
                 $error_flg = true;
+            }
+            if(empty($deadline)) {
+                $deadline_date = $event_date . ' ' . $end_hour;
+            } else {
+                $deadline_date = $deadline;
             }
             // データ収集
             $lectures[$lectureNumber] = [
@@ -160,9 +173,9 @@ if ($event_kbn == SINGLE_EVENT) {
                 'tutor_id' => empty($value) ? null : $value,
                 'lecture_name' => $_POST["lecture_name_{$lectureNumber}"],
                 'program' => $_POST["program_{$lectureNumber}"],
-                'course_date' => $_POST["event_date"],
+                'course_date' => $event_date,
                 'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
-                'deadline_date' => $deadline,
+                'deadline_date' => $deadline_date,
                 'tutor_name' => $_POST["tutor_name_{$lectureNumber}"]
             ];
 
@@ -195,8 +208,8 @@ if ($event_kbn == SINGLE_EVENT) {
             if (empty($lectures[$lectureNumber])) {
                 $lectures[$lectureNumber] = [];
                 $event_date = $_POST["course_date_1"];
-                if(!$error_flg ) {
-                    $_SESSION['errors']["course_date_1"] = validate_date_comparison($event_date, $deadline, '開催日', '申し込み締切日');
+                if(!$error_flg && !empty($deadline)) {
+                    $_SESSION['errors']["course_date_1"] = validate_date_comparison($deadline, $event_date, '開催日', '申し込み締切日');
                 }
             }
 
@@ -311,9 +324,10 @@ if ($event_kbn == SINGLE_EVENT) {
                 // 各 `course_date` ごとに `deadline_date` を設定
                 foreach ($courseDates as $key => $courseDate) {
                     $deadlineDate = new DateTime($courseDate);
-                    if($event_kbn == EVERY_DAY_EVENT && empty($_POST['deadline'])) {
-                        $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
+                    if($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
+                        $deadlineDate->modify('-' . $all_deadline . 'days');
                     }
+                    $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
 
                     if(isset($eventCourseInfos[$key])) {
                         $course_info_id = $eventCourseInfos[$key];
@@ -471,14 +485,14 @@ try {
     } else {
         $stmt = $pdo->prepare("
             INSERT INTO mdl_event (
-                name, description
+                userid, name, description
                 , event_date, start_hour, end_hour, target, venue_name, access
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, survey_custom_id, is_apply_btn, start_event_date, end_event_date
             ) 
             VALUES (
-                :name, :description
+                :userid, :name, :description
                 , :event_date, :start_hour, :end_hour, :target, :venue_name, :access
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
@@ -487,7 +501,8 @@ try {
         ");
     
         $stmt->execute([
-            ':name' => $name
+            'userid' => $userid
+            , ':name' => $name
             , ':description' => $description
             , ':event_date' => $event_date
             , ':start_hour' => $start_hour

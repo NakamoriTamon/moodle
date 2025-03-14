@@ -528,8 +528,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label>
-										<span id="capacity_req" class="badge bg-danger">必須</span>
+										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label><label>　※未入力、または0の場合、無制限になります。</label>
 										<input name="capacity" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
 										<?php if (!empty($errors['capacity'])): ?>
@@ -537,8 +536,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == 2): ?>( 全て受講 )<?php endif; ?></label>
-										<span class="badge bg-danger" id="participation_fee_req">必須</span><label>　※申込が発生すると変更が出来なくなります。</label>
+										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == PLURAL_EVENT): ?>( 全て受講 )<?php endif; ?></label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>"
 											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
@@ -548,8 +546,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3 repeatedly_area">
-										<label class="form-label" id="single_participation_fee_label">参加費</label>
-										<span class="badge bg-danger">必須</span><label>　※申込が発生すると変更が出来なくなります。</label>
+										<label class="form-label" id="single_participation_fee_label">参加費</label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="single_participation_fee" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['single_participation_fee'] ?? ($old_input['single_participation_fee'] ?? '')) ?>"
 											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
@@ -557,21 +554,21 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['single_participation_fee']); ?></div>
 										<?php endif; ?>
 									</div>
-									<div class="mb-3">
-										<div class="form-label d-flex align-items-center">
-											<label id="deadline_label" class="me-2">申し込み締切日</label>
-											<span id="deadline_req" class="badge bg-danger">必須</span>
+									<?php if(!isset($eventData['event_kbn']) || (isset($eventData['event_kbn']) && $eventData['event_kbn'] != EVERY_DAY_EVENT)): ?>
+										<div id="deadline_area" class="mb-3">
+											<div class="form-label d-flex align-items-center">
+												<label id="deadline_label" class="me-2">申し込み締切日>　※未入力の場合、申し込み締切はイベント開催日の終了時間までになります。</label>
+											</div>
+											<input name="deadline" class=" form-control" type="date"
+												value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['deadline'] ?? '', $old_input['deadline'] ?? '')))[0] ?>" />
+											<?php if (!empty($errors['deadline'])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
+											<?php endif; ?>
 										</div>
-										<input name="deadline" class=" form-control" type="date"
-                                            value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['deadline'] ?? '', $old_input['deadline'] ?? '')))[0] ?>" />
-										<?php if (!empty($errors['deadline'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['deadline']); ?></div>
-										<?php endif; ?>
-									</div>
+									<?php endif; ?>
 									<div class="mb-3 all_deadline_area">
 										<div class="form-label d-flex align-items-center">
 											<label class="me-2">各回申し込み締切日</label>
-											<span id="all_deadline_req" class="badge bg-danger">必須</span>
 										</div>
 										<input name="all_deadline" class="form-control" type="number"
                                             value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['all_deadline'] ?? '', $old_input['all_deadline'] ?? '')) ?? '')[0] ?>" />
@@ -608,7 +605,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<?php endforeach ?>
 										</select>
 									</div>
-									<div class="mb-3">
+									<!-- <div class="mb-3">
 										<label class="form-label">アンケートカスタム区分</label>
 										<select id="survey_custom_id" class=" form-control  mb-3" name="survey_custom_id">
 											<option value="">未選択</option>
@@ -616,7 +613,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<option value=2>適塾記念会イベント</option>
 											<option value=3>生命科学分野イベント</option>
 										</select>
-									</div>
+									</div> -->
 									<div class="mb-3">
 										<label class="form-label">その他</label>
 										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars($eventData['note'] ?? ($old_input['note'] ?? '')) ?></textarea>
@@ -682,6 +679,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const allDeadlineArea = $('.all_deadline_area'); // 各回申し込み締切日を表示している箇所
 		const allDeadlineReq = $('#all_deadline_req'); // 各回申し込み締切日の必須表示
 		const oneArea = $('.one_area');
+		const deadlineArea = $('#deadline_area');
 
 		// 初期表示で value="2" の場合は表示
 		if (eventKbnElement.value == '2') {
@@ -692,11 +690,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			termArea.css('display', 'none');
 
 			participationFeeLabel.text("参加費( 全て受講 )");
-			deadlineLabel.text("申し込み締切日( 全て受講 )");
+			deadlineLabel.text("申し込み締切日( 全て受講 )　※未入力の場合、申し込み締切はイベント開催日の前日なります。");
 			capacityReq.css('display', 'inline-block');
 			participationFeeReq.css('display', 'inline-block');
 			deadlineReq.css('display', 'block');
 			allDeadlineReq.css('display', 'block');
+			deadlineArea.css('display', 'block');
 		} else if (eventKbnElement.value == '3') { // 3：期間内に毎日開催のイベント
 			onetimeArea.css('display', 'none');
 			oneArea.css('display', 'block');
@@ -705,11 +704,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			termArea.css('display', 'block');
 
 			participationFeeLabel.text("参加費");
-			deadlineLabel.text("申し込み締切日");
+			deadlineLabel.text("申し込み締切日　※未入力の場合、申し込み締切はイベント開催日の終了時間までになります。");
 			capacityReq.css('display', 'none');
 			participationFeeReq.css('display', 'none');
 			deadlineReq.css('display', 'none');
 			allDeadlineReq.css('display', 'none');
+			deadlineArea.css('display', 'none');
 		} else { // 1：単発のイベント
 			onetimeArea.css('display', 'block');
 			oneArea.css('display', 'block');
@@ -718,10 +718,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			termArea.css('display', 'none');
 
 			participationFeeLabel.text("参加費");
-			deadlineLabel.text("申し込み締切日");
+			deadlineLabel.text("申し込み締切日　※未入力の場合、申し込み締切はイベント開催日の前日なります。");
 			capacityReq.css('display', 'inline-block');
 			participationFeeReq.css('display', 'inline-block');
 			deadlineReq.css('display', 'block');
+			deadlineArea.css('display', 'block');
 		}
 		
 		const ids = ['lecture_format_id', 'category_id'];
@@ -749,6 +750,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				deadlineLabel.text("申し込み締切日");
 				deadlineReq.css('display', 'none');
 				allDeadlineReq.css('display', 'none');
+				deadlineArea.css('display', 'none');
 			} else if ($(this).val() == 2) {
 				onetimeArea.css('display', 'none');
 				oneArea.css('display', 'none');
@@ -761,6 +763,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				deadlineLabel.text("申し込み締切日( 全て受講 )");
 				deadlineReq.css('display', 'block');
 				allDeadlineReq.css('display', 'block');
+				deadlineArea.css('display', 'block');
 			} else {
 				onetimeArea.css('display', 'block');
 				oneArea.css('display', 'block');
@@ -772,6 +775,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				participationFeeLabel.text("参加費");
 				deadlineLabel.text("申し込み締切日");
 				deadlineReq.css('display', 'block');
+				deadlineArea.css('display', 'block');
 			}
 		});
 		let itemCount = 1; // 初期値として1を設定

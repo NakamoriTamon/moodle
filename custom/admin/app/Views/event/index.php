@@ -121,14 +121,14 @@ $old_input = $_SESSION['old_input'] ?? [];
 														</td>
 														<td class="ps-4 pe-4"><?= htmlspecialchars($event['venue_name']); ?></td>
 														<td class="ps-4 pe-4">
-															<?php if ($event['event_kbn'] == 3 && $event['capacity'] < 1):  ?>
+															<?php if ($event['capacity'] < 1):  ?>
 																無制限
 															<?php else: ?>
 																<?= htmlspecialchars(number_format($event['capacity'])); ?>人
 															<?php endif; ?>
 														</td>
 														<td class="ps-4 pe-4">
-															<?php if ($event['event_kbn'] == 3 && $event['participation_fee'] < 1):  ?>
+															<?php if ($event['participation_fee'] < 1):  ?>
 																無料
 															<?php else: ?>
 																<?= htmlspecialchars(number_format($event['participation_fee'])); ?>円
