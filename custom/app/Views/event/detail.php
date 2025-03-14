@@ -119,14 +119,11 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">参加費</p>
-                                    <?php if ($event['participation_fee'] == 0): ?>
-                                        無料
-                                    <?php else: ?>
-                                        <p class="desc">
+                                    
+                                    <p class="desc">
                                         <?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?php if($event['single_participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['single_participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?>
-                                            <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'])) ?>円<?php endif; ?>
-                                        </p>
-                                    <?php endif; ?>
+                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?php if($event['participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?><?php endif; ?>
+                                    </p>
                                 </li>
                                 <li>
                                     <p class="term">申込締切</p>
@@ -187,7 +184,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <div class="program">
                                 <h4 class="sub_ttl">【<?php if(count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
                                 <?php if(isset($course['close_date'])): ?>
-                                    <span style="color: red;">(終了)</span>
+                                    <span style="color: red;">(申込終了)</span>
                                 <?php endif; ?>
                             </div>
                             <?php foreach($course['details'] as $key => $detail): ?>
