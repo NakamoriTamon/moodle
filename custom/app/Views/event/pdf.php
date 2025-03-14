@@ -139,20 +139,6 @@
             }
         });
 
-        // ズームイン
-        document.getElementById('zoom-in').addEventListener('click', () => {
-            scale += 0.1;
-            renderPage(currentPage);
-        });
-
-        // ズームアウト
-        document.getElementById('zoom-out').addEventListener('click', () => {
-            if (scale > 0.2) {
-                scale -= 0.1;
-                renderPage(currentPage);
-            }
-        });
-
         // 右クリックやショートカットキーでの保存を防ぐ
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.addEventListener('keydown', event => {

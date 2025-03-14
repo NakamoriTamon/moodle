@@ -17,10 +17,16 @@ class EventRegisterController
     {
         global $DB;
         // 全件取得（イベント申し込みの全レコード）
-        $allEventApplications = $DB->get_records_sql("SELECT * FROM {event_application}");
+        $event_application_courses = $DB->get_records_sql(
+            "SELECT eac.*
+             FROM {event_application_course_info} eac
+             JOIN {event_application} ea ON ea.id = eac.event_application_id
+             WHERE ea.payment_date IS NOT NULL"
+        );
+
         $event_list = [];
-        foreach ($allEventApplications as $event) {
-            $event_detail = $DB->get_record_sql("SELECT * FROM {event} WHERE id = ?", [$event->event_id]);
+        foreach ($event_application_courses as $application) {
+            $event_detail = $DB->get_record_sql("SELECT * FROM {event} WHERE id = ?", [$application->event_id]);
             if ($event_detail) {
                 $event_list[] = $event_detail;
             }

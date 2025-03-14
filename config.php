@@ -1,8 +1,10 @@
 <?php  // Moodle configuration file
 
 require '/var/www/vendor/autoload.php';
+
 use Dotenv\Dotenv;
 use core\context\system;
+
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
 unset($CFG);
@@ -47,7 +49,7 @@ if ($env === 'development') { // 開発環境
   $CFG->dataroot  = '/var/www/moodledata';
   $CFG->admin     = 'admin';
 }
-$CFG->libdir = '/var/www/html/moodle/lib'; 
+$CFG->libdir = '/var/www/html/moodle/lib';
 
 $CFG->slasharguments = 0;
 $CFG->directorypermissions = 0777;
@@ -74,7 +76,7 @@ $event_end = 3;
 define('EVENT_END', $event_end);
 $event_status_selects = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_SELECTS', $event_status_selects);
-$event_status_list = ['0' => '',1 => '開催前', 2 => '開催中', 3 => '開催終了'];
+$event_status_list = ['0' => '', 1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('EVENT_STATUS_LIST', $event_status_list);
 $display_status_list = [1 => '開催前', 2 => '開催中', 3 => '開催終了'];
 define('DISPLAY_EVENT_STATUS_LIST', $display_status_list);
@@ -98,7 +100,8 @@ define('IS_APPLY_BTN', [ //　申し込みボタンを表示
   'DISABLED' => 0,   // 非表示
   'ENABLED' => 1  // 表示
 ]);
-
+$lecture_format_on_site = 1; //現地開催
+define('LECTURE_FORMAT_ON_SITE', $lecture_format_on_site);
 
 // 都道府県プルダウン
 $prefectures = [

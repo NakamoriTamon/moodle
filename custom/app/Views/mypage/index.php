@@ -22,6 +22,18 @@ $event_histories = $mypage_controller->getEventApplications($event_history_offse
 $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
 $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
+// イベント状態を取得
+$event_id_list = [];
+foreach ($event_applications as $event_application) {
+    foreach ($event_application as $application) {
+        if (!empty($application->event_id)) {
+            $event_id_list = [$application->event_id];
+        }
+    }
+}
+// 講義形式を持ってくる
+$event_lecture_formats = $mypage_controller->getEventLectureFormats($event_id_list);
+
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
@@ -434,10 +446,24 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                         continue;
                     }
                     $allCourseDateNull = false;
+                    $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                    $date = date('Y/m/d', strtotime($application->course_date));
+                    $weekday = $weekdays[date('w', strtotime($date))];
+                    $format_date = $date . " ($weekday)";
+                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' : '無料';
+                    // QR表示判定
+                    $qr_class = '';
+                    foreach ($event_lecture_formats as $format) {
+                        if ($format && !empty($application->payment_date)) {
+                            $qr_class = 'js_pay';
+                            break;
+                        }
+                    }
                     ?>
-                    <div class="info_wrap js_pay">
-                        <form action="/custom/app/Views/event/reserve.php?id=<?php echo $application->event_application_id ?>" method="POST" class="info_wrap_cont">
+                    <div class="info_wrap <?= $qr_class ?>">
+                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
                             <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
+                            <input type="hidden" name="course_id" value="<?php echo $application->course_id ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
                                     <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
@@ -448,14 +474,14 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     </p>
                                     <ul class="txt_other">
                                         <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $application->price ?></span></li>
+                                        <li>【受講料】<span class="txt_other_money"><?php echo $price ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
-                                        <li>【決済】<span class="txt_other_pay"><?php echo $application->payment_date ? '決済済み' : '未決済' ?></span></li>
+                                        <li>【決済】<span class="txt_other_pay <?= empty($application->payment_date) ? 'payment-text-red' : '' ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
                                     </ul>
                                 </div>
                             </button>
                         </form>
-                        <a href="/custom/app/Views/event/reserve.php" class="info_wrap_qr">
+                        <a href="#" disabled class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                             <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
@@ -481,47 +507,52 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
         <div class="mypage_cont history">
             <h3 id="event_histories" class="mypage_head btn_acc">イベント履歴<span class="acc"></span></h3>
-            <?php $allHistoryCourseDateNull = true; ?>
-            <?php if (!empty($event_histories['data'])): ?>
-                <?php foreach ($event_histories['data'] as $history): ?>
-                    <?php
-                    if (is_null($history->course_date)) {
-                        continue;
-                    }
-                    $allHistoryCourseDateNull = false;
-                    ?>
-                    <div class="info_wrap js_pay">
-                        <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont acc_wrap">
-                            <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
-                            <input type="hidden" name="course_id" value="<?php echo $history->course_id ?>">
-                            <button type="submit" class="info_wrap_cont_btn">
-                                <p class="date">
-                                    <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
-                                </p>
-                                <div class="txt">
-                                    <p class="txt_ttl">
-                                        <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
-                                    </p>
-                                    <ul class="txt_other">
-                                        <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money">￥ <?php echo $history->price ?></span></li>
-                                    </ul>
-                                </div>
-                            </button>
-                        </form>
-                    </div>
-                <?php endforeach; ?>
+            <div class="acc_wrap">
+                <?php $allHistoryCourseDateNull = true; ?>
+                <?php if (!empty($event_histories['data'])): ?>
+                    <?php foreach ($event_histories['data'] as $history): ?>
+                        <?php
+                        if (is_null($history->course_date)) {
+                            continue;
+                        }
+                        $allHistoryCourseDateNull = false;
+                        $history_price = $history->price > 0 ? '￥' . number_format($history->price) . '円' : '無料';
+                        ?>
 
-                <div class="pagination">
-                    <?php if ($event_histories['pagination']['current_page'] > 1): ?>
-                        <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] - 1 ?>#event_histories" class="prev">← 前へ</a>
-                    <?php endif; ?>
-                    <span class="page-info">Page <?php echo $event_histories['pagination']['current_page']; ?> / <?php echo $event_histories['pagination']['total_pages']; ?></span>
-                    <?php if ($event_histories['pagination']['current_page'] < $event_histories['pagination']['total_pages']): ?>
-                        <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] + 1 ?>#event_histories" class="next">次へ →</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+                        <div class="info_wrap js_pay">
+                            <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont">
+                                <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
+                                <input type="hidden" name="course_id" value="<?php echo $history->course_id ?>">
+                                <button type="submit" class="info_wrap_cont_btn">
+                                    <p class="date">
+                                        <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
+                                    </p>
+                                    <div class="txt">
+                                        <p class="txt_ttl">
+                                            <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
+                                        </p>
+                                        <ul class="txt_other">
+                                            <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
+                                            <li>【受講料】<span class="txt_other_money"><?php echo $history_price ?></span></li>
+                                        </ul>
+                                    </div>
+                                </button>
+                            </form>
+                        </div>
+
+                    <?php endforeach; ?>
+
+                    <div class="pagination">
+                        <?php if ($event_histories['pagination']['current_page'] > 1): ?>
+                            <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] - 1 ?>#event_histories" class="prev">← 前へ</a>
+                        <?php endif; ?>
+                        <span class="page-info">Page <?php echo $event_histories['pagination']['current_page']; ?> / <?php echo $event_histories['pagination']['total_pages']; ?></span>
+                        <?php if ($event_histories['pagination']['current_page'] < $event_histories['pagination']['total_pages']): ?>
+                            <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] + 1 ?>#event_histories" class="next">次へ →</a>
+                        <?php endif; ?>
+                    </div>
+            </div>
+        <?php endif; ?>
         </div>
         <?php if ($allHistoryCourseDateNull): ?>
             <div>現在までにお申込みされたイベントはございません。</div>
@@ -550,9 +581,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
     <div class="modal_bg js_close"></div>
     <div class="modal_cont">
         <!-- <span class="cross js_close"></span> -->
-        <p class="ticket_date">2025/00/00（金）</p>
-        <p class="ticket_ttl">中之島芸術センター 演劇公演<br />『中之島デリバティブⅢ』</p>
-        <div class="ticket_qr"><img src="/custom/public/assets/common/img/qr_dummy.png" alt="" /></div>
+        <p id="moodle_ticket_date" class="ticket_date">2025/00/00（金）</p>
+        <p id="modal_event_name" class="ticket_ttl">中之島芸術センター 演劇公演<br />『中之島デリバティブⅢ』</p>
+        <div id="qrcode" class="ticket_qr"><img id="qrImage" src="" alt="" /></div>
         <p class="ticket_txt">こちらの画面を受付でご提示ください。</p>
     </div>
 </div>
@@ -566,8 +597,21 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
         $("body").addClass("modal_fix").css({
             top: -srlpos
         });
+
+        const id = $(this).data("id");
+        const course_id = $(this).data("course-id");
+        const name = $(this).data("name");
+        const date = $(this).data("date");
+
+        $('#moodle_ticket_date').text(date);
+        $('#modal_event_name').text(name);
+
+        // QRコード画像をセット
+        $("#qrImage").attr("src", "/custom/app/Views/event/qr_generator.php?event_application_id=" + id + "&event_application_course_info=" + course_id);
+
         return false;
     });
+
     $(".js_close").on("click", function() {
         $("#modal").fadeOut();
         $("body").removeClass("modal_fix").css({
