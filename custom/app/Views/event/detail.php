@@ -168,7 +168,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                         </div>
                     </div>
-                    <?php if($event['event_kbn'] == 2 && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
+                    <?php if($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
                         <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。

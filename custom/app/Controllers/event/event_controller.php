@@ -84,6 +84,11 @@ $totalCount = $eventModel->getEventTotal([
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 
+// 現在の検索条件を取得
+$queryParams = $_GET; // GETパラメータを取得
+unset($queryParams['page']); // ページ番号は後で設定するため削除
+$queryString = http_build_query($queryParams); // クエリ文字列を作成
+
 $_SESSION['old_input'] = $_GET; // 入力内容も保持
 if ($action === 'index') {
     include '/var/www/html/moodle/custom/app/Views/event/index.php';

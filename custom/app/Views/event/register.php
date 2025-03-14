@@ -110,10 +110,12 @@ $pagination = $eventsData['pagination'];
         <div id="pdf_content_<?= htmlspecialchars($event->id) ?>">
             <ul class="pdf_list">
                 <?php if ($pdf_list): ?>
-                    <?php foreach ($pdf_list as $pdf): ?>
+                    <?php foreach ($pdf_list as $pdf):
+                        $course_list = $reserve_controller->course_list($pdf->course_info_id);
+                    ?>
                         <li>
                             <p class="name"><?= htmlspecialchars($pdf->file_name) ?></p>
-                            <a href="#" class="open-pdf btn btn_navy pdf" data-id="<?= htmlspecialchars($pdf->file_name) ?>">PDF資料</a>
+                            <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars($course_list->no) ?>" data-course_info="<?= htmlspecialchars($pdf->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf->file_name) ?>">PDF資料</a>
                         </li>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -167,8 +169,10 @@ $pagination = $eventsData['pagination'];
 
     $(document).on("click", ".open-pdf", function(e) {
         e.preventDefault();
-        var materialId = $(this).data("id");
-        const pdfUrl = "/uploads/material/" + materialId;
+        var materialCourseNo = $(this).data("course_no");
+        var materialCourseId = $(this).data("course_info");
+        var materialFileName = $(this).data("file_name");
+        const pdfUrl = "/uploads/material/" + materialCourseId + '/' + materialCourseNo + '/' + materialFileName;
         window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
     });
 </script>
