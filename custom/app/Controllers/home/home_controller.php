@@ -23,6 +23,7 @@ $event_start_date = $date = date('Y-m-d 00:00:00');;
 $events = $eventModel->getEvents([
     'event_start_date' => $event_start_date
 ], $currentPage, $perPage);
+
 $now = new DateTime();
 $now = $now->format('Ymd');
 
