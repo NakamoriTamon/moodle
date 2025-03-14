@@ -196,7 +196,7 @@ try {
     $htmlBody = "
         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
             <p style=\"text-align: left; font-weight:bold;\">{$name}様</p><br>
-            <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">このたびは「サービス名」にご登録いただき、ありがとうございます。
+            <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">このたびは「知の広場」にご登録いただき、ありがとうございます。
                 仮登録が完了しました。</p><br>
             <p style=\"text-align: left; font-size: 13px; margin:0; \">本登録を完了するには、以下のURLにアクセスしてください。</p>
             <br>
