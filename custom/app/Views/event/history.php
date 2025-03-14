@@ -61,10 +61,12 @@ $child_name = $result_list['child_name'];
               <p class="list_label">決済状況</p>
               <p class="list_field f_txt"><?= htmlspecialchars($is_payment) ?></p>
             </li>
-            <li class="list_item08">
-              <p class="list_label">お連れ様の氏名</p>
-              <p class="list_field f_txt"><?= htmlspecialchars($child_name) ?></p>
-            </li>
+            <?php if (!empty($child_name)) { ?>
+              <li class="list_item08">
+                <p class="list_label">お連れ様の氏名</p>
+                <p class="list_field f_txt"><?= htmlspecialchars($child_name) ?></p>
+              </li>
+            <?php } ?>
             <?php if (!empty($companion_array)) { ?>
               <li class="list_item09 flex-wrap">
                 <p class="list_label">お連れ様のメールアドレス</p>

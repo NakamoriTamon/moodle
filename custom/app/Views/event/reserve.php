@@ -1,6 +1,5 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-include($CFG->dirroot . '/custom/app/Views/common/header.php');
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 include('/var/www/html/moodle/custom/app/Controllers/event/event_application_reserve_controller.php');
 
@@ -17,7 +16,9 @@ $pay_method = $result_list['pay_method'];
 $is_payment = $result_list['is_payment'];
 $companion_array = $result_list['companion_array'];
 $child_name = $result_list['child_name'];
-unset($_SESSION['old_input'], $_SESSION['message_success']);
+$old_input = $_SESSION['old_input'];
+
+unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors']);
 ?>
 
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -68,11 +69,18 @@ unset($_SESSION['old_input'], $_SESSION['message_success']);
                 <p class="list_field f_txt">
                   <?= htmlspecialchars($is_payment) ?>
               </li>
-              <li class="list_item08">
-                <p class="list_label">お連れ様の氏名</p>
-                <input class="list_field" type="text" name="companion_name" value="<?= htmlspecialchars($child_name) ?>">
-                </p>
-              </li>
+              <?php if (!empty($child_name)) { ?>
+                <li class="list_item08  <?= !empty($errors['companion_name']) ? 'flex-wrap' : '' ?>">
+                  <p class="list_label">お連れ様の氏名</p>
+                  <input class="list_field" type="text" name="companion_name" value="<?= $old_input['companion_name'] ?? htmlspecialchars($child_name) ?>">
+                  <?php if (!empty($errors['companion_name'])): ?>
+                    <div class="error-msg mt-2">
+                      <p class="list_label"></p>
+                      <?= htmlspecialchars($errors['companion_name']); ?>
+                    </div>
+                  <?php endif; ?>
+                </li>
+              <?php } ?>
               <?php if (!empty($companion_array)) { ?>
                 <li class="list_item09 flex-wrap">
                   <p class="list_label">お連れ様のメールアドレス</p>
@@ -86,7 +94,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success']);
                   } ?>
                 </li>
               <?php } ?>
-              <a id="submit" class="btn btn_red arrow box_bottom_btn">更新する</a>
+              <?php if (!empty($child_name)) { ?>
+                <a id="submit" class="btn btn_red arrow box_bottom_btn">更新する</a>
+              <?php } ?>
             </ul>
           </div>
         </div>
