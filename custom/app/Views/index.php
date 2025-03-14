@@ -79,12 +79,16 @@ $now = $now->format('Ymd');
                   <div class="event_sched">
                     <p class="term">開催日</p>
                     <div class="date">
-                      <?php foreach ($row['select_course'] as $no => $course): ?>
-                        <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
-                        <?php if ($course_date >= $now): ?>
-                          <p class="dt0<?= $no ?>"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
+                      <?php if ($row['event_kbn'] != EVERY_DAY_EVENT): ?>
+                        <?php foreach ($row['select_course'] as $no => $course): ?>
+                          <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                          <?php if ($course_date >= $now): ?>
+                            <p class="dt0<?= $no ?>"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                          <?php endif; ?>
+                        <?php endforeach; ?>
+                      <?php else: ?>
+                          <?= (new DateTime($row['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($row['end_event_date']))->format('Y年m月d日'); ?>
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
