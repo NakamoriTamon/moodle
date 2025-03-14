@@ -144,4 +144,29 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
     }
+
+    // ユーザーごとのお連れ様のメールアドレスを取得
+    public function getByApplicationId($event_application_id, $course_info_id)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("
+                    SELECT participant_mail 
+                    FROM mdl_event_application_course_info 
+                    WHERE event_application_id = :event_application_id 
+                    AND course_info_id = :course_info_id
+                ");
+                $stmt->bindParam(':event_application_id', $event_application_id, PDO::PARAM_INT);
+                $stmt->bindParam(':course_info_id', $course_info_id, PDO::PARAM_INT);
+                $stmt->execute();
+                $email_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $email_list;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+    }
 }
