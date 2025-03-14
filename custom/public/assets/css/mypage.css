@@ -254,7 +254,7 @@
  modal
  -------------------------------------*/
 #modal.modal_ticket .modal_cont {
-  padding: 40px 0 70px;
+  padding: 40px 30px 70px;
   width: 350px;
   height: auto;
   border-top: 20px solid #81bfda;

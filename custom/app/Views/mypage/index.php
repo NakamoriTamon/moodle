@@ -481,7 +481,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                 </div>
                             </button>
                         </form>
-                        <a href="#" disabled class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
+                        <a href="#" class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                             <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
@@ -591,25 +591,28 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
-    $(".info_wrap_qr").on("click", function() {
-        srlpos = $(window).scrollTop();
-        $("#modal").fadeIn();
-        $("body").addClass("modal_fix").css({
-            top: -srlpos
-        });
+    $(".info_wrap_qr").on("click", function(e) {
+        e.preventDefault();
+        if ($(this).parents('div').hasClass('js_pay')) {
+            srlpos = $(window).scrollTop();
+            $("#modal").fadeIn();
+            $("body").addClass("modal_fix").css({
+                top: -srlpos
+            });
 
-        const id = $(this).data("id");
-        const course_id = $(this).data("course-id");
-        const name = $(this).data("name");
-        const date = $(this).data("date");
+            const id = $(this).data("id");
+            const course_id = $(this).data("course-id");
+            const name = $(this).data("name");
+            const date = $(this).data("date");
 
-        $('#moodle_ticket_date').text(date);
-        $('#modal_event_name').text(name);
+            $('#moodle_ticket_date').text(date);
+            $('#modal_event_name').text(name);
 
-        // QRコード画像をセット
-        $("#qrImage").attr("src", "/custom/app/Views/event/qr_generator.php?event_application_id=" + id + "&event_application_course_info=" + course_id);
+            // QRコード画像をセット
+            $("#qrImage").attr("src", "/custom/app/Views/event/qr_generator.php?event_application_id=" + id + "&event_application_course_info=" + course_id);
 
-        return false;
+            return false;
+        }
     });
 
     $(".js_close").on("click", function() {
