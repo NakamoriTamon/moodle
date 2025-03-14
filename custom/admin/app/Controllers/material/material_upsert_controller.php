@@ -103,6 +103,11 @@ if (isset($_FILES['file'])) {
 
             if (in_array($original_file_name, $existingFileNames)) {
                 $duplicate_material = $DB->get_record('course_material', array('file_name' => $original_file_name));
+                $posted_id = $_POST['id'] ?? 0;
+                if ($posted_id && $posted_id == $duplicate_material->id) {
+                    continue;
+                }
+
                 $duplicate_course = $DB->get_record('course_info', array('id' => $duplicate_material->course_info_id));
                 $duplicate_event_course = $DB->get_record('event_course_info', array('course_info_id' => $duplicate_material->course_info_id));
                 if ($event_id != $duplicate_event_course->event_id) {
@@ -110,14 +115,12 @@ if (isset($_FILES['file'])) {
                         "SELECT * FROM {event} WHERE id = ?",
                         [$duplicate_event_course->event_id]
                     );
-
-                    // $_SESSION['message_error'] = '既に' . $duplicate_event->name . 'で登録されています';
-                    // exit;
                 } elseif ($course_no == $duplicate_course->no) {
-                    // $_SESSION['message_error'] = '既に' . $original_file_name . 'は登録されています';
-                    // exit;
+                    $_SESSION['message_error'] = '既に' . $original_file_name . 'は登録されています';
+                    exit;
                 }
             }
+
 
             $data = new stdClass();
             $data->file_name      = $file;
