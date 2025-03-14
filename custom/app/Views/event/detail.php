@@ -153,7 +153,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <li>【共催】<?= htmlspecialchars($event['co_host']) ?></li>
                                     <li>【企画】<?= htmlspecialchars($event['plan']) ?></li>
                                     <li>【後援】<?= htmlspecialchars($event['sponsorship']) ?></li>
-                                    <li>【お問い合わせ窓口】○○○○</li>
+                                    <li>【お問い合わせ窓口】<?php echo SAMPLE_INQUIRY_EMAIL?></li>
                                 </ul>
                             </div>
                         </div>
