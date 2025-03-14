@@ -109,6 +109,12 @@ define('IS_APPLY_BTN', [ //　申し込みボタンを表示
   'DISABLED' => 0,   // 非表示
   'ENABLED' => 1  // 表示
 ]);
+define('ROLE', [
+  'COURSECREATOR' => 2,
+  'USER' => 7,
+  'ADMIN' => 9
+]);
+
 $lecture_format_on_site = 1; //現地開催
 define('LECTURE_FORMAT_ON_SITE', $lecture_format_on_site);
 define('SAMPLE_INQUIRY_EMAIL', 'chinohiroba@21c-kaitokudo.osaka-u.ac.jp'); // お問い合わせアドレス。静的ページ用。動的ページになったら消してください。

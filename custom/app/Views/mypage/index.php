@@ -16,6 +16,11 @@ $event_history_offset = ($event_history_page - 1) * $perPage;
 
 $mypage_controller = new MypageController;
 $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+$is_general_user = $mypage_controller->isGeneralUser($user->id);
+if (!$is_general_user) {
+    header('Location: /custom/app/Views/logout/index.php');
+}
+
 $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 $event_applications = $mypage_controller->getEventApplications($event_application_offset, $perPage, $event_application_page); // 予約情報を引っ張ってくる
 $event_histories = $mypage_controller->getEventApplications($event_history_offset, $perPage, $event_history_page, 'histories'); // イベント履歴を引っ張ってくる

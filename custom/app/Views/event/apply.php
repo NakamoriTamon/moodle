@@ -1,8 +1,18 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_controller.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php'); // 管理者か否か確認用
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 // unset($SESSION->formdata);
+$mypage_controller = new MypageController;
+$user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+$is_general_user = $mypage_controller->isGeneralUser($user->id);
+if (!$is_general_user && $user) {
+    echo '<script type="text/javascript">
+        window.location.href = "/custom/app/Views/logout/index.php";
+        </script>';
+    exit();
+}
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 $formdata = null;
