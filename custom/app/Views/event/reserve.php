@@ -78,7 +78,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success']);
                   <p class="list_label">お連れ様のメールアドレス</p>
                   <?php foreach ($companion_array as $key => $companion_email) { ?>
                     <?php if ($key > 0) { ?><p class="list_label ano_list_label"><?php } ?>
-                      <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<? } ?> "><?= htmlspecialchars($companion_email) ?></p>
+                      <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<?php } ?> "><?= htmlspecialchars($companion_email) ?></p>
                     <?php } ?>
                 </li>
               <?php } ?>
