@@ -420,6 +420,22 @@ pagination
   padding-top: 15px;
 }
 
+/*-------------------------------------
+reserve
+-------------------------------------*/
+#main_success_message {
+    margin: auto;
+    background: #81bfda;
+    color: #fff;
+    padding: 8px 5px;
+    border-radius: 4px;
+    margin-bottom: 5rem;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    font-weight: bold;
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {

@@ -112,7 +112,7 @@ if ($data['status'] === 'captured') {
                 ':status' => $data['status'],
                 ':amount' => $data['amount'],
                 ':currency' => $data['currency'],
-                ':payment_method_type' => $data['payment_method_type'],
+                ':payment_method_type' => $payment_method_type,
                 ':captured_at' => $captured_at,
                 ':metadata' => json_encode($data['metadata']),
                 ':event_application_id' => $event_application_id

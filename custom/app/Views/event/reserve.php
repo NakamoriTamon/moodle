@@ -5,8 +5,10 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
 include('/var/www/html/moodle/custom/app/Controllers/event/event_application_reserve_controller.php');
 
 $event_application_reserve_controller = new EventReserveController();
-$result_list = $event_application_reserve_controller->index($_POST);
-
+$session_course_id = $_SESSION['reserve']['course_id'];
+$course_id = $_POST['course_id'] ?? $session_course_id;
+$result_list = $event_application_reserve_controller->index($course_id);
+$success = $_SESSION['message_success'];
 $common_array = $result_list['common_array'];
 $common_application = $result_list['common_application'];
 $event_name = $result_list['event_name'];
@@ -15,6 +17,7 @@ $pay_method = $result_list['pay_method'];
 $is_payment = $result_list['is_payment'];
 $companion_array = $result_list['companion_array'];
 $child_name = $result_list['child_name'];
+unset($_SESSION['old_input'], $_SESSION['message_success']);
 ?>
 
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -27,9 +30,12 @@ $child_name = $result_list['child_name'];
     <section id="form" class="event confirm">
       <form id="upsert_form" method="POST" action="/custom/app/Controllers/event/event_application_reserve_upsert_controller.php">
         <input type="hidden" name="application_id" value="<?= $common_application['id'] ?>">
+        <input type="hidden" name="course_id" value="<?= $course_id ?>">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <div class="whitebox form_cont">
           <div class="inner_m">
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+            <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
             <ul class="list">
               <li class="list_item01">
                 <p class="list_label">氏名</p>
@@ -71,7 +77,7 @@ $child_name = $result_list['child_name'];
                 <li class="list_item09 flex-wrap">
                   <p class="list_label">お連れ様のメールアドレス</p>
                   <?php foreach ($companion_array as $key => $companion_email) { ?>
-                    <?php if ($key > 0) { ?><p class="list_label ano_list_label"><? } ?>
+                    <?php if ($key > 0) { ?><p class="list_label ano_list_label"><?php } ?>
                       <p class="list_field f_txt <?php if ($key > 0) { ?>ano_f_txt<? } ?> "><?= htmlspecialchars($companion_email) ?></p>
                     <? } ?>
                 </li>
