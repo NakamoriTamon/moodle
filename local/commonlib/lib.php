@@ -61,7 +61,7 @@ function validate_emails_count($emails, $count, $text = "")
     if (count($emails) == $count) {
         return $text . 'メールアドレスは必須です。';
     }
-    foreach ($emails as $$email) {
+    foreach ($emails as $email) {
         if (empty($email)) {
             return $text . 'メールアドレスは必須です。';
         }
@@ -150,7 +150,7 @@ function validate_int($val, $title, $required)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(is_null($val) && !$required) {
+    } elseif (is_null($val) && !$required) {
         return null;
     }
     if (is_int($val)) {
@@ -171,7 +171,7 @@ function validate_int_zero_ok($val, $title, $required)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(is_null($val) && !$required) {
+    } elseif (is_null($val) && !$required) {
         return null;
     }
     if (!is_numeric($val)) {
@@ -191,7 +191,7 @@ function validate_date($val, $title, $required)
         return null;
     }
 
-    if($required && !is_null($val)) {
+    if ($required && !is_null($val)) {
         $format = 'Y-m-d'; // 期待される日付フォーマット
         $d = DateTime::createFromFormat($format, $val);
         // フォーマットが正しいかつ、有効な日付であることを確認
@@ -414,112 +414,50 @@ function validate_material_file($files)
     return !empty($error_messages) ? $error_messages : false;
 }
 
-
 /**
- * バリデーション: プログラムの紹介元
+ * バリデーション: アンケート　選択
  */
-function validate_survey_found_method($found_method, $other_found_method)
+function validate_input($input)
 {
-    if (empty($found_method) && empty($other_found_method)) {
-        return 'プログラムの紹介元は必須です。';
-    }
-
-    if (strlen($other_found_method) > 200) {
-        return 'プラグラムの紹介元は200文字以内である必要があります。';
+    if (empty($input)) {
+        return '上記は必須です。';
     }
     return null;
 }
 
 /**
- * バリデーション: プログラムの受講理由
+ * バリデーション: アンケート　入力フォーム
  */
-function validate_survey_reason($reason, $other_reason)
+function validate_text_input($text_input)
 {
-    if (empty($reason) && empty($other_reason)) {
-        return 'プログラムの受講理由は必須です。';
+    if (empty($text_input)) {
+        return '上記は必須です。';
     }
 
-    if (strlen($other_reason) > 200) {
-        return 'プラグラムの受講理由は200文字以内である必要があります。';
+    // mb_strlen を使ってUTF-8エンコーディングで文字数をカウント
+    if (mb_strlen($text_input, 'UTF-8') > 200) {
+        return '上記は200文字以内である必要があります。';
     }
     return null;
 }
 
 /**
- * バリデーション: プログラムの満足度
+ * バリデーション: アンケート　その他含む
  */
-function validate_survey_satisfaction($satisfaction)
+function validate_other_input($input, $other_input)
 {
-    if (empty($satisfaction)) {
-        return 'プログラムの満足度は必須です。';
+    if (empty($input) && empty($other_input)) {
+        return '上記は必須です。';
+    }
+
+    if (mb_strlen($other_input, 'UTF-8') > 200) {
+        return '上記は200文字以内である必要があります。';
     }
     return null;
 }
 
-/**
- * バリデーション: プログラムの理解度
- */
-function validate_survey_understanding($understanding)
+function validate_date_comparison($start_date, $end_date, $text1, $text2)
 {
-    if (empty($understanding)) {
-        return 'プログラムの理解度は必須です。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: プログラムの特に良かった点　その他
- */
-function validate_survey_good_point($good_point, $other_good_point)
-{
-    if (empty($good_point) && empty($other_good_point)) {
-        return 'プログラムの良かった点は必須です。';
-    }
-
-    if (strlen($other_good_point) > 200) {
-        return 'プラグラムの良かった点は200文字以内である必要があります。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: プログラムの開催時間
- */
-function validate_survey_time($time)
-{
-    if (empty($time)) {
-        return 'プログラムの開催時間は必須です。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: プログラムの開催環境
- */
-function validate_survey_holding_enviroment($holding_enviroment)
-{
-    if (empty($holding_enviroment)) {
-        return 'プログラムの開催環境は必須です。';
-    }
-    return null;
-}
-
-/**
- * バリデーション: プログラムの特に良かった点　その他
- */
-function validate_survey_no_good_enviroment_reason($holding_enviroment, $no_good_enviroment_reason)
-{
-    if (empty($holding_enviroment) && empty($no_good_enviroment_reason)) {
-        return 'プログラムの良かった点は必須です。';
-    }
-
-    if (strlen($no_good_enviroment_reason) > 200) {
-        return 'プラグラムの良かった点は200文字以内である必要があります。';
-    }
-    return null;
-}
-
-function validate_date_comparison($start_date, $end_date, $text1, $text2) {
     // 日付を DateTime オブジェクトに変換
     $start = new DateTime($start_date);
     $end = new DateTime($end_date);

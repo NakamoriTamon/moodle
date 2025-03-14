@@ -3,20 +3,28 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/survey/survey_application_controller.php');
 
 global $DB;
-
-if (isset($old_input['event_id'])) {
-    $event_id = $old_input['event_id'];
-} else {
-    $event_id = $_GET['event_id'];
-}
+global $USER;
 
 $surveyApplicationController = new SurveyApplicationController();
+
+// $old_input を既に取得しているので、ここで使用できる
+if (isset($_GET['event_id'])) {
+    $event_id = $_GET['event_id'];
+} elseif (isset($_SESSION['event_id'])) {
+    $event_id = $_SESSION['event_id'];
+} elseif (isset($old_input['event_id'])) {
+    $event_id = $old_input['event_id'];
+} else {
+    // event_id が見つからない場合のエラーハンドリング
+    $_SESSION['message_error'] = 'イベントIDが指定されていません。';
+    header("Location: /custom/app/Views/event/register.php");
+    exit;
+}
 
 $event = $surveyApplicationController->events($event_id);
 $survey_list = $surveyApplicationController->index($event_id);
 
 $prefectures = PREFECTURES;
-
 
 $startTime = $event->start_hour;
 $endTime   = $event->end_hour;
@@ -30,6 +38,7 @@ if ($survey_list) {
     exit;
 }
 include($CFG->dirroot . '/custom/app/Views/common/header.php');
+
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/survey.css" />
 
@@ -38,12 +47,12 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
         <h2 class="head_ttl" data-en="QUESTIONNAIRE">アンケート</h2>
     </section>
     <!-- heading -->
-
     <section id="quest" class="inner_l">
         <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->event_date))); ?> / <?= htmlspecialchars($event->name); ?></p>
         <form method="POST" action="/custom/app/Views/survey/survey-upsert.php" class="whitebox quest_form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="event_id" value="<?php echo $event_id ?>">
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <div class="inner_s">
                 <div class="form_block form01">
                     <ul class="list">
@@ -66,7 +75,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </label>
                             </div>
                             <?php if (!empty($errors['participation'])): ?>
-                                <div class="error-msg">
+                                <div class="error-msg" style="margin-top:15px">
                                     <?= htmlspecialchars($errors['participation']); ?>
                                 </div>
                             <?php endif; ?>
@@ -161,7 +170,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </div>
                                 <div class="other_item">
                                     <label> その他 </label>
-                                    <input type="text" name="other_found_method" row="10px"><?php echo htmlspecialchars($old_input['other_found_method'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
+                                    <input type="text" name="other_found_method" value="<?php echo htmlspecialchars($old_input['other_found_method'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                             </div>
                             <?php if (!empty($errors['found_method'])): ?>
@@ -224,9 +233,9 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                         余暇を有効に利用したかったから
                                     </label>
                                 </div>
-                                <div class="oher_item">
+                                <div class="other_item">
                                     <label> その他 </label>
-                                    <input type="text" row="10px"><?php echo htmlspecialchars($old_input['reason_other'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
+                                    <input type="text" name="reason_other" value="<?php echo htmlspecialchars($old_input['reason_other'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                             </div>
                             <?php if (!empty($errors['reason'])): ?>
@@ -262,7 +271,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </label>
                             </div>
                             <?php if (!empty($errors['satisfaction'])): ?>
-                                <div class="error-msg">
+                                <div class="error-msg" style="margin-top:15px">
                                     <?= htmlspecialchars($errors['satisfaction']); ?>
                                 </div>
                             <?php endif; ?>
@@ -294,7 +303,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </label>
                             </div>
                             <?php if (!empty($errors['understanding'])): ?>
-                                <div class="error-msg">
+                                <div class="error-msg" style="margin-top:15px">
                                     <?= htmlspecialchars($errors['understanding']); ?>
                                 </div>
                             <?php endif; ?>
@@ -341,9 +350,9 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                         身の周りの社会課題に対する解決のヒントが得られた
                                     </label>
                                 </div>
-                                <div class="oher_item">
+                                <div class="other_item">
                                     <label> その他 </label>
-                                    <input type="text" name="other_good_point" row="20px"><?php echo htmlspecialchars($old_input['other_good_point'] ?? '', ENT_QUOTES, 'UTF-8'); ?></text>
+                                    <input type="text" name="other_good_point" value="<?php echo htmlspecialchars($old_input['other_good_point'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                             </div>
                             <?php if (!empty($errors['good_point'])): ?>
@@ -371,7 +380,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </label>
                             </div>
                             <?php if (!empty($errors['time'])): ?>
-                                <div class="error-msg">
+                                <div class="error-msg" style="margin-top:15px">
                                     <?= htmlspecialchars($errors['time']); ?>
                                 </div>
                             <?php endif; ?>
@@ -404,7 +413,7 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 </label>
                             </div>
                             <?php if (!empty($errors['holding_enviroment'])): ?>
-                                <div class="error-msg">
+                                <div class="error-msg" style="margin-top:15px">
                                     <?= htmlspecialchars($errors['holding_enviroment']); ?>
                                 </div>
                             <?php endif; ?>
@@ -526,14 +535,15 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
                                 <div class="area_item01">
                                     <label>都道府県 </label>
                                     <div class="select">
-                                        <select name="prefecture">
-                                            <option value=""></option>
+                                        <select name="prefecture_disabled" disabled>
                                             <?php foreach ($prefectures as $prefecture) { ?>
-                                                <option value="<?= htmlspecialchars($prefecture) ?>" <?= isSelected($prefecture, $old_input['city'] ?? null, null) ? 'selected' : '' ?>>
+                                                <option value="<?= htmlspecialchars($prefecture) ?>"
+                                                    <?= isSelected($prefecture, $USER->city ?? null, null) ? 'selected' : '' ?>>
                                                     <?= $prefecture ?>
                                                 </option>
                                             <?php } ?>
                                         </select>
+                                        <input type="hidden" name="prefecture" value="<?= htmlspecialchars($USER->city ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                     </div>
                                 </div>
                                 <div class="area_item02">
