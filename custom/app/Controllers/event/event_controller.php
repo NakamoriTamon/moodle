@@ -58,7 +58,7 @@ if(!empty($events)) {
 
         $count = 1;
         foreach($event['course_infos'] as $select_course) {
-            if($count > 2) {
+            if($count > 2 || empty($select_course['course_date'])) {
                 break;
             }
 
