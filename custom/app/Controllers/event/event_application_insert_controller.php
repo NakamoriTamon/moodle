@@ -37,7 +37,7 @@ $participation_fee = 0;
 $eventModel = new eventModel();
 
 $event_kbn = htmlspecialchars(optional_param('event_kbn', '' , PARAM_INT));
-if ($event_kbn == PLURAL_EVENT) {
+if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     $participation_fee = $event['single_participation_fee'];
 } else {
@@ -426,8 +426,10 @@ if ($result) {
                     $mail->send();
                     unlink($temp_file);
                 }
+
+                $_SESSION['payment_method_type'] = $pay_method;
             
-                header('Location: /custom/app/Views/mypage/index.php');
+                header('Location: /custom/app/Views/event/complete.php');
                 exit;
             } else {
                 $paymentTypeModel = new PaymentTypeModel();
@@ -442,7 +444,7 @@ if ($result) {
                 'currency' => 'JPY',
                 'external_order_num' => uniqid(),
                 'return_url' => $CFG->wwwroot . '/custom/app/Views/event/complete.php?id=' . $eventId, // 決済成功後のリダイレクトURL
-                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courses['id'], // キャンセル時のリダイレクトURL
+                'cancel_url' => $CFG->wwwroot . '/custom/app/Views/event/pre_registration.php', // キャンセル時のリダイレクトURL
                 'metadata' => [
                     'user_name' => $_SESSION['USER']->name,
                     'event_id' => $eventId,
@@ -450,6 +452,8 @@ if ($result) {
                     'payment_method_type' => $pay_method,
                 ],
             ];
+
+            $_SESSION['payment_method_type'] = $pay_method;
 
             // ヘッダーの設定
             $headers = [

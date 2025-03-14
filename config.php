@@ -64,7 +64,7 @@ $role_user = 'user';
 define('ROLE_USER', $role_user);
 $role_admin = 'admin';
 define('ROLE_ADMIN', $role_admin);
-$role_list = [2 => 'coursecreator', 7 => 'user', 10 => 'admin'];
+$role_list = [2 => 'coursecreator', 7 => 'user', 9 => 'admin'];
 define('ROLE_LIST', $role_list);
 $customfield_select_list = [1 => 'テキスト', 2 => 'テキストエリア', 3 => 'チェックボックス', 4 => 'ラジオ', 5 => '日付'];
 $customfield_type_list = [1 => 'text', 2 => 'textarea', 3 => 'checkbox', 4 => 'radio', 5 => 'date'];

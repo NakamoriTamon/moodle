@@ -113,8 +113,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <ul class="summary_list">
                                 <li>
                                     <p class="term">参加費</p>
-                                    <p class="desc"><?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?= htmlspecialchars(number_format($event['participation_fee'])) ?>円
-                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'] * count($event['select_course']))) ?>円<?php endif; ?>
+                                    <p class="desc">
+                                        <?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?php if($event['single_participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['single_participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?>
+                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?= htmlspecialchars(number_format($event['participation_fee'])) ?>円<?php endif; ?>
                                     </p>
                                 </li>
                                 <li>
@@ -122,7 +123,13 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <p class="desc">
                                     <?php if($event['event_kbn'] != 3): ?>
                                         <?php if (count($event['select_course']) > 1): ?>＜全受講＞<?php endif; ?><?= (new DateTime($event['deadline']))->format('Y年m月d日'); ?>まで<br />
-                                        <?php if($event['event_kbn'] == 2): ?><?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前<?php endif; ?>
+                                        <?php if($event['event_kbn'] == 2): ?><?php if (count($event['select_course']) > 1): ?>＜各回受講＞<?php endif; ?>
+                                            <?php if($event['all_deadline'] == 0): ?>
+                                                開催日の<?= htmlspecialchars($end_hour); ?>まで
+                                            <?php else: ?>
+                                                開催日の<?= htmlspecialchars($event['all_deadline']) ?>日前
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         各イベント開催日の終了時間まで
                                     <?php endif; ?>
@@ -173,9 +180,14 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <span style="color: red;">(終了)</span>
                                 <?php endif; ?>
                             </div>
-                            <p class="sent">
-                                <?= nl2br($course['details'][0]['program']) ?>
-                            </p>
+                            <?php foreach($course['details'] as $key => $detail): ?>
+                                <p class="sent">
+                                    <?= htmlspecialchars($detail['name']) ?>
+                                </p>
+                                <p class="sent" <?php if(count($course['details']) != $key+1): ?>style="margin-bottom: 40px;"<?php endif; ?>>
+                                    <?= nl2br($detail['program']) ?>
+                                </p>
+                            <?php endforeach; ?>
                             <div class="program">
                                 <?php if(!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
                                     <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>

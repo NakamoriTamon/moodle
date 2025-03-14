@@ -77,8 +77,8 @@ if($event_kbn == PLURAL_EVENT) {
     $title = "参加費( 全て受講 )";
     $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
     $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
-    $all_deadline = $_POST['all_deadline'] ?? null; // 各回申し込み締切日　必須
-    $_SESSION['errors']['all_deadline'] = validate_int($all_deadline, '各回申し込み締切日', true);
+    $all_deadline = empty($_POST['all_deadline']) ? 0 : $_POST['all_deadline']; // 各回申し込み締切日　必須
+    $_SESSION['errors']['all_deadline'] = validate_int_zero_ok($all_deadline, '各回申し込み締切日', false);
 } else {
     $title = "参加費";
     $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
@@ -241,8 +241,12 @@ if ($event_kbn == SINGLE_EVENT) {
             // 各講義の申込締切日を算出
             $course_date = optional_param("course_date_{$lectureNumber}", '', PARAM_RAW);
             $date = new DateTime($course_date);
-            $date->modify('-' . $all_deadline . 'days');
-            $deadline_date = $date->format('Y-m-d 23:59:59'); // YYYY-MM-DD形式に変換
+            if($all_deadline > 0) {
+                $date->modify('-' . $all_deadline . 'days');
+                $deadline_date = $date->format('Y-m-d 23:59:59'); // YYYY-MM-DD形式に変換
+            } else {
+                $deadline_date = $date->format('Y-m-d '. $end_hour); // YYYY-MM-DD形式に変換
+            }
 
             // 各フィールドを収集
             if (empty($lectures[$lectureNumber])) {
