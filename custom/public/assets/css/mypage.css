@@ -141,6 +141,9 @@
   color: #ff0000;
   text-align: right; /* テキスト自体を右寄せにする (念のため) */
 }
+.payment-text-red{
+   color: #ff0000 !important;
+}
 
 /*-------------------------------------
  info_wrap

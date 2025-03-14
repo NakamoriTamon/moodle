@@ -371,4 +371,26 @@ class MypageController
         }
         return null;
     }
+
+    /**
+     *  イベントのQR表示可否を送る
+     */
+    public function getEventLectureFormats($event_id_list)
+    {
+        $is_disp_qr_list = [];
+        foreach ($event_id_list as $event_id) {
+            $format_list = $this->DB->get_records('event_lecture_format', ['event_id' => $event_id]);
+            foreach ($format_list as $formats) {
+                if ($formats->lecture_format_id == LECTURE_FORMAT_ON_SITE) {
+                    $is_disp_qr_list[$event_id] = true;
+                    break;
+                }
+            }
+            if (empty($is_disp_qr_list[$event_id])) {
+                $is_disp_qr_list[$event_id] = false;
+            }
+        }
+
+        return $is_disp_qr_list;
+    }
 }
