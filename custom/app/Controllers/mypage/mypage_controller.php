@@ -56,6 +56,20 @@ class MypageController
         );
     }
 
+    /**
+     * $user_id ログイン中のユーザーID
+     * return bool 管理者か否か
+     */
+    public function isGeneralUser($user_id)
+    {
+        $role_assignments = $this->DB->get_record(
+            'role_assignments',
+            ['userid' => $user_id],
+            'roleid',
+        );
+        return (int)$role_assignments->roleid == ROLE['USER'] ? true : false;
+    }
+
     // 適塾記念情報を取得
     public function getTekijukuCommemoration()
     {
