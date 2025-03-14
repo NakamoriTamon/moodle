@@ -66,6 +66,12 @@ class EventModel extends BaseModel
                 // 動的に検索条件を追加
                 $params = [];
                 $having = "";
+                if(!empty($filters['shortname']) && !empty($filters['userid'])) {
+                    if($filters['shortname'] != ROLE_ADMIN) {
+                        $where .= ' AND e.userid = :userid';
+                        $params[':userid'] = $filters['userid'];
+                    }
+                }
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
                     if(is_array($filters['category_id'])) {

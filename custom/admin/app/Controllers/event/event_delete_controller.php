@@ -46,92 +46,85 @@ try {
     $stmt->execute([':event_id' => $id]);
     $course_info_ids = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
 
-    $material_file_names = [];
-    $movie_file_names = [];
-
     // course_info_id分ループ
     foreach($course_info_ids as $course_info_id) {
-        // 講義詳細を削除
-        $stmt = $pdo->prepare("
-            DELETE FROM mdl_course_info_detail 
-            WHERE course_info_id = :course_info_id
-        ");
-        $stmt->execute([':course_info_id' => $course_info_id]);
-
-        // 講義を削除
-        $stmt = $pdo->prepare("
-            DELETE FROM mdl_course_info 
-            WHERE id = :course_info_id
-        ");
-        $stmt->execute([':course_info_id' => $course_info_id]);
+        $material_file_names = [];
+        $movie_file_names = [];
 
         // 削除するイベントの教材を取得
-        $stmt = $pdo->prepare("
+        $stmt3 = $pdo->prepare("
             SELECT file_name
             FROM mdl_course_material 
             WHERE course_info_id = :course_info_id
         ");
-        $stmt->execute([':course_info_id' => $id]);
-        $list = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        if(!empty($list)) {
-            $material_file_names[] = $list;
-        }
-
-        // 教材を削除
-        $stmt = $pdo->prepare("
-            DELETE FROM mdl_course_material 
-            WHERE course_info_id = :course_info_id
-        ");
-        $stmt->execute([':course_info_id' => $course_info_id]);
-
-
+        $stmt3->execute([':course_info_id' => $course_info_id]);
+        $material_file_names = array_merge($material_file_names, $stmt3->fetchAll(PDO::FETCH_COLUMN));
+        
         // 削除するイベントの教材を取得
-        $stmt = $pdo->prepare("
+        $stmt5 = $pdo->prepare("
             SELECT file_name
             FROM mdl_course_movie 
             WHERE course_info_id = :course_info_id
         ");
-        $stmt->execute([':course_info_id' => $course_info_id]);
-        $list = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        if(!empty($list)) {
-            $movie_file_names[] = $list;
-        }
+        $stmt5->execute([':course_info_id' => $course_info_id]);
+        $movie_file_names = array_merge($movie_file_names, $stmt5->fetchAll(PDO::FETCH_COLUMN));
+        
+        // 講義詳細を削除
+        $stmt1 = $pdo->prepare("
+            DELETE FROM mdl_course_info_detail 
+            WHERE course_info_id = :course_info_id
+        ");
+        $stmt1->execute([':course_info_id' => $course_info_id]);
+
+        // 講義を削除
+        $stmt2 = $pdo->prepare("
+            DELETE FROM mdl_course_info 
+            WHERE id = :course_info_id
+        ");
+        $stmt2->execute([':course_info_id' => $course_info_id]);
+
+        // 教材を削除
+        $stmt4 = $pdo->prepare("
+            DELETE FROM mdl_course_material 
+            WHERE course_info_id = :course_info_id
+        ");
+        $stmt4->execute([':course_info_id' => $course_info_id]);
 
         // 動画を削除
-        $stmt = $pdo->prepare("
+        $stmt6 = $pdo->prepare("
             DELETE FROM mdl_course_movie 
             WHERE course_info_id = :course_info_id
         ");
-        $stmt->execute([':course_info_id' => $course_info_id]);
+        $stmt6->execute([':course_info_id' => $course_info_id]);
     }
 
     // 講義中間テーブルから削除
-    $stmt = $pdo->prepare("
+    $stmt7 = $pdo->prepare("
         DELETE FROM mdl_event_course_info 
         WHERE event_id = :event_id
     ");
-    $stmt->execute([':event_id' => $id]);
+    $stmt7->execute([':event_id' => $id]);
 
     // カテゴリー中間テーブルから削除
-    $stmt = $pdo->prepare("
+    $stmt8 = $pdo->prepare("
         DELETE FROM mdl_event_category 
         WHERE event_id = :event_id
     ");
-    $stmt->execute([':event_id' => $id]);
+    $stmt8->execute([':event_id' => $id]);
 
     // 講義形式中間テーブルから削除
-    $stmt = $pdo->prepare("
+    $stmt9 = $pdo->prepare("
         DELETE FROM mdl_event_lecture_format 
         WHERE event_id = :event_id
     ");
-    $stmt->execute([':event_id' => $id]);
+    $stmt9->execute([':event_id' => $id]);
     
     // イベントを削除
-    $stmt = $pdo->prepare("
+    $stmt10 = $pdo->prepare("
         DELETE FROM mdl_event 
         WHERE id = :event_id
     ");
-    $stmt->execute([':event_id' => $id]);
+    $stmt10->execute([':event_id' => $id]);
 
     // 教材を削除
     $dirpath = '/var/www/html/moodle/uploads/material/';
@@ -141,7 +134,7 @@ try {
                 foreach($material_file_names as $file_name) {
                     if (file_exists($dirpath . $file_name)) {
                         if (!unlink($dirpath . $file_name)) {
-                            throw new Exception('教材の削除に失敗しました。');
+                            throw new Exception('講義資料の削除に失敗しました。');
                         }
                     }
                 }
@@ -157,7 +150,7 @@ try {
                 foreach($movie_file_names as $file_name) {
                     if (file_exists($dirpath . $file_name)) {
                         if (!unlink($dirpath . $file_name)) {
-                            throw new Exception('動画の削除に失敗しました。');
+                            throw new Exception('講義動画の削除に失敗しました。');
                         }
                     }
                 }

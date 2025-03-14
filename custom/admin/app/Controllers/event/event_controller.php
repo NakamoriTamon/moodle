@@ -4,6 +4,24 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 
+global $USER, $DB, $COURSE;
+
+// ユーザーIDを取得
+$userid = $USER->id;
+
+// ユーザーのロールを取得
+$sql = "SELECT r.id, r.shortname 
+        FROM {role_assignments} ra
+        JOIN {role} r ON ra.roleid = r.id
+        WHERE ra.userid = :userid";
+        
+$params = ['userid' => $userid];
+
+$roles = $DB->get_records_sql($sql, $params);
+foreach ($roles as $role) {
+    $shortname = $role->shortname;
+}
+
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
@@ -22,6 +40,8 @@ $events = $eventModel->getEvents([
     'category_id' => $category_id,
     'event_status' => $event_status,
     'event_id' => $event_id,
+    'userid' => $userid,
+    'shortname' => $shortname
 ], $currentPage, $perPage);
 
 $totalCount = $eventModel->getEventTotal([
