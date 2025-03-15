@@ -123,29 +123,12 @@ unset($SESSION->formdata);
                                 <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <li class="<?php if ($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars($event_statuses[$row['event_status']]); ?></li>
+                                        <li class="<?php if($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
                                         <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                                            <?php
-                                            if ($row['event_kbn'] != 3) {
-                                                $deadline = (new DateTime($row['deadline']))->format('Ymd 23:59:59');
-                                            } else {
-                                                $deadline = null;
-                                            }
-                                            ?>
-                                            <?php if (!is_null($deadline)): ?>
-                                                <?php if (intval($now) <= intval($deadline)): ?>
-                                                    <?php if (($key == 1 || $key == 2) && $key == $row['set_event_deadline_status']): ?>
-                                                        <li class="active"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
-                                                    <?php elseif ($key == 3 && $key == $row['set_event_deadline_status']): ?>
-                                                        <li class="end"><?= DEADLINE_LIST[$row['set_event_deadline_status']] ?></li>
-                                                    <?php endif ?>
-                                                <?php else: ?>
-                                                    <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
-                                                        <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                                    <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
-                                                        <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                                    <?php endif ?>
-                                                <?php endif ?>
+                                            <?php if ($key != DEADLINE_END && $key == $row['deadline_status']): ?>
+                                                <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php elseif ($key == DEADLINE_END && $key == $row['deadline_status']): ?>
+                                                <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
                                             <?php endif ?>
                                         <?php endforeach; ?>
                                     </ul>
