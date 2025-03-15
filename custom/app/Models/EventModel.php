@@ -6,6 +6,8 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
+                $now = new DateTime();
+                $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
@@ -30,10 +32,10 @@ class EventModel extends BaseModel
                         SELECT 
                             e.*,
                             CASE
-                                WHEN CURRENT_DATE <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > e.deadline - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= e.deadline THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > e.deadline THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                                AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
                             END AS set_event_deadline_status,
                             (SELECT cd.course_date 
                             FROM closest_dates cd 
@@ -41,16 +43,16 @@ class EventModel extends BaseModel
                             ORDER BY cd.time_diff ASC 
                             LIMIT 1) AS closest_course_date,
                             CASE
-                                WHEN CURRENT_DATE < ed.min_course_date THEN 1 -- 開催前
-                                WHEN CURRENT_DATE BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN CURRENT_DATE > ed.max_course_date THEN 3 -- 開催終了
+                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
+                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
+                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
                                 ELSE 0
                             END AS event_status,
                             CASE
-                                WHEN CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
+                                AND :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
                                 ELSE 0
                             END AS deadline_status
                         FROM mdl_event e
@@ -64,7 +66,9 @@ class EventModel extends BaseModel
                 $orderBy = ' ORDER BY is_top DESC, MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
-                $params = [];
+                $params = [
+                    ':current_timestamp' => $currentTimestamp
+                ];
                 $having = "";
                 if(!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if($filters['shortname'] != ROLE_ADMIN) {
@@ -230,6 +234,8 @@ class EventModel extends BaseModel
     public function getEventTotal($filters = []) {
         if ($this->pdo) {
             try {
+                $now = new DateTime();
+                $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                         SELECT 
@@ -254,10 +260,10 @@ class EventModel extends BaseModel
                     SELECT 
                         e.*,
                         CASE
-                            WHEN CURRENT_DATE <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                            WHEN CURRENT_DATE > e.deadline - INTERVAL 5 DAY 
-                            AND CURRENT_DATE <= e.deadline THEN 2 -- もうすぐ締め切り
-                            WHEN CURRENT_DATE > e.deadline THEN 3 -- 受付終了
+                            WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                            WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                            AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                            WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
                         END AS set_event_deadline_status,
                         (SELECT cd.course_date 
                         FROM closest_dates cd 
@@ -265,16 +271,16 @@ class EventModel extends BaseModel
                         ORDER BY cd.time_diff ASC 
                         LIMIT 1) AS closest_course_date,
                         CASE
-                            WHEN CURRENT_DATE < ed.min_course_date THEN 1 -- 開催前
-                            WHEN CURRENT_DATE BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                            WHEN CURRENT_DATE > ed.max_course_date THEN 3 -- 開催終了
+                            WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
+                            WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
+                            WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
                             ELSE 0
                         END AS event_status,
                         CASE
-                            WHEN CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
-                            WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
-                            AND CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
-                            WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
+                            WHEN :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
+                            WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
+                            AND :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
+                            WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
                             ELSE 0
                         END AS deadline_status
                     FROM mdl_event e
@@ -288,7 +294,9 @@ class EventModel extends BaseModel
                 $orderBy = ' ORDER BY is_top DESC, MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
-                $params = [];
+                $params = [
+                    ':current_timestamp' => $currentTimestamp
+                ];
                 $having = "";
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
@@ -550,7 +558,8 @@ class EventModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                
+                $now = new DateTime();
+                $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
@@ -575,10 +584,10 @@ class EventModel extends BaseModel
                         SELECT 
                             e.*,
                             CASE
-                                WHEN CURRENT_DATE <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > e.deadline - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= e.deadline THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > e.deadline THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                                AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
                             END AS set_event_deadline_status,
                             (SELECT cd.course_date 
                             FROM closest_dates cd 
@@ -586,16 +595,16 @@ class EventModel extends BaseModel
                             ORDER BY cd.time_diff ASC 
                             LIMIT 1) AS closest_course_date,
                             CASE
-                                WHEN CURRENT_DATE < ed.min_course_date THEN 1 -- 開催前
-                                WHEN CURRENT_DATE BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN CURRENT_DATE > ed.max_course_date THEN 3 -- 開催終了
+                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
+                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
+                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
                             ELSE 0
                             END AS event_status,
                             CASE
-                                WHEN CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
+                                AND :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
                             ELSE 0
                             END AS deadline_status
                         FROM mdl_event e
@@ -608,7 +617,10 @@ class EventModel extends BaseModel
                     ORDER BY MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
-                $params[':id'] = $id;
+                $params = [
+                    ':id' => $id,
+                    ':current_timestamp' => $currentTimestamp
+                ];
 
                 // クエリの実行
                 $stmt = $this->pdo->prepare($sql);
@@ -639,6 +651,8 @@ class EventModel extends BaseModel
 
         if ($this->pdo) {
             try {        
+                $now = new DateTime();
+                $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
@@ -663,10 +677,10 @@ class EventModel extends BaseModel
                         SELECT 
                             e.*,
                             CASE
-                                WHEN CURRENT_DATE <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > e.deadline - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= e.deadline THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > e.deadline THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                                AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
                             END AS set_event_deadline_status,
                             (SELECT cd.course_date 
                             FROM closest_dates cd 
@@ -674,16 +688,16 @@ class EventModel extends BaseModel
                             ORDER BY cd.time_diff ASC 
                             LIMIT 1) AS closest_course_date,
                             CASE
-                                WHEN CURRENT_DATE < ed.min_course_date THEN 1 -- 開催前
-                                WHEN CURRENT_DATE BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN CURRENT_DATE > ed.max_course_date THEN 3 -- 開催終了
+                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
+                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
+                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
                                 ELSE 0
                             END AS event_status,
                             CASE
-                                WHEN CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
-                                AND CURRENT_DATE <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
-                                WHEN CURRENT_DATE > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
+                                WHEN :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) - INTERVAL 5 DAY 
+                                AND :current_timestamp <= (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > (SELECT cd.deadline_date FROM closest_dates cd WHERE cd.event_id = e.id ORDER BY cd.time_diff ASC LIMIT 1) THEN 3 -- 受付終了
                                 ELSE 0
                             END AS deadline_status
                         FROM mdl_event e
@@ -696,7 +710,10 @@ class EventModel extends BaseModel
                     ORDER BY MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
-                $params[':id'] = $id;
+                $params = [
+                    ':id' => $id,
+                    ':current_timestamp' => $currentTimestamp
+                ];
 
                 // クエリの実行
                 $stmt = $this->pdo->prepare($sql);
