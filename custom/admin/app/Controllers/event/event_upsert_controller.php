@@ -72,7 +72,7 @@ $plan = $_POST['plan'] ?? null; // 企画
 $_SESSION['errors']['plan'] = validate_text($plan, '企画', 225, false); // バリデーションチェック
 // 複数回シリーズのイベント　の場合
 if($event_kbn == PLURAL_EVENT) {
-    $single_participation_fee = $_POST['single_participation_fee'] ?? 0; // 単体の参加費
+    $single_participation_fee = empty($_POST['single_participation_fee']) ? 0 : $_POST['single_participation_fee']; // 単体の参加費
     $_SESSION['errors']['single_participation_fee'] = validate_int_zero_ok($single_participation_fee, '参加費', false);
     $title = "参加費( 全て受講 )";
     $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費

@@ -59,6 +59,16 @@ for($i = 1; $i < 10; $i++){
 		}
 	}
 }
+if(count($courses) < 1) {
+	$courses[1] = [[
+		'id' => null,
+		'tutor_id' => null,
+		'name' =>  null,
+		'program' => null,
+		'tutor_name' => null,
+		'no' => $i,
+	]];
+}
 for($i = 1; $i < 10; $i++){
 	$course_array[$i] = [[
 		'id' => null,
