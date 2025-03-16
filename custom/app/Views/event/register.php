@@ -32,49 +32,47 @@ $pagination = $eventsData['pagination'];
             <ul class="result_list" id="event">
                 <?php foreach ($events as $event): ?>
                     <?php
-                    $pdf_list = $reserve_controller->pdf_list($event->id);
-                    $movie_list = $reserve_controller->movie_list($event->id);
-                    $course_info_list = $reserve_controller->course_info_list($event->id);
-                    $course_list = $reserve_controller->course_list($course_info_list->course_info_id);
-
-                    $eventDate = new DateTime($course_list->release_date);
+                    $releaseDate = new DateTime($event->release_date);
                     $interval = new DateInterval('P' . intval($event->archive_streaming_period) . 'D');
-                    $eventDate->add($interval);
+                    $releaseDate->add($interval);
                     $now = new DateTime();
-                    $formattedDate = $eventDate->format('Y年m月d日');
+                    $formatReleaseDate = new DateTime($event->release_date);
+                    $formatReleaseDate->add($interval);
+                    $formatReleaseDate->modify('-1 day');
+                    $formattedDate = $formatReleaseDate->format('Y年m月d日');
                     ?>
                     <li class="event_item">
                         <figure class="img">
-                            <img src="/custom/public/assets/img/event/event01.jpg" alt="" />
+                            <img src="<?php echo empty($event->thumbnail_img) ? DEFAULT_THUMBNAIL : $event->thumbnail_img ?>" alt="" />
                         </figure>
                         <div class="event_info">
                             <p class="event_ttl">
-                                【第<?= htmlspecialchars($course_list->no) ?>回】
+                                【第<?= htmlspecialchars($event->no) ?>回】
                                 <?= htmlspecialchars($event->name) ?>
                             </p>
                             <div class="event_btns">
-                                <?php if ($eventDate < $now) {
+                                <?php if ($releaseDate < $now) {
                                     echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
-                                } else if ($pdf_list) {
-                                    echo "<a href='#' class='btn_pdf' data-event-id='" . htmlspecialchars($event->id) . "'>PDF資料</a>";
+                                } else if (isset($event->materials)) {
+                                    echo "<a href='#' class='btn_pdf' data-course-info-id='" . htmlspecialchars($event->course_info_id) . "'>PDF資料</a>";
                                 } else {
                                     echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
                                 }
                                 ?>
 
-                                <?php if ($eventDate < $now) {
+                                <?php if ($releaseDate < $now) {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
-                                } else if ($movie_list) {
-                                    echo '<a href="movie.php?event_id=' . htmlspecialchars($event->id) . '" class="btn_movie">イベント動画</a>';
+                                } else if (isset($event->movies)) {
+                                    echo '<a href="movie.php?event_id=' . htmlspecialchars($event->event_id) . '" class="btn_movie">イベント動画</a>';
                                 } else {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
                                 }
                                 ?>
 
-                                <?php if ($eventDate < $now) {
+                                <?php if ($releaseDate < $now) {
                                     echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
                                 } else {
-                                    echo "<a href='../survey/index.php?event_id=" . htmlspecialchars($event->id) . "' class='btn_answer'>アンケートに回答する</a>";
+                                    echo "<a href='../survey/index.php?event_id=" . htmlspecialchars($event->event_id) . "' class='btn_answer'>アンケートに回答する</a>";
                                 }
                                 ?>
                             </div>
@@ -83,10 +81,27 @@ $pagination = $eventsData['pagination'];
                             </p>
                         </div>
                     </li>
+                    <div id="pdf_contents" style="display:none;">
+                        <div id="pdf_content_<?= htmlspecialchars($event->course_info_id) ?>">
+                            <ul class="pdf_list">
+                                <?php if ($event->materials): ?>
+                                    <?php foreach ($event->materials as $pdf): ?>
+                                        <li>
+                                            <p class="name"><?= htmlspecialchars($pdf) ?></p>
+                                            <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars($event->no) ?>" data-course_info="<?= htmlspecialchars($event->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf) ?>">PDF資料</a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <li>
+                                        <p class="name">PDF資料なし</p>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
             </ul>
             <div class="navigation" style="position: relative; z-index: 0;">
-                <a href="/custom/app/Views/mypage/index.php" class="btn btn_blue arrow box_bottom_btn">前へ戻る</a>
                 <ul class="result_pg">
                     <?php if ($pagination['current_page'] > 1): ?>
                         <li><a href="?page=<?= intval($pagination['current_page']) - 1 ?>" class="prev"></a></li>
@@ -98,35 +113,11 @@ $pagination = $eventsData['pagination'];
                         <li><a href="?page=<?= intval($pagination['current_page']) + 1 ?>" class="next"></a></li>
                     <?php endif; ?>
                 </ul>
+                <a href="/custom/app/Views/mypage/index.php" class="btn btn_blue arrow box_bottom_btn">前へ戻る</a>
             </div>
         </section>
     </div>
 </main>
-<div id="pdf_contents" style="display:none;">
-    <?php foreach ($events as $event): ?>
-        <?php
-        $pdf_list = $reserve_controller->pdf_list($event->id);
-        ?>
-        <div id="pdf_content_<?= htmlspecialchars($event->id) ?>">
-            <ul class="pdf_list">
-                <?php if ($pdf_list): ?>
-                    <?php foreach ($pdf_list as $pdf):
-                        $course_list = $reserve_controller->course_list($pdf->course_info_id);
-                    ?>
-                        <li>
-                            <p class="name"><?= htmlspecialchars($pdf->file_name) ?></p>
-                            <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars($course_list->no) ?>" data-course_info="<?= htmlspecialchars($pdf->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf->file_name) ?>">PDF資料</a>
-                        </li>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <li>
-                        <p class="name">PDF資料なし</p>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </div>
-    <?php endforeach; ?>
-</div>
 
 <div id="modal" class="modal_pdf">
     <div class="modal_bg js_close"></div>
@@ -147,10 +138,10 @@ $pagination = $eventsData['pagination'];
 
     $(".btn_pdf").on("click", function(e) {
         e.preventDefault();
-        var eventId = $(this).data("event-id");
+        var courseInfoId = $(this).data("course-info-id");
         srlpos = $(window).scrollTop();
 
-        var pdfHtml = $("#pdf_content_" + eventId).html();
+        var pdfHtml = $("#pdf_content_" + courseInfoId).html();
         $("#modal_pdf_content").html(pdfHtml);
 
         $("#modal").fadeIn();

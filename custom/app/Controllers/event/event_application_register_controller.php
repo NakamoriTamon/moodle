@@ -1,4 +1,5 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventApplicationModel.php');
@@ -7,34 +8,85 @@ require_once('/var/www/html/moodle/custom/app/Models/MovieModel.php');
 class EventRegisterController
 {
     private $movieModel;
+    private $USER;
 
     public function __construct()
     {
+        global $USER;
+        $this->USER = $USER;
         $this->movieModel = new MovieModel();
     }
 
     public function events(int $page = 1, int $perPage = 10)
     {
         global $DB;
-        // 全件取得（イベント申し込みの全レコード）
-        $event_application_courses = $DB->get_records_sql(
-            "SELECT eac.*
-             FROM {event_application_course_info} eac
-             JOIN {event_application} ea ON ea.id = eac.event_application_id
-             WHERE ea.payment_date IS NOT NULL"
-        );
 
-        $event_list = [];
-        foreach ($event_application_courses as $application) {
-            $event_detail = $DB->get_record_sql("SELECT * FROM {event} WHERE id = ?", [$application->event_id]);
-            if ($event_detail) {
-                $event_list[] = $event_detail;
+        // 全件取得（イベント申し込みの全レコード）
+        $sql = "WITH cmt_data AS (
+            SELECT 
+                cm.course_info_id, 
+                GROUP_CONCAT(cm.file_name ORDER BY cm.file_name) AS materials
+            FROM {course_material} cm
+            GROUP BY cm.course_info_id
+        ),
+        cmv_data AS (
+            SELECT 
+                cmv.course_info_id, 
+                GROUP_CONCAT(cmv.file_name ORDER BY cmv.file_name) AS movies
+            FROM {course_movie} cmv
+            GROUP BY cmv.course_info_id
+        )
+        SELECT 
+            eac.*, 
+            e.id AS event_id, 
+            e.name, 
+            e.thumbnail_img,
+            e.archive_streaming_period, 
+            ci.id AS course_info_id, 
+            ci.no, 
+            ci.release_date, 
+            cmt_data.materials, 
+            cmv_data.movies
+        FROM {event_application_course_info} eac
+        JOIN {event_application} ea ON ea.id = eac.event_application_id
+        JOIN {event} e ON e.id = ea.event_id
+        JOIN {course_info} ci ON ci.id = eac.course_info_id
+        LEFT JOIN cmt_data ON cmt_data.course_info_id = ci.id
+        LEFT JOIN cmv_data ON cmv_data.course_info_id = ci.id
+        WHERE ea.payment_date IS NOT NULL
+        AND ea.user_id = :user_id";
+
+        // パラメータ設定
+        $params = [
+            'user_id' => $this->USER->id,
+        ];
+
+        // SQLでイベント申し込み情報を取得
+        $event_application_courses = $DB->get_records_sql($sql, $params);
+
+        // 総件数を取得
+        $totalCount = count($event_application_courses);
+
+        // ページネーションのオフセット
+        $offset = ($page - 1) * $perPage;
+
+        // 必要なページ分のデータを抽出
+        $paginatedEvents = array_slice($event_application_courses, $offset, $perPage);
+
+        // material_names と movie_names を配列に変換して追加
+        foreach ($paginatedEvents as $event) {
+            // material_names を配列に変換
+            if (!empty($event->materials)) {
+                $event->materials = explode(',', $event->materials);
+            }
+
+            // movie_names を配列に変換
+            if (!empty($event->movies)) {
+                $event->movies = explode(',', $event->movies);
             }
         }
-        $totalCount = count($event_list);
-        $offset = ($page - 1) * $perPage;
-        $paginatedEvents = array_slice($event_list, $offset, $perPage);
 
+        // 結果を返す
         return [
             'data' => $paginatedEvents,
             'pagination' => [
