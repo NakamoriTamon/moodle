@@ -58,7 +58,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                 <p class="list_label">金額</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($price) ?></p>
               </li>
-              <?php if ($price == '無料') { ?>
+              <?php if ($price != '無料') { ?>
                 <li class="list_item06">
                   <p class="list_label">お支払方法</p>
                   <p class="list_field f_txt">
