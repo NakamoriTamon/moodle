@@ -36,13 +36,18 @@ $courseInfoId = $courseInfoId == 0 ? null : $courseInfoId;
 $participation_fee = 0;
 $eventModel = new eventModel();
 
-$event_kbn = htmlspecialchars(optional_param('event_kbn', '' , PARAM_INT));
+$event_kbn = htmlspecialchars(optional_param('event_kbn', '', PARAM_INT));
 if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     $participation_fee = $event['single_participation_fee'];
 } else {
     $event = $eventModel->getEventById($eventId);
     $participation_fee = $event['participation_fee'];
+}
+// 毎日開催イベント
+if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
+    $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+    $participation_fee = $event['single_participation_fee'];
 }
 
 // イベント情報がなかった場合
@@ -91,7 +96,7 @@ if (!empty($event)) {
 $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$age = htmlspecialchars(optional_param('age', '' , PARAM_INT));
+$age = htmlspecialchars(optional_param('age', '', PARAM_INT));
 // 枚数
 $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
@@ -141,7 +146,7 @@ $guardian_phone = htmlspecialchars(optional_param('guardian_phone', '', PARAM_TE
 $guardian_phone = removeHyphens($guardian_phone);
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 0, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-if(!empty($guardian_kbn) && ADULT_AGE >= $age) {
+if (!empty($guardian_kbn) && ADULT_AGE >= $age) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
     $_SESSION['errors']['guardian_phone'] = validate_tel_number($guardian_phone);
@@ -340,16 +345,16 @@ if ($result) {
             ]);
 
             // 無料の場合
-            if ($event['participation_fee'] < 1 ) {
+            if ($event['participation_fee'] < 1) {
                 $pdo->commit();
-                
+
                 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
                 $dotenv->load();
 
                 $eventApplicationModel = new EventApplicationModel();
                 $eventApplication = $eventApplicationModel->getEventApplicationByEventId($eventApplicationId);
 
-                foreach($eventApplication['course_infos'] as $course) {
+                foreach ($eventApplication['course_infos'] as $course) {
                     // QR生成
                     $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
                     $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
@@ -360,9 +365,9 @@ if ($result) {
                     $qrCodeBase64 = base64_encode($qrCodeImage);
                     $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
                     file_put_contents($temp_file, $qrCodeImage);
-                
+
                     $mail = new PHPMailer(true);
-                
+
                     $mail->isSMTP();
                     $test = getenv('MAIL_HOST');
                     $mail->Host = $_ENV['MAIL_HOST'];
@@ -372,17 +377,17 @@ if ($result) {
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->CharSet = PHPMailer::CHARSET_UTF8;
                     $mail->Port = $_ENV['MAIL_PORT'];
-                
+
                     $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
                     $mail->addAddress($course['participant_mail'], 'Recipient Name');
-                
+
                     $sendAdresses = ['tamonswallow@gmail.com'];
                     foreach ($sendAdresses as $sendAdress) {
                         $mail->addAddress($sendAdress, 'Recipient Name');
                     }
                     $mail->addReplyTo('no-reply@example.com', 'No Reply');
                     $mail->isHTML(true);
-                    
+
                     $day = new DateTime($course["course_date"]);
                     $course_date = $day->format('Ymd');
                     $ymd = $day->format('Y/m/d');
@@ -393,7 +398,7 @@ if ($result) {
                     $qr_img = 'qr_code_' . $course_date . '.png';
                     // QRをインライン画像で追加
                     $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
-                
+
                     $htmlBody = "
                         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                             <p style=\"text-align: left; font-weight:bold;\">" . $name . "</p>
@@ -409,12 +414,12 @@ if ($result) {
                             あらかじめご了承ください。</p>
                         </div>
                     ";
-                
+
                     $name = "";
-                
+
                     $mail->Subject = 'チケットの購入が完了しました';
                     $mail->Body = $htmlBody;
-                
+
                     $mail->SMTPOptions = array(
                         'ssl' => array(
                             'verify_peer' => false,
@@ -422,13 +427,13 @@ if ($result) {
                             'allow_self_signed' => true
                         )
                     );
-                
+
                     $mail->send();
                     unlink($temp_file);
                 }
 
                 $_SESSION['payment_method_type'] = $pay_method;
-            
+
                 header('Location: /custom/app/Views/event/complete.php');
                 exit;
             } else {
@@ -494,7 +499,7 @@ if ($result) {
                         komoju_url = :komoju_url
                     WHERE id = :id
                 ");
-    
+
                 $itmt6->execute([
                     ':komoju_url' => $redirect_url,
                     ':id' => $eventApplicationId // 一意の識別子をWHERE条件として設定
@@ -558,7 +563,8 @@ if ($result) {
     redirect(new moodle_url('/custom/app/Views/event/apply.php?id=' . $eventId));
 }
 
-function removeHyphens($phone) {
+function removeHyphens($phone)
+{
     // 全角を半角に変換
     $phone = mb_convert_kana($phone, 'a');
     // ハイフンを削除
