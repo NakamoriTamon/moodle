@@ -58,17 +58,19 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                 <p class="list_label">金額</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($price) ?></p>
               </li>
-              <li class="list_item06">
-                <p class="list_label">お支払方法</p>
-                <p class="list_field f_txt">
-                  <?= htmlspecialchars($pay_method) ?>
-                </p>
-              </li>
-              <li class="list_item07">
-                <p class="list_label">決済状況</p>
-                <p class="list_field f_txt">
-                  <?= htmlspecialchars($is_payment) ?>
-              </li>
+              <?php if ($price == '無料') { ?>
+                <li class="list_item06">
+                  <p class="list_label">お支払方法</p>
+                  <p class="list_field f_txt">
+                    <?= htmlspecialchars($pay_method) ?>
+                  </p>
+                </li>
+                <li class="list_item07">
+                  <p class="list_label">決済状況</p>
+                  <p class="list_field f_txt">
+                    <?= htmlspecialchars($is_payment) ?>
+                </li>
+              <?php } ?>
               <?php if (!empty($child_name)) { ?>
                 <li class="list_item08  <?= !empty($errors['companion_name']) ? 'flex-wrap' : '' ?>">
                   <p class="list_label">お連れ様の氏名</p>
