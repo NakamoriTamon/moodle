@@ -37,14 +37,16 @@ class EventRegisterController
             GROUP BY cmv.course_info_id
         )
         SELECT 
-            eac.*, 
+            eac.event_application_id, 
+            eac.course_info_id, 
             e.id AS event_id, 
             e.name, 
             e.thumbnail_img,
             e.archive_streaming_period, 
-            ci.id AS course_info_id, 
+            e.start_hour,
             ci.no, 
             ci.release_date, 
+            ci.course_date, 
             cmt_data.materials, 
             cmv_data.movies
         FROM {event_application_course_info} eac

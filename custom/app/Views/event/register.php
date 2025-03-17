@@ -32,14 +32,29 @@ $pagination = $eventsData['pagination'];
             <ul class="result_list" id="event">
                 <?php foreach ($events as $event): ?>
                     <?php
-                    $releaseDate = new DateTime($event->release_date);
-                    $interval = new DateInterval('P' . intval($event->archive_streaming_period) . 'D');
-                    $releaseDate->add($interval);
                     $now = new DateTime();
-                    $formatReleaseDate = new DateTime($event->release_date);
-                    $formatReleaseDate->add($interval);
-                    $formatReleaseDate->modify('-1 day');
-                    $formattedDate = $formatReleaseDate->format('Y年m月d日');
+                    if (empty($event->release_date)) { // リリース情報が無い場合開催時刻　～　終日がアンケートや資料が見れる
+                        $start_hour = $event->start_hour;
+                        $date = new DateTime($event->course_date);
+                        $date_part = $date->format('Y-m-d');
+                        $releaseDate = new DateTime("$date_part $start_hour"); // 公開開始
+
+                        $end_hour = '23:59:59';
+                        $releaseEndDate = new DateTime("$date_part $end_hour"); // 比較用　公開終了
+                        $formattedDate = $releaseEndDate->format('Y年m月d日'); // 表示用　公開終了
+                    } else { // リリース情報が有る場合開催時刻　～　がアンケートや資料が見れる
+                        $date = new DateTime($event->release_date);
+                        $date_part = $date->format('Y-m-d H:i:s');
+                        $releaseDate = new DateTime($date_part); // 公開開始
+
+                        $releaseEndDate = new DateTime($event->release_date);
+                        $interval = new DateInterval('P' . intval($event->archive_streaming_period) . 'D');
+                        $releaseEndDate->add($interval); // 比較用　公開終了
+                        $formatReleaseEndDate = new DateTime($event->release_date);
+                        $formatReleaseEndDate->add($interval);
+                        $formatReleaseEndDate->modify('-1 day');
+                        $formattedDate = $formatReleaseEndDate->format('Y年m月d日'); // 表示用　公開終了
+                    }
                     ?>
                     <li class="event_item">
                         <figure class="img">
@@ -51,28 +66,26 @@ $pagination = $eventsData['pagination'];
                                 <?= htmlspecialchars($event->name) ?>
                             </p>
                             <div class="event_btns">
-                                <?php if ($releaseDate < $now) {
-                                    echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
-                                } else if (isset($event->materials)) {
+                                <?php
+                                // PDFボタン
+                                if ($now >= $releaseDate && $now <= $releaseEndDate && isset($event->materials)) {
                                     echo "<a href='#' class='btn_pdf' data-course-info-id='" . htmlspecialchars($event->course_info_id) . "'>PDF資料</a>";
                                 } else {
                                     echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
                                 }
-                                ?>
 
-                                <?php if ($releaseDate < $now) {
-                                    echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
-                                } else if (isset($event->movies)) {
+                                // 動画ボタン
+                                if ($now >= $releaseDate && $now <= $releaseEndDate && isset($event->movies)) {
                                     echo '<a href="movie.php?event_id=' . htmlspecialchars($event->event_id) . '" class="btn_movie">イベント動画</a>';
                                 } else {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
                                 }
-                                ?>
 
-                                <?php if ($releaseDate < $now) {
-                                    echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
-                                } else {
+                                // アンケートボタン
+                                if ($now >= $releaseDate && $now <= $releaseEndDate) {
                                     echo "<a href='../survey/index.php?event_id=" . htmlspecialchars($event->event_id) . "' class='btn_answer'>アンケートに回答する</a>";
+                                } else {
+                                    echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
                                 }
                                 ?>
                             </div>
@@ -131,6 +144,8 @@ $pagination = $eventsData['pagination'];
     <li><a href="../index.php">トップページ</a></li>
     <li>申し込みイベント</li>
 </ul>
+
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
