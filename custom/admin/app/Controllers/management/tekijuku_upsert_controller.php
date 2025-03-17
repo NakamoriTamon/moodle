@@ -112,7 +112,7 @@ try {
                 }
 
                 // 枚数(仮)
-                $unit = $params['2024（R6)'];
+                $unit = $params['2024（R6)'] ?? $params['2025（R7)'];
                 $post_code = !empty($params['郵便番号']) ?  str_replace('-', '', $params['郵便番号']) : '';
                 $is_published = !empty($params['『適塾』氏名掲載不可 ']) ? true : false;
                 $note = $params['備考'];
@@ -188,7 +188,7 @@ try {
                 $tekijuku_commemoration->old_number = (int)$old_number;
                 $tekijuku_commemoration->is_temporary = 1;
                 $tekijuku_commemoration->price = $price;
-                $tekijuku_commemoration->unit = $unit;
+                $tekijuku_commemoration->unit = (int)$unit;
                 $tekijuku_commemoration->is_university_member = $is_university_member;
 
                 $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration);
@@ -245,6 +245,8 @@ try {
     exit;
 } catch (Exception $e) {
     try {
+        var_dump($e);
+        die();
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';
