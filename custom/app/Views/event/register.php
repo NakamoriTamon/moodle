@@ -72,7 +72,7 @@ $pagination = $eventsData['pagination'];
                                 <?php if ($releaseDate < $now) {
                                     echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
                                 } else {
-                                    echo "<a href='../survey/index.php?event_id=" . htmlspecialchars($event->event_id) . "' class='btn_answer'>アンケートに回答する</a>";
+                                    echo "<a href='../survey/index.php?course_info_id=" . htmlspecialchars($event->course_info_id) . "' class='btn_answer'>アンケートに回答する</a>";
                                 }
                                 ?>
                             </div>
