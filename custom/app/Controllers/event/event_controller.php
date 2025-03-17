@@ -40,25 +40,25 @@ $events = $eventModel->getEvents([
 $now = new DateTime();
 $now = $now->format('Ymd');
 
-if(!empty($events)) {
-    foreach($events as &$event) { 
+if (!empty($events)) {
+    foreach ($events as &$event) {
         $select_lecture_formats = [];
         $select_categorys = [];
         $select_courses = [];
-        
-        foreach($event['lecture_formats'] as $select_category) {
+
+        foreach ($event['lecture_formats'] as $select_category) {
             $select_lecture_formats[] = $select_category['lecture_format_id'];
         }
         $event['select_lecture_formats'] = $select_lecture_formats;
 
-        foreach($event['categorys'] as $select_category) {
+        foreach ($event['categorys'] as $select_category) {
             $select_categorys[] = $select_category['category_id'];
         }
         $event['select_categorys'] = $select_categorys;
 
         $count = 1;
-        foreach($event['course_infos'] as $select_course) {
-            if($count > 2 || empty($select_course['course_date'])) {
+        foreach ($event['course_infos'] as $select_course) {
+            if ($count > 2 || empty($select_course['course_date'])) {
                 break;
             }
 
@@ -71,7 +71,6 @@ if(!empty($events)) {
             $count++;
         }
     }
-    
 }
 
 $totalCount = $eventModel->getEventTotal([

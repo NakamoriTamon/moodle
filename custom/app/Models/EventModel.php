@@ -98,22 +98,30 @@ class EventModel extends BaseModel
 
                 $where = ' WHERE e.visible = 1';
                 $groupBy = ' GROUP BY e.id';
-                $orderBy = ' ORDER BY is_top DESC, MIN(ci.course_date) ASC';
+                $orderBy = ' ORDER BY 
+                    CASE 
+                        WHEN event_status IN (1, 2) AND is_top = 1 THEN 1  -- 1番目: event_statusが1または2 & is_top = 1
+                        WHEN event_status IN (1, 2) AND is_top = 0 THEN 2  -- 2番目: event_statusが1または2 & is_top = 0
+                        WHEN event_status = 3 AND is_top = 1 THEN 3        -- 3番目: event_statusが3 & is_top = 1
+                        WHEN event_status = 3 AND is_top = 0 THEN 4        -- 4番目: event_statusが3 & is_top = 0
+                        ELSE 5  -- その他（万が一 event_status の値が 1, 2, 3 以外の場合）
+                    END,
+                    MIN(ci.course_date) ASC, MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
                 $params = [
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
-                if(!empty($filters['shortname']) && !empty($filters['userid'])) {
-                    if($filters['shortname'] != ROLE_ADMIN) {
+                if (!empty($filters['shortname']) && !empty($filters['userid'])) {
+                    if ($filters['shortname'] != ROLE_ADMIN) {
                         $where .= ' AND e.userid = :userid';
                         $params[':userid'] = $filters['userid'];
                     }
                 }
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
-                    if(is_array($filters['category_id'])) {
+                    if (is_array($filters['category_id'])) {
                         $placeholders = [];
                         foreach ($filters['category_id'] as $index => $id) {
                             $key = ":category_id_$index";
@@ -127,9 +135,9 @@ class EventModel extends BaseModel
                         $params[':category_id'] = $category_id;
                     }
                 }
-                if(!empty($filters['lecture_format_id'])) {
+                if (!empty($filters['lecture_format_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_lecture_format elf ON elf.event_id = e.id';
-                    if(is_array($filters['lecture_format_id'])) {
+                    if (is_array($filters['lecture_format_id'])) {
                         $placeholders = [];
                         foreach ($filters['lecture_format_id'] as $index => $id) {
                             $key = ":lecture_format_id_$index";
@@ -144,7 +152,7 @@ class EventModel extends BaseModel
                     }
                 }
                 if (!empty($filters['event_status'])) {
-                    if(is_array($filters['event_status'])) {
+                    if (is_array($filters['event_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -168,7 +176,7 @@ class EventModel extends BaseModel
                     }
                 }
                 if (!empty($filters['deadline_status'])) {
-                    if(is_array($filters['deadline_status'])) {
+                    if (is_array($filters['deadline_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -219,7 +227,7 @@ class EventModel extends BaseModel
                     foreach ($keywordArray as $index => $word) {
                         $paramName = ":keyword{$index}";
                         $params[$paramName] = '%' . $word . '%';
-                
+
                         $keywordConditions[] = "(
                             e.name LIKE $paramName
                             OR e.venue_name LIKE $paramName
@@ -266,7 +274,8 @@ class EventModel extends BaseModel
         return [];
     }
 
-    public function getEventTotal($filters = []) {
+    public function getEventTotal($filters = [])
+    {
         if ($this->pdo) {
             try {
                 $now = new DateTime();
@@ -370,7 +379,7 @@ class EventModel extends BaseModel
                 $having = "";
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
-                    if(is_array($filters['category_id'])) {
+                    if (is_array($filters['category_id'])) {
                         $placeholders = [];
                         foreach ($filters['category_id'] as $index => $id) {
                             $key = ":category_id_$index";
@@ -384,9 +393,9 @@ class EventModel extends BaseModel
                         $params[':category_id'] = $category_id;
                     }
                 }
-                if(!empty($filters['lecture_format_id'])) {
+                if (!empty($filters['lecture_format_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_lecture_format elf ON elf.event_id = e.id';
-                    if(is_array($filters['lecture_format_id'])) {
+                    if (is_array($filters['lecture_format_id'])) {
                         $placeholders = [];
                         foreach ($filters['lecture_format_id'] as $index => $id) {
                             $key = ":lecture_format_id_$index";
@@ -401,7 +410,7 @@ class EventModel extends BaseModel
                     }
                 }
                 if (!empty($filters['event_status'])) {
-                    if(is_array($filters['event_status'])) {
+                    if (is_array($filters['event_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -425,7 +434,7 @@ class EventModel extends BaseModel
                     }
                 }
                 if (!empty($filters['deadline_status'])) {
-                    if(is_array($filters['deadline_status'])) {
+                    if (is_array($filters['deadline_status'])) {
                         if (!empty($having)) {
                             $having .= ' AND';
                         } else {
@@ -476,7 +485,7 @@ class EventModel extends BaseModel
                     foreach ($keywordArray as $index => $word) {
                         $paramName = ":keyword{$index}";
                         $params[$paramName] = '%' . $word . '%';
-                
+
                         $keywordConditions[] = "(
                             e.name LIKE $paramName
                             OR e.venue_name LIKE $paramName
@@ -501,7 +510,7 @@ class EventModel extends BaseModel
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
                 $totalCount = count($stmt->fetchAll(PDO::FETCH_ASSOC));
-                
+
                 return $totalCount;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
@@ -563,10 +572,10 @@ class EventModel extends BaseModel
                 $stmt->bindParam(':eventID', $eventID, PDO::PARAM_INT);
                 $stmt->execute();
                 $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach($course_infos as &$course_info) {
+                foreach ($course_infos as &$course_info) {
                     $course_info["details"] = $this->getEventCourseInfoDetails($course_info["id"]);
                 }
-                
+
                 return $course_infos;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
@@ -587,10 +596,10 @@ class EventModel extends BaseModel
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 $course_infos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach($course_infos as &$course_info) {
+                foreach ($course_infos as &$course_info) {
                     $course_info["details"] = $this->getEventCourseInfoDetails($course_info["id"]);
                 }
-                
+
                 return $course_infos;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
@@ -732,7 +741,7 @@ class EventModel extends BaseModel
                 $stmt->execute($params);
                 $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if(!empty($event)) {
+                if (!empty($event)) {
                     // 各イベントの詳細を追加
                     $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
                     $event['categorys'] = $this->getEventCategorys($event['id']);
@@ -755,7 +764,7 @@ class EventModel extends BaseModel
     {
 
         if ($this->pdo) {
-            try {        
+            try {
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
