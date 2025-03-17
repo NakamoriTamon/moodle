@@ -46,7 +46,7 @@ if ($movie) {
         <section id="movie">
             <div class="movie_wrap w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
                 <video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
-                    <?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>>
+                    <?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload noplaybackrate"' : 'controlsList="nodownload"'; ?>>
                     <source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $result_list['course_info_id'] . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
                     <p>動画再生をサポートしていないブラウザです。</p>
                 </video>
