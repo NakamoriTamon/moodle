@@ -4,15 +4,6 @@ require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_co
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php'); // 管理者か否か確認用
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 // unset($SESSION->formdata);
-$mypage_controller = new MypageController;
-$user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
-$is_general_user = $mypage_controller->isGeneralUser($user->id);
-if (!$is_general_user && $user) {
-    echo '<script type="text/javascript">
-        window.location.href = "/custom/app/Views/logout/index.php";
-        </script>';
-    exit();
-}
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 $formdata = null;
@@ -27,6 +18,17 @@ if (isset($SESSION->formdata)) {
 }
 $eventApplicationController = new EventApplicationController();
 $responce = $eventApplicationController->getEvenApplication($eventId, $courseInfoId, $formdata);
+$event = $responce['event'];
+$event_kbn = $event['event_kbn'];
+if($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId)) {
+    foreach ($event['select_course'] as $no => $course) {
+        $courseInfoId = $course['id'];
+    }
+} elseif($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId) && count($event['select_course']) == 1) {
+    foreach ($event['select_course'] as $no => $course) {
+        $courseInfoId = $course['id'];
+    }
+}
 
 $name = "";
 $kana = "";
@@ -37,8 +39,6 @@ $guardian_name = "";
 $guardian_kana = "";
 $guardian_email = "";
 $guardian_phone = "";
-$event = $responce['event'];
-$event_kbn = $event['event_kbn'];
 $capacity = $event['capacity'];
 
 if($responce['event']['capacity'] == 0) {
@@ -76,25 +76,42 @@ $dayDate = $day->format('Y-m-d');
 // 現在の日付
 $now = new DateTime();
 $nowDate = $now->format('Y-m-d');
+$tekijuku_discount = 0;
 if (isloggedin() && isset($_SESSION['USER'])) {
     global $DB, $USER;
+    
+    $mypage_controller = new MypageController;
+    $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+    $tekijuku = $mypage_controller->getTekijukuCommemoration();
+    $is_general_user = $mypage_controller->isGeneralUser($user->id);
+    if (!$is_general_user && $user) {
+        echo '<script type="text/javascript">
+            window.location.href = "/custom/app/Views/logout/index.php";
+            </script>';
+        exit();
+    }
 
+    $tekijuku_text = "";
+    if($tekijuku) {
+        $tekijuku_flg = true;
+        $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
+        $participation_fee = $participation_fee - $tekijuku_discount;
+        $tekijuku_text = "　(適塾記念会会員割引額: {$tekijuku_discount}円　適用価格)";
+    }
     // 必要な情報を取得
-    $userData = $DB->get_record('user', ['id' => $USER->id], 'name, name_kana, birthday,
-    notification_kbn, guardian_kbn, guardian_name, guardian_email, guardian_phone');
-    $name = $userData->name ?? "";
-    $kana = $userData->name_kana ?? "";
+    $name = $user->name ?? "";
+    $kana = $user->name_kana ?? "";
     $email = $_SESSION['USER']->email ?? "";
-    $now_notification = $userData->notification_kbn;
-    $birthday = $userData->birthday ?? "";
+    $now_notification = $user->notification_kbn;
+    $birthday = $user->birthday ?? "";
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
     if($age > ADULT_AGE) {
-        $guardian_name = $userData->guardian_name ?? "";
-        $guardian_kbn = $userData->guardian_kbn ?? "";
-        $guardian_email = $userData->guardian_email ?? "";
-        $guardian_phone = $userData->guardian_phone ?? "";
+        $guardian_name = $user->guardian_name ?? "";
+        $guardian_kbn = $user->guardian_kbn ?? "";
+        $guardian_email = $user->guardian_email ?? "";
+        $guardian_phone = $user->guardian_phone ?? "";
     }
 }
 if (!empty($old_input)) {
@@ -204,6 +221,7 @@ if (!empty($old_input)) {
                     <input type="hidden" id="price" name="price" value="<?= htmlspecialchars($price) ?>">
                     <input type="hidden" id="now_notification" name="now_notification" value="<?= htmlspecialchars($now_notification) ?>">
                     <input type="hidden" id="event_kbn" name="event_kbn" value="<?= htmlspecialchars($event_kbn) ?>">
+                    <input type="hidden" id="tekijuku_discount" name="tekijuku_discount" value="<?= htmlspecialchars($tekijuku_discount) ?>">
                     <div class="inner_m">
                         <ul class="list">
                             <span class="error-msg">
@@ -257,7 +275,7 @@ if (!empty($old_input)) {
                                 <?php if($participation_fee < 1): ?>
                                     <p class="list_field">無料</p>
                                 <?php else: ?>
-                                    <p class="list_field" id="show_price"><?= htmlspecialchars(number_format($price)) ?>円</p>
+                                    <p class="list_field" id="show_price"><?= htmlspecialchars(number_format($price)); ?>円</p>
                                 <?php endif; ?>
                             </li>
                             <span class="error-msg" id="companion_mails-error">
@@ -452,6 +470,7 @@ if (!empty($old_input)) {
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
+    const tekijuku_text = <?= json_encode($tekijuku_text, JSON_UNESCAPED_UNICODE) ?>;
     const participation_fee = $('#participation_fee').val();
     const akiTicketCount = $('#aki_ticket').val();
     // ブラウザバック対応
@@ -459,7 +478,7 @@ if (!empty($old_input)) {
         const price = participation_fee * $(this).val();
         var test = $('#price').text();
         $('#price').val(price);
-        $('#show_price').text(price.toLocaleString() + "円");
+        $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
     });
 
     document.getElementById('ticket').addEventListener('blur', function() {
@@ -517,7 +536,7 @@ if (!empty($old_input)) {
                 total_numner = $(this).val();
                 const price = participation_fee * $(this).val();
                 $('#price').val(price);
-                $('#show_price').text(price.toLocaleString() + "円");
+                $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
             });
             createInputMail();
             return total_numner;

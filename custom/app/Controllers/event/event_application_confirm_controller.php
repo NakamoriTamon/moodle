@@ -9,6 +9,7 @@ require_once('/var/www/html/moodle/custom/app/Models/CognitionModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 
 // セッションをクリア
 unset($SESSION->formdata);
@@ -31,20 +32,39 @@ $eventModel = new eventModel();
 $event_kbn = htmlspecialchars(optional_param('event_kbn', '', PARAM_INT));
 if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+    // イベント情報がなかった場合
+    if (empty($event)) {
+        header('Location: /custom/app/Views/event/index.php');
+        return;
+    }
     $participation_fee = $event['single_participation_fee'];
 } else {
     $event = $eventModel->getEventById($eventId);
+    // イベント情報がなかった場合
+    if (empty($event)) {
+        header('Location: /custom/app/Views/event/index.php');
+        return;
+    }
     $participation_fee = $event['participation_fee'];
 }
 // 毎日開催イベント
 if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
+    // イベント情報がなかった場合
+    if (empty($event)) {
+        header('Location: /custom/app/Views/event/index.php');
+        return;
+    }
     $participation_fee = $event['single_participation_fee'];
 }
-// イベント情報がなかった場合
-if (empty($event)) {
-    header('Location: /custom/app/Views/event/index.php');
-    return;
+
+$mypage_controller = new MypageController;
+$tekijuku = $mypage_controller->getTekijukuCommemoration();
+
+$tekijuku_discount = 0;
+if($tekijuku) {
+    $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
+    $participation_fee = $participation_fee - $tekijuku_discount;
 }
 
 $categoryModel = new CategoryModel();

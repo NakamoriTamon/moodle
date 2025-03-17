@@ -43,9 +43,9 @@ class EventModel extends BaseModel
                             ORDER BY cd.time_diff ASC 
                             LIMIT 1) AS closest_course_date,
                             CASE
-                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
-                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
+                                WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
+                                WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
+                                WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
                                 ELSE 0
                             END AS event_status,
                             CASE
@@ -665,9 +665,9 @@ class EventModel extends BaseModel
                             ORDER BY cd.time_diff ASC 
                             LIMIT 1) AS closest_course_date,
                             CASE
-                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
-                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
+                                WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
+                                WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
+                                WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
                             ELSE 0
                             END AS event_status,
                             CASE

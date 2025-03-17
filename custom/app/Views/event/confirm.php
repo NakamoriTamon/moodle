@@ -170,7 +170,7 @@ if (!is_null($courseInfoId)) {
                                 <?php if (is_array($triggers)): ?>
                                     <?php foreach ($cognitions as $cognition): ?>
                                         <?php if (in_array($cognition['id'], $triggers)): ?>
-                                            <?= $cognition["name"] ?>
+                                            ・<?= $cognition["name"] ?><br />
                                         <?php endif ?>
                                     <?php endforeach ?>
                                 <?php endif ?>

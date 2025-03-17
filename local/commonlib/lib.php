@@ -469,3 +469,34 @@ function validate_date_comparison($start_date, $end_date, $text1, $text2)
 
     return null;
 }
+
+function validate_google_map($embed_code, $text, $required)
+{
+    if (empty($embed_code) && $required) {
+        return $title . 'は必須です。';
+    } elseif (empty($embed_code) && !$required) {
+        return null;
+    }
+    $allowed_tags = '<iframe>'; // iframe のみ許可
+
+    $embed_code = strip_tags($embed_code, $allowed_tags); // 許可タグ以外を削除
+
+    if (!preg_match('/<iframe.*src=["\']https:\/\/www\.google\.com\/maps\/embed?.*["\'].*><\/iframe>/', $embed_code)) {
+        return 'Google Mapの埋め込みコードが無効です';
+    }
+
+    return null;
+}
+
+function validate_url($url, $text, $required)
+{
+    if (empty($url) && $required) {
+        return $title . 'は必須です。';
+    } elseif (empty($url) && !$required) {
+        return null;
+    }
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        return $text . 'に入力されたURLは無効な形式です。';
+    }
+    return null;
+}

@@ -16,7 +16,7 @@ if(!empty($id)) {
 }
 
 $start_event_flg = false;
-if(!is_null($id) && !empty($eventData)) {
+if(isset($eventData) && $eventData['event_status'] == EVENT_END) {
 	$start_event_flg = true;
 }
 
@@ -111,9 +111,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<p class="content_title p-3">イベント登録<?php if($ticket_count > 0): ?><span style="color: red;"> ※すでに申込があるため一部更新ができません。</span><?php endif; ?></p>
+							<p class="content_title p-3">イベント登録
+								<?php if($ticket_count > 0): ?><span style="color: red;"> ※すでに申込があるため一部更新ができません。</span><?php endif; ?>
+							</p>
 							<div class="form-wrapper">
-								<?php if($start_event_flg): ?>
+								<?php if(isset($eventData) && !$start_event_flg): ?>
 									<form method="POST" action="/custom/admin/app/Controllers/event/event_delete_controller.php" enctype="multipart/form-data">
 										<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 										<input type="hidden" name="del_event_id" value="<?= $id ?? '' ?>">
@@ -343,6 +345,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<div class="mb-3">
 											<input name="google_map" class=" form-control" type="text"
 												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
+											<?php if (!empty($errors['google_map'])): ?>
+												<div class="text-danger mt-2"><?= htmlspecialchars($errors['google_map']); ?></div>
+											<?php endif; ?>
 										</div>
 										<div class="mb-3">
 										<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
@@ -649,6 +654,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['single_participation_fee']); ?></div>
 										<?php endif; ?>
 									</div>
+									<div class="mb-3">
+										<label class="form-label" id="tekijuku_discount_label">適塾記念会会員割引額</label><label>　※申込が発生すると変更が出来なくなります。</label>
+										<input name="tekijuku_discount" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['tekijuku_discount'] ?? ($old_input['tekijuku_discount'] ?? '')) ?>"
+											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
+											 />
+										<?php if (!empty($errors['tekijuku_discount'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_discount']); ?></div>
+										<?php endif; ?>
+									</div>
 									<?php if(!isset($eventData['event_kbn']) || (isset($eventData['event_kbn']) && $eventData['event_kbn'] != EVERY_DAY_EVENT)): ?>
 										<div id="deadline_area" class="mb-3">
 											<div class="form-label d-flex align-items-center">
@@ -672,11 +687,37 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
+										<label class="form-label">リアルタイム配信URL</label>
+										<input name="real_time_distribution_url" class="form-control" type="text"
+                                            value="<?= htmlspecialchars($eventData['real_time_distribution_url'] ?? ($old_input['real_time_distribution_url'] ?? '')) ?>" />
+										<?php if (!empty($errors['real_time_distribution_url'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['real_time_distribution_url']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
 										<label class="form-label">アーカイブ配信期間</label>
 										<input name="archive_streaming_period" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['archive_streaming_period'] ?? ($old_input['archive_streaming_period'] ?? '')) ?>" />
 										<?php if (!empty($errors['archive_streaming_period'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['archive_streaming_period']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<div class="form-label d-flex align-items-center">
+											<label class="me-2">講義資料公開日</label>
+										</div>
+										<input name="material_release_date" class="form-control" type="date"
+											value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['material_release_date'] ?? '', $old_input['material_release_date'] ?? '')))[0] ?>" />
+										<?php if (!empty($errors['material_release_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">講義資料公開期間</label>
+										<input name="material_release_period" class=" form-control" min="0" type="number"
+                                            value="<?= htmlspecialchars($eventData['material_release_period'] ?? ($old_input['material_release_period'] ?? '')) ?>" />
+										<?php if (!empty($errors['material_release_period'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_period']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -717,7 +758,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<?php if(!isset($event) || (isset($event) && $event['event_status'] != EVENT_END)): ?>
+										<?php if(!$start_event_flg): ?>
 											<input type="submit" id="submit" class="btn btn-primary" value="登録">
 										<?php endif ?>
 									</div>
