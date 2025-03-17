@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $eventid = (int) sanitize_post('event_id');
+    $courseInfoId = (int) sanitize_post('course_info_id');
     $impression = sanitize_post('impression');
     $participation = sanitize_post('participation');
     $foundMethod = sanitize_post_array('found_method');
@@ -112,13 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             $_SESSION['old_input'] = $_POST;
             $_SESSION['message_error'] = '登録に失敗しました';
-            $_SESSION['event_id'] = $eventid;
+            $_SESSION['course_info_id'] = $courseInfoId;
             header("Location: /custom/app/Views/survey/index.php");
             exit;
         }
     } elseif (empty($participation)) {
         $_SESSION['old_input'] = $_POST;
-        $_SESSION['event_id'] = $eventid;
+        $_SESSION['course_info_id'] = $courseInfoId;
         $_SESSION['message_error'] = '登録に失敗しました';
         $_SESSION['errors'] = ['participation' => '選択をお願いします。'];
         header("Location: /custom/app/Views/survey/index.php");
@@ -130,7 +130,7 @@ try {
     // トランザクション開始
     $transaction = $DB->start_delegated_transaction();
     $record = new stdClass();
-    $record->event_id = $eventid;
+    $record->course_info_id = $courseInfoId;
     $record->user_id = $_SESSION['user_id'];
     $record->thoughts = $impression;
     $record->attend = $participation;

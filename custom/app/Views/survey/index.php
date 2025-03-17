@@ -1,28 +1,24 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/survey/survey_application_controller.php');
+include($CFG->dirroot . '/custom/app/Views/common/header.php');
 
 global $DB;
 global $USER;
 
-$surveyApplicationController = new SurveyApplicationController();
 
 // $old_input を既に取得しているので、ここで使用できる
-if (isset($_GET['event_id'])) {
-    $event_id = $_GET['event_id'];
-} elseif (isset($_SESSION['event_id'])) {
-    $event_id = $_SESSION['event_id'];
-} elseif (isset($old_input['event_id'])) {
-    $event_id = $old_input['event_id'];
-} else {
-    // event_id が見つからない場合のエラーハンドリング
-    $_SESSION['message_error'] = 'イベントIDが指定されていません。';
-    header("Location: /custom/app/Views/event/register.php");
-    exit;
+if (isset($_GET['course_info_id'])) {
+    $course_info_id = $_GET['course_info_id'];
+} elseif (isset($_SESSION['course_info_id'])) {
+    $course_info_id = $_SESSION['course_info_id'];
+} elseif (isset($old_input['course_info_id'])) {
+    $course_info_id = $old_input['course_info_id'];
 }
 
-$event = $surveyApplicationController->events($event_id);
-$survey_list = $surveyApplicationController->index($event_id);
+$surveyApplicationController = new SurveyApplicationController();
+$surveys = $surveyApplicationController->surveys($course_info_id);
+$event = $surveys['data'];
 
 $prefectures = PREFECTURES;
 
@@ -33,11 +29,13 @@ $endTimestamp   = strtotime($endTime);
 $diffSeconds = $endTimestamp - $startTimestamp;
 $diffMinutes = $diffSeconds / 60;
 
-if ($survey_list) {
-    header("Location: /custom/app/Views/event/register.php");
+if ($surveys['exist']) {
+    echo '<script type="text/javascript">
+            window.location.href = "/custom/app/Views/event/register.php";
+          </script>';
     exit;
 }
-include($CFG->dirroot . '/custom/app/Views/common/header.php');
+
 
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/survey.css" />
@@ -48,10 +46,10 @@ include($CFG->dirroot . '/custom/app/Views/common/header.php');
     </section>
     <!-- heading -->
     <section id="quest" class="inner_l">
-        <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->event_date))); ?> / <?= htmlspecialchars($event->name); ?></p>
+        <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->course_date))); ?> / 【第<?= htmlspecialchars($event->no); ?>回】 <?= htmlspecialchars($event->name); ?></p>
         <form method="POST" action="/custom/app/Views/survey/survey-upsert.php" class="whitebox quest_form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <input type="hidden" name="event_id" value="<?php echo $event_id ?>">
+            <input type="hidden" name="course_info_id" value="<?php echo $event->id ?>">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <div class="inner_s">
                 <div class="form_block form01">
