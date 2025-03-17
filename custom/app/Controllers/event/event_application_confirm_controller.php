@@ -64,7 +64,6 @@ $tekijuku = $mypage_controller->getTekijukuCommemoration();
 $tekijuku_discount = 0;
 if($tekijuku) {
     $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
-    $participation_fee = $participation_fee - $tekijuku_discount;
 }
 
 $categoryModel = new CategoryModel();
@@ -114,7 +113,7 @@ $ticket = htmlspecialchars(optional_param('ticket', '', PARAM_TEXT));
 $_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
 $price =  htmlspecialchars(optional_param('price', '', PARAM_TEXT));
 $price =  str_replace(',', '', $price);
-if ($price != $ticket * $participation_fee) {
+if ($price != $ticket * $participation_fee - $tekijuku_discount) {
     $_SESSION['errors']['message_error'] = '支払い料金が変更されました。ご確認の上、再度お申し込みしてください。';
     if (!is_null($courseInfoId)) {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
