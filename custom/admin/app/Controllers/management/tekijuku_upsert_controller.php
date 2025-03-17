@@ -15,11 +15,12 @@ try {
         '会員番号',
         '会員種別',
         '氏名',
-        'カナ',
-        '部局名',
-        '学科・専攻名',
-        '職名',
+        'ﾌﾘｶﾞﾅ',
+        // '部局名',
+        // '学科・専攻名',
+        // '職名',
         '郵便番号',
+        '都道府県',
         '住所',
         '電話番号',
         '『適塾』氏名掲載不可',
@@ -31,6 +32,7 @@ try {
         '2028（R10)',
         '2029（R11)',
         '2030（R12)',
+        '2031（R13)',
         'メールアドレス(ログイン用)',
         'パスワード(ログイン用)',
     ];
@@ -51,7 +53,7 @@ try {
                     continue;
                 }
 
-                $required_keys = ['氏名', 'ｶﾅ'];
+                $required_keys = ['氏名', 'ﾌﾘｶﾞﾅ'];
                 if ($missing_keys = array_diff($required_keys, array_keys($params))) {
                     throw new Exception('登録に失敗しました: ' . implode(', ', $missing_keys) . ' が不足しています');
                 }
@@ -60,7 +62,7 @@ try {
                 $unique_id = bin2hex(random_bytes(4));
                 $name = $params['氏名'];
                 // カナは全角に置換
-                $kana = mb_convert_kana($params['ｶﾅ'], 'KV');
+                $kana = mb_convert_kana($params['ﾌﾘｶﾞﾅ'], 'KV');
                 $password = 'password-' . $unique_id;
                 $email = 'dummy_email_' . $unique_id . '@mail.com';
                 $phone = "";
@@ -80,6 +82,7 @@ try {
                 $record->timemodified = time();
                 $record->name = $name;
                 $record->name_kana = $kana;
+                $record->city = $params['都道府県'];
                 $record->confirmed = 1;
 
                 $id = $DB->insert_record_raw('user', $record, true);
@@ -112,8 +115,8 @@ try {
                 }
 
                 // 枚数(仮)
-                $unit = $params['2024（R6)'];
-                $post_code = !empty($params['郵便番号']) ?  str_replace('-', '', $params['郵便番号']) : '';
+                $unit = $params['2024（R6)'] ?? $params['2025（R7)'];
+                $post_code = !empty($params['郵便番号']) ?  str_replace(['-', '－'], '', $params['郵便番号']) : '';
                 $is_published = empty($params['『適塾』氏名掲載不可']) ? true : false;
                 $note = $params['備考'];
                 $department = $params['部局名'] ?? '';
@@ -127,6 +130,7 @@ try {
                 $is_deposit_2028 = !empty($params['2028（R10)']) ? true : false;
                 $is_deposit_2029 = !empty($params['2029（R11)']) ? true : false;
                 $is_deposit_2030 = !empty($params['2030（R12)']) ? true : false;
+                $is_deposit_2031 = !empty($params['2031（R13)']) ? true : false;
                 $is_university_member = false;
                 if (!empty($department) || !empty($major) || !empty($official)) {
                     $is_university_member = true;
@@ -139,10 +143,8 @@ try {
                     $params['会員種別'],
                     $name,
                     $kana,
-                    $department,
-                    $major,
-                    $official,
                     $post_code,
+                    $city,
                     $address,
                     $params['電話番号'],
                     $params['『適塾』氏名掲載不可'],
@@ -154,11 +156,12 @@ try {
                     $params['2028（R10)'],
                     $params['2029（R11)'],
                     $params['2030（R12)'],
+                    $params['2031（R13)'],
                     $email,
                     $password,
                 ];
 
-                $csv_list[$count - 1] = $csv_array;
+                $csv_list[$count] = $csv_array;
 
                 // 適塾記念会会員情報登録
                 $tekijuku_commemoration = new stdClass();
@@ -181,6 +184,7 @@ try {
                 $tekijuku_commemoration->is_deposit_2028  = $is_deposit_2028;
                 $tekijuku_commemoration->is_deposit_2029  = $is_deposit_2029;
                 $tekijuku_commemoration->is_deposit_2030  = $is_deposit_2030;
+                $tekijuku_commemoration->is_deposit_2031  = $is_deposit_2031;
                 $tekijuku_commemoration->fk_user_id = $id;
                 $tekijuku_commemoration->department = $department;
                 $tekijuku_commemoration->major = $major;
@@ -188,7 +192,7 @@ try {
                 $tekijuku_commemoration->old_number = (int)$old_number;
                 $tekijuku_commemoration->is_temporary = 1;
                 $tekijuku_commemoration->price = $price;
-                $tekijuku_commemoration->unit = $unit;
+                $tekijuku_commemoration->unit = (int)$unit;
                 $tekijuku_commemoration->is_university_member = $is_university_member;
 
                 $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration);
@@ -245,6 +249,9 @@ try {
     exit;
 } catch (Exception $e) {
     try {
+        var_dump($e);
+        var_dump($params['2025（R7)']);
+        die();
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';

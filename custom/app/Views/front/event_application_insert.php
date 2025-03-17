@@ -99,7 +99,6 @@ try {
     $mail->addAddress($_POST['email'], 'Recipient Name');
 
     $sendAdresses = !empty($_POST['other_mail_adress']) ? explode(',', $_POST['other_mail_adress']) : [];
-    $sendAdresses = ['tamonswallow@gmail.com'];
     foreach ($sendAdresses as $sendAdress) {
         $mail->addAddress($sendAdress, 'Recipient Name');
     }
