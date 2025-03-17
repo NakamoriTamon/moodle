@@ -250,7 +250,6 @@ try {
 } catch (Exception $e) {
     try {
         var_dump($e);
-        var_dump($params['2025（R7)']);
         die();
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
