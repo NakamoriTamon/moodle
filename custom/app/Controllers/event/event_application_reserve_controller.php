@@ -19,6 +19,17 @@ class EventReserveController
         global $USER;
         $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
 
+        // 自身のユーザーのみ取得する
+        foreach ($histry_list as $key => $histry) {
+            $user = reset($histry['application'])['user'];
+            if ($user['id'] != $USER->id) {
+                unset($histry_list[$key]);
+            }
+        }
+
+        // 配列のキーをリセット（必要なら）
+        $histry_list = array_values($histry_list);
+
         // 各種情報を切り分ける
         $common_array = reset($histry_list);
         $common_application = $common_array['application'][0];
