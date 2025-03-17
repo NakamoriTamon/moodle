@@ -46,6 +46,8 @@ class EventApplicationController
         $select_lecture_formats = [];
         $select_categorys = [];
         $select_courses = [];
+        $now = new DateTime();
+        $now = $now->format('Ymd');
         if (!empty($event)) {
 
             foreach ($event['lecture_formats'] as $lecture_format) {
@@ -70,8 +72,25 @@ class EventApplicationController
                 }
             }
 
+            $deadline = (new DateTime($event['deadline']))->format('Ymd');
             foreach ($event['course_infos'] as $select_course) {
-                $event['select_course'][$select_course['no']] = $select_course;
+                if($event['event_kbn'] == EVERY_DAY_EVENT && is_null($courseInfoId)) {
+                    $course_date = (new DateTime($select_course['course_date']))->format('Ymd');
+                    
+                    if ($course_date >= $now) {
+                            $event['select_course'][$select_course['no']] = $select_course;
+                            break;
+                    }
+                } elseif($event['event_kbn'] == PLURAL_EVENT && is_null($courseInfoId)) {
+                    if ($deadline < $now) {
+                            $event['select_course'] = [];
+                            break;
+                    } else {
+                        $event['select_course'][$select_course['no']] = $select_course;
+                    }
+                } else {
+                    $event['select_course'][$select_course['no']] = $select_course;
+                }
             }
         }
 

@@ -61,15 +61,20 @@ if (!empty($event)) {
             $event['select_course'][$select_course['no']] = $select_course;
             
             if(isset($select_course['details'])) {
-                $tutor_id = $select_course['details'][0]['tutor_id'];
-                if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                    if(!empty($tutor_id)) {
-                        $tutor_ids[] = $tutor_id;
+                foreach($select_course['details'] as $details) {
+                    $tutor_id = $details['tutor_id'];
+                    if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
+                        if(!empty($tutor_id)) {
+                            $tutor_ids[] = $tutor_id;
+                        }
                     }
                 }
             }
         }
     }
+    // 重複を削除
+    $tutor_ids = array_unique($tutor_ids);
+    
     foreach ($tutor_ids as $tutor_id) {
         $select_tutor[] = $tutorModel->getTutorsById($tutor_id);
     }
