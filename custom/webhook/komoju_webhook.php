@@ -145,10 +145,6 @@ if ($data['status'] === 'captured') {
                 $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
                 $mail->addAddress($course['participant_mail'], 'Recipient Name');
 
-                $sendAdresses = ['tamonswallow@gmail.com'];
-                foreach ($sendAdresses as $sendAdress) {
-                    $mail->addAddress($sendAdress, 'Recipient Name');
-                }
                 $mail->addReplyTo('no-reply@example.com', 'No Reply');
                 $mail->isHTML(true);
 
