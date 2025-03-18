@@ -55,7 +55,7 @@ class EventRegisterController
         JOIN {course_info} ci ON ci.id = eac.course_info_id
         LEFT JOIN cmt_data ON cmt_data.course_info_id = ci.id
         LEFT JOIN cmv_data ON cmv_data.course_info_id = ci.id
-        WHERE ea.payment_date IS NOT NULL
+        WHERE (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
         AND ea.user_id = :user_id";
 
         // パラメータ設定

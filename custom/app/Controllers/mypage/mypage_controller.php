@@ -92,109 +92,51 @@ class MypageController
 
             // ページネーションの設定
             $perPage = $limit; // 1ページあたりのアイテム数
+            $current_date = date('Y-m-d');
+
+            $comparison_operator = ($get_application === 'booking') ? '>=' : '<';
+
+            // 安全な演算子が選択されたことを確認
+            if (!in_array($comparison_operator, ['>=', '<'], true)) {
+                // 無効な演算子が指定された場合、処理を終了するかエラーを返す
+                throw new InvalidArgumentException('Invalid comparison operator');
+            }
 
             // SQLクエリ（ページネーション対応）
-            $sql = $get_application == 'booking' ? "
-                WITH ranked_courses AS (
-                    SELECT 
-                        ci.id AS course_id,
-                        ci.no,
-                        ci.course_date,
-                        eaci.event_id,
-                        eaci.event_application_id,
-                        ROW_NUMBER() OVER (PARTITION BY eaci.event_id ORDER BY ci.course_date ASC) AS rn
-                    FROM 
-                        {course_info} ci
-                    JOIN 
-                        {event_application_course_info} eaci ON ci.id = eaci.course_info_id
-                    WHERE 
-                        ci.course_date >= CURDATE()
-                ),
-                filtered_applications AS (
-                    SELECT 
-                        ea.*,
-                        ROW_NUMBER() OVER (PARTITION BY ea.event_id ORDER BY ea.application_date ASC) AS app_rn
-                    FROM 
-                        {event_application} ea
-                )
+            $sql = "
                 SELECT 
-                    fa.id AS event_application_id,
-                    fa.event_id,
-                    fa.user_id,
-                    fa.price,
-                    fa.ticket_count,
-                    fa.payment_date,
+                    ea.id AS event_application_id,
+                    ea.event_id,
+                    ea.user_id,
+                    ea.price,
+                    ea.ticket_count,
+                    ea.payment_date,
                     e.id AS event_id,
                     e.name AS event_name,
                     e.venue_name AS venue_name,
-                    rc.course_id,
-                    rc.no,
-                    rc.course_date
-                FROM 
-                    filtered_applications fa
-                JOIN 
-                    {event} e ON fa.event_id = e.id
-                JOIN 
-                    ranked_courses rc 
-                    ON fa.event_id = rc.event_id
-                    AND rc.rn = 1
-                WHERE 
-                    fa.user_id = :user_id
-                    AND fa.app_rn = 1
-                ORDER BY 
-                    fa.event_id, rc.course_date
-                LIMIT $limit OFFSET $offset;
-            " : "
-            WITH ranked_courses AS (
-                SELECT 
                     ci.id AS course_id,
                     ci.no,
-                    ci.course_date,
-                    eaci.event_id,
-                    eaci.event_application_id
-                FROM 
-                    {course_info} ci
-                JOIN 
-                    {event_application_course_info} eaci ON ci.id = eaci.course_info_id
-                WHERE 
-                    ci.course_date < CURDATE()
-            ),
-            filtered_applications AS (
-                SELECT 
-                    ea.*
+                    ci.course_date
                 FROM 
                     {event_application} ea
-            )
-            SELECT 
-                fa.id AS event_application_id,
-                fa.event_id,
-                fa.user_id,
-                fa.price,
-                fa.ticket_count,
-                fa.payment_date,
-                e.id AS event_id,
-                e.name AS event_name,
-                e.venue_name AS venue_name,
-                rc.course_id,
-                rc.no,
-                rc.course_date
-            FROM 
-                filtered_applications fa
-            JOIN 
-                {event} e ON fa.event_id = e.id
-            JOIN 
-                ranked_courses rc 
-                ON fa.id = rc.event_application_id
-            WHERE 
-                fa.user_id = :user_id
-            ORDER BY 
-                fa.event_id, rc.course_date
-            LIMIT $limit OFFSET $offset;
-        ";
+                JOIN 
+                    {event} e ON ea.event_id = e.id
+                JOIN 
+                    {event_application_course_info} eaci ON ea.id = eaci.event_application_id
+                JOIN 
+                    {course_info} ci ON eaci.course_info_id = ci.id
+                WHERE 
+                    ea.user_id = :user_id 
+                    AND ci.course_date $comparison_operator :current_date
+                ORDER BY 
+                    ci.course_date ASC
+                LIMIT $limit OFFSET $offset;
+            ";
 
             // パラメータ設定
             $params = [
                 'user_id' => $this->USER->id,
+                'current_date' => $current_date,  // 日付を別で渡す
             ];
 
             // トータルカウントの取得
@@ -225,11 +167,18 @@ class MypageController
     private function getTotalEventApplicationsCount($get_application)
     {
         try {
-            $sql = $get_application == 'booking' ? "
-                WITH filtered_applications AS (
-                SELECT 
-                    ea.*,
-                    ROW_NUMBER() OVER (PARTITION BY ea.event_id ORDER BY ea.application_date ASC) AS app_rn
+
+            $comparison_operator = ($get_application === 'booking') ? '>=' : '<';
+
+            // 安全な演算子が選択されたことを確認
+            if (!in_array($comparison_operator, ['>=', '<'], true)) {
+                // 無効な演算子が指定された場合、処理を終了するかエラーを返す
+                throw new InvalidArgumentException('Invalid comparison operator');
+            }
+
+            $current_date = date('Y-m-d');
+            $sql = "
+                SELECT COUNT(*) AS count
                 FROM 
                     {event_application} ea
                 JOIN 
@@ -237,35 +186,16 @@ class MypageController
                 JOIN 
                     {event_application_course_info} eaci ON ea.id = eaci.event_application_id
                 JOIN 
-                    {course_info} ci ON eaci.course_info_id = ci.id  -- course_info とイベントの関連付け
+                    {course_info} ci ON eaci.course_info_id = ci.id
                 WHERE 
-                    ci.course_date >= CURDATE()  -- 未来のコースのみ
-                )
-                SELECT COALESCE(COUNT(*), 0) AS count
-                FROM filtered_applications fa
-                WHERE fa.user_id = :user_id
-                AND fa.app_rn = 1;
-            " : "
-                WITH filtered_applications AS (
-                SELECT 
-                    ea.*
-                FROM 
-                    {event_application} ea
-                JOIN 
-                    {event} e ON ea.event_id = e.id
-                JOIN 
-                    {event_application_course_info} eaci ON ea.id = eaci.event_application_id
-                JOIN 
-                    {course_info} ci ON eaci.course_info_id = ci.id  -- course_info とイベントの関連付け
-                WHERE 
-                    ci.course_date < CURDATE()  -- 未来のコースのみ
-                )
-                SELECT COALESCE(COUNT(*), 0) AS count
-                FROM filtered_applications fa
-                WHERE fa.user_id = :user_id;
+                    ea.user_id = :user_id 
+                    AND ci.course_date $comparison_operator :current_date
             ";
 
-            $params = ['user_id' => $this->USER->id];
+            $params = [
+                'user_id' => $this->USER->id,
+                'current_date' => $current_date,  // 現在日付
+            ];
             $count = $this->DB->get_record_sql($sql, $params)->count;
         } catch (Exception $e) {
             var_dump($e);
