@@ -114,6 +114,10 @@ define('ROLE', [
   'USER' => 7,
   'ADMIN' => 9
 ]);
+define('CONFIRMED', [
+  'IS_UNCONFIRMED' => 0,
+  'IS_CONFIRMED' => 1
+]);
 
 $lecture_format_on_site = 1; //現地開催
 define('LECTURE_FORMAT_ON_SITE', $lecture_format_on_site);

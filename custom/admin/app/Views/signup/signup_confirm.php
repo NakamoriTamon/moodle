@@ -1,8 +1,8 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
-require_once($CFG->dirroot . '/custom/app/Controllers/user/user_registration_controller.php');
-$user_registration_controller = new userRegistrationController();
-$result = $user_registration_controller->index($_GET['id'], $_GET['expiration_time']);
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/login/admin_registration_controller.php');
+$admin_registration_controller = new adminRegistrationController();
+$result = $admin_registration_controller->index($_GET['id'], $_GET['expiration_time']);
 ?>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
