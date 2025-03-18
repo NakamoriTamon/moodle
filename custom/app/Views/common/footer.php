@@ -1,12 +1,9 @@
 <?php
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
-$mypage_controller = new MypageController;
-$user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
-$is_general_user = $mypage_controller->isGeneralUser($user->id);
-$is_hidden_withdraw = false;
-if (!$is_general_user || !$user) {
-    $is_hidden_withdraw = true;
-}
+$mypage_controller = new MypageController();
+$user = $mypage_controller->getUser();
+$is_general_user = $user ? $mypage_controller->isGeneralUser($user->id) : false;
+$is_hidden_withdraw = !$is_general_user;
 ?>
 
 <head>
