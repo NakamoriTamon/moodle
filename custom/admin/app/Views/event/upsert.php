@@ -628,6 +628,17 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
+										<label class="form-label">お問い合わせ先メールアドレス</label>
+										<span class="badge bg-danger">必須</span>
+										<input type="email" name="inquiry_mail" class="form-control" value="<?= htmlspecialchars($eventData['inquiry_mail'] ?? ($old_input['inquiry_mail'] ?? '')) ?>"
+											inputmode="email"
+											autocomplete="email"
+											oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
+										<?php if (!empty($errors['inquiry_mail'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['inquiry_mail']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
 										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label><label>　※未入力、または0の場合、無制限になります。</label>
 										<input name="capacity" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
