@@ -37,7 +37,7 @@ if ($name_error || $department_error || $email_error || $password_error) {
 } else {
     global $DB, $CFG, $url_secret_key;
     // 入力されたメールアドレスが存在するか確認
-    $user = $DB->get_record('user', ['email' => $email]);
+    $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0]);
 
     if (!$user) {
         try {
@@ -92,7 +92,7 @@ if ($name_error || $department_error || $email_error || $password_error) {
             $mail->Port        = $_ENV['MAIL_PORT'];
 
             $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-            $mail->addAddress('shibuya@trans-it.net', 'Recipient Name');
+            $mail->addAddress($email, 'Recipient Name');
             $mail->addReplyTo('no-reply@example.com', 'No Reply');
             $mail->isHTML(true);
 
