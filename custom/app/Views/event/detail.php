@@ -122,8 +122,12 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <p class="term">参加費</p>
                                     
                                     <p class="desc">
-                                        <?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?php if($event['single_participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['single_participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?>
-                                        <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?php if($event['participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?><?php endif; ?>
+                                        <?php if($event['participation_fee'] < 1 && $event['single_participation_fee'] < 1): ?>
+                                            無料
+                                        <?php else: ?>
+                                            <?php if(count($event['select_course']) > 1): ?>1回<?php endif; ?> <?php if($event['single_participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['single_participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?>
+                                            <?php if (count($event['select_course']) > 1): ?>、全て受講の場合<?php if($event['participation_fee'] > 0): ?><?= htmlspecialchars(number_format($event['participation_fee'])) ?>円<?php else: ?>無料<?php endif; ?><?php endif; ?>
+                                        <?php endif; ?>
                                     </p>
                                 </li>
                                 <li>
@@ -163,13 +167,17 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                             <div class="access_item02">
                                 <ul class="info inner_s sent">
-                                    <li>【主催】<?= htmlspecialchars($event['sponsor']) ?></li>
-                                    <li>【協力】<?= htmlspecialchars($event['cooperation']) ?></li>
-                                    <li>【共催】<?= htmlspecialchars($event['co_host']) ?></li>
-                                    <li>【企画】<?= htmlspecialchars($event['plan']) ?></li>
-                                    <li>【後援】<?= htmlspecialchars($event['sponsorship']) ?></li>
-                                    <li>【お問い合わせ窓口】<?php echo SAMPLE_INQUIRY_EMAIL?></li>
+                                    <?php if(!empty($event['sponsor'])): ?><li>【主催】<?= htmlspecialchars($event['sponsor']) ?></li><?php endif; ?>
+                                    <?php if(!empty($event['cooperation'])): ?><li>【協力】<?= htmlspecialchars($event['cooperation']) ?></li><?php endif; ?>
+                                    <?php if(!empty($event['co_host'])): ?><li>【共催】<?= htmlspecialchars($event['co_host']) ?></li><?php endif; ?>
+                                    <?php if(!empty($event['plan'])): ?><li>【企画】<?= htmlspecialchars($event['plan']) ?></li><?php endif; ?>
+                                    <?php if(!empty($event['sponsorship'])): ?><li>【後援】<?= htmlspecialchars($event['sponsorship']) ?></li><?php endif; ?>
                                 </ul>
+                                <?php if(!empty($event['inquiry_mail'])): ?>
+                                    <ul class="inquiry inner_s sent" style="display: flex;">
+                                        <li>【お問い合わせ窓口】<a href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>"><?= htmlspecialchars($event['inquiry_mail']) ?></a></li>
+                                    </ul>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

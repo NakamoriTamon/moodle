@@ -73,6 +73,8 @@ $cooperation = $_POST['cooperation'] ?? null; // 協力
 $_SESSION['errors']['cooperation'] = validate_text($cooperation, '協力', 225, false); // バリデーションチェック
 $plan = $_POST['plan'] ?? null; // 企画
 $_SESSION['errors']['plan'] = validate_text($plan, '企画', 225, false); // バリデーションチェック
+$inquiry_mail = $_POST['inquiry_mail'] ?? null; // お問い合わせ先メールアドレス
+$_SESSION['errors']['inquiry_mail'] = validate_custom_email($inquiry_mail, 'お問い合わせ先'); // バリデーションチェック
 // 複数回シリーズのイベント　の場合
 if($event_kbn == PLURAL_EVENT) {
     $single_participation_fee = empty($_POST['single_participation_fee']) ? 0 : $_POST['single_participation_fee']; // 単体の参加費
@@ -421,6 +423,7 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['end_event_date']
     || $_SESSION['errors']['material_release_date']
     || $_SESSION['errors']['material_release_period']
+    || $_SESSION['errors']['inquiry_mail']
     || $error_flg) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if($id) {
@@ -487,6 +490,7 @@ try {
                 real_time_distribution_url = :real_time_distribution_url,
                 material_release_date = :material_release_date,
                 material_release_period = :material_release_period,
+                inquiry_mail = :inquiry_mail,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ");
@@ -526,6 +530,7 @@ try {
             ':real_time_distribution_url' => $real_time_distribution_url,
             ':material_release_date' => $material_release_date,
             ':material_release_period' => $material_release_period,
+            ':inquiry_mail' => $inquiry_mail,
             ':id' => $id // 一意の識別子をWHERE条件として設定
         ]);
 
@@ -538,7 +543,7 @@ try {
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, survey_custom_id, is_apply_btn, start_event_date, end_event_date
-                , tekijuku_discount, real_time_distribution_url, material_release_date, material_release_period
+                , tekijuku_discount, real_time_distribution_url, material_release_date, material_release_period, inquiry_mail
             ) 
             VALUES (
                 :userid, :name, :description
@@ -546,7 +551,7 @@ try {
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :survey_custom_id, :is_apply_btn, :start_event_date, :end_event_date
-                , :tekijuku_discount, :real_time_distribution_url, :material_release_date, :material_release_period
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_date, :material_release_period, :inquiry_mail
             )
         ");
     
@@ -587,6 +592,7 @@ try {
             , ':real_time_distribution_url' => $real_time_distribution_url
             , ':material_release_date' => $material_release_date
             , ':material_release_period' => $material_release_period
+            , ':inquiry_mail' => $inquiry_mail
         ]);
     
         // mdl_eventの挿入IDを取得
