@@ -34,6 +34,39 @@ class EventApplicationCourseInfoModel extends BaseModel
         return [];
     }
 
+    // コース情報IDより申し込み状況を取得
+    public function getByEventEventId($id, $keyword, int $page = 1, int $perPage = 15)
+    {
+        if ($this->pdo) {
+            try {
+                $offset = ($page - 1) * $perPage;
+                $stmt = $this->pdo->prepare(
+                    "SELECT id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn 
+                    FROM mdl_event_application_course_info 
+                    WHERE event_id = ? 
+                    LIMIT $perPage OFFSET $offset"
+                );
+
+                $stmt->execute([$id]);
+                $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // 各イベントの詳細を追加
+                foreach ($result_list as &$result) {
+                    $result['application'] = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                    $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
+                }
+
+                return $result_list;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
     // イベント申し込み情報を取得
     private function getEventApplicationByApplicationId($event_application_id, $keyword)
     {
@@ -79,8 +112,9 @@ class EventApplicationCourseInfoModel extends BaseModel
 
                 // キーワードが指定されている場合
                 if (!empty($keyword)) {
-                    $where[] = "name LIKE :keyword";
+                    $where[] = "(name LIKE :keyword OR id = :id_keyword)";
                     $params[':keyword'] = "%{$keyword}%";
+                    $params[':id_keyword'] = (int) $keyword;
                 }
 
                 // WHERE 句を追加（条件がある場合のみ）

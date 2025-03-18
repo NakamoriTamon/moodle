@@ -121,8 +121,6 @@ define('CONFIRMED', [
 
 $lecture_format_on_site = 1; //現地開催
 define('LECTURE_FORMAT_ON_SITE', $lecture_format_on_site);
-define('SAMPLE_INQUIRY_EMAIL', 'chinohiroba@21c-kaitokudo.osaka-u.ac.jp'); // お問い合わせアドレス。静的ページ用。動的ページになったら消してください。
-
 
 // 都道府県プルダウン
 $prefectures = [
@@ -223,6 +221,10 @@ define('WEEKDAYS', $weekdays);
 // 成人年齢
 $adult_age = 18;
 define('ADULT_AGE', $adult_age);
+
+// イベント参加状態
+$is_participation_list = [1 => '参加済', 2 => '不参加'];
+define('IS_PARTICIPATION_LIST', $is_participation_list);
 
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
