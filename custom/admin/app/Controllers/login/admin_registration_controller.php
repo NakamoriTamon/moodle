@@ -6,7 +6,6 @@ class adminRegistrationController
 
     public function index($id, $expiration_time)
     {
-
         try {
             global $DB, $url_secret_key;
             $transaction = $DB->start_delegated_transaction();
@@ -14,7 +13,6 @@ class adminRegistrationController
             if (empty($id) || empty($expiration_time)) {
                 return false;
             }
-
             // 有効期限確認
             $expiration_time = (int)$this->decrypt_id($expiration_time, $url_secret_key);
             if (time() > $expiration_time) {

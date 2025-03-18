@@ -5,7 +5,8 @@ require_once($CFG->libdir . '/authlib.php');
 
 class LoginController
 {
-    public function handleLogin() {
+    public function handleLogin()
+    {
         global $DB;
 
         // フォームからのデータを受け取る
@@ -13,7 +14,7 @@ class LoginController
         $password = required_param('password', PARAM_RAW); // パスワード
 
         $email_error = validate_custom_email($email);
-        
+
         if ($email_error) {
             // 認証失敗時のエラーメッセージ
             $this->redirectWithError('メールアドレスまたはパスワードが間違っています。', '/custom/admin/app/Views/login/login.php');
@@ -31,15 +32,14 @@ class LoginController
                 JOIN {role} r ON ra.roleid = r.id
                 WHERE ra.userid = ?
             ", [$user->id]);
-            
+
             $roles = array_map(fn($role) => $role->shortname, $userRoles);
-            
+
             // `user` ロール (ID:7) は `/custom/admin` にアクセス不可
             if (in_array('user', $roles)) {
                 redirect('/custom/app/Views/index.php'); // 一般画面へリダイレクト
                 exit;
             }
-            
             // 管理者チェック
             if (is_siteadmin($user->id)) {
                 // 認証成功: ユーザーをログインさせる
@@ -56,7 +56,8 @@ class LoginController
         }
     }
 
-    private function redirectWithError($message, $redirectUrl) {
+    private function redirectWithError($message, $redirectUrl)
+    {
         global $SESSION;
         $SESSION->login_error = $message; // セッションにエラーメッセージを保存
         redirect(new moodle_url($redirectUrl));

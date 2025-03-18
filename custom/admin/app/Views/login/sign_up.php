@@ -24,17 +24,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
                                     <form action="/custom/admin/app/Controllers/login/sign_up_controller.php" method="post">
                                         <div class="mb-3">
                                             <label class="form-label">担当者名</label>
-                                            <div class="input-group">
-                                                <input class="form-control form-control-lg" type="text" name="lastname" placeholder="苗字"
-                                                    value="<?= htmlspecialchars($old_input['lastname'] ?? '') ?>" />
-                                                <input class="form-control form-control-lg" type="text" name="firstname" placeholder="名前"
-                                                    value="<?= htmlspecialchars($old_input['firstname'] ?? '') ?>" />
-                                            </div>
-                                            <?php if (!empty($errors['lastname'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['lastname']); ?></div>
-                                            <?php endif; ?>
-                                            <?php if (!empty($errors['firstname'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['firstname']); ?></div>
+                                            <input class="form-control form-control-lg" type="text" name="name" placeholder="担当者名"
+                                                value="<?= htmlspecialchars($old_input['name'] ?? '') ?>" />
+                                            <?php if (!empty($errors['name'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
                                             <?php endif; ?>
                                         </div>
                                         <div class="mb-3">

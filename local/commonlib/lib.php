@@ -470,7 +470,7 @@ function validate_date_comparison($start_date, $end_date, $text1, $text2)
     return null;
 }
 
-function validate_google_map($embed_code, $text, $required)
+function validate_google_map($embed_code, $title, $required)
 {
     if (empty($embed_code) && $required) {
         return $title . 'は必須です。';
@@ -488,7 +488,7 @@ function validate_google_map($embed_code, $text, $required)
     return null;
 }
 
-function validate_url($url, $text, $required)
+function validate_url($url, $title, $required)
 {
     if (empty($url) && $required) {
         return $title . 'は必須です。';
@@ -496,7 +496,7 @@ function validate_url($url, $text, $required)
         return null;
     }
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
-        return $text . 'に入力されたURLは無効な形式です。';
+        return $title . 'に入力されたURLは無効な形式です。';
     }
     return null;
 }
