@@ -141,7 +141,7 @@ class EventRegistrationController
                 $name = $application['user']['name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
-                if (!empty($application['pay_method'])) {
+                if ($application['pay_method'] != FREE_EVENT) {
                     $payment_type = PAYMENT_SELECT_LIST[$application['pay_method']];
                     $is_paid = !empty($application['payment_date']) ? '決済済' : '未決済';
                     if (!empty($application['payment_date'])) {
