@@ -86,7 +86,7 @@ try {
             <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">
                 あなたのアカウントに新しいパスワードを設定するには以下のウェブアドレスにアクセスしてください</p><br>
             <br>
-            <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">▼ 本登録はこちら
+            <p style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">▼ パスワード再設定はこちら
             <p style=\"text-align: left; font-size: 13px;\">
                 <a href=\"{$reset_url}\">{$reset_url}</a>
             </p>
