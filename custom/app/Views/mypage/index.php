@@ -848,4 +848,30 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             });
         });
     });
+
+    //**
+    // 大阪大学教職員・学生の方はこちらにチェックしてください。のチェックボックス動き
+    //  */
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkbox = document.querySelector('input[name="is_university_member"]');
+        const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
+
+        function toggleFields() {
+            fields.forEach(field => {
+                if (checkbox.checked) {
+                    field.classList.remove("hidden");
+                } else {
+                    field.classList.add("hidden");
+                    // 入力値をクリア
+                    field.querySelector("input").value = "";
+                }
+            });
+        }
+
+        // 初期状態を設定
+        toggleFields();
+
+        // チェック状態が変更されたら切り替え
+        checkbox.addEventListener("change", toggleFields);
+    });
 </script>
