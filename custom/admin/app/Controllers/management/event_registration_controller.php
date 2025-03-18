@@ -65,7 +65,7 @@ class EventRegistrationController
         $course_info_id = null;
 
         // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid != ROLE['COURSECREATOR']) {
+        if ($role->roleid == ROLE['COURSECREATOR']) {
             foreach ($event_list  as $key => $event) {
                 if ($event['userid'] != $USER->id) {
                     unset($event_list[$key]);
