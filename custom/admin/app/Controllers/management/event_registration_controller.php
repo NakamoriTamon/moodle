@@ -60,7 +60,8 @@ class EventRegistrationController
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
-        // 講義動画を取得
+
+        // イベント情報を特定する
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
                 // 単発イベントの場合
@@ -85,23 +86,70 @@ class EventRegistrationController
             }
         }
 
-        $application_list = [];
+        // IDの0を落とす
+        if (is_numeric($keyword)) {
+            $keyword = ltrim($keyword, '0');
+        }
+        $application_course_info_list = [];
         // 講義回数まで絞り込んだ場合
         if (!empty($course_info_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page);
-            $application_list = $application_course_info_list;
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
+            $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page);
         }
 
-        // ユーザー情報がなければ配列から排除する
-        $count = 0;
-        foreach ($application_list as $key => $application) {
-            $result_application = $application['application'][$count]['user'] ?? null;
-            if (empty($result_application)) {
-                unset($application_list[$key]);
+        // 講座回数でソートする
+        usort($application_course_info_list, function ($a, $b) {
+            return $a['course_info']['no'] <=> $b['course_info']['no'];
+        });
+
+        // 表示データを取得・整形する
+        $application_list = [];
+        foreach ($application_course_info_list as $key => $application_course_info) {
+            $application = reset($application_course_info['application']);
+            $event = $application['event'];
+            $application_date = new DateTime($application['application_date']);
+            $application_date = $application_date->format("Y年n月j日");
+
+            $name = '';
+            $user_id = '';
+            $is_paid = '';
+            $payment_type = '';
+            $payment_date = '';
+
+            // お連れ様の場合はユーザー情報は取得しない
+            if ($application['user']['email'] ==  $application_course_info['participant_mail']) {
+                $name = $application['user']['name'];
+                $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
+                $user_id  = substr_replace($formatted_id, ' ', 4, 0);
+                if (!empty($application['pay_method'])) {
+                    $payment_type = PAYMENT_SELECT_LIST[$application['pay_method']];
+                    $is_paid = !empty($application['payment_date']) ? '決済済' : '未決済';
+                    if (!empty($application['payment_date'])) {
+                        $payment_date = new DateTime($application['payment_date']);
+                        $payment_date = $payment_date->format("Y年n月j日");
+                    }
+                }
+            } elseif (!empty($keyword)) {
+                // キーワード未検索時はお連れ様の情報も取得する
+                continue;
             }
+
+            $application_list[$key] = [
+                'id' => $application_course_info['id'],
+                'event_name' => $event['name'],
+                'no' => '第' . $application_course_info['course_info']['no'] . '講座',
+                'user_id' => $user_id,
+                'name' => $name,
+                'email' => $application_course_info['participant_mail'],
+                'payment_type' => $payment_type,
+                'is_paid' => $is_paid,
+                'payment_date' => $payment_date,
+                'application_date' => $application_date,
+                'participation_kbn' => $application_course_info['participation_kbn'],
+            ];
         }
 
         $total_count = count($application_list);
