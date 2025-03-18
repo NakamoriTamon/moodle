@@ -831,9 +831,21 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
     // アコーディオン
     $(function() {
-        $(".btn_acc").click(function() {
-            $(".acc_wrap").slideToggle();
-            $(this).toggleClass("js-open");
+        $(function() {
+            // URLのハッシュ部分を取得
+            const hash = window.location.hash;
+
+            // URLのハッシュに#event_historiesが含まれていればアコーディオンを開く
+            if (hash === '#event_histories') {
+                $(".btn_acc").addClass("js-open");
+                $(".acc_wrap").show();
+            }
+
+            // アコーディオンのトグル
+            $(".btn_acc").click(function() {
+                $(".acc_wrap").slideToggle();
+                $(this).toggleClass("js-open");
+            });
         });
     });
 </script>
