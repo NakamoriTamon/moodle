@@ -175,6 +175,30 @@ class EventModel extends BaseModel
                         $params[':event_status'] = $filters['event_status'];
                     }
                 }
+                if (!empty($filters['exclude_event_status'])) {
+                    if (is_array($filters['exclude_event_status'])) {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $placeholders = [];
+                        foreach ($filters['exclude_event_status'] as $index => $id) {
+                            $key = ":exclude_event_status_$index";
+                            $placeholders[] = $key;
+                            $params[$key] = $id;
+                        }
+                        $having .= ' event_status NOT IN (' . implode(',', $placeholders) . ')';
+                    } else {
+                        if (!empty($having)) {
+                            $having .= ' AND';
+                        } else {
+                            $having = ' HAVING';
+                        }
+                        $having .= ' event_status != :exclude_event_status';
+                        $params[':exclude_event_status'] = $filters['exclude_event_status'];
+                    }
+                }
                 if (!empty($filters['deadline_status'])) {
                     if (is_array($filters['deadline_status'])) {
                         if (!empty($having)) {

@@ -1,4 +1,22 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/qr/qr_controller.php');
+include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+$qr_conroller = new QrController();
+$result_list = $qr_conroller->index();
+
+var_dump($_POST);
+// バリデーションエラー
+$errors   = $_SESSION['errors']   ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// 情報取得
+$category_list = $result_list['category_list'] ?? [];
+$event_list = $result_list['event_list']  ?? [];
+?>
 
 <body id="qr" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative show">
 	<div class="wrapper">
@@ -23,8 +41,70 @@
 				</div>
 			</nav>
 
-			<main class="content d-flex justify-content-center align-items-center" style="height: 100vh;">
-				<div class="col-12 col-lg-12">
+			<main class="content">
+				<div class="col-12 col-lg-12" id="search_card">
+					<div class="card">
+						<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
+							<form id="form" method="POST" action="/custom/admin/app/Views/event/qr.php" class="w-100">
+								<div class="sp-block d-flex justify-content-between">
+									<div class="mb-3 w-100">
+										<label class="form-label" for="notyf-message">カテゴリー</label>
+										<select name="category_id" class="form-control">
+											<option value="">すべて</option>
+											<?php foreach ($category_list as $category) { ?>
+												<option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
+													<?= htmlspecialchars($category['name']) ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
+									<div class="sp-ms-0 ms-3 mb-3 w-100">
+										<label class="form-label" for="notyf-message">開催ステータス</label>
+										<select name="event_status_id" class="form-control">
+											<option value="">すべて</option>
+											<?php foreach ($display_status_list as $key => $event_status) { ?>
+												<option value="<?= $key ?>" <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+													<?= htmlspecialchars($event_status) ?>
+												</option>
+											<?php } ?>
+										</select>
+									</div>
+								</div>
+								<div class="sp-block d-flex justify-content-between">
+									<div class="mb-3 w-100">
+										<label class="form-label" for="notyf-message">イベント名</label>
+										<select name="event_id" class="form-control">
+											<option value="" selected>未選択</option>
+											<?php foreach ($event_list as $event): ?>
+												<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
+													<?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
+													<?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+												</option>
+											<?php endforeach; ?>
+										</select>
+									</div>
+									<div class="sp-ms-0 ms-3 mb-3 w-100">
+										<label class="form-label" for="course_no_select">回数</label>
+										<div class="d-flex align-items-center">
+											<select id="course_no_select" class="form-control w-100" <?= $result_list['is_simple'] ? 'disabled' : '' ?>>
+												<?php foreach ($course_number as $course_no) { ?>
+													<option value="<?= $course_no ?>" <?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+														<?= "第" . htmlspecialchars($course_no) . "回" ?>
+													</option>
+												<?php } ?>
+											</select>
+											<input type="hidden" id="course_no" name="course_no" value="<?= htmlspecialchars($old_input['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+										</div>
+									</div>
+								</div>
+								<div class="d-flex justify-content-end ms-auto">
+									<button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-lg-12" id="qr_card">
 					<div class="card">
 						<div class="card-body p-0 d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
 							<div class="qr-frame">
@@ -98,7 +178,7 @@
 			var modal = new bootstrap.Modal(document.getElementById('qrModal'));
 			modal.show();
 		});
-		qrScanner.start();
+		// qrScanner.start();
 
 		$('#qrModal').on('hidden.bs.modal', function() {
 			videoElem.play();
