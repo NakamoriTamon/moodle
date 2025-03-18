@@ -70,7 +70,7 @@ $mypage_controller = new MypageController;
 $tekijuku = $mypage_controller->getTekijukuCommemoration();
 
 $tekijuku_discount = 0;
-if($tekijuku) {
+if ($tekijuku) {
     $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
 }
 
@@ -373,10 +373,11 @@ if ($result) {
                 $eventApplication = $eventApplicationModel->getEventApplicationByEventId($eventApplicationId);
 
                 foreach ($eventApplication['course_infos'] as $course) {
+                    global $url_secret_key;
+                    $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
                     // QR生成
                     $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
-                    $qrCode = new QrCode($baseUrl . '/custom/app/Controllers/event/event_proof_controller.php?event_application_id='
-                        . $eventApplicationId . '&event_application_course_info=' . $course['id']);
+                    $qrCode = new QrCode($encrypt_event_application_course_info_id);
                     $writer = new PngWriter();
                     $qrCodeImage = $writer->write($qrCode)->getString();
                     $temp_file = tempnam(sys_get_temp_dir(), 'qr_');
@@ -583,4 +584,10 @@ function removeHyphens($phone)
     $phone = mb_convert_kana($phone, 'a');
     // ハイフンを削除
     return str_replace('-', '', $phone);
+}
+
+function encrypt($id, $key)
+{
+    $iv = substr(hash('sha256', $key), 0, 16);
+    return urlencode(base64_encode(openssl_encrypt($id, 'AES-256-CBC', $key, 0, $iv)));
 }
