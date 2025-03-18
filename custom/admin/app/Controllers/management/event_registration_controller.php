@@ -22,9 +22,10 @@ class EventRegistrationController
     public function index()
     {
 
+        global $USER;
+        global $DB;
 
         // 検索項目取得
-        $year = $_POST['year'] ?? null;
         $keyword = $_POST['keyword'] ?? null;
         $page = $_POST['page'] ?? null;
         $category_id = $_POST['category_id'] ?? null;
@@ -52,6 +53,8 @@ class EventRegistrationController
             'course_no' => $course_no
         ]);
 
+        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
+
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
@@ -60,6 +63,20 @@ class EventRegistrationController
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
+
+        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
+        if ($role->roleid != ROLE['COURSECREATOR']) {
+            foreach ($event_list  as $key => $event) {
+                if ($event['userid'] != $USER->id) {
+                    unset($event_list[$key]);
+                }
+            }
+            foreach ($select_event_list as $select_key => $select_event) {
+                if ($select_event['userid'] != $USER->id) {
+                    unset($select_event_list[$select_key]);
+                }
+            }
+        }
 
         // イベント情報を特定する
         foreach ($event_list as $event) {
