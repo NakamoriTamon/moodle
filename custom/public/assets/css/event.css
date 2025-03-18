@@ -218,6 +218,14 @@
 #detail .access .access_item02 .info li {
   width: calc(50% - 5%);
 }
+#detail .access .access_item02 .inquiry li {
+  white-space: nowrap;
+  width: calc(50% - 5%);
+}
+#detail .access .access_item02 .inquiry li a {
+  display: inline-block;
+  margin-left: 5px; /* 任意の間隔を設定 */
+}
 #detail .program .btn {
   width: 300px;
   height: 60px;
