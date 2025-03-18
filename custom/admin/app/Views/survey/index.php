@@ -1,4 +1,11 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); 
+require_once('/var/www/html/moodle/config.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/survey/survey_controller.php');
+
+$event_statuses = DISPLAY_EVENT_STATUS_LIST;
+$old_input = $_SESSION['old_input'] ?? [];
+?>
+
 
 <body id="survey" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative d-block">
 	<div class="wrapper">
@@ -26,47 +33,53 @@
 			<main class="content">
 				<div class="card">
 					<div class="card-body p-055 p-025">
-						<div class="sp-block d-flex justify-content-between">
-							<div class="mb-3 w-100">
-								<label class="form-label" for="notyf-message">カテゴリー</label>
-								<select name="category_id" class="form-control">
-									<option value=1>未選択</option>
-									<option value=2>医療・健康</option>
-									<option value=3>科学・技術</option>
-									<option value=4>生活・福祉</option>
-									<option value=5>文化・芸術</option>
-									<option value=6>社会・経済</option>
-									<option value=7>自然・環境</option>
-									<option value=8>子ども・教育</option>
-									<option value=9>国際・言語</option>
-									<option value=10>その他</option>
+						<form method="POST" action="/custom/admin/app/Controllers/survey/survey_controller.php">
+							<input type="hidden" name="action" value="index">
+							<div class="sp-block d-flex justify-content-between">
+								<div class="mb-3 w-100">
+									<label class="form-label" for="notyf-message">カテゴリー</label>
+									<select name="category_id" class="form-control">
+										<option value="">すべて</option>
+										<?php foreach ($categorys as $category): ?>
+											<option value="<?= htmlspecialchars($category['id']) ?>"
+												<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
+												<?= htmlspecialchars($category['name']) ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
+								<div class="sp-ms-0 ms-3 mb-3 w-100">
+									<label class="form-label" for="notyf-message">開催ステータス</label>
+									<select name="event_status" class="form-control">
+										<option value="">すべて</option>$
+										<?php foreach ($event_statuses as $id => $name): ?>
+											<option value="<?= htmlspecialchars($id) ?>"
+												<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
+												<?= htmlspecialchars($name) ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								</div>
+							</div>
+							<div class="mb-4">
+								<label class="form-label" for="notyf-message">イベント名</label>
+								<select name="event_id" class="form-control">
+									<option value="">すべて</option>
+									<?php if (isset($events) && !empty($events)): ?>
+										<?php foreach ($events as $event): ?>
+											<option value="<?= htmlspecialchars($event['id']) ?>"
+												<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+												<?= htmlspecialchars($event['name']) ?>
+											</option>
+										<?php endforeach; ?>
+									<?php endif; ?>
 								</select>
 							</div>
-							<div class="sp-ms-0 ms-3 mb-3 w-100">
-								<label class="form-label" for="notyf-message">開催ステータス</label>
-								<select name="category_id" class="form-control">
-									<option value=1>未選択</option>
-									<option value=1>開催前</option>
-									<option value=2>開催中</option>
-									<option value=3>開催終了</option>
-								</select>
+							<!-- <hr> -->
+							<div class="d-flex w-100">
+								<button type="submit" id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
 							</div>
-						</div>
-						<div class="mb-4">
-							<label class="form-label" for="notyf-message">イベント名</label>
-							<select name="event_id" class="form-control">
-								<option value="">未選択</option>
-								<option value=1>タンパク質の精製技術の基礎</option>
-								<option value=2>AIと機械学習の基礎講座</option>
-								<option value=3>量子コンピュータ入門: 次世代計算技術の扉を開く</option>
-								<option value=4>気候変動と持続可能なエネルギーソリューション</option>
-								<option value=5>心理学で学ぶ意思決定と行動経済学</option>
-							</select>
-						</div>
-						<!-- <hr> -->
-						<div class="d-flex w-100">
-							<button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
-						</div>
+						</form>
 					</div>
 				</div>
 				<div class="search-area col-12 col-lg-12">
@@ -74,10 +87,17 @@
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
 								<div></div>
-								<button class="btn btn-primary ms-auto mt-3 mb-3  mr-025 d-flex justify-content-center align-items-center">
+								<!-- 非表示のform -->
+								<form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/survey/survey_export_controller.php">
+									<input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
+									<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
+									<input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
+								</form>
+								<!-- 元のデザインのボタン -->
+								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center" onclick="document.getElementById('csvExportForm').submit()">
 									<i class="align-middle me-1" data-feather="download"></i>CSV出力
 								</button>
-								<!-- <div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : 3件</div> -->
+								<div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : <?= $totalCount ?>件</div>
 							</div>
 							<div class="card m-auto mb-5 w-95">
 								<table class="table table-responsive table-striped table_list text-break">
@@ -104,6 +124,7 @@
 												※「あまり快適ではなかった」「全く快適ではなかった」と回答された方は次の
 												質問にその理由を教えてください
 											</th>
+											<th class="w-25 p-4">「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。</th>
 											<th class="w-25 p-4">今後の大阪大学公開講座で、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
 											<th class="w-25 p-4">話を聞いてみたい大阪大学の教員や研究者がいれば、具体的にご提案ください</th>
 											<th class="w-25 p-4">ご職業等を教えてください</th>
@@ -112,70 +133,197 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td class="p-4">2024/12/26 10:00</td>
-											<td class="p-4">とても分かりやすかったです。</td>
-											<td class="p-4">ある</td>
-											<td class="p-4">ウェブサイト</td>
-											<td class="p-4">大阪大学公式ホームページ</td>
-											<td class="p-4">テーマに関心があったから</td>
-											<td class="p-4"></td>
-											<td class="p-4">非常に満足</td>
-											<td class="p-4">よく理解できた</td>
-											<td class="p-4">大学の研究者と対話ができた</td>
-											<td class="p-4"></td>
-											<td class="p-4">適当である</td>
-											<td class="p-4">とても快適だった</td>
-											<td class="p-4">植物形態学</td>
-											<td class="p-4">古谷朋之准教授</td>
-											<td class="p-4">会社員</td>
-											<td class="p-4">男性</td>
-											<td class="p-4">愛知県名古屋市</td>
-										</tr>
-										<tr>
-											<td class="p-4">2024/12/26 11:30</td>
-											<td class="p-4">知識を深めることができました。</td>
-											<td class="p-4">ある</td>
-											<td class="p-4">SNS(X,Instagram,Facebookなど)</td>
-											<td class="p-4"></td>
-											<td class="p-4">本日のプログラム内容に関心があったから</td>
-											<td class="p-4"></td>
-											<td class="p-4">非常に満足</td>
-											<td class="p-4">よく理解できた</td>
-											<td class="p-4">大学の研究者と対話ができた</td>
-											<td class="p-4"></td>
-											<td class="p-4">適当である</td>
-											<td class="p-4">とても快適だった</td>
-											<td class="p-4"></td>
-											<td class="p-4"></td>
-											<td class="p-4">自営業</td>
-											<td class="p-4">女性</td>
-											<td class="p-4">三重県津市</td>
-										</tr>
-										<tr>
-											<td class="p-4">2024/12/27 16:35</td>
-											<td class="p-4">とても楽しく知識を付けることができました。また受講したいです！</td>
-											<td class="p-4">ある</td>
-											<td class="p-4">SNS(X,Instagram,Facebookなど)</td>
-											<td class="p-4"></td>
-											<td class="p-4">本日のゲストに関心があったから, 余暇を有効に利用したかったから</td>
-											<td class="p-4"></td>
-											<td class="p-4">非常に満足</td>
-											<td class="p-4">よく理解できた</td>
-											<td class="p-4">大学の講義の雰囲気を味わえた</td>
-											<td class="p-4"></td>
-											<td class="p-4">適当である</td>
-											<td class="p-4">とても快適だった</td>
-											<td class="p-4">生物科学科</td>
-											<td class="p-4">古谷朋之准教授</td>
-											<td class="p-4">学生</td>
-											<td class="p-4">男性</td>
-											<td class="p-4">東京都八王子市</td>
-										</tr>
+										<?php if (isset($surveyApplications) && !empty($surveyApplications)): ?>
+											<?php foreach ($surveyApplications as $key => $surveyApplication): ?>
+												<tr>
+													<td class="p-4">2024/12/26 10:00</td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['thoughts']) ?></td>
+													<td class="p-4">
+														<?php if ($surveyApplication['attend'] == 1): ?>
+															はい
+														<?php else: ?>
+															いいえ
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['found_method'] == 1): ?>
+															チラシ
+														<?php elseif ($surveyApplication['found_method'] == 2): ?>
+															ウェブサイト
+														<?php elseif ($surveyApplication['found_method'] == 3): ?>
+															大阪大学公開講座「知の広場」からのメール
+														<?php elseif ($surveyApplication['found_method'] == 4): ?>
+															SNS（X, Instagram, Facebookなど）
+														<?php elseif ($surveyApplication['found_method'] == 5): ?>
+															21世紀懐徳堂からのメールマガジン
+														<?php elseif ($surveyApplication['found_method'] == 6): ?>
+															大阪大学卒業生メールマガジン
+														<?php elseif ($surveyApplication['found_method'] == 7): ?>
+															大阪大学入試課からのメール
+														<?php elseif ($surveyApplication['found_method'] == 8): ?>
+															Peatixからのメール
+														<?php elseif ($surveyApplication['found_method'] == 9): ?>
+															知人からの紹介
+														<?php elseif ($surveyApplication['found_method'] == 10): ?>
+															講師・スタッフからの紹介
+														<?php elseif ($surveyApplication['found_method'] == 11): ?>
+															自治体の広報・掲示
+														<?php elseif ($surveyApplication['found_method'] == 12): ?>
+															スマートニュース広告
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?= htmlspecialchars($surveyApplication['other_found_method']) ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['reason'] == 1): ?>
+															テーマに関心があったから
+														<?php elseif ($surveyApplication['reason'] == 2): ?>
+															本日のプログラム内容に関心があったから
+														<?php elseif ($surveyApplication['reason'] == 3): ?>
+															本日のゲストに関心があったから
+														<?php elseif ($surveyApplication['reason'] == 4): ?>
+															大阪大学のプログラムに参加したかったから
+														<?php elseif ($surveyApplication['reason'] == 5): ?>
+															教養を高めたいから
+														<?php elseif ($surveyApplication['reason'] == 6): ?>
+															仕事に役立つと思われたから
+														<?php elseif ($surveyApplication['reason'] == 7): ?>
+															日常生活に役立つと思われたから
+														<?php elseif ($surveyApplication['reason'] == 8): ?>
+															余暇を有効に利用したかったから
+														<?php endif; ?>
+													</td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['other_reason']) ?></td>
+													<td class="p-4">
+														<?php if ($surveyApplication['satisfaction'] == 1): ?>
+															非常に満足
+														<?php elseif ($surveyApplication['satisfaction'] == 2): ?>
+															満足
+														<?php elseif ($surveyApplication['satisfaction'] == 3): ?>
+															ふつう
+														<?php elseif ($surveyApplication['satisfaction'] == 4): ?>
+															不満
+														<?php elseif ($surveyApplication['satisfaction'] == 5): ?>
+															非常に不満
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['understanding'] == 1): ?>
+															よく理解できた
+														<?php elseif ($surveyApplication['understanding'] == 2): ?>
+															理解できた
+														<?php elseif ($surveyApplication['understanding'] == 3): ?>
+															ふつう
+														<?php elseif ($surveyApplication['understanding'] == 4): ?>
+															理解できなかった
+														<?php elseif ($surveyApplication['understanding'] == 5): ?>
+															全く理解できなかった
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['good_point'] == 1): ?>
+															テーマについて考えを深めることができた
+														<?php elseif ($surveyApplication['good_point'] == 2): ?>
+															最先端の研究について学べた
+														<?php elseif ($surveyApplication['good_point'] == 3): ?>
+															大学の研究者と対話ができた
+														<?php elseif ($surveyApplication['good_point'] == 4): ?>
+															大学の講義の雰囲気を味わえた
+														<?php elseif ($surveyApplication['good_point'] == 5): ?>
+															大阪大学について知ることができた
+														<?php elseif ($surveyApplication['good_point'] == 6): ?>
+															身の周りの社会課題に対する解決のヒントが得られた
+														<?php endif; ?>
+													</td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['other_good_point']) ?></td>
+													<td class="p-4">
+														<?php if ($surveyApplication['time'] == 1): ?>
+															適当である
+														<?php elseif ($surveyApplication['time'] == 2): ?>
+															長すぎる
+														<?php elseif ($surveyApplication['time'] == 3): ?>
+															短すぎる
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['holding_environment'] == 1): ?>
+															とても快適だった
+														<?php elseif ($surveyApplication['holding_environment'] == 2): ?>
+															快適だった
+														<?php elseif ($surveyApplication['holding_environment'] == 3): ?>
+															ふつう
+														<?php elseif ($surveyApplication['holding_environment'] == 4): ?>
+															あまり快適ではなかった
+														<?php elseif ($surveyApplication['holding_environment'] == 5): ?>
+															全く快適ではなかった
+														<?php endif; ?>
+													</td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['no_good_enviroment_reason']) ?></td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['lecture_suggestions']) ?></td>
+													<td class="p-4"><?= htmlspecialchars($surveyApplication['speaker_suggestions']) ?></td>
+													<td class="p-4">
+														<?php if ($surveyApplication['work'] == 1): ?>
+															高校生以下
+														<?php elseif ($surveyApplication['work'] == 2): ?>
+															学生（高校生、大学生、大学院生等）
+														<?php elseif ($surveyApplication['work'] == 3): ?>
+															会社員
+														<?php elseif ($surveyApplication['work'] == 4): ?>
+															自営業・フリーランス
+														<?php elseif ($surveyApplication['work'] == 5): ?>
+															公務員
+														<?php elseif ($surveyApplication['work'] == 6): ?>
+															教職員
+														<?php elseif ($surveyApplication['work'] == 7): ?>
+															パート・アルバイト
+														<?php elseif ($surveyApplication['work'] == 8): ?>
+															主婦・主夫
+														<?php elseif ($surveyApplication['work'] == 9): ?>
+															定年退職
+														<?php elseif ($surveyApplication['work'] == 10): ?>
+															その他
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php if ($surveyApplication['sex'] == 1): ?>
+															男性
+														<?php elseif ($surveyApplication['sex'] == 2): ?>
+															女性
+														<?php elseif ($surveyApplication['sex'] == 3): ?>
+															その他
+														<?php endif; ?>
+													</td>
+													<td class="p-4">
+														<?php
+														if (!empty($surveyApplication['prefectures'])) {
+															echo htmlspecialchars($prefectures[$surveyApplication['prefectures']] ?? $surveyApplication['prefectures']);
+														}
+														?>
+														<?= htmlspecialchars($surveyApplication['address']) ?>
+													</td>
+												</tr>
+											<?php endforeach; ?>
+										<?php endif; ?>
 									</tbody>
 								</table>
 							</div>
 						</div>
+					</div>
+				</div>
+				<div class="d-flex">
+					<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+						<ul class="pagination">
+							<?php if ($currentPage >= 1 && $totalCount > $perPage): ?>
+								<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage) - 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+							<?php endif; ?>
+							<?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
+								<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+							<?php endfor; ?>
+							<?php if ($currentPage >= 0 && $totalCount > $perPage): ?>
+								<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage) + 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+							<?php endif; ?>
+						</ul>
 					</div>
 				</div>
 			</main>
@@ -186,9 +334,3 @@
 </body>
 
 </html>
-
-<script>
-	$('#search-button').on('click', function() {
-		$('.search-area').css('display', 'block');
-	});
-</script>
