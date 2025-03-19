@@ -226,5 +226,9 @@ define('ADULT_AGE', $adult_age);
 $is_participation_list = [1 => '参加済', 2 => '不参加'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);
 
+// アカウント承認状態
+$is_apply_list = [0 => '未承認', 1 => '承認'];
+define('IS_APPLY_LIST', $is_apply_list);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

@@ -1,4 +1,24 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); ?>
+<?php
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/user_registration_controller.php');
+include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+$user_registration_controller = new UserRegistrationController();
+$result_list = $user_registration_controller->index();
+$data_list = $result_list['data_list'];
+
+// バリデーションエラー
+$errors   = $_SESSION['errors']   ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// ページネーション
+$total_count = $result_list['total_count'];
+$per_page = $result_list['per_page'];
+$current_page = $result_list['current_page'];
+$page = $result_list['page'];
+?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
     <div class="wrapper">
@@ -14,7 +34,7 @@
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
+                                <div class="fs-5 me-4 text-decoration-underline"><?= htmlspecialchars($USER->name) ?></div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -24,97 +44,105 @@
                 </div>
             </nav>
 
+            <form id="form" method="POST" action="/custom/admin/app/Views/management/user_registration.php">
+                <input type="hidden" name="page" value="<?= $page ?>">
+            </form>
+
             <main class="content">
                 <div class="col-12 col-lg-12">
                     <div class="card min-70vh">
-                        <div class="card-body p-0">
-                            <div class="d-flex w-100 align-items-center justify-content-between mt-3">
-                                <div></div>
-                                <div class="d-flex align-items-center button-div mr-025">
-                                    <button class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
-                                        <i class="align-middle me-1" data-feather="download"></i>CSV出力
-                                    </button>
-                                    <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
+                        <form method="POST" action="/custom/admin/app/Controllers/management/user_registration_upsert_controller.php" class="w-100">
+                            <input type="hidden" name="page" value="<?= $page ?>">
+                            <div class="card-body p-0">
+                                <div class="d-flex w-100 align-items-center justify-content-between mt-3">
+                                    <div></div>
+                                    <div class="d-flex align-items-center button-div mr-025">
+                                        <button class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
+                                            <i class="align-middle me-1" data-feather="download"></i>CSV出力
+                                        </button>
+                                        <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
+                                    </div>
+                                </div>
+                                <div class="card m-auto mb-5 w-95">
+                                    <table class="table table-responsive table-striped table_list">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-4 pe-4">ユーザーID</th>
+                                                <th class="ps-4 pe-4">氏名</th>
+                                                <th class="ps-4 pe-4">フリガナ</th>
+                                                <th class="ps-4 pe-4">生年月日</th>
+                                                <th class="ps-4 pe-4 text-nowrap">住所</th>
+                                                <th class="ps-4 pe-4">メールアドレス</th>
+                                                <th class="ps-4 pe-4">電話番号</th>
+                                                <th class="ps-4 pe-4">保護者指名</th>
+                                                <th class="ps-4 pe-4">保護者メールアドレス</th>
+                                                <th class="ps-4 pe-4">保護者電話番号</th>
+                                                <th class="ps-4 pe-4">適塾記念会入会状況</th>
+                                                <th class="ps-4 pe-4">支払方法</th>
+                                                <th class="w-170 ps-4 pe-4">アカウント承認設定</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($data_list as $key => $data) { ?>
+                                                <tr>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['user_id']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['name']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['kana']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['birthday']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['city']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['email']) ?></td>
+                                                    <td class="ps-4 pe-4  text-nowrap"><?= htmlspecialchars($data['phone']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['gurdian_name']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['gurdian_email']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['gurdian_phone']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['is_tekijuku']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($data['pay_method']) ?></td>
+                                                    <td class="ps-4 pe-4">
+                                                        <select name="is_apply[<?= htmlspecialchars($data['id']) ?>]" class="form-control">
+                                                            <?php foreach ($is_apply_list as $key => $is_apply) { ?>
+                                                                <option value=<?= $key ?> <?= $key == $data['is_apply'] ? 'selected' : '' ?>>
+                                                                    <?= htmlspecialchars($is_apply) ?></option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="card m-auto mb-5 w-95">
-                                <table class="table table-responsive table-striped table_list">
-                                    <thead>
-                                        <tr>
-                                            <th class="ps-4 pe-4">ユーザーID</th>
-                                            <th class="ps-4 pe-4">氏名</th>
-                                            <th class="ps-4 pe-4">フリガナ</th>
-                                            <th class="ps-4 pe-4">生年月日</th>
-                                            <th class="ps-4 pe-4 text-nowrap">住所</th>
-                                            <th class="ps-4 pe-4">メールアドレス</th>
-                                            <th class="ps-4 pe-4">電話番号</th>
-                                            <th class="ps-4 pe-4">保護者指名</th>
-                                            <th class="ps-4 pe-4">保護者連絡先</th>
-                                            <th class="ps-4 pe-4">支払方法</th>
-                                            <th class="ps-4 pe-4">適塾記念会入会状況</th>
-                                            <th class="w-170 ps-4 pe-4">アカウント承認設定</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="ps-4 pe-4 text-nowrap">1325 2341</td>
-                                            <td class="ps-4 pe-4 text-nowrap">田中 翔太</td>
-                                            <td class="ps-4 pe-4 text-nowrap">タナカ ショウタ</td>
-                                            <td class="ps-4 pe-4">1999年7月15日</td>
-                                            <td class="ps-4 pe-4">大阪府</td>
-                                            <td class="ps-4 pe-4">tanaka@gmail.com</td>
-                                            <td class="ps-4 pe-4  text-nowrap">070-1827-1254</td>
-                                            <td class="ps-4 pe-4"></td>
-                                            <td class="ps-4 pe-4"></td>
-                                            <td class="ps-4 pe-4">クレジット</td>
-                                            <td class="ps-4 pe-4">入会済</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name=" category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4">1328 2716</td>
-                                            <td class="ps-4 pe-4">山田 健太</td>
-                                            <td class="ps-4 pe-4">ヤマダ ケンタ</td>
-                                            <td class="ps-4 pe-4">2007年11月28日</td>
-                                            <td class="ps-4 pe-4">愛知県</td>
-                                            <td class="ps-4 pe-4">yamada@gmail.com</td>
-                                            <td class="ps-4 pe-4 text-nowrap">090-1999-1827</td>
-                                            <td class="ps-4 pe-4"></td>
-                                            <td class="ps-4 pe-4"></td>
-                                            <td class="ps-4 pe-4">コンビニ決済</td>
-                                            <td class="ps-4 pe-4">入会済</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="ps-4 pe-4 text-nowrap">0001 0123</td>
-                                            <td class="ps-4 pe-4">中村 優衣</td>
-                                            <td class="ps-4 pe-4">ナカムラ ユイ</td>
-                                            <td class="ps-4 pe-4">2015年9月3日</td>
-                                            <td class="ps-4 pe-4">三重県</td>
-                                            <td class="ps-4 pe-4">nakamura@gmail.com</td>
-                                            <td class="ps-4 pe-4">070-1928-3712</td>
-                                            <td class="ps-4 pe-4">中村 徹</td>
-                                            <td class="ps-4 pe-4 text-nowrap">ナカムラ トオル</td>
-                                            <td class="ps-4 pe-4">銀行振込</td>
-                                            <td class="ps-4 pe-4">未入会</td>
-                                            <td class="ps-4 pe-4">
-                                                <select name="category_id" class="form-control">
-                                                    <option value=1>承認</option>
-                                                    <option selected value=2>非承認</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        </form>
+                        <div class="d-flex">
+                            <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                <ul class="pagination">
+                                    <?php
+                                    $total_pages = ceil($total_count / $per_page);
+                                    $start_page = max(1, $current_page - 1); // 最小1
+                                    $end_page = min($total_pages, $start_page + 2); // 最大3つ
+
+                                    // 前のページボタン
+                                    if ($current_page > 1): ?>
+                                        <li class="paginate_button page-item previous">
+                                            <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+                                        </li>
+                                    <?php endif; ?>
+
+                                    <?php
+                                    // ページ番号の表示
+                                    for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                        <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+                                            <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <?php
+                                    // 次のページボタン
+                                    if ($current_page < $total_pages): ?>
+                                        <li class="paginate_button page-item next">
+                                            <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+                                        </li>
+                                    <?php endif; ?>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -127,11 +155,19 @@
 
 </html>
 <script>
-    // モック用アラート　本番時は消してください
-    $('#submit').on('click', function(event) {
-        sessionStorage.setItem('alert', 'aaasss');
-        setTimeout(() => {
-            location.reload();
-        }, 50);
+    $(document).ready(function() {
+        // 検索フォームから検索時URLを動的に変更
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = $('input[name="page"]').val();
+        params.set('page', currentPage);
+        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+
+        // ページネーション押下時
+        $(document).on("click", ".paginate_button a", function(e) {
+            e.preventDefault();
+            const nextPage = $(this).data("page");
+            $('input[name="page"]').val(nextPage);
+            $('#form').submit();
+        });
     });
 </script>

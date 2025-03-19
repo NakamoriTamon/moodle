@@ -188,8 +188,6 @@ class EventRegistrationController
             ];
         }
 
-        var_dump($application_list);
-
         $total_count = count($application_list);
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
