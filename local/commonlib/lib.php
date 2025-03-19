@@ -196,6 +196,11 @@ function validate_int_zero_ok($val, $title, $required)
     if (!is_numeric($val)) {
         return $title . 'は数字を入力してください。';
     }
+
+    $limt_32bit = 2147483647;
+    if ($val > $limt_32bit) {
+        return $title . 'は21億を超えることはできません。';
+    }
     return null;
 }
 

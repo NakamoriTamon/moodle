@@ -74,7 +74,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         <div class="detail_item">
                             <h2 class="block_ttl">内容</h2>
                             <p class="sent">
-                                <?= nl2br($event['description']); ?>
+                                <?= htmlspecialchars(nl2br($event['description'])); ?>
                             </p>
                         </div>
                     <?php endif; ?>
@@ -156,16 +156,20 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <h4 class="sub_ttl">アクセス</h4>
                                 <div class="access_item01">
                                     <?php if (!empty($event['google_map'])): ?>
-                                        <div class="map"><?= nl2br($event['google_map']) ?></div>
+                                        <div class="map"><?= $event['google_map'] ?></div>
                                     <?php endif ?>
                                     <div class="sent">
-                                        <p>
-                                            【会場】<?= htmlspecialchars($event['venue_name']) ?>
-                                        </p>
-                                        <p>
-                                            【交通アクセス】<br />
-                                            <?= nl2br($event['access']) ?>
-                                        </p>
+                                        <?php if(!empty($event['venue_name'])): ?>
+                                            <p>
+                                                【会場】<?= htmlspecialchars($event['venue_name']) ?>
+                                            </p>
+                                        <?php endif; ?>
+                                        <?php if(!empty($event['access'])): ?>
+                                            <p>
+                                                【交通アクセス】<br />
+                                                <?= htmlspecialchars(nl2br($event['access'])) ?>
+                                            </p>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endif ?>
@@ -207,7 +211,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <?= htmlspecialchars($detail['name']) ?>
                                 </p>
                                 <p class="sent" <?php if(count($course['details']) != $key+1): ?>style="margin-bottom: 40px;"<?php endif; ?>>
-                                    <?= nl2br($detail['program']) ?>
+                                    <?= htmlspecialchars(nl2br($detail['program'])) ?>
                                 </p>
                             <?php endforeach; ?>
                             <div class="program">
@@ -226,7 +230,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <div class="speaker_desc">
                                     <h4 class="sub_ttl"><?= htmlspecialchars($turor['name']) ?></h4>
                                     <p class="sent">
-                                        <?= nl2br($turor['overview']) ?>
+                                        <?= htmlspecialchars(nl2br($turor['overview'])) ?>
                                     </p>
                                 </div>
                             </div>
