@@ -122,9 +122,6 @@ class EventRegistrationController
             }
         }
 
-        var_dump($course_info_id);
-        var_dump($event_id);
-
         // IDの0を落とす
         if (is_numeric($keyword)) {
             $keyword = ltrim($keyword, '0');
