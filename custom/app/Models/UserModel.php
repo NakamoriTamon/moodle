@@ -169,8 +169,8 @@ class UserModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_tekijuku_commemoration");
-
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_tekijuku_commemoration WHERE is_temporary = 1 AND is_delete = 0 AND fk_user_id = :user_id");
+                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                 $stmt->execute();
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {

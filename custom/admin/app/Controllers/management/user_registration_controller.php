@@ -56,9 +56,9 @@ class UserRegistrationController
                 'city' => $user['city'],
                 'email' => $user['email'],
                 'phone' => $user['phone1'],
-                'gurdian_name' =>  $user['gurdian_name'],
-                'gurdian_email' =>  $user['gurdian_email'],
-                'gurdian_phone' =>  $user['gurdian_phone'],
+                'gurdian_name' =>  $user['guardian_name'],
+                'gurdian_email' =>  $user['guardian_email'],
+                'gurdian_phone' =>  $user['guardian_phone'],
                 'is_tekijuku' => $is_tekijuku,
                 'pay_method' => $payment_method,
                 'is_apply' => $user['is_apply']
