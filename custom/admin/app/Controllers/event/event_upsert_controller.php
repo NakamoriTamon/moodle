@@ -75,6 +75,9 @@ $plan = $_POST['plan'] ?? null; // 企画
 $_SESSION['errors']['plan'] = validate_text($plan, '企画', 225, false); // バリデーションチェック
 $inquiry_mail = $_POST['inquiry_mail'] ?? null; // お問い合わせ先メールアドレス
 $_SESSION['errors']['inquiry_mail'] = validate_custom_email($inquiry_mail, 'お問い合わせ先'); // バリデーションチェック
+$tekijuku_discount = empty($_POST['tekijuku_discount']) ? 0 : $_POST['tekijuku_discount']; // 適塾記念会会員割引額
+$_SESSION['errors']['tekijuku_discount'] = validate_int_zero_ok($tekijuku_discount, '適塾記念会会員割引額', false); // バリデーションチェック
+
 // 複数回シリーズのイベント　の場合
 if($event_kbn == PLURAL_EVENT) {
     $single_participation_fee = empty($_POST['single_participation_fee']) ? 0 : $_POST['single_participation_fee']; // 単体の参加費
@@ -84,16 +87,32 @@ if($event_kbn == PLURAL_EVENT) {
     $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
     $all_deadline = empty($_POST['all_deadline']) ? 0 : $_POST['all_deadline']; // 各回申し込み締切日　必須
     $_SESSION['errors']['all_deadline'] = validate_int_zero_ok($all_deadline, '各回申し込み締切日', false);
+
+    // 適塾記念会会員割引額が単体の参加費、参加費より大きくないか確認
+    if(is_null($_SESSION['errors']['single_participation_fee'])
+        && is_null($_SESSION['errors']['participation_fee'])
+        && is_null($_SESSION['errors']['tekijuku_discount'])
+    ) {
+        if($tekijuku_discount > $single_participation_fee || $tekijuku_discount > $participation_fee) {
+            $_SESSION['errors']['tekijuku_discount'] = "適塾記念会会員割引額は参加費( 全て受講 )、参加費より大きい金額を入力しないでください。";
+        }
+    }
 } else {
     $title = "参加費";
     $participation_fee = empty($_POST['participation_fee']) ? 0 : $_POST['participation_fee']; // 参加費
     $_SESSION['errors']['participation_fee'] = validate_int_zero_ok($participation_fee, $title, false); // バリデーションチェック
     $all_deadline = 0;
     $single_participation_fee = $participation_fee;
+    // 適塾記念会会員割引額が単体の参加費、参加費より大きくないか確認
+    if(is_null($_SESSION['errors']['participation_fee'])
+        && is_null($_SESSION['errors']['tekijuku_discount'])
+    ) {
+        if($tekijuku_discount > $participation_fee) {
+            $_SESSION['errors']['tekijuku_discount'] = "適塾記念会会員割引額は参加費より大きい金額を入力しないでください。";
+        }
+    }
 }
 
-$tekijuku_discount = empty($_POST['tekijuku_discount']) ? 0 : $_POST['tekijuku_discount']; // 参加費
-$_SESSION['errors']['tekijuku_discount'] = validate_int_zero_ok($tekijuku_discount, '適塾記念会会員割引額', false); // バリデーションチェック
 $deadline = empty($_POST['deadline']) ?  null : $_POST['deadline']; // 申し込み締切日　必須
 $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切日', false);
 $capacity = empty($_POST['capacity']) ? 0 : $_POST['capacity']; // 定員

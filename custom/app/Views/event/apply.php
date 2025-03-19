@@ -95,8 +95,11 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     if($tekijuku) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
-        $price = $participation_fee - $tekijuku_discount;
-        $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
+        if($tekijuku_discount > 0) {
+            $participation_fee = $participation_fee - $tekijuku_discount;
+            $price = $participation_fee;
+            $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
+        }
     }
     // 必要な情報を取得
     $name = $user->name ?? "";
@@ -117,7 +120,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 if (!empty($old_input)) {
     $payMethod = isset($old_input['pay_method']) ? $old_input['pay_method'] : null;
     $ticket = isset($old_input['ticket']) ? $old_input['ticket'] : 1;
-    $price = $ticket * $participation_fee - $tekijuku_discount;
+    $price = $ticket * $participation_fee;
     $triggerOther = isset($old_input['trigger_other']) ? $old_input['trigger_other'] : "";
     $note = isset($old_input['note']) ? $old_input['note'] : "";
     $triggersArray = isset($old_input['trigger']) ? $old_input['trigger'] : [];
@@ -131,7 +134,7 @@ if (!empty($old_input)) {
 } else if (!is_null($formdata) && empty($errors)) {
     $payMethod = isset($formdata['pay_method']) ? $formdata['pay_method'] : null;
     $ticket = isset($formdata['ticket']) ? $formdata['ticket'] : 1;
-    $price = $ticket * $participation_fee - $tekijuku_discount;
+    $price = $ticket * $participation_fee;
     $triggerOther = isset($formdata['trigger_other']) ? $formdata['trigger_other'] : "";
     $note = isset($formdata['note']) ? $formdata['note'] : "";
     $triggers = isset($formdata['triggers']) ? $formdata['triggers'] : [];
@@ -273,7 +276,7 @@ if (!empty($old_input)) {
                             <li class="list_item05">
                                 <p class="list_label">金額</p>
                                 <?php if($participation_fee < 1): ?>
-                                    <p class="list_field">無料</p>
+                                    <p class="list_field">無料<?= $tekijuku_text ?></p>
                                 <?php else: ?>
                                     <p class="list_field" id="show_price"><?= htmlspecialchars(number_format($price)); ?>円</p>
                                 <?php endif; ?>
@@ -476,7 +479,7 @@ if (!empty($old_input)) {
     const akiTicketCount = $('#aki_ticket').val();
     // ブラウザバック対応
     $('input[name="ticket"]').on('change', function() {
-        const price = participation_fee * $(this).val() - tekijuku_discount;
+        const price = participation_fee * $(this).val();
         var test = $('#price').text();
         $('#price').val(price);
         $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
@@ -535,7 +538,7 @@ if (!empty($old_input)) {
             total_numner = 0;
             $input.each(function(val) {
                 total_numner = $(this).val();
-                const price = participation_fee * $(this).val() - tekijuku_discount;
+                const price = participation_fee * $(this).val();
                 $('#price').val(price);
                 $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
             });

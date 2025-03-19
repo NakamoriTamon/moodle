@@ -65,6 +65,7 @@ $tekijuku_discount = 0;
 if($tekijuku) {
     $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
 }
+$participation_fee = $participation_fee - $tekijuku_discount;
 
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
@@ -113,7 +114,7 @@ $ticket = htmlspecialchars(optional_param('ticket', '', PARAM_TEXT));
 $_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
 $price =  htmlspecialchars(optional_param('price', '', PARAM_TEXT));
 $price =  str_replace(',', '', $price);
-if ($price != $ticket * $participation_fee - $tekijuku_discount) {
+if ($price != $ticket * $participation_fee) {
     $_SESSION['errors']['message_error'] = '支払い料金が変更されました。ご確認の上、再度お申し込みしてください。';
     if (!is_null($courseInfoId)) {
         header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
@@ -346,7 +347,8 @@ if (
         'paymentType' => $paymentType,
         'passages' => $passages,
         'hiddens' => $hiddens,
-        'params' => $params
+        'params' => $params,
+        'tekijuku_discount' => $tekijuku_discount
     ];
     redirect(new moodle_url('/custom/app/Views/event/confirm.php'));
     exit;

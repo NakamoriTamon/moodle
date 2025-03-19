@@ -58,7 +58,14 @@ if (isset($SESSION->formdata)) {
     $paymentType = $formdata['paymentType'];
     $passages = $formdata['passages'];
     $hiddens = $formdata['hiddens'];
+    $tekijuku_discount = $formdata['tekijuku_discount'];
 }
+
+$tekijuku_text = "";
+if(!empty($tekijuku_discount)) {
+    $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
+}
+
 $url = "apply.php?id=" . $eventId;
 
 if (!is_null($courseInfoId)) {
@@ -139,11 +146,16 @@ if (!is_null($courseInfoId)) {
                                 <p class="list_label">金額</p>
                                 <p class="list_field f_txt"><?= htmlspecialchars($price) ?>円</p>
                             </li>
-                            <li class="list_item06 req">
+                            <li class="list_item06">
                                 <p class="list_label">お支払方法</p>
                                 <p class="list_field"><?= htmlspecialchars($paymentType['name']) ?></p>
                             </li>
-                        <?php endif ?>
+                        <?php else: ?>
+                            <li class="list_item05">
+                                <p class="list_label">金額</p>
+                                <p class="list_field f_txt">無料<?= $tekijuku_text ?></p>
+                            </li>
+                        <?php endif; ?>
                         <?php if (!empty($companion_mails)): ?>
                             <li class="list_item07 long_item">
                                 <p class="list_label">複数チケット申し込みの場合お連れ様のメールアドレス</p>
@@ -179,13 +191,13 @@ if (!is_null($courseInfoId)) {
                         <li class="list_item10 long_item">
                             <p class="list_label">その他</p>
                             <p class="list_field">
-                                <?= nl2br($trigger_other) ?>
+                                <?= htmlspecialchars(nl2br($trigger_other)) ?>
                             </p>
                         </li>
                         <li class="list_item10 long_item">
                             <p class="list_label">備考欄</p>
                             <p class="list_field">
-                                <?= nl2br($note) ?>
+                                <?= htmlspecialchars(nl2br($note)) ?>
                             </p>
                         </li>
                         <?php echo $passages ?>

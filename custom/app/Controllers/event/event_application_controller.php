@@ -72,7 +72,10 @@ class EventApplicationController
                 }
             }
 
-            $deadline = (new DateTime($event['deadline']))->format('Ymd');
+            $deadline = null;
+            if(!empty($event['deadline'])) {
+                $deadline = (new DateTime($event['deadline']))->format('Ymd');
+            }
             foreach ($event['course_infos'] as $select_course) {
                 if($event['event_kbn'] == EVERY_DAY_EVENT && is_null($courseInfoId)) {
                     $course_date = (new DateTime($select_course['course_date']))->format('Ymd');
@@ -82,7 +85,7 @@ class EventApplicationController
                             break;
                     }
                 } elseif($event['event_kbn'] == PLURAL_EVENT && is_null($courseInfoId)) {
-                    if ($deadline < $now) {
+                    if (!empty($deadline) && $deadline < $now) {
                             $event['select_course'] = [];
                             break;
                     } else {

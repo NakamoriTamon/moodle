@@ -347,12 +347,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<input name="google_map" class=" form-control" type="text"
 												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
 											<?php if (!empty($errors['google_map'])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['google_map']); ?></div>
+												<div class="text-danger mt-2"><?= $errors['google_map']; ?></div>
 											<?php endif; ?>
 										</div>
 										<div class="mb-3">
 										<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
-											<?= nl2br($eventData['google_map']) ?>
+											<?= $eventData['google_map'] ?>
 										<?php endif; ?>
 										</div>
 									</div>
@@ -591,7 +591,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">主催</label>
 										<input name="sponsor" class=" form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['sponsor'] ?? ($old_input['sponsor'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['sponsor'] ?? '', $old_input['sponsor'] ?? '')) ?>" />
 										<?php if (!empty($errors['sponsor'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['sponsor']); ?></div>
 										<?php endif; ?>
@@ -599,7 +599,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">共催</label>
 										<input name="co_host" class="form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['co_host'] ?? ($old_input['co_host'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['co_host'] ?? '', $old_input['co_host'] ?? '')) ?>" />
 										<?php if (!empty($errors['co_host'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['co_host']); ?></div>
 										<?php endif; ?>
@@ -607,7 +607,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">後援</label>
 										<input name="sponsorship" class="form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['sponsorship'] ?? ($old_input['sponsorship'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['sponsorship'] ?? '', $old_input['sponsorship'] ?? '')) ?>" />
 										<?php if (!empty($errors['sponsorship'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['sponsorship']); ?></div>
 										<?php endif; ?>
@@ -615,7 +615,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">協力</label>
 										<input name="cooperation" class=" form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['cooperation'] ?? ($old_input['cooperation'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['cooperation'] ?? '', $old_input['cooperation'] ?? '')) ?>" />
 										<?php if (!empty($errors['cooperation'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['cooperation']); ?></div>
 										<?php endif; ?>
@@ -623,7 +623,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">企画</label>
 										<input name="plan" class="form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['plan'] ?? ($old_input['plan'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['plan'] ?? '', $old_input['plan'] ?? '')) ?>" />
 										<?php if (!empty($errors['plan'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['plan']); ?></div>
 										<?php endif; ?>
@@ -631,7 +631,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">お問い合わせ先メールアドレス</label>
 										<span class="badge bg-danger">必須</span>
-										<input type="email" name="inquiry_mail" class="form-control" value="<?= htmlspecialchars($eventData['inquiry_mail'] ?? ($old_input['inquiry_mail'] ?? '')) ?>"
+										<input type="email" name="inquiry_mail" class="form-control" value="<?= htmlspecialchars(isSetValue($eventData['inquiry_mail'] ?? '', $old_input['inquiry_mail'] ?? '')) ?>"
 											inputmode="email"
 											autocomplete="email"
 											oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
@@ -642,7 +642,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label><label>　※未入力、または0の場合、無制限になります。</label>
 										<input name="capacity" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['capacity'] ?? ($old_input['capacity'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['capacity'] ?? '', $old_input['capacity'] ?? '')) ?>" />
 										<?php if (!empty($errors['capacity'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['capacity']); ?></div>
 										<?php endif; ?>
@@ -650,7 +650,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == PLURAL_EVENT): ?>( 全て受講 )<?php endif; ?></label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['participation_fee'] ?? ($old_input['participation_fee'] ?? '')) ?>"
+                                            value="<?= htmlspecialchars(isSetValue($eventData['participation_fee'] ?? '', $old_input['participation_fee'] ?? '')) ?>"
 											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
 											 />
 										<?php if (!empty($errors['participation_fee'])): ?>
@@ -660,7 +660,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3 repeatedly_area">
 										<label class="form-label" id="single_participation_fee_label">参加費</label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="single_participation_fee" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['single_participation_fee'] ?? ($old_input['single_participation_fee'] ?? '')) ?>"
+                                            value="<?= htmlspecialchars(isSetValue($eventData['single_participation_fee'] ?? '', $old_input['single_participation_fee'] ?? '')) ?>"
 											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										<?php if (!empty($errors['single_participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['single_participation_fee']); ?></div>
@@ -669,7 +669,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label" id="tekijuku_discount_label">適塾記念会会員割引額</label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="tekijuku_discount" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['tekijuku_discount'] ?? ($old_input['tekijuku_discount'] ?? '')) ?>"
+                                            value="<?= htmlspecialchars(isSetValue($eventData['tekijuku_discount'] ?? '', $old_input['tekijuku_discount'] ?? '')) ?>"
 											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
 											 />
 										<?php if (!empty($errors['tekijuku_discount'])): ?>
@@ -701,7 +701,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">リアルタイム配信URL</label>
 										<input name="real_time_distribution_url" class="form-control" type="text"
-                                            value="<?= htmlspecialchars($eventData['real_time_distribution_url'] ?? ($old_input['real_time_distribution_url'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['real_time_distribution_url'] ?? '', $old_input['real_time_distribution_url'] ?? '')) ?>" />
 										<?php if (!empty($errors['real_time_distribution_url'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['real_time_distribution_url']); ?></div>
 										<?php endif; ?>
@@ -709,7 +709,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">アーカイブ配信期間</label>
 										<input name="archive_streaming_period" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['archive_streaming_period'] ?? ($old_input['archive_streaming_period'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['archive_streaming_period'] ?? '', $old_input['archive_streaming_period'] ?? '')) ?>" />
 										<?php if (!empty($errors['archive_streaming_period'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['archive_streaming_period']); ?></div>
 										<?php endif; ?>
@@ -727,7 +727,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<label class="form-label">講義資料公開期間</label>
 										<input name="material_release_period" class=" form-control" min="0" type="number"
-                                            value="<?= htmlspecialchars($eventData['material_release_period'] ?? ($old_input['material_release_period'] ?? '')) ?>" />
+                                            value="<?= htmlspecialchars(isSetValue($eventData['material_release_period'] ?? '', $old_input['material_release_period'] ?? '')) ?>" />
 										<?php if (!empty($errors['material_release_period'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_period']); ?></div>
 										<?php endif; ?>
@@ -764,7 +764,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div> -->
 									<div class="mb-3">
 										<label class="form-label">その他</label>
-										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars($eventData['note'] ?? ($old_input['note'] ?? '')) ?></textarea>
+										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['note'] ?? '', $old_input['note'] ?? '')) ?></textarea>
 										<?php if (!empty($errors['note'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
@@ -1059,6 +1059,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 	});
 
 	$(document).ready(function () {
+		$("#del_submit").on("click", function (e) {
+			e.preventDefault(); // フォームの送信を一旦キャンセル
+			let confirmed = confirm("本当にこのイベントを削除しますか？");
+			if (confirmed) {
+				$(this).closest("form").submit(); // OKならフォームを送信
+			}
+		});
 
 		$('#thumbnail_img').on('change', function (event) {
 			const file = event.target.files[0]; // 選択されたファイルを取得
