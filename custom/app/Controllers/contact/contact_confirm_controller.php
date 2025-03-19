@@ -19,7 +19,7 @@ $_SESSION['errors']['email_confirm'] = confirm_validation($email_confirm, $email
 $event_id = $_POST['event_id'];
 $_SESSION['errors']['event_id'] = validate_select($event_id, 'お問い合わせの項目', true);
 $inquiry_details =$_POST['inquiry_details'];
-$_SESSION['errors']['inquiry_details'] = validate_textarea($inquiry_details, 'お問い合わせ内容', true);
+$_SESSION['errors']['inquiry_details'] = validate_textarea($inquiry_details, 'お問い合わせ内容', true, 300);
 
 if ($_SESSION['errors']['name']
     || $_SESSION['errors']['email']
@@ -31,7 +31,7 @@ if ($_SESSION['errors']['name']
     exit;
 } else {
     $event_name = "";
-    if(is_int($event_id)) {
+    if(is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
         $event_name = '【' . $event['name'] . '】について';
