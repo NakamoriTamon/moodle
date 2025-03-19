@@ -88,7 +88,7 @@ $course_id = $result_list['course_info'] ?? [];
 											<div class="sp-ms-0 ms-3 mb-3 w-100">
 												<label class="form-label" for="course_no_select">回数</label>
 												<div class="d-flex align-items-center">
-													<select id="course_no_select" class="form-control w-100" <?= $result_list['is_simple'] ? 'disabled' : '' ?>>
+													<select id="course_no_select" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 														<?php foreach ($course_number as $course_no) { ?>
 															<option value="<?= $course_no ?>" <?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 																<?= "第" . htmlspecialchars($course_no) . "回" ?>

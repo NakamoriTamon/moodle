@@ -42,16 +42,14 @@ class MaterialModel extends BaseModel
 
         return [];
     }
-
     // 資料単件取得
-    public function getMaterialById($id = null)
+    public function getMaterialById($course_info_id = null)
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_material WHERE id = ? AND is_delete = 1 ORDER BY timestart ASC");
-                $stmt->execute([$id]);
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_course_material WHERE course_info_id = ?");
+                $stmt->execute([$course_info_id]);
                 $material = $stmt->fetch(PDO::FETCH_ASSOC);
-                $material['details'] = $this->getMaterialDetails($material['id']);
                 return  $material;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
