@@ -31,7 +31,7 @@ if ($_SESSION['errors']['name']
     exit;
 } else {
     $event_name = "";
-    if(is_int($event_id)) {
+    if(is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
         $event_name = '【' . $event['name'] . '】について';
