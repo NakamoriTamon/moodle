@@ -111,7 +111,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 									<input type="hidden" name="event_count" value="<?= $old_input['event_count'] ?? '' ?>">
 								</form>
 								<!-- 元のデザインのボタン -->
-								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center" onclick="document.getElementById('csvExportForm').submit()">
+								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center">
 									<i class="align-middle me-1" data-feather="download"></i>CSV出力
 								</button>
 								<div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : <?= $totalCount ?>件</div>
@@ -328,27 +328,13 @@ $old_input = $_SESSION['old_input'] ?? [];
 						</div>
 					</div>
 				</div>
-				<div class="d-flex">
-					<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
-						<ul class="pagination">
-							<?php if ($currentPage >= 1 && $totalCount > $perPage): ?>
-								<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage) - 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
-							<?php endif; ?>
-							<?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
-								<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
-							<?php endfor; ?>
-							<?php if ($currentPage >= 0 && $totalCount > $perPage): ?>
-								<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage) + 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
-							<?php endif; ?>
-						</ul>
-					</div>
-				</div>
+
 			</main>
 		</div>
 	</div>
 
 	<script src="/custom/admin/public/js/app.js"></script>
-	<script>
+	<!-- <script>
 		document.addEventListener('DOMContentLoaded', function() {
 			const categorySelect = document.getElementById('category-select');
 			const statusSelect = document.getElementById('status-select');
@@ -446,7 +432,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 				}
 			}
 		});
-	</script>
+	</script> -->
 </body>
 
 </html>
