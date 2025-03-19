@@ -32,6 +32,7 @@ class UserRegistrationController
         }
 
         $user_list = $this->userModel->getUser($current_page);
+        $user_count_list = $this->userModel->getUserCount();
 
         $data_list = [];
         foreach ($user_list as $Key => $user) {
@@ -65,7 +66,7 @@ class UserRegistrationController
             ];
         }
 
-        $total_count = count($data_list);
+        $total_count = count($user_count_list);
         $data = [
             'data_list' => $data_list,
             'total_count' => $total_count,
