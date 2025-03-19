@@ -124,15 +124,18 @@ function validate_text($val, $title, $size, $required = false)
 /**
  * バリデーション: textareaタグ
  */
-function validate_textarea($val, $title, $required)
+function validate_textarea($val, $title, $required, $size = 10000)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
     } elseif(empty($val) && !$required) {
         return null;
     }
-    if (mb_strlen($val) > 10000) {
-        return $title . 'は10000文字以下である必要があります。';
+    // 改行を除去
+    $val_without_newlines = str_replace(["\r", "\n"], '', $val);
+
+    if (mb_strlen($val_without_newlines) > $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }

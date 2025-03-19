@@ -138,7 +138,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         <li class="list_item05 long_item req">
                             <p class="list_label">お問い合わせ内容</p>
                             <div class="list_field f_txtarea">
-                                <textarea name="inquiry_details"><?= htmlspecialchars($inquiry_details) ?></textarea>※300文字以内
+                                <textarea name="inquiry_details" maxlength="300"><?= htmlspecialchars($inquiry_details) ?></textarea>※300文字以内
                             <?php if (!empty($errors['inquiry_details'])): ?>
                                 <div class="error-msg mt-2">
                                     <?= htmlspecialchars($errors['inquiry_details']); ?>
