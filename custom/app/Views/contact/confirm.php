@@ -30,7 +30,7 @@ if (isset($SESSION->formdata)) {
                 <li class="active">確認</li>
                 <li>完了</li>
             </ul>
-            <form method="" action=" method="POST" action="/custom/app/Controllers/contact/contact_send_controller.php" class="whitebox form_cont">
+            <form method="POST" action="/custom/app/Controllers/contact/contact_send_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($event_id); ?>">
                 <input type="hidden" name="name" value="<?php echo htmlspecialchars($name); ?>">

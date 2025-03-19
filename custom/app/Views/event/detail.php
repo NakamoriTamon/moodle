@@ -70,12 +70,14 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
         <section id="detail">
             <div class="whitebox">
                 <div class="inner_m">
-                    <div class="detail_item">
-                        <h2 class="block_ttl">内容</h2>
-                        <p class="sent">
-                            <?= nl2br($event['description']); ?>
-                        </p>
-                    </div>
+                    <?php if(!empty($event['description'])): ?>
+                        <div class="detail_item">
+                            <h2 class="block_ttl">内容</h2>
+                            <p class="sent">
+                                <?= nl2br($event['description']); ?>
+                            </p>
+                        </div>
+                    <?php endif; ?>
                     <div class="detail_item">
                         <h2 class="block_ttl">概要</h2>
                         <div class="summary sent">
@@ -150,35 +152,39 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </ul>
                         </div>
                         <div class="access">
-                            <h4 class="sub_ttl">アクセス</h4>
-                            <div class="access_item01">
-                                <?php if (!empty($event['google_map'])): ?>
-                                    <div class="map"><?= nl2br($event['google_map']) ?></div>
-                                <?php endif ?>
-                                <div class="sent">
-                                    <p>
-                                        【会場】<?= htmlspecialchars($event['venue_name']) ?>
-                                    </p>
-                                    <p>
-                                        【交通アクセス】<br />
-                                        <?= nl2br($event['access']) ?>
-                                    </p>
+                            <?php if(!empty($event['google_map']) || !empty($event['venue_name']) || !empty($event['access'])): ?>
+                                <h4 class="sub_ttl">アクセス</h4>
+                                <div class="access_item01">
+                                    <?php if (!empty($event['google_map'])): ?>
+                                        <div class="map"><?= nl2br($event['google_map']) ?></div>
+                                    <?php endif ?>
+                                    <div class="sent">
+                                        <p>
+                                            【会場】<?= htmlspecialchars($event['venue_name']) ?>
+                                        </p>
+                                        <p>
+                                            【交通アクセス】<br />
+                                            <?= nl2br($event['access']) ?>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="access_item02">
-                                <ul class="info inner_s sent">
-                                    <?php if(!empty($event['sponsor'])): ?><li>【主催】<?= htmlspecialchars($event['sponsor']) ?></li><?php endif; ?>
-                                    <?php if(!empty($event['cooperation'])): ?><li>【協力】<?= htmlspecialchars($event['cooperation']) ?></li><?php endif; ?>
-                                    <?php if(!empty($event['co_host'])): ?><li>【共催】<?= htmlspecialchars($event['co_host']) ?></li><?php endif; ?>
-                                    <?php if(!empty($event['plan'])): ?><li>【企画】<?= htmlspecialchars($event['plan']) ?></li><?php endif; ?>
-                                    <?php if(!empty($event['sponsorship'])): ?><li>【後援】<?= htmlspecialchars($event['sponsorship']) ?></li><?php endif; ?>
-                                </ul>
-                                <?php if(!empty($event['inquiry_mail'])): ?>
-                                    <ul class="inquiry inner_s sent" style="display: flex;">
-                                        <li>【お問い合わせ窓口】<a href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>"><?= htmlspecialchars($event['inquiry_mail']) ?></a></li>
+                            <?php endif ?>
+                            <?php if(!empty($event['sponsor']) || !empty($event['cooperation']) || !empty($event['co_host']) || !empty($event['plan']) || !empty($event['sponsorship']) || (!empty($event['inquiry_mail']) && $event['event_status'] != EVENT_END)): ?>
+                                <div class="access_item02">
+                                    <ul class="info inner_s sent">
+                                        <?php if(!empty($event['sponsor'])): ?><li>【主催】<?= htmlspecialchars($event['sponsor']) ?></li><?php endif; ?>
+                                        <?php if(!empty($event['cooperation'])): ?><li>【協力】<?= htmlspecialchars($event['cooperation']) ?></li><?php endif; ?>
+                                        <?php if(!empty($event['co_host'])): ?><li>【共催】<?= htmlspecialchars($event['co_host']) ?></li><?php endif; ?>
+                                        <?php if(!empty($event['plan'])): ?><li>【企画】<?= htmlspecialchars($event['plan']) ?></li><?php endif; ?>
+                                        <?php if(!empty($event['sponsorship'])): ?><li>【後援】<?= htmlspecialchars($event['sponsorship']) ?></li><?php endif; ?>
                                     </ul>
-                                <?php endif; ?>
-                            </div>
+                                    <?php if(!empty($event['inquiry_mail']) && $event['event_status'] != EVENT_END): ?>
+                                        <ul class="inquiry inner_s sent" style="display: flex;">
+                                            <li>【お問い合わせ窓口】<a href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>"><?= htmlspecialchars($event['inquiry_mail']) ?></a></li>
+                                        </ul>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php if($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>

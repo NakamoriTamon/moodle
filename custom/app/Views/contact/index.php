@@ -6,13 +6,14 @@ $user = $mypage_controller->getUser();
 $contact_controller = new ContactController();
 $events = $contact_controller->getEventList();
 
-$id = $_GET['event_id'] ?? "";
+$event_id = $_GET['event_id'] ?? "";
 
 $name = "";
 $email = "";
 $email_confirm = "";
 $inquiry_details = "";
-if(isset($old_input)) {
+$formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
+if(isset($old_input) && !empty($old_input)) {
     if(isset($old_input['name']) && !empty($old_input['name'])) {
         $name = $old_input['name'];
     } else if($user) {
@@ -31,6 +32,7 @@ if(isset($old_input)) {
         $inquiry_details = $old_input['inquiry_details'];
     }
 } else if (!is_null($formdata) && empty($errors)) {
+    $formdata = $SESSION->formdata;
     if(isset($formdata['name']) && !empty($formdata['name'])) {
         $name = $formdata['name'];
     } else if($user) {
@@ -45,11 +47,20 @@ if(isset($old_input)) {
     if(isset($formdata['email_confirm']) && !empty($formdata['email_confirm'])) {
         $email_confirm = $formdata['email_confirm'];
     }
+    if(isset($formdata['event_id']) && !empty($formdata['event_id'])) {
+        $event_id = $formdata['event_id'];
+    }
     if(isset($formdata['inquiry_details']) && !empty($formdata['inquiry_details'])) {
         $inquiry_details = $formdata['inquiry_details'];
     }
+} elseif($user) {
+    $name = $user->name;
+    $email = $user->email;
+    $email_confirm = $email;
 }
-unset($_SESSION['errors'], $_SESSION['old_input']);
+
+$message_error = $_SESSION['message_error'];
+unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION['message_error']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -68,9 +79,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
             </ul>
             <form method="POST" action="/custom/app/Controllers/contact/contact_confirm_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($id); ?>">
                 <div class="inner_m">
                     <ul class="list">
+                        <p class="error-msg">
+                            <?php if (!empty($message_error)): ?>
+                                <?= htmlspecialchars($message_error); ?>
+                            <?php endif; ?>
+                        </p>
                         <li class="list_item01 req">
                             <p class="list_label">お名前</p>
                             <div class="list_field f_txt">
@@ -107,15 +122,15 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                         <li class="list_item04">
                             <p class="list_label">お問い合わせの項目</p>
                             <div class="list_field f_select select">
-                                <select name="event_name">
+                                <select name="event_id">
                                     <?php foreach($events as $event): ?>
-                                        <option value="<?= $event['name'] ?>について" <? if($id == $event['id']): ?>selected<?php endif; ?>>「<?= $event['name'] ?>」について</option>
+                                        <option value="<?= $event['id'] ?>" <? if($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= $event['name'] ?>】について</option>
                                     <?php endforeach; ?>
                                     <option value="その他「『阪大知の広場』に関しての一般的なお問い合わせ" >その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>
-                                <?php if (!empty($errors['event_name'])): ?>
+                                <?php if (!empty($errors['event_id'])): ?>
                                     <div class="error-msg mt-2">
-                                        <?= htmlspecialchars($errors['event_name']); ?>
+                                        <?= htmlspecialchars($errors['event_id']); ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
