@@ -30,10 +30,10 @@ if (isset($SESSION->formdata)) {
 
 try {
     $inquiry_mail = "";
-    if(is_int($event_id)) {
+    if(is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
-        $inquiry_mail = $event["inquiry_mail"];
+        $inquiry_mail = empty($event["inquiry_mail"]) ? $_ENV['MAIL_FROM_ADRESS'] : $event["inquiry_mail"];
     } else {
         $inquiry_mail = $_ENV['MAIL_FROM_ADRESS'];
     }
