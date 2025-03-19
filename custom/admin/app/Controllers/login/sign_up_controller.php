@@ -132,11 +132,11 @@ if ($name_error || $department_error || $email_error || $password_error) {
             );
 
             $mail->send();
+            $pdo->commit();
 
             $_SESSION['result_message'] = '仮登録メールを入力されたアドレス宛てに送信しました。';
         } catch (Exception $e) {
-            var_dump($e);
-            die;
+            $pdo->rollBack();
             $_SESSION['result_message'] = 'エラーが発生しました。再登録してください。';
         }
     } else {
