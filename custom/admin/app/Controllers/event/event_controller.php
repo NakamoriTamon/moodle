@@ -32,9 +32,9 @@ $lectureFormats = $lectureFormatModel->getLectureFormats();
 $currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
 $perPage = 10; // 1ページあたりの件数
 // 検索条件を取得
-$category_id = $_POST['category_id'] ?? '';
-$event_status = $_POST['event_status'] ?? '';
-$event_id = $_POST['event_id'] ?? '';
+$category_id = $_POST['select_category_id'] ?? '';
+$event_status = $_POST['select_event_status'] ?? '';
+$event_id = $_POST['select_event_id'] ?? '';
 
 $events = $eventModel->getEvents([
     'category_id' => $category_id,

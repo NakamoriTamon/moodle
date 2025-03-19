@@ -9,6 +9,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 // コントローラに id を渡す
 $controller = new EventEditController();
 $eventData = $controller->getEventData($id);
+$select_categorys = $eventData['select_categorys'];
 if(!empty($id)) {
 	$ticket_count = $controller->getTicketCount($id);
 } else {
@@ -170,7 +171,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<select id="category_id" name="category_id[]" class="form-control choices-multiple mb-3" multiple>
 											<?php foreach ($categorys as $category): ?>
 												<option value="<?= htmlspecialchars($category['id']) ?>"
-        											<?= isChoicesSelected($category['id'], $eventData['select_categorys'] ?? null, $old_input['category_id'] ?? null) ? 'selected' : '' ?>>
+        											<?= isChoicesSelected($category['id'], $select_categorys ?? null, $old_input['category_id'] ?? null) ? 'selected' : '' ?>>
 													<?= htmlspecialchars($category['name']) ?>
 												</option>
 											<?php endforeach; ?>
