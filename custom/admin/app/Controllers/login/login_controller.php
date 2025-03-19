@@ -22,8 +22,7 @@ class LoginController
 
         // ユーザー情報を取得
         $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0], '*');
-
-        if ($user && validate_internal_user_password($user, $password)) {
+        if ($user && password_verify($password, $user->password)) {
 
             // ユーザーのロールを取得
             $userRoles = $DB->get_records_sql("

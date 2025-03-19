@@ -5,7 +5,7 @@ if (!isloggedin() || isguestuser()) {
     redirect('/custom/admin/app/Views/login/login.php'); // カスタムログインページへリダイレクト
     exit;
 }
-require_login();
+// require_login();
 
 global $USER, $DB;
 
