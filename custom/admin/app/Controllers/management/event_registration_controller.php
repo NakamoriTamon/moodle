@@ -46,6 +46,25 @@ class EventRegistrationController
             $current_page  = 1;
         }
 
+        // イベント選択時かつ他の選択肢が選択された際に対象イベントが含まれていなければ消す
+        $first_filters = array_filter([
+            'category_id' => $category_id,
+            'event_status' => $event_status_id,
+        ]);
+        $first_filters = array_filter($first_filters);
+        $found = false;
+        if (!empty($first_filters) && !empty($event_id)) {
+            $first_event_list = $this->eventModel->getEvents($first_filters, 1, 100000);
+            foreach ($first_event_list as $first_event) {
+                if ($event_id == $first_event['id']) {
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                $event_id = $found ? $event_id : null;
+            }
+        }
+
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
@@ -102,6 +121,9 @@ class EventRegistrationController
                 }
             }
         }
+
+        var_dump($course_info_id);
+        var_dump($event_id);
 
         // IDの0を落とす
         if (is_numeric($keyword)) {
@@ -168,6 +190,8 @@ class EventRegistrationController
                 'participation_kbn' => $application_course_info['participation_kbn'],
             ];
         }
+
+        var_dump($application_list);
 
         $total_count = count($application_list);
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
