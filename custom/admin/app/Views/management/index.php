@@ -17,7 +17,7 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                     <ul class="navbar-nav navbar-align">
                         <li class="nav-item dropdown">
                             <a class="nav-icon pe-md-0 dropdown-toggle d-flex" href="#" data-bs-toggle="dropdown">
-                                <div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
+                                <div class="fs-5 me-4 text-decoration-underline"><?= htmlspecialchars($USER->name) ?></div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>

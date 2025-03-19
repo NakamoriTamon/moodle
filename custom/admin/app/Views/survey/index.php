@@ -1,4 +1,4 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php'); 
+<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/survey/survey_controller.php');
 
@@ -20,7 +20,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
+								<div class="fs-5 me-4 text-decoration-underline"><?= htmlspecialchars($USER->name) ?></div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -355,87 +355,87 @@ $old_input = $_SESSION['old_input'] ?? [];
 			const eventSelect = document.getElementById('event-select');
 			const countSelect = document.getElementById('count-select');
 			const searchForm = document.querySelector('form');
-			
+
 			// カテゴリーまたは開催ステータスが変更されたときのイベントリスナー
 			categorySelect.addEventListener('change', updateEventOptions);
 			statusSelect.addEventListener('change', updateEventOptions);
-			
+
 			// イベント名が変更されたときのイベントリスナー
 			eventSelect.addEventListener('change', updateCountOptions);
-			
+
 			// 回数が変更されたときに自動的にフォームをサブミット
 			countSelect.addEventListener('change', function() {
 				searchForm.submit();
 			});
-			
+
 			function updateEventOptions() {
 				const categoryId = categorySelect.value;
 				const eventStatus = statusSelect.value;
-				
+
 				// 選択された値をもとにAjaxリクエストを送信
 				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-					body: `ajax=get_filtered_events&category_id=${categoryId}&event_status=${eventStatus}`
-				})
-				.then(response => response.json())
-				.then(data => {
-					// イベント選択肢を更新
-					updateSelectOptions(eventSelect, data);
-					
-					// イベントが変更されたので回数も更新
-					countSelect.innerHTML = '<option value="">すべて</option>';
-					
-					// フォームを送信して結果を更新
-					searchForm.submit();
-				})
-				.catch(() => {
-					// エラー時は空のオプションを設定して送信
-					updateSelectOptions(eventSelect, []);
-					countSelect.innerHTML = '<option value="">すべて</option>';
-					searchForm.submit();
-				});
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: `ajax=get_filtered_events&category_id=${categoryId}&event_status=${eventStatus}`
+					})
+					.then(response => response.json())
+					.then(data => {
+						// イベント選択肢を更新
+						updateSelectOptions(eventSelect, data);
+
+						// イベントが変更されたので回数も更新
+						countSelect.innerHTML = '<option value="">すべて</option>';
+
+						// フォームを送信して結果を更新
+						searchForm.submit();
+					})
+					.catch(() => {
+						// エラー時は空のオプションを設定して送信
+						updateSelectOptions(eventSelect, []);
+						countSelect.innerHTML = '<option value="">すべて</option>';
+						searchForm.submit();
+					});
 			}
-			
+
 			function updateCountOptions() {
 				const eventId = eventSelect.value;
-				
+
 				// イベントが選択されていない場合、回数をリセットして検索
 				if (!eventId) {
 					countSelect.innerHTML = '<option value="">すべて</option>';
 					searchForm.submit();
 					return;
 				}
-				
+
 				// 選択されたイベントIDに基づいて回数を取得
 				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-					body: `ajax=get_event_counts&event_id=${eventId}`
-				})
-				.then(response => response.json())
-				.then(data => {
-					// 回数選択肢を更新（「回目」を付けて表示）
-					updateSelectOptions(countSelect, data, item => `${item.no}回目`);
-					
-					// フォームを送信して結果を更新
-					searchForm.submit();
-				})
-				.catch(() => {
-					// エラー時は空のオプションを設定して送信
-					countSelect.innerHTML = '<option value="">すべて</option>';
-					searchForm.submit();
-				});
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: `ajax=get_event_counts&event_id=${eventId}`
+					})
+					.then(response => response.json())
+					.then(data => {
+						// 回数選択肢を更新（「回目」を付けて表示）
+						updateSelectOptions(countSelect, data, item => `${item.no}回目`);
+
+						// フォームを送信して結果を更新
+						searchForm.submit();
+					})
+					.catch(() => {
+						// エラー時は空のオプションを設定して送信
+						countSelect.innerHTML = '<option value="">すべて</option>';
+						searchForm.submit();
+					});
 			}
-			
+
 			// select要素のオプションを更新するヘルパー関数
 			function updateSelectOptions(selectElement, data, textFormatter = null) {
 				selectElement.innerHTML = '<option value="">すべて</option>';
-				
+
 				if (data && data.length > 0) {
 					data.forEach(item => {
 						const option = document.createElement('option');

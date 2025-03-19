@@ -22,7 +22,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-								<div class="fs-5 me-4 text-decoration-underline">システム管理者</div>
+								<div class="fs-5 me-4 text-decoration-underline"><?= htmlspecialchars($USER->name) ?></div>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end">
 								<a class="dropdown-item" href="/custom/admin/app/Views/login/login.php">Log out</a>
@@ -138,7 +138,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 														</td>
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-															<?php if($event['event_status'] != EVENT_END): ?>
+															<?php if ($event['event_status'] != EVENT_END): ?>
 																<a class="delete-link" data-id="<?= htmlspecialchars($event['id']) ?>" data-name="<?= htmlspecialchars($event['name']) ?>"><i class=" align-middle" data-feather="trash"></i></a>
 															<?php endif; ?>
 														</td>
@@ -161,10 +161,10 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 													<p class="mt-3">「<span id="del_event_name">イベントタイトル</span>」を削除します。本当によろしいですか</p>
 												</div>
 												<div class="modal-footer">
-														<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-														<input type="hidden" id="del_event_id" name="del_event_id" value="">
-														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-														<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
+													<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+													<input type="hidden" id="del_event_id" name="del_event_id" value="">
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+													<button type="button" class="btn btn-danger" id="confirmDeleteButton">削除</button>
 												</div>
 											</div>
 										</div>
