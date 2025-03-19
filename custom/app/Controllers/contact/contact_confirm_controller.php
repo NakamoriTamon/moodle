@@ -30,15 +30,21 @@ if ($_SESSION['errors']['name']
     header('Location: /custom/app/Views/contact/index.php?event_id=' . $event_id);
     exit;
 } else {
-    $eventModel = new EventModel();
-    $event = $eventModel->getEventById($event_id);
+    $event_name = "";
+    if(is_int($event_id)) {
+        $eventModel = new EventModel();
+        $event = $eventModel->getEventById($event_id);
+        $event_name = '【' . $event['name'] . '】について';
+    } else {
+        $event_name = "その他「『阪大知の広場』に関しての一般的なお問い合わせ";
+    }
 
     $SESSION->formdata = [
         'event_id' => $event_id,
         'name' => $name,
         'email' => $email,
         'email_confirm' => $email_confirm,
-        'event_name' => '【' . $event['name'] . '】について',
+        'event_name' => $event_name,
         'inquiry_details' => $inquiry_details
     ];
     redirect(new moodle_url('/custom/app/Views/contact/confirm.php'));

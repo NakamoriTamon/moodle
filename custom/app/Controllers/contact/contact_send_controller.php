@@ -29,8 +29,14 @@ if (isset($SESSION->formdata)) {
 }
 
 try {
-    $eventModel = new EventModel();
-    $event = $eventModel->getEventById($event_id);
+    $inquiry_mail = "";
+    if(is_int($event_id)) {
+        $eventModel = new EventModel();
+        $event = $eventModel->getEventById($event_id);
+        $inquiry_mail = $event["inquiry_mail"];
+    } else {
+        $inquiry_mail = $_ENV['MAIL_FROM_ADRESS'];
+    }
 
     $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
     $dotenv->load();
@@ -49,10 +55,9 @@ try {
 
     // 事務局側
     // From
-    // $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
-    $mail->setFrom('yasuda@trans-it.net', 'お問い合わせ 大阪大学 知の広場 ハンダイ市民講座事務局');
+    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
     // To
-    $mail->addAddress($event["inquiry_mail"]);
+    $mail->addAddress($inquiry_mail);
     $mail->isHTML(true);
 
     $htmlBody = "
@@ -88,8 +93,7 @@ try {
 
     // 送信側
     // From
-    // $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
-    $mail->setFrom('yasuda@trans-it.net', '大阪大学 知の広場 ハンダイ市民講座事務局');
+    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
     // To
     $mail->addAddress($email);
     $mail->isHTML(true);
@@ -128,6 +132,7 @@ try {
 
     $mail->send();
 
+    unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION['message_error']);
     header('Location: /custom/app/Views/contact/complete.php');
     exit;
 } catch (Exception $e) {

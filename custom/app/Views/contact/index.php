@@ -59,7 +59,7 @@ if(isset($old_input) && !empty($old_input)) {
     $email_confirm = $email;
 }
 
-$message_error = $_SESSION['message_error'];
+$message_error = isset($_SESSION['message_error']) ? $_SESSION['message_error'] : null;
 unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION['message_error']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -126,7 +126,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                                     <?php foreach($events as $event): ?>
                                         <option value="<?= $event['id'] ?>" <? if($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= $event['name'] ?>】について</option>
                                     <?php endforeach; ?>
-                                    <option value="その他「『阪大知の広場』に関しての一般的なお問い合わせ" >その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
+                                    <option value="other" >その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>
                                 <?php if (!empty($errors['event_id'])): ?>
                                     <div class="error-msg mt-2">
