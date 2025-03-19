@@ -20,7 +20,7 @@ class SurveyApplicationModel extends BaseModel
                             LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
                             GROUP BY e.id
                         )
-                        SELECT sa.*, e.name as event_name,
+                        SELECT sa.*, e.name as event_name, sa.course_info_id,
                         CASE
                             WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
                             WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
@@ -59,6 +59,11 @@ class SurveyApplicationModel extends BaseModel
                 if (!empty($filters['event_id'])) {
                     $where .= ' AND sa.event_id = :event_id';
                     $params[':event_id'] = $filters['event_id'];
+                }
+                
+                if (!empty($filters['course_info_id'])) {
+                    $where .= ' AND sa.course_info_id = :course_info_id';
+                    $params[':course_info_id'] = $filters['course_info_id'];
                 }
 
                 // ページネーション用のオフセットを計算
@@ -109,7 +114,7 @@ class SurveyApplicationModel extends BaseModel
                         )
                         SELECT COUNT(*) as total
                         FROM (
-                            SELECT sa.id,
+                            SELECT sa.id, sa.course_info_id,
                             CASE
                                 WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
                                 WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
@@ -137,6 +142,11 @@ class SurveyApplicationModel extends BaseModel
                 if (!empty($filters['event_id'])) {
                     $where .= ' AND sa.event_id = :event_id';
                     $params[':event_id'] = $filters['event_id'];
+                }
+                
+                if (!empty($filters['course_info_id'])) {
+                    $where .= ' AND sa.course_info_id = :course_info_id';
+                    $params[':course_info_id'] = $filters['course_info_id'];
                 }
 
                 $sql .= $where;

@@ -38,7 +38,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 							<div class="sp-block d-flex justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">カテゴリー</label>
-									<select name="category_id" class="form-control">
+									<select name="category_id" class="form-control" id="category-select">
 										<option value="">すべて</option>
 										<?php foreach ($categorys as $category): ?>
 											<option value="<?= htmlspecialchars($category['id']) ?>"
@@ -50,8 +50,8 @@ $old_input = $_SESSION['old_input'] ?? [];
 								</div>
 								<div class="sp-ms-0 ms-3 mb-3 w-100">
 									<label class="form-label" for="notyf-message">開催ステータス</label>
-									<select name="event_status" class="form-control">
-										<option value="">すべて</option>$
+									<select name="event_status" class="form-control" id="status-select">
+										<option value="">すべて</option>
 										<?php foreach ($event_statuses as $id => $name): ?>
 											<option value="<?= htmlspecialchars($id) ?>"
 												<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
@@ -61,23 +61,39 @@ $old_input = $_SESSION['old_input'] ?? [];
 									</select>
 								</div>
 							</div>
-							<div class="mb-4">
-								<label class="form-label" for="notyf-message">イベント名</label>
-								<select name="event_id" class="form-control">
-									<option value="">すべて</option>
-									<?php if (isset($events) && !empty($events)): ?>
-										<?php foreach ($events as $event): ?>
-											<option value="<?= htmlspecialchars($event['id']) ?>"
-												<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
-												<?= htmlspecialchars($event['name']) ?>
-											</option>
-										<?php endforeach; ?>
-									<?php endif; ?>
-								</select>
+							<div class="sp-block d-flex justify-content-between">
+								<div class="mb-3 w-100">
+									<label class="form-label" for="notyf-message">イベント名</label>
+									<select name="event_id" class="form-control" id="event-select">
+										<option value="">すべて</option>
+										<?php if (isset($events) && !empty($events)): ?>
+											<?php foreach ($events as $event): ?>
+												<option value="<?= htmlspecialchars($event['id']) ?>"
+													<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+													<?= htmlspecialchars($event['name']) ?>
+												</option>
+											<?php endforeach; ?>
+										<?php endif; ?>
+									</select>
+								</div>
+								<div class="sp-ms-0 ms-3 mb-3 w-100">
+									<label class="form-label" for="notyf-message">回数</label>
+									<select name="event_count" class="form-control" id="count-select">
+										<option value="">すべて</option>
+										<?php if (isset($event_counts) && !empty($event_counts)): ?>
+											<?php foreach ($event_counts as $count): ?>
+												<option value="<?= htmlspecialchars($count['id']) ?>"
+													<?= isset($old_input['event_count']) && $count['id'] == $old_input['event_count'] ? 'selected' : '' ?>>
+													<?= htmlspecialchars($count['no']) ?>回目
+												</option>
+											<?php endforeach; ?>
+										<?php endif; ?>
+									</select>
+								</div>
 							</div>
 							<!-- <hr> -->
 							<div class="d-flex w-100">
-								<button type="submit" id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+								<!-- 検索ボタンを廃止 -->
 							</div>
 						</form>
 					</div>
@@ -92,6 +108,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 									<input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
 									<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
 									<input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
+									<input type="hidden" name="event_count" value="<?= $old_input['event_count'] ?? '' ?>">
 								</form>
 								<!-- 元のデザインのボタン -->
 								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center" onclick="document.getElementById('csvExportForm').submit()">
@@ -331,6 +348,105 @@ $old_input = $_SESSION['old_input'] ?? [];
 	</div>
 
 	<script src="/custom/admin/public/js/app.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const categorySelect = document.getElementById('category-select');
+			const statusSelect = document.getElementById('status-select');
+			const eventSelect = document.getElementById('event-select');
+			const countSelect = document.getElementById('count-select');
+			const searchForm = document.querySelector('form');
+			
+			// カテゴリーまたは開催ステータスが変更されたときのイベントリスナー
+			categorySelect.addEventListener('change', updateEventOptions);
+			statusSelect.addEventListener('change', updateEventOptions);
+			
+			// イベント名が変更されたときのイベントリスナー
+			eventSelect.addEventListener('change', updateCountOptions);
+			
+			// 回数が変更されたときに自動的にフォームをサブミット
+			countSelect.addEventListener('change', function() {
+				searchForm.submit();
+			});
+			
+			function updateEventOptions() {
+				const categoryId = categorySelect.value;
+				const eventStatus = statusSelect.value;
+				
+				// 選択された値をもとにAjaxリクエストを送信
+				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: `ajax=get_filtered_events&category_id=${categoryId}&event_status=${eventStatus}`
+				})
+				.then(response => response.json())
+				.then(data => {
+					// イベント選択肢を更新
+					updateSelectOptions(eventSelect, data);
+					
+					// イベントが変更されたので回数も更新
+					countSelect.innerHTML = '<option value="">すべて</option>';
+					
+					// フォームを送信して結果を更新
+					searchForm.submit();
+				})
+				.catch(() => {
+					// エラー時は空のオプションを設定して送信
+					updateSelectOptions(eventSelect, []);
+					countSelect.innerHTML = '<option value="">すべて</option>';
+					searchForm.submit();
+				});
+			}
+			
+			function updateCountOptions() {
+				const eventId = eventSelect.value;
+				
+				// イベントが選択されていない場合、回数をリセットして検索
+				if (!eventId) {
+					countSelect.innerHTML = '<option value="">すべて</option>';
+					searchForm.submit();
+					return;
+				}
+				
+				// 選択されたイベントIDに基づいて回数を取得
+				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: `ajax=get_event_counts&event_id=${eventId}`
+				})
+				.then(response => response.json())
+				.then(data => {
+					// 回数選択肢を更新（「回目」を付けて表示）
+					updateSelectOptions(countSelect, data, item => `${item.no}回目`);
+					
+					// フォームを送信して結果を更新
+					searchForm.submit();
+				})
+				.catch(() => {
+					// エラー時は空のオプションを設定して送信
+					countSelect.innerHTML = '<option value="">すべて</option>';
+					searchForm.submit();
+				});
+			}
+			
+			// select要素のオプションを更新するヘルパー関数
+			function updateSelectOptions(selectElement, data, textFormatter = null) {
+				selectElement.innerHTML = '<option value="">すべて</option>';
+				
+				if (data && data.length > 0) {
+					data.forEach(item => {
+						const option = document.createElement('option');
+						option.value = item.id;
+						option.textContent = textFormatter ? textFormatter(item) : item.name;
+						selectElement.appendChild(option);
+					});
+				}
+			}
+		});
+	</script>
 </body>
 
 </html>
