@@ -9,7 +9,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 // コントローラに id を渡す
 $controller = new EventEditController();
 $eventData = $controller->getEventData($id);
-$select_categorys = $eventData['select_categorys'];
+$select_categorys = isset($eventData['select_categorys']) ? $eventData['select_categorys'] : [];
 if(!empty($id)) {
 	$ticket_count = $controller->getTicketCount($id);
 } else {
