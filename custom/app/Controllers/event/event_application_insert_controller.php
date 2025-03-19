@@ -42,6 +42,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     // イベント情報がなかった場合
     if (is_null($event)) {
+        $_SESSION['message_error'] = 'イベント情報がありません。再度ご確認お願い致します。';
         header('Location: /custom/app/Views/event/index.php');
         return;
     }
@@ -50,6 +51,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventById($eventId);
     // イベント情報がなかった場合
     if (is_null($event)) {
+        $_SESSION['message_error'] = 'イベント情報がありません。再度ご確認お願い致します。';
         header('Location: /custom/app/Views/event/index.php');
         return;
     }
@@ -60,6 +62,7 @@ if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     // イベント情報がなかった場合
     if (is_null($event)) {
+        $_SESSION['message_error'] = 'イベント情報がありません。再度ご確認お願い致します。';
         header('Location: /custom/app/Views/event/index.php');
         return;
     }
@@ -416,7 +419,7 @@ if ($result) {
 
                     $htmlBody = "
                         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                            <p style=\"text-align: left; font-weight:bold;\">" . $name . "</p>
+                            <p style=\"text-align: left; font-weight:bold;\">" . $name . "様</p>
                             <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
                             <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                             <div>

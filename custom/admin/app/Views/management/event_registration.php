@@ -95,7 +95,7 @@ $page = $result_list['page'];
                                         <label class="form-label" for="notyf-message">回数</label>
                                         <div class="d-flex align-items-center">
                                             <select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
-                                                <option value="" selected disabled>未選択</option>
+                                                <option value="">未選択</option>
                                                 <?php for ($i = 1; $i < 10; $i++) { ?>
                                                     <option value=<?= $i ?>
                                                         <?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
@@ -124,67 +124,66 @@ $page = $result_list['page'];
                         <div id="result_card" class="col-12 col-lg-12">
                             <div class="card min-70vh">
                                 <div class="card-body p-0">
-                                    <div class="d-flex w-100 align-items-center justify-content-between mt-3">
-                                        <div></div>
-                                        <div class="d-flex align-items-center button-div mr-025">
-                                            <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
-                                                <i class="align-middle me-1" data-feather="download"></i>CSV出力
-                                            </button>
+                                    <form method="POST" action="/custom/admin/app/Controllers/management/event_registration_upsert_controller.php">
+                                        <div class="d-flex w-100 align-items-center justify-content-between mt-3">
+                                            <div></div>
+                                            <div class="d-flex align-items-center button-div mr-025">
+                                                <button type="submit" class="btn btn-primary mt-3 mb-3 me-3 d-flex justify-content-center align-items-center">
+                                                    更新
+                                                </button>
+                                                <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
+                                                    <i class="align-middle me-1" data-feather="download"></i>CSV出力
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="card m-auto mb-5 w-95">
-                                        <table class="table table-responsive table-striped table_list">
-                                            <thead>
-                                                <tr>
-                                                    <th class="ps-4 pe-4">ID</th>
-                                                    <th class="ps-4 pe-4">イベント名</th>
-                                                    <th class="ps-4 pe-4">講座回数</th>
-                                                    <th class="ps-4 pe-4">ユーザーID</th>
-                                                    <th class="ps-4 pe-4">ユーザー名</th>
-                                                    <th class="ps-4 pe-4">メールアドレス</th>
-                                                    <th class="ps-4 pe-4">決済方法</th>
-                                                    <th class="ps-4 pe-4">決済状況</th>
-                                                    <th class="ps-4 pe-4">決済日</th>
-                                                    <th class="ps-4 pe-4">申込日</th>
-                                                    <th class="ps-4 pe-4">参加状態</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($application_list as $key => $application) {
-                                                    $result_application = $application['application'][$count];
-                                                    $payment_status = !empty($result_application['payment_date']) ? '決済済' : '未決済';
-                                                    $application_date = new DateTime($result_application['application_date']);
-                                                    $payment_date = null;
-                                                    if (!empty($result_application['payment_date'])) {
-                                                        $payment_date = new DateTime($result_application['payment_date']);
-                                                        $payment_date = $payment_date->format("Y年n月j日");
-                                                    }
-                                                    $participation_kbn = $result_application['participation_kbn'];
-                                                    $formatted_id = str_pad($result_application["user"]['id'], 8, "0", STR_PAD_LEFT);
-                                                    $user_id  = substr_replace($formatted_id, ' ', 4, 0);
-                                                ?>
+                                        <div class="card m-auto mb-5 w-95">
+                                            <table class="table table-responsive table-striped table_list">
+                                                <thead>
                                                     <tr>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $application['id'] ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application['event']['name'] ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap">第<?= $application["course_info"]['no'] ?>講座</td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $user_id ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application["user"]['name'] ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $result_application["user"]['email'] ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $payment_select_list[$result_application["pay_method"]] ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap <?= $payment_status === '未決済' ? 'text-danger' : ''; ?>"><?= $payment_status ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $payment_date ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap"><?= $application_date->format("Y年n月j日") ?></td>
-                                                        <td class="ps-4 pe-4 text-nowrap">
-                                                            <select class="form-control min-100">
-                                                                <option value=1 <?= $participation_kbn == 1 ? 'selected' : '' ?>>未参加</option>
-                                                                <option value=2 <?= $participation_kbn == 2 ? 'selected' : '' ?>>参加済</option>
-                                                            </select>
-                                                        </td>
+                                                        <th class="ps-4 pe-4">ID</th>
+                                                        <th class="ps-4 pe-4">イベント名</th>
+                                                        <th class="ps-4 pe-4">講座回数</th>
+                                                        <th class="ps-4 pe-4">ユーザーID</th>
+                                                        <th class="ps-4 pe-4">ユーザー名</th>
+                                                        <th class="ps-4 pe-4">メールアドレス</th>
+                                                        <th class="ps-4 pe-4">決済方法</th>
+                                                        <th class="ps-4 pe-4">決済状況</th>
+                                                        <th class="ps-4 pe-4">決済日</th>
+                                                        <th class="ps-4 pe-4">申込日</th>
+                                                        <th class="ps-4 pe-4">参加状態</th>
                                                     </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($application_list as $key => $application) { ?>
+                                                        <tr>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['id']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['event_name']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['user_id']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_type']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap <?= $application['is_paid'] == '未決済' ? 'text-danger' : '' ?>">
+                                                                <?= htmlspecialchars($application['is_paid']) ?>
+                                                            </td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_date']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['application_date']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap">
+                                                                <select name="participation_kbn[<?= htmlspecialchars($application['id']) ?>]" class="form-control min-100">
+                                                                    <?php foreach ($is_participation_list as $key => $is_participation) { ?>
+                                                                        <option value=<?= $key ?>
+                                                                            <?= $key == $application['participation_kbn'] ? 'selected' : '' ?>>
+                                                                            <?= htmlspecialchars($is_participation) ?>
+                                                                        </option>
+                                                                    <?php } ?>
+                                                                </select>
+                                                            </td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </form>
                                 </div>
                                 <div class="d-flex">
                                     <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">

@@ -52,12 +52,12 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                         翌年度からは、登録いただいたメールアドレス宛に、毎年3月頃に更新の案内が届きますので、指定の期日までに次年度分の年会費をお支払いください。
                     </li>
                     <li>
-                        初年度のお支払いでクレジットカード、口座振替を選択いただいた方は、次年度からの年会費を自動引落としにすることができます。
+                        初年度のお支払いでクレジットカードを選択いただいた方は、次年度からの年会費を自動引落としにすることができます。
                         また、マイページからいつでも変更可能です。
                     </li>
                     <li>
                         口数は、普通会員、賛助会員とも年間何口でもお申込みいただけます。<br />
-                        なお、一度に複数年度分の年会費のお支払いはできなくなりましたので、クレジットカードまたは口座振替による自動引落としをご利用ください。
+                        なお、一度に複数年度分の年会費のお支払いはできなくなりましたので、クレジットカードによる自動引落としをご利用ください。
                     </li>
                 </ul>
             </div>
@@ -76,7 +76,7 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                 <?php if ($isTekijukuCommemorationMember === 'isNotMember') : ?>
                     <div id="entry_btn-container" class="btn-container">
                         <form action="/custom/app/Controllers/tekijuku/tekijuku_index_controller.php" method="POST">
-                            <input type="hidden" name="post_kbn" value="tekijuku_route">    
+                            <input type="hidden" name="post_kbn" value="tekijuku_route">
                             <button type="submit" class="btn arrow btn_entry btn_red">入会する</button>
                         </form>
                     </div>

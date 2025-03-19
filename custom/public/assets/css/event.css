@@ -225,6 +225,8 @@
 #detail .access .access_item02 .inquiry li a {
   display: inline-block;
   margin-left: 5px; /* 任意の間隔を設定 */
+  color: #22a9e2;
+  text-decoration: underline;
 }
 #detail .program .btn {
   width: 300px;

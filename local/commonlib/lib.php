@@ -72,6 +72,20 @@ function validate_emails_count($emails, $count, $text = "")
     return null;
 }
 
+// 確認項目バリデーション
+function confirm_validation($value, $comparison_value, $title, $error)
+{
+    if (empty($value)) {
+        return  $title . '(確認用)は必須です。';
+    }
+    if (empty($error)) {
+        if ($value !== $comparison_value) {
+            return  $title . 'が異なります。';
+        }
+    }
+    return $error;
+}
+
 /**
  * バリデーション: パスワード
  */
@@ -110,13 +124,18 @@ function validate_text($val, $title, $size, $required = false)
 /**
  * バリデーション: textareaタグ
  */
-function validate_textarea($val, $title, $required)
+function validate_textarea($val, $title, $required, $size = 10000)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
+    } elseif(empty($val) && !$required) {
+        return null;
     }
-    if (mb_strlen($val) > 10000) {
-        return $title . 'は10000文字以下である必要があります。';
+    // 改行を除去
+    $val_without_newlines = str_replace(["\r", "\n"], '', $val);
+
+    if (mb_strlen($val_without_newlines) > $size) {
+        return $title . 'は' . $size . '文字以下である必要があります。';
     }
     return null;
 }

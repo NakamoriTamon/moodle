@@ -201,7 +201,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                     </ul>
                     <div class="agree">
                         <p class="agree_txt">
-                            個人情報の提供について、大阪大学の個人情報保護に関する<a href="">プライバシーポリシー</a>を確認し、同意します。
+                            個人情報の提供について、大阪大学の個人情報保護に関する<a href="https://www.osaka-u.ac.jp/ja/misc/privacy.html">プライバシーポリシー</a>を確認し、同意します。
                         </p>
                         <label for="agree">
                             <input type="checkbox" name="agree" id="agree" <?= !empty($old_input['agree']) ? "checked" : ''; ?> />同意する

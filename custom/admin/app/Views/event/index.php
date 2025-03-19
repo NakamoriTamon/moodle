@@ -5,6 +5,8 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_cont
 
 $event_statuses = DISPLAY_EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
+
+unset($_SESSION['old_input']); // 一度表示したら削除
 ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative d-block">
@@ -39,11 +41,11 @@ $old_input = $_SESSION['old_input'] ?? [];
 								<div class="sp-block d-flex justify-content-between">
 									<div class="mb-3 w-100">
 										<label class="form-label" for="notyf-message">カテゴリー</label>
-										<select name="category_id" class="form-control">
+										<select name="select_category_id" class="form-control">
 											<option value="">すべて</option>
 											<?php foreach ($categorys as $category): ?>
 												<option value="<?= htmlspecialchars($category['id']) ?>"
-													<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
+													<?= isset($old_input['select_category_id']) && $category['id'] == $old_input['select_category_id'] ? 'selected' : '' ?>>
 													<?= htmlspecialchars($category['name']) ?>
 												</option>
 											<?php endforeach; ?>
@@ -51,11 +53,11 @@ $old_input = $_SESSION['old_input'] ?? [];
 									</div>
 									<div class="sp-ms-0 ms-3 mb-3 w-100">
 										<label class="form-label" for="notyf-message">開催ステータス</label>
-										<select name="event_status" class="form-control">
+										<select name="select_event_status" class="form-control">
 											<option value="">すべて</option>$
 											<?php foreach ($event_statuses as $id => $name): ?>
 												<option value="<?= htmlspecialchars($id) ?>"
-													<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
+													<?= isset($old_input['select_event_status']) && $id == $old_input['select_event_status'] ? 'selected' : '' ?>>
 													<?= htmlspecialchars($name) ?>
 												</option>
 											<?php endforeach; ?>
@@ -64,12 +66,12 @@ $old_input = $_SESSION['old_input'] ?? [];
 								</div>
 								<div class="mb-4">
 									<label class="form-label" for="notyf-message">イベント名</label>
-									<select name="event_id" class="form-control">
+									<select name="select_event_id" class="form-control">
 										<option value="">すべて</option>
 										<?php if (isset($events) && !empty($events)): ?>
 											<?php foreach ($events as $event): ?>
 												<option value="<?= htmlspecialchars($event['id']) ?>"
-													<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
+													<?= isset($old_input['select_event_id']) && $event['id'] == $old_input['select_event_id'] ? 'selected' : '' ?>>
 													<?= htmlspecialchars($event['name']) ?>
 												</option>
 											<?php endforeach; ?>
@@ -137,7 +139,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
 															<?php if($event['event_status'] != EVENT_END): ?>
-																<a class="delete-link" data-id="<?= htmlspecialchars($event['id']) ?>"><i class=" align-middle" data-feather="trash"></i></a>
+																<a class="delete-link" data-id="<?= htmlspecialchars($event['id']) ?>" data-name="<?= htmlspecialchars($event['name']) ?>"><i class=" align-middle" data-feather="trash"></i></a>
 															<?php endif; ?>
 														</td>
 													</tr>
@@ -156,7 +158,7 @@ $old_input = $_SESSION['old_input'] ?? [];
 													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 												</div>
 												<div class="modal-body">
-													<p class="mt-3">「イベントタイトル」を削除します。本当によろしいですか</p>
+													<p class="mt-3">「<span id="del_event_name">イベントタイトル</span>」を削除します。本当によろしいですか</p>
 												</div>
 												<div class="modal-footer">
 														<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -209,11 +211,14 @@ $old_input = $_SESSION['old_input'] ?? [];
 		});
 
 		let selectedId;
+		let selectedName;
 		// 削除リンクがクリックされたとき
 		$('.delete-link').on('click', function(event) {
 			event.preventDefault();
 			selectedId = $(this).data('id');
+			selectedName = $(this).data('name');
 			$('#del_event_id').val(selectedId);
+			$('#del_event_name').text(selectedName);
 			$('#confirmDeleteModal').modal('show');
 		});
 		// モーダル内の削除ボタンがクリックされたとき

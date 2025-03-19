@@ -22,7 +22,7 @@ body {
     font-family: var(--bs-body-font-family);
 }
 .search-area{
-    display: none;
+    /* display: none; */
 }
 .choices__button{
     margin-right: 0px !important;

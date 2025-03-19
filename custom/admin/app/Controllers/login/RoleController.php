@@ -5,7 +5,7 @@ if (!isloggedin() || isguestuser()) {
     redirect('/custom/admin/app/Views/login/login.php'); // カスタムログインページへリダイレクト
     exit;
 }
-require_login();
+// require_login();
 
 global $USER, $DB;
 
@@ -21,11 +21,17 @@ $roles = array_map(fn($role) => $role->shortname, $userRoles);
 
 $request_uri = $_SERVER['REQUEST_URI'];
 
-// コースクリエーター (ID:2) は `/event/` 以外の `/custom/admin/` へアクセス不可
-if (in_array('coursecreator', $roles) && strpos($request_uri, '/custom/admin/') === 0 && strpos($request_uri, '/custom/admin/app/Views/event/') === false && strpos($request_uri, '/custom/admin/app/Controllers/event/') === false) {
-    redirect('/custom/admin/app/Views/event/index.php'); // 一般画面へリダイレクト
+$redirect_url_list = [
+    '/custom/admin/app/Views/management/index.php',
+    '/custom/admin/app/Views/management/user_registration.php',
+    '/custom/admin/app/Views/management/membership_fee_registration.php',
+    '/custom/admin/app/Views/message/index.php',
+];
+
+// コースクリエーター (ID:2) は `一部機能` へアクセス不可
+if (in_array('coursecreator', $roles) && in_array(parse_url($request_uri, PHP_URL_PATH), $redirect_url_list)) {
+    redirect('/custom/admin/app/Views/event/index.php'); // イベント画面へリダイレクト
     exit;
-} else if(!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
-    redirect('/custom/app/Views/front/index.php');
+} else if (!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
+    redirect('/custom/app/Views/index.php');
 }
-?>

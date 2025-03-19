@@ -37,7 +37,7 @@ $is_hidden_withdraw = !$is_general_user;
                 </ul>
                 <ul class="menu_btm">
                     <li><a href="">利用規約</a></li>
-                    <li><a href="">プライバシーポリシー</a></li>
+                    <li><a href="https://www.osaka-u.ac.jp/ja/misc/privacy.html">プライバシーポリシー</a></li>
                     <li><a href="/custom/app/Views/regulate/index.php">特定商取引法に基づく表記</a></li>
                 </ul>
             </div>

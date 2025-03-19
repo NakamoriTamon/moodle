@@ -110,7 +110,7 @@ try {
 
     $htmlBody = "
         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-            <p style=\"text-align: left; font-weight:bold;\">" . $_POST['name'] . "さん</p>
+            <p style=\"text-align: left; font-weight:bold;\">" . $_POST['name'] . "様</p>
             <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
             <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
             <div>

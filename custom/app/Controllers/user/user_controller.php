@@ -239,20 +239,6 @@ try {
 }
 
 
-// 確認項目バリデーション
-function confirm_validation($value, $comparison_value, $title, $error)
-{
-    if (empty($value)) {
-        return  $title . '(確認用)は必須です。';
-    }
-    if (empty($error)) {
-        if ($value !== $comparison_value) {
-            return  $title . 'が異なります。';
-        }
-    }
-    return $error;
-}
-
 // 暗号化
 function encrypt_id($id, $key)
 {
