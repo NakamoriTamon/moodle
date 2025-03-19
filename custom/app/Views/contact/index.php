@@ -13,47 +13,47 @@ $email = "";
 $email_confirm = "";
 $inquiry_details = "";
 $formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
-if(isset($old_input) && !empty($old_input)) {
-    if(isset($old_input['name']) && !empty($old_input['name'])) {
+if (isset($old_input) && !empty($old_input)) {
+    if (isset($old_input['name']) && !empty($old_input['name'])) {
         $name = $old_input['name'];
-    } else if($user) {
+    } else if ($user) {
         $name = $user->name;
     }
-    if(isset($old_input['email']) && !empty($old_input['email'])) {
+    if (isset($old_input['email']) && !empty($old_input['email'])) {
         $email = $old_input['email'];
-    } else if($user) {
+    } else if ($user) {
         $email = $user->email;
         $email_confirm = $email;
     }
-    if(isset($old_input['email_confirm']) && !empty($old_input['email_confirm'])) {
+    if (isset($old_input['email_confirm']) && !empty($old_input['email_confirm'])) {
         $email_confirm = $old_input['email_confirm'];
     }
-    if(isset($old_input['inquiry_details']) && !empty($old_input['inquiry_details'])) {
+    if (isset($old_input['inquiry_details']) && !empty($old_input['inquiry_details'])) {
         $inquiry_details = $old_input['inquiry_details'];
     }
 } else if (!is_null($formdata) && empty($errors)) {
     $formdata = $SESSION->formdata;
-    if(isset($formdata['name']) && !empty($formdata['name'])) {
+    if (isset($formdata['name']) && !empty($formdata['name'])) {
         $name = $formdata['name'];
-    } else if($user) {
+    } else if ($user) {
         $name = $user->name;
     }
-    if(isset($formdata['email']) && !empty($formdata['email'])) {
+    if (isset($formdata['email']) && !empty($formdata['email'])) {
         $email = $formdata['email'];
-    } else if($user) {
+    } else if ($user) {
         $email = $user->email;
         $email_confirm = $email;
     }
-    if(isset($formdata['email_confirm']) && !empty($formdata['email_confirm'])) {
+    if (isset($formdata['email_confirm']) && !empty($formdata['email_confirm'])) {
         $email_confirm = $formdata['email_confirm'];
     }
-    if(isset($formdata['event_id']) && !empty($formdata['event_id'])) {
+    if (isset($formdata['event_id']) && !empty($formdata['event_id'])) {
         $event_id = $formdata['event_id'];
     }
-    if(isset($formdata['inquiry_details']) && !empty($formdata['inquiry_details'])) {
+    if (isset($formdata['inquiry_details']) && !empty($formdata['inquiry_details'])) {
         $inquiry_details = $formdata['inquiry_details'];
     }
-} elseif($user) {
+} elseif ($user) {
     $name = $user->name;
     $email = $user->email;
     $email_confirm = $email;
@@ -111,7 +111,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         <li class="list_item03 req">
                             <p class="list_label">メールアドレス（確認用）</p>
                             <div class="list_field f_txt">
-                                <input type="email" name="email_confirm" value="<?= $email_confirm ?>" onpaste="return false" autocomplete="off"/>
+                                <input type="email" name="email_confirm" value="<?= $email_confirm ?>" onpaste="return false" autocomplete="off" />
                                 <?php if (!empty($errors['email_confirm'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email_confirm']); ?>
@@ -123,10 +123,10 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                             <p class="list_label">お問い合わせの項目</p>
                             <div class="list_field f_select select">
                                 <select name="event_id">
-                                    <?php foreach($events as $event): ?>
-                                        <option value="<?= $event['id'] ?>" <? if($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= $event['name'] ?>】について</option>
+                                    <?php foreach ($events as $event): ?>
+                                        <option value="<?= $event['id'] ?>" <?php if ($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= $event['name'] ?>】について</option>
                                     <?php endforeach; ?>
-                                    <option value="other" >その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
+                                    <option value="other">その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>
                                 <?php if (!empty($errors['event_id'])): ?>
                                     <div class="error-msg mt-2">
@@ -139,11 +139,11 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                             <p class="list_label">お問い合わせ内容</p>
                             <div class="list_field f_txtarea">
                                 <textarea name="inquiry_details"><?= htmlspecialchars($inquiry_details) ?></textarea>※300文字以内
-                            <?php if (!empty($errors['inquiry_details'])): ?>
-                                <div class="error-msg mt-2">
-                                    <?= htmlspecialchars($errors['inquiry_details']); ?>
-                                </div>
-                            <?php endif; ?>
+                                <?php if (!empty($errors['inquiry_details'])): ?>
+                                    <div class="error-msg mt-2">
+                                        <?= htmlspecialchars($errors['inquiry_details']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </li>
                     </ul>
@@ -175,7 +175,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                 submitBtn.addClass('btn_red');
                 submitBtn.removeClass('btn_gray');
             } else {
-                submitBtn.prop('disabled', true);  // 無効化
+                submitBtn.prop('disabled', true); // 無効化
                 submitBtn.addClass('btn_gray');
                 submitBtn.removeClass('btn_red');
             }
