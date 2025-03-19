@@ -186,6 +186,226 @@ $event_list = $result_list['event_list']  ?? [];
 			$('.scan-text').css('color', '#00bcd4');
 			$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
 		});
+
+		$(document).ready(function() {
+			// 1. カテゴリー選択時のイベント
+			$('select[name="category_id"]').change(function() {
+				const categoryId = $(this).val();
+				// イベント選択をリセット
+				$('select[name="event_id"]').html('<option value="" selected>未選択</option>');
+				$('#course_no_select').prop('disabled', true);
+				$("#course_no").val('');
+
+				// QRスキャナーを非表示
+				$("#qr_card").hide();
+
+				if (categoryId) {
+					// APIを使用してイベントリストを取得
+					$.ajax({
+						url: '/custom/admin/app/Controllers/qr/qr_controller.php',
+						type: 'POST',
+						data: {
+							category_id: categoryId,
+							post_kbn: 'get_events_by_category'
+						},
+						dataType: 'json',
+						success: function(response) {
+							if (response.status === 'success' && response.events.length > 0) {
+								// イベントオプションを追加
+								let eventSelect = $('select[name="event_id"]');
+								$.each(response.events, function(index, event) {
+									eventSelect.append($('<option>', {
+										value: event.id,
+										text: event.name
+									}));
+								});
+								// イベント選択を有効化
+								eventSelect.prop('disabled', false);
+							}
+						},
+						error: function() {
+							alert('イベントデータの取得に失敗しました');
+						}
+					});
+				}
+			});
+
+			// 2. イベント選択時のイベント
+			$('select[name="event_id"]').change(function() {
+				const eventId = $(this).val();
+				// 回数選択をリセット
+				$('#course_no_select').html('<option value="" selected>回数を選択</option>');
+				$("#course_no").val('');
+
+				// QRスキャナーを非表示
+				$("#qr_card").hide();
+
+				if (eventId) {
+					// APIを使用して回数リストを取得
+					$.ajax({
+						url: '/custom/admin/app/Controllers/qr/qr_controller.php',
+						type: 'POST',
+						data: {
+							event_id: eventId,
+							post_kbn: 'get_course_numbers'
+						},
+						dataType: 'json',
+						success: function(response) {
+							if (response.status === 'success' && response.course_numbers.length > 0) {
+								// 回数オプションを追加
+								let courseSelect = $('#course_no_select');
+								$.each(response.course_numbers, function(index, course) {
+									courseSelect.append($('<option>', {
+										value: course,
+										text: "第" + course + "回"
+									}));
+								});
+								// 回数選択を有効化
+								courseSelect.prop('disabled', false);
+							}
+						},
+						error: function() {
+							alert('回数データの取得に失敗しました');
+						}
+					});
+				}
+			});
+
+			// 3. 回数選択時のイベント
+			$('#course_no_select').change(function() {
+				const courseNo = $(this).val();
+				$("#course_no").val(courseNo);
+
+				if (courseNo) {
+					// QRスキャナーを表示して起動
+					$("#qr_card").show();
+					startQrScanner();
+				} else {
+					// QRスキャナーを非表示
+					$("#qr_card").hide();
+				}
+			});
+
+			// 4. QRスキャナー起動関数
+			function startQrScanner() {
+				console.log('ここまでOK');
+				// 念のため既存のスキャナーを停止
+				if (window.qrScanner && typeof window.qrScanner.stop === 'function') {
+					window.qrScanner.stop();
+				}
+
+				// QRスキャナーの初期化と起動
+				const videoElem = document.getElementById('qr-video');
+
+				// モジュールがすでに読み込まれている場合
+				if (typeof QrScanner !== 'undefined') {
+					initializeScanner();
+				} else {
+					// モジュールを動的に読み込む
+					import("https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js").then(module => {
+						window.QrScanner = module.default;
+						initializeScanner();
+					});
+				}
+
+				function initializeScanner() {
+					window.qrScanner = new QrScanner(videoElem, (result) => {
+						console.log(result);
+						videoElem.pause();
+						$('.scan-text').text('Success');
+						$('.scan-text').css('color', '#249f2a');
+						$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
+
+						// QRコード読み取り結果を処理
+						processQrResult(result);
+					});
+
+					window.qrScanner.start();
+				}
+			}
+
+			// 5. QRコード読み取り結果の処理
+			function processQrResult(result) {
+				const qrData = result.data;
+				const eventId = $('select[name="event_id"]').val();
+				const courseNo = $("#course_no").val();
+
+				// APIを使用して参加登録処理
+				$.ajax({
+					url: '/custom/admin/app/Controllers/qr/qr_controller.php',
+					type: 'POST',
+					data: {
+						qr_data: qrData,
+						event_id: eventId,
+						course_no: courseNo,
+						post_kbn: 'process_qr'
+					},
+					dataType: 'json',
+					success: function(response) {
+						if (response.status === 'success') {
+							// モーダルにデータを設定
+							$('#qrModalLabel').text('参加登録完了');
+							$('#qrModal .modal-body').html(`
+						<p class="mt-2 mb-1 fw-bold">イベント名</p>
+						<p>${response.event_name}</p>
+						<p class="mb-1 fw-bold">ユーザー名</p>
+						<p>${response.user_name}</p>
+					`);
+						} else {
+							// エラーメッセージを表示
+							$('#qrModalLabel').text('エラー');
+							$('#qrModal .modal-body').html(`
+						<p class="mt-2 mb-1 text-danger">${response.message || 'QRコードの処理に失敗しました'}</p>
+					`);
+						}
+
+						// モーダルを表示
+						var modal = new bootstrap.Modal(document.getElementById('qrModal'));
+						modal.show();
+					},
+					error: function() {
+						// エラーメッセージを表示
+						$('#qrModalLabel').text('エラー');
+						$('#qrModal .modal-body').html(`
+					<p class="mt-2 mb-1 text-danger">サーバーとの通信に失敗しました</p>
+				`);
+
+						// モーダルを表示
+						var modal = new bootstrap.Modal(document.getElementById('qrModal'));
+						modal.show();
+					}
+				});
+			}
+
+			// 6. モーダルを閉じた時の処理
+			$('#qrModal').on('hidden.bs.modal', function() {
+				const videoElem = document.getElementById('qr-video');
+				videoElem.play();
+				$('.scan-text').text('Scannning...');
+				$('.scan-text').css('color', '#00bcd4');
+				$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
+			});
+
+			// 7. 初期状態設定
+			// 開催ステータス選択を非表示
+			$('select[name="event_status_id"]').closest('div').hide();
+
+			// 回数選択を無効化
+			$('#course_no_select').prop('disabled', true);
+
+			// QRスキャナーを非表示
+			$("#qr_card").hide();
+
+			// フォーム送信時のデフォルト動作を変更
+			$('#form').on('submit', function(e) {
+				e.preventDefault();
+				$('#course_no').val($('#course_no_select').val());
+				// 検索ボタンがクリックされた場合のみフォーム送信
+				if (e.originalEvent && e.originalEvent.submitter && e.originalEvent.submitter.name === 'search') {
+					this.submit();
+				}
+			});
+		});
 	</script>
 </body>
 
