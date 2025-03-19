@@ -22,7 +22,7 @@ class UserRegistrationController
         // ページネーション
         $per_page = 15;
         $current_page = $_GET['page'];
-        $page = 1;
+
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
@@ -31,7 +31,7 @@ class UserRegistrationController
             $current_page  = 1;
         }
 
-        $user_list = $this->userModel->getUser($current_page);
+        $user_list = $this->userModel->getUser($current_page, $per_page);
         $user_count_list = $this->userModel->getUserCount();
 
         $data_list = [];
