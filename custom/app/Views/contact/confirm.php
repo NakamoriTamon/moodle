@@ -54,7 +54,7 @@ if (isset($SESSION->formdata)) {
                         <li class="list_item05 long_item">
                             <p class="list_label">お問い合わせ内容</p>
                             <p class="list_field f_txtarea">
-                            <?= htmlspecialchars(nl2br($inquiry_details)) ?>
+                                <?= nl2br(htmlspecialchars($inquiry_details, ENT_QUOTES, 'UTF-8')) ?>
                             </p>
                         </li>
                     </ul>

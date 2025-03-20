@@ -62,7 +62,7 @@ if (isset($SESSION->formdata)) {
 }
 
 $tekijuku_text = "";
-if(!empty($tekijuku_discount)) {
+if (!empty($tekijuku_discount)) {
     $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
 }
 
@@ -191,13 +191,13 @@ if (!is_null($courseInfoId)) {
                         <li class="list_item10 long_item">
                             <p class="list_label">その他</p>
                             <p class="list_field">
-                                <?= htmlspecialchars(nl2br($trigger_other)) ?>
+                                <?= nl2br(htmlspecialchars($trigger_other, ENT_QUOTES, 'UTF-8')) ?>
                             </p>
                         </li>
                         <li class="list_item10 long_item">
                             <p class="list_label">備考欄</p>
                             <p class="list_field">
-                                <?= htmlspecialchars(nl2br($note)) ?>
+                                <?= nl2br(htmlspecialchars($note, ENT_QUOTES, 'UTF-8')) ?>
                             </p>
                         </li>
                         <?php echo $passages ?>
