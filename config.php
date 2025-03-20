@@ -109,14 +109,18 @@ define('IS_APPLY_BTN', [ //　申し込みボタンを表示
   'DISABLED' => 0,   // 非表示
   'ENABLED' => 1  // 表示
 ]);
-define('ROLE', [
+define('ROLE', [ // 権限ロール
   'COURSECREATOR' => 2,
   'USER' => 7,
   'ADMIN' => 9
 ]);
-define('CONFIRMED', [
+define('CONFIRMED', [ // メール確認状況
   'IS_UNCONFIRMED' => 0,
   'IS_CONFIRMED' => 1
+]);
+define('PARTICIPATION_KBN', [ // イベント参加状況　申し込み～コース中間テーブル用
+  'PARTICIPATION' => 1, // 参加
+  'NON_PARTICIPATION' => 2 // 不参加 
 ]);
 
 $lecture_format_on_site = 1; //現地開催

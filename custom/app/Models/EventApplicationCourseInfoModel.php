@@ -203,4 +203,31 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
     }
+
+    // 申し込み～コース中間テーブルIDより申し込み状況を取得
+    public function getByEventApplicationCouresInfoId($id)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT eaci.id, eaci.event_id, eaci.course_info_id, eaci.participation_kbn, ci.no AS no, ci.course_date, e.end_hour
+                    FROM mdl_event_application_course_info eaci
+                    JOIN mdl_course_info ci ON eaci.course_info_id = ci.id
+                    JOIN mdl_event e ON eaci.event_id = e.id
+                    WHERE eaci.id = ?"
+                );
+
+                $stmt->execute([$id]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $result;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 }
