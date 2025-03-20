@@ -1,26 +1,75 @@
 <?php
+
+/**
+ * QRコードスキャン処理用コントローラー
+ * 
+ * このファイルはQRコードを使用した参加者登録処理を行うためのコントローラーです。
+ * 管理者がイベントを選択し、参加者がQRコードを提示する際の処理を担当します。
+ *
+ * @category   Controller
+ */
+
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/MovieModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/UserModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationCourseInfoModel.php');
+require_once('/var/www/html/moodle/config.php');
 global $DB;
 
+/**
+ * QRコード処理のためのコントローラークラス
+ * 
+ * QRコードを使った参加登録機能の制御を担当します。
+ * カテゴリー、イベント、回数の取得や、QRコードスキャン結果の処理を行います。
+ *
+ * @category Controller
+ * @package  Custom_Admin
+ */
 class QrController
 {
+    /**
+     * カテゴリーモデルのインスタンス
+     * 
+     * @var CategoryModel
+     */
     private $categoryModel;
-    private $eventModel;
-    private $movieModel;
-    private $userModel;
 
+    /**
+     * イベントモデルのインスタンス
+     * 
+     * @var EventModel
+     */
+    private $eventModel;
+
+    /**
+     * イベント申し込み情報モデルのインスタンス
+     * 
+     * @var EventApplicationCourseInfoModel
+     */
+    private $eventApplicationCourseInfoModel;
+
+    /**
+     * コントローラーのコンストラクタ
+     * 
+     * 必要なモデルのインスタンスを初期化します。
+     */
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
         $this->eventModel = new EventModel();
-        $this->movieModel = new MovieModel();
-        $this->userModel = new UserModel();
+        $this->eventApplicationCourseInfoModel = new EventApplicationCourseInfoModel();
     }
 
+    /**
+     * 初期表示のための情報を取得
+     * 
+     * カテゴリーリストとイベントリストを取得し、初期表示用のデータを返します。
+     * POSTパラメータに基づいてフィルタリングを行います。
+     *
+     * @return array 表示に必要なデータの配列（カテゴリーリスト、イベントリスト）
+     */
     public function index()
     {
         // 検索項目取得
@@ -51,6 +100,11 @@ class QrController
 
     /**
      * カテゴリーIDからイベントリストを取得するAPI
+     * 
+     * 指定されたカテゴリーIDに基づいてイベントリストを取得し、JSON形式で返します。
+     * Ajax呼び出し用のエンドポイントとして機能します。
+     *
+     * @return void JSONレスポンスを出力して終了
      */
     public function getEventsByCategory()
     {
@@ -88,6 +142,11 @@ class QrController
 
     /**
      * イベントIDから開催回数リストを取得するAPI
+     * 
+     * 指定されたイベントIDに基づいて開催回数リストを生成し、JSON形式で返します。
+     * Ajax呼び出し用のエンドポイントとして機能します。
+     *
+     * @return void JSONレスポンスを出力して終了
      */
     public function getCourseNumbers()
     {
@@ -114,7 +173,7 @@ class QrController
             exit;
         }
 
-        // 開催回数を取得（回数はモデルから取得する必要があるため、仮実装）
+        // 開催回数を取得
         $course_numbers = [];
         $total_courses = $event['total_courses'] ?? 1; // イベントの総回数
 
@@ -132,6 +191,12 @@ class QrController
 
     /**
      * QRコードデータを処理するAPI
+     * 
+     * QRコードのデータを受け取り、復号化して参加登録処理を行います。
+     * 処理結果をJSON形式で返します。
+     * Ajax呼び出し用のエンドポイントとして機能します。
+     *
+     * @return void JSONレスポンスを出力して終了
      */
     public function processQr()
     {
@@ -151,9 +216,9 @@ class QrController
         }
 
         // QRコードからユーザーIDを抽出
-        $user_id = $this->extractUserIdFromQr($qr_data);
+        $event_application_course_info_id = $this->extractUserIdFromQr($qr_data);
 
-        if (!$user_id) {
+        if (!$event_application_course_info_id) {
             echo json_encode([
                 'status' => 'error',
                 'message' => 'QRコードデータが無効です'
@@ -161,30 +226,19 @@ class QrController
             exit;
         }
 
-        // ユーザー情報取得
-        $user = $this->userModel->getUserById($user_id);
+        // IDと他のパラメータ（event_id, course_no）を照合
+        $verification_result = $this->verifyEventApplication($event_application_course_info_id, $event_id, $course_no);
 
-        if (!$user) {
+        if ($verification_result['status'] === 'error') {
             echo json_encode([
                 'status' => 'error',
-                'message' => 'ユーザーが見つかりません'
-            ]);
-            exit;
-        }
-
-        // イベント情報取得
-        $event = $this->eventModel->getEventById($event_id);
-
-        if (!$event) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'イベントが見つかりません'
+                'message' => $verification_result['message']
             ]);
             exit;
         }
 
         // 参加登録処理
-        $result = $this->registerAttendance($user_id, $event_id, $course_no);
+        $result = $this->registerAttendance($event_application_course_info_id);
 
         if (!$result) {
             echo json_encode([
@@ -198,59 +252,162 @@ class QrController
         echo json_encode([
             'status' => 'success',
             'message' => '参加登録が完了しました',
-            'user_name' => $user['name'], // ユーザー名
-            'event_name' => $event['name'] // イベント名
         ]);
         exit;
     }
 
     /**
-     * QRコードからユーザーIDを抽出する
+     * QRコードからIDを抽出する
+     * 
+     * 暗号化されたQRコードデータを復号化し、イベント申し込み情報のIDを取得します。
+     *
+     * @param string $qr_data QRコードから読み取られた暗号化データ
+     * 
+     * @return int|null 復号化されたID、失敗した場合はnull
      */
     private function extractUserIdFromQr($qr_data)
     {
-        // QRコードの形式に合わせて処理を実装
-        // 例: JSON形式の場合
-        $decoded = json_decode($qr_data, true);
-        if (isset($decoded['user_id'])) {
-            return $decoded['user_id'];
-        }
+        global $url_secret_key;
 
-        // 例: URLパラメータ形式の場合
-        parse_str(parse_url($qr_data, PHP_URL_QUERY), $params);
-        if (isset($params['user_id'])) {
-            return $params['user_id'];
-        }
-
-        // 例: 単純なIDのみの場合
-        if (preg_match('/^[0-9]+$/', $qr_data)) {
-            return $qr_data;
+        // まず暗号化されたデータを復号化
+        try {
+            $decoded_id = $this->decrypt($qr_data, $url_secret_key);
+            if ($decoded_id && is_numeric($decoded_id)) {
+                return $decoded_id;
+            }
+        } catch (\Exception $e) {
+            error_log('QRコード復号化エラー: ' . $e->getMessage());
         }
 
         return null;
     }
 
     /**
-     * 参加登録処理
+     * 暗号化されたデータを復号する
+     * 
+     * AES-256-CBCアルゴリズムを使用して暗号化されたデータを復号します。
+     *
+     * @param string $value 復号する暗号化データ
+     * @param string $key   復号に使用する秘密鍵
+     * 
+     * @return string 復号されたデータ
      */
-    private function registerAttendance($user_id, $event_id, $course_no)
+    private function decrypt($value, $key)
     {
-        try {
-            global $DB;
-            $record = new \stdClass();
-            $record->user_id = $user_id;
-            $record->event_id = $event_id;
-            $record->course_no = $course_no;
-            $record->created_at = time();
+        $iv = substr(hash('sha256', $key), 0, 16);
+        return openssl_decrypt(base64_decode(urldecode($value)), 'AES-256-CBC', $key, 0, $iv);
+    }
 
-            // テーブル名は実際の環境に合わせて調整
-            $DB->insert_record('custom_event_attendance', $record);
+    /**
+     * 参加登録処理
+     * 
+     * 指定されたIDの参加状態を更新します。
+     * トランザクション処理を使用して、データの整合性を保ちます。
+     *
+     * @param int $id イベント申し込み情報のID
+     * 
+     * @return bool 処理成功時はtrue、失敗時はfalse
+     */
+    private function registerAttendance($id)
+    {
+        global $DB;
+
+        try {
+            // トランザクション開始
+            $transaction = $DB->start_delegated_transaction();
+
+            // 更新用のレコード準備
+            $record = new \stdClass();
+            $record->id = $id;
+            $record->participation_kbn = PARTICIPATION_KBN['PARTICIPATION'];
+
+            // レコード更新
+            $result = $DB->update_record_raw('event_application_course_info', $record);
+
+            if (!$result) {
+                throw new \Exception('参加登録の更新に失敗しました');
+            }
+
+            // トランザクション確定
+            $transaction->allow_commit();
 
             return true;
         } catch (\Exception $e) {
+            // トランザクションロールバック
+            if (isset($transaction)) {
+                $transaction->rollback($e);
+            }
             error_log('参加登録エラー: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * イベント申し込み情報の照合
+     * 
+     * QRコードから取得したIDと、選択されたイベントID、回数が一致するか確認します。
+     * また、既に参加登録済みかどうかもチェックします。
+     *
+     * @param int $id       イベント申し込み情報のID
+     * @param int $event_id イベントID
+     * @param int $course_no イベント回数
+     * 
+     * @return array 照合結果を含む連想配列
+     *               ['status' => 'success'|'error', 'message' => エラーメッセージ, 'app_info' => 申し込み情報]
+     */
+    private function verifyEventApplication($id, $event_id, $course_no)
+    {
+        // 申し込み情報を取得
+        $app_info = $this->eventApplicationCourseInfoModel->getByEventApplicationCouresInfoId($id);
+
+        // 情報が取得できなかった場合
+        if (empty($app_info)) {
+            return [
+                'status' => 'error',
+                'message' => '処理でエラーが発生しております'
+            ];
+        }
+
+        // 既に参加済みの場合
+        if (isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['PARTICIPATION']) {
+            return [
+                'status' => 'error',
+                'message' => '既に参加登録されています'
+            ];
+        }
+
+        // 既に開催終了している場合
+        if (isset($app_info['course_date']) && isset($app_info['end_hour'])) {
+            // イベント終了時刻を作成（日付と終了時間を結合）
+            $course_date = date('Y-m-d', strtotime($app_info['course_date']));
+            $end_time = $app_info['end_hour'];
+            $event_end_datetime = $course_date . ' ' . $end_time;
+
+            // 現在時刻と比較
+            $current_datetime = date('Y-m-d H:i:s');
+
+            if (strtotime($current_datetime) > strtotime($event_end_datetime)) {
+                return [
+                    'status' => 'error',
+                    'message' => '既に開催終了しています'
+                ];
+            }
+        }
+
+        // イベントIDと回数の照合
+        if ($app_info['event_id'] == $event_id && $app_info['no'] == $course_no) {
+            // 照合成功
+            return [
+                'status' => 'success',
+                'app_info' => $app_info
+            ];
+        }
+
+        // 照合失敗
+        return [
+            'status' => 'error',
+            'message' => '開催イベントが異なります'
+        ];
     }
 }
 

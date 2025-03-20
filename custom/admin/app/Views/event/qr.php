@@ -7,7 +7,6 @@ include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
 $qr_conroller = new QrController();
 $result_list = $qr_conroller->index();
 
-var_dump($_POST);
 // バリデーションエラー
 $errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
@@ -42,6 +41,10 @@ $event_list = $result_list['event_list']  ?? [];
 			</nav>
 
 			<main class="content">
+				<!-- 通知表示コンテナ -->
+				<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+				<!-- 検索フォーム -->
 				<div class="col-12 col-lg-12" id="search_card">
 					<div class="card">
 						<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
@@ -54,17 +57,6 @@ $event_list = $result_list['event_list']  ?? [];
 											<?php foreach ($category_list as $category) { ?>
 												<option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
 													<?= htmlspecialchars($category['name']) ?>
-												</option>
-											<?php } ?>
-										</select>
-									</div>
-									<div class="sp-ms-0 ms-3 mb-3 w-100">
-										<label class="form-label" for="notyf-message">開催ステータス</label>
-										<select name="event_status_id" class="form-control">
-											<option value="">すべて</option>
-											<?php foreach ($display_status_list as $key => $event_status) { ?>
-												<option value="<?= $key ?>" <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
-													<?= htmlspecialchars($event_status) ?>
 												</option>
 											<?php } ?>
 										</select>
@@ -87,6 +79,7 @@ $event_list = $result_list['event_list']  ?? [];
 										<label class="form-label" for="course_no_select">回数</label>
 										<div class="d-flex align-items-center">
 											<select id="course_no_select" class="form-control w-100" <?= $result_list['is_simple'] ? 'disabled' : '' ?>>
+												<option value="" selected>回数を選択</option>
 												<?php foreach ($course_number as $course_no) { ?>
 													<option value="<?= $course_no ?>" <?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 														<?= "第" . htmlspecialchars($course_no) . "回" ?>
@@ -97,14 +90,16 @@ $event_list = $result_list['event_list']  ?? [];
 										</div>
 									</div>
 								</div>
-								<div class="d-flex justify-content-end ms-auto">
-									<button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+								<div class="text-center mb-2 mt-2" id="guidance_message">
+									<p class="text-muted">イベント名と回数を選択するとQRカメラが起動します</p>
 								</div>
 							</form>
 						</div>
 					</div>
 				</div>
-				<div class="col-12 col-lg-12" id="qr_card">
+
+				<!-- QRスキャナーエリア -->
+				<div class="col-12 col-lg-12" id="qr_card" style="display: none;">
 					<div class="card">
 						<div class="card-body p-0 d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
 							<div class="qr-frame">
@@ -120,26 +115,8 @@ $event_list = $result_list['event_list']  ?? [];
 								<div class="bottom-right"></div>
 							</div>
 							<p class="scan-text text-center mb-0 fs-3">Scanning...</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- 登録完了モーダル -->
-				<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="qrModalLabel">参加登録完了</h5>
-							</div>
-							<div class="modal-body">
-								<p class="mt-2 mb-1 fw-bold">イベント名</p>
-								<p>中之島芸術センター 演劇公演 「中の島デリバティブIII」</p>
-								<p class="mb-1 fw-bold">ユーザー名</p>
-								<p>高橋 望</p>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-							</div>
+							<!-- 結果表示エリア -->
+							<div id="scan-result" class="text-center mt-3 mb-2" style="display: none;"></div>
 						</div>
 					</div>
 				</div>
@@ -166,38 +143,24 @@ $event_list = $result_list['event_list']  ?? [];
 	</script>
 
 	<script type="module">
-		import QrScanner from "https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js";
-
-		const videoElem = document.getElementById('qr-video');
-		let qrScanner = new QrScanner(videoElem, (result) => {
-			console.log(result);
-			videoElem.pause();
-			$('.scan-text').text('Success');
-			$('.scan-text').css('color', '#249f2a');
-			$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
-			var modal = new bootstrap.Modal(document.getElementById('qrModal'));
-			modal.show();
-		});
-		// qrScanner.start();
-
-		$('#qrModal').on('hidden.bs.modal', function() {
-			videoElem.play();
-			$('.scan-text').text('Scannning...');
-			$('.scan-text').css('color', '#00bcd4');
-			$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
-		});
-
 		$(document).ready(function() {
+			// グローバル変数としてスキャナーインスタンスを保持
+			let qrScannerInstance = null;
+			let qrModuleLoaded = false;
+			let videoElem = null;
+			let cameraInitializing = false;
+
 			// 1. カテゴリー選択時のイベント
 			$('select[name="category_id"]').change(function() {
 				const categoryId = $(this).val();
 				// イベント選択をリセット
 				$('select[name="event_id"]').html('<option value="" selected>未選択</option>');
-				$('#course_no_select').prop('disabled', true);
+				$('#course_no_select').prop('disabled', true).html('<option value="" selected>回数を選択</option>');
 				$("#course_no").val('');
 
-				// QRスキャナーを非表示
+				// QRスキャナーを非表示・停止
 				$("#qr_card").hide();
+				stopQrScanner();
 
 				if (categoryId) {
 					// APIを使用してイベントリストを取得
@@ -237,8 +200,9 @@ $event_list = $result_list['event_list']  ?? [];
 				$('#course_no_select').html('<option value="" selected>回数を選択</option>');
 				$("#course_no").val('');
 
-				// QRスキャナーを非表示
+				// QRスキャナーを非表示・停止
 				$("#qr_card").hide();
+				stopQrScanner();
 
 				if (eventId) {
 					// APIを使用して回数リストを取得
@@ -272,55 +236,186 @@ $event_list = $result_list['event_list']  ?? [];
 			});
 
 			// 3. 回数選択時のイベント
-			$('#course_no_select').change(function() {
+			$('#course_no_select').on('change', function() {
 				const courseNo = $(this).val();
 				$("#course_no").val(courseNo);
 
+				// まずQRスキャナーを停止
+				stopQrScanner();
+
 				if (courseNo) {
-					// QRスキャナーを表示して起動
+					// QRスキャナーを表示
 					$("#qr_card").show();
-					startQrScanner();
+
+					// QrScannerモジュールを先に読み込む
+					loadQrScannerModule().then(() => {
+						// 少し遅延させてからスキャナーを起動（DOMが完全に表示された後）
+						setTimeout(() => {
+							startQrScanner();
+						}, 500);
+					});
 				} else {
 					// QRスキャナーを非表示
 					$("#qr_card").hide();
 				}
 			});
 
-			// 4. QRスキャナー起動関数
-			function startQrScanner() {
-				console.log('ここまでOK');
-				// 念のため既存のスキャナーを停止
-				if (window.qrScanner && typeof window.qrScanner.stop === 'function') {
-					window.qrScanner.stop();
-				}
+			// トースト通知を表示する関数
+			function showToast(message, type = 'success') {
+				// 既存のトーストを削除
+				$('#toast-container').empty();
 
-				// QRスキャナーの初期化と起動
-				const videoElem = document.getElementById('qr-video');
+				// 色を設定
+				let bgColor = type === 'success' ? '#d4edda' : '#f8d7da';
+				let textColor = type === 'success' ? '#155724' : '#721c24';
+				let borderColor = type === 'success' ? '#c3e6cb' : '#f5c6cb';
 
-				// モジュールがすでに読み込まれている場合
-				if (typeof QrScanner !== 'undefined') {
-					initializeScanner();
-				} else {
-					// モジュールを動的に読み込む
+				// トースト要素を作成
+				const toast = $(`
+					<div class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 300px; opacity: 1;">
+						<div class="toast-body p-3" style="background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; border-radius: 4px;">
+							${message}
+						</div>
+					</div>
+				`);
+
+				// トーストをコンテナに追加
+				$('#toast-container').append(toast);
+
+				// スキャン結果エリアも更新
+				showScanResult(message, type);
+
+				// 2秒後に自動的に次のスキャンに移行
+				setTimeout(() => {
+					// トーストを削除
+					toast.remove();
+
+					// 結果表示を隠す
+					$('#scan-result').hide();
+
+					// スキャン表示を元に戻す
+					$('.scan-text').text('Scanning...');
+					$('.scan-text').css('color', '#00bcd4');
+					$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
+
+					// スキャナーを再開
+					if (qrScannerInstance) {
+						qrScannerInstance.start();
+					}
+				}, 2000);
+			}
+
+			// スキャン結果をQRカード内に表示
+			function showScanResult(message, type = 'success') {
+				const resultDiv = $('#scan-result');
+				resultDiv.removeClass('text-success text-danger')
+					.addClass(type === 'success' ? 'text-success' : 'text-danger')
+					.html(`<strong>${message}</strong>`)
+					.show();
+			}
+
+			// QrScannerモジュールを読み込む関数
+			function loadQrScannerModule() {
+				return new Promise((resolve) => {
+					if (qrModuleLoaded) {
+						resolve();
+						return;
+					}
+
 					import("https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js").then(module => {
 						window.QrScanner = module.default;
-						initializeScanner();
+						qrModuleLoaded = true;
+						resolve();
+					}).catch(error => {
+						console.error('QrScannerモジュールの読み込みに失敗:', error);
+						// エラーが発生しても解決
+						resolve();
 					});
+				});
+			}
+
+			// QRスキャナーを停止する関数
+			function stopQrScanner() {
+				if (qrScannerInstance && typeof qrScannerInstance.stop === 'function') {
+					try {
+						qrScannerInstance.stop();
+					} catch (error) {
+						console.error('QRスキャナーの停止に失敗:', error);
+					}
+					qrScannerInstance = null;
 				}
 
-				function initializeScanner() {
-					window.qrScanner = new QrScanner(videoElem, (result) => {
-						console.log(result);
-						videoElem.pause();
-						$('.scan-text').text('Success');
-						$('.scan-text').css('color', '#249f2a');
-						$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
+				// カメラ初期化中フラグをリセット
+				cameraInitializing = false;
+			}
 
-						// QRコード読み取り結果を処理
-						processQrResult(result);
+			// 4. QRスキャナー起動関数
+			function startQrScanner() {
+				// 既に初期化中なら処理しない
+				if (cameraInitializing) {
+					return;
+				}
+
+				// カメラ初期化中フラグを設定
+				cameraInitializing = true;
+
+				// 既存のスキャナーを停止
+				stopQrScanner();
+
+				// ビデオ要素を取得
+				videoElem = document.getElementById('qr-video');
+				if (!videoElem) {
+					console.error('qr-video要素が見つかりません');
+					cameraInitializing = false;
+					return;
+				}
+
+				// スキャナーが未定義の場合はエラー
+				if (typeof QrScanner === 'undefined') {
+					console.error('QrScannerモジュールが読み込まれていません');
+					cameraInitializing = false;
+					return;
+				}
+
+				try {
+					// QRスキャナーの初期化
+					qrScannerInstance = new QrScanner(
+						videoElem,
+						(result) => {
+							if (!result || !result.data) {
+								console.error('QRスキャン結果が無効です');
+								return;
+							}
+
+							// スキャナーを一時停止
+							qrScannerInstance.pause();
+
+							// スキャン成功表示
+							$('.scan-text').text('Success');
+							$('.scan-text').css('color', '#249f2a');
+							$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#249f2a');
+
+							// QRコード読み取り結果を処理
+							processQrResult(result);
+						}, {
+							// スキャナーオプション
+							highlightScanRegion: true,
+							highlightCodeOutline: true,
+							preferredCamera: 'environment', // 背面カメラを優先
+						}
+					);
+
+					// カメラアクセス許可を取得
+					qrScannerInstance.start().then(() => {
+						cameraInitializing = false;
+					}).catch(error => {
+						console.error('QRスキャナーの起動に失敗:', error);
+						alert('カメラへのアクセスができませんでした。\nブラウザの設定からカメラへのアクセスを許可してください。');
+						cameraInitializing = false;
 					});
-
-					window.qrScanner.start();
+				} catch (error) {
+					console.error('QRスキャナーの初期化に失敗:', error);
+					cameraInitializing = false;
 				}
 			}
 
@@ -343,68 +438,57 @@ $event_list = $result_list['event_list']  ?? [];
 					dataType: 'json',
 					success: function(response) {
 						if (response.status === 'success') {
-							// モーダルにデータを設定
-							$('#qrModalLabel').text('参加登録完了');
-							$('#qrModal .modal-body').html(`
-						<p class="mt-2 mb-1 fw-bold">イベント名</p>
-						<p>${response.event_name}</p>
-						<p class="mb-1 fw-bold">ユーザー名</p>
-						<p>${response.user_name}</p>
-					`);
+							// 成功メッセージを表示
+							showToast(response.message || '参加登録が完了しました', 'success');
 						} else {
 							// エラーメッセージを表示
-							$('#qrModalLabel').text('エラー');
-							$('#qrModal .modal-body').html(`
-						<p class="mt-2 mb-1 text-danger">${response.message || 'QRコードの処理に失敗しました'}</p>
-					`);
-						}
+							showToast(response.message || 'QRコードの処理に失敗しました', 'error');
 
-						// モーダルを表示
-						var modal = new bootstrap.Modal(document.getElementById('qrModal'));
-						modal.show();
+							// スキャンエラー表示
+							$('.scan-text').text('Error');
+							$('.scan-text').css('color', '#dc3545');
+							$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#dc3545');
+						}
 					},
 					error: function() {
 						// エラーメッセージを表示
-						$('#qrModalLabel').text('エラー');
-						$('#qrModal .modal-body').html(`
-					<p class="mt-2 mb-1 text-danger">サーバーとの通信に失敗しました</p>
-				`);
+						showToast('サーバーとの通信に失敗しました', 'error');
 
-						// モーダルを表示
-						var modal = new bootstrap.Modal(document.getElementById('qrModal'));
-						modal.show();
+						// スキャンエラー表示
+						$('.scan-text').text('Error');
+						$('.scan-text').css('color', '#dc3545');
+						$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#dc3545');
 					}
 				});
 			}
 
-			// 6. モーダルを閉じた時の処理
-			$('#qrModal').on('hidden.bs.modal', function() {
-				const videoElem = document.getElementById('qr-video');
-				videoElem.play();
-				$('.scan-text').text('Scannning...');
-				$('.scan-text').css('color', '#00bcd4');
-				$('.qr-frame .top-left, .qr-frame .top-right, .qr-frame .bottom-left, .qr-frame .bottom-right').css('border-color', '#00bcd4');
-			});
-
-			// 7. 初期状態設定
-			// 開催ステータス選択を非表示
-			$('select[name="event_status_id"]').closest('div').hide();
-
-			// 回数選択を無効化
-			$('#course_no_select').prop('disabled', true);
-
-			// QRスキャナーを非表示
+			// 初期状態設定
+			// QRスキャナーを非表示に
 			$("#qr_card").hide();
+
+			// 初期表示時は回数選択を非活性化（イベント名が選択されていない場合）
+			if (!$('select[name="event_id"]').val()) {
+				$('#course_no_select').prop('disabled', true);
+			}
 
 			// フォーム送信時のデフォルト動作を変更
 			$('#form').on('submit', function(e) {
 				e.preventDefault();
 				$('#course_no').val($('#course_no_select').val());
-				// 検索ボタンがクリックされた場合のみフォーム送信
-				if (e.originalEvent && e.originalEvent.submitter && e.originalEvent.submitter.name === 'search') {
-					this.submit();
+			});
+
+			// ブラウザのビューポート変更（回転など）時にスキャナーを再調整
+			window.addEventListener('resize', () => {
+				if (qrScannerInstance && $("#qr_card").is(":visible")) {
+					// リサイズ中に再初期化は行わず、必要に応じてサイズを調整
+					setTimeout(() => {
+						qrScannerInstance.setInversionMode('original');
+					}, 300);
 				}
 			});
+
+			// QrScannerモジュールを事前にロードしておく
+			loadQrScannerModule();
 		});
 	</script>
 </body>
