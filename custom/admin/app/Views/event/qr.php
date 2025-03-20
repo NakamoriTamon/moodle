@@ -162,35 +162,34 @@ $event_list = $result_list['event_list']  ?? [];
 				$("#qr_card").hide();
 				stopQrScanner();
 
-				if (categoryId) {
-					// APIを使用してイベントリストを取得
-					$.ajax({
-						url: '/custom/admin/app/Controllers/qr/qr_controller.php',
-						type: 'POST',
-						data: {
-							category_id: categoryId,
-							post_kbn: 'get_events_by_category'
-						},
-						dataType: 'json',
-						success: function(response) {
-							if (response.status === 'success' && response.events.length > 0) {
-								// イベントオプションを追加
-								let eventSelect = $('select[name="event_id"]');
-								$.each(response.events, function(index, event) {
-									eventSelect.append($('<option>', {
-										value: event.id,
-										text: event.name
-									}));
-								});
-								// イベント選択を有効化
-								eventSelect.prop('disabled', false);
-							}
-						},
-						error: function() {
-							alert('イベントデータの取得に失敗しました');
+				// 修正: categoryIdが空（すべて選択）の場合も含めてイベントを取得
+				// APIを使用してイベントリストを取得
+				$.ajax({
+					url: '/custom/admin/app/Controllers/qr/qr_controller.php',
+					type: 'POST',
+					data: {
+						category_id: categoryId, // 空文字列の場合も送信
+						post_kbn: 'get_events_by_category'
+					},
+					dataType: 'json',
+					success: function(response) {
+						if (response.status === 'success' && response.events.length > 0) {
+							// イベントオプションを追加
+							let eventSelect = $('select[name="event_id"]');
+							$.each(response.events, function(index, event) {
+								eventSelect.append($('<option>', {
+									value: event.id,
+									text: event.name
+								}));
+							});
+							// イベント選択を有効化
+							eventSelect.prop('disabled', false);
 						}
-					});
-				}
+					},
+					error: function() {
+						alert('イベントデータの取得に失敗しました');
+					}
+				});
 			});
 
 			// 2. イベント選択時のイベント
