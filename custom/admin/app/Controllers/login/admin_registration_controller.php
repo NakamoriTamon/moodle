@@ -34,6 +34,8 @@ class adminRegistrationController
             return true;
         } catch (Throwable $e) {
             try {
+                var_dump($e);
+                die();
                 $transaction->rollback($e);
             } catch (Throwable $e) {
                 $_SESSION['message_error'] = '登録に失敗しました';

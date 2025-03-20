@@ -36,10 +36,19 @@ if ($name_error || $department_error || $email_error || $password_error) {
     exit;
 } else {
     global $DB, $CFG, $url_secret_key;
-    // 入力されたメールアドレスが存在するか確認
-    $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0]);
 
-    if (!$user) {
+    // 入力されたメールアドレスが存在するか確認
+    $role_id = ROLE['USER'];
+    $user_list = $DB->get_records('user', ['email' => $email, 'deleted' => 0]);
+    foreach ($user_list as $user) {
+        $role = $DB->get_record('role_assignments', ['userid' => $user->id]);
+        if ($role->roleid != ROLE['USER']) {
+            $role_id = $role->roleid;
+            break;
+        }
+    }
+
+    if (!$user_list || $role_id == ROLE['USER']) {
         try {
             $baseModel = new BaseModel();
             $pdo = $baseModel->getPdo();
