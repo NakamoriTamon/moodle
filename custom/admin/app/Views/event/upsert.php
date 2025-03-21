@@ -335,112 +335,35 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 									<?php endif; ?>
 									<div class=" mb-3">
-											<label class="form-label">交通アクセス</label>
-											<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
-											<?php if (!empty($errors['access'])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['access']); ?></div>
+										<label class="form-label">交通アクセス</label>
+										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
+										<?php if (!empty($errors['access'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['access']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<div class="form-label d-flex align-items-center">
+											<label class="form-label">Google Map&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.google.co.jp/maps/?hl=ja" target="_blank">Google Mapを開く</a></label>
+										</div>
+										<div class="mb-3">
+											<input name="google_map" class=" form-control" type="text"
+												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
+											<?php if (!empty($errors['google_map'])): ?>
+												<div class="text-danger mt-2"><?= $errors['google_map']; ?></div>
 											<?php endif; ?>
 										</div>
 										<div class="mb-3">
-											<div class="form-label d-flex align-items-center">
-												<label class="form-label">Google Map&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.google.co.jp/maps/?hl=ja" target="_blank">Google Mapを開く</a></label>
-											</div>
-											<div class="mb-3">
-												<input name="google_map" class=" form-control" type="text"
-													value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
-												<?php if (!empty($errors['google_map'])): ?>
-													<div class="text-danger mt-2"><?= $errors['google_map']; ?></div>
-												<?php endif; ?>
-											</div>
-											<div class="mb-3">
-												<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
-													<?= $eventData['google_map'] ?>
-												<?php endif; ?>
-											</div>
+											<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
+												<?= $eventData['google_map'] ?>
+											<?php endif; ?>
 										</div>
-										<div class="mb-3">
-											<label class="form-label">
-												<input name="is_top" type="checkbox" value="1" <?php if (isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
-												<span class="form-check-label">トップに固定する</span>
-											</label>
-										</div>
-										<div class="mb-3 one_area">
-											<?php foreach ($courses as $no => $details): ?>
-												<?php if ($no == 1): ?>
-													<?php foreach ($details as $key => $detail): ?>
-														<?php if ($key == 0): ?>
-															<input type="hidden" id="course_info_id" name="course_info_id" value="<?= $detail['course_info_id'] ?? '' ?>">
-															<div class="mb-3">
-																<div class="form-label d-flex align-items-center">
-																	<label class="me-2">アーカイブ公開日</label>
-																</div>
-																<input name="release_date" class="form-control" type="date"
-																	value="<?= htmlspecialchars(isSetDate($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
-																<?php if (!empty($errors['release_date'])): ?>
-																	<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
-																<?php endif; ?>
-															</div>
-														<?php endif ?>
-														<div class="form-label d-flex align-items-center">
-															<label class="me-2">講師</label>
-															<span class="badge bg-danger">必須</span>
-														</div>
-														<select id="tutor_id_<?= $key ?>" class=" form-control mb-3" name="tutor_id_<?= $key ?>">
-															<optgroup label="">
-																<option value="">講師無し</option>
-																<?php foreach ($tutors as $tutor): ?>
-																	<option value="<?= htmlspecialchars($tutor['id']) ?>"
-																		<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key] ?? null) ? 'selected' : '' ?>>
-																		<?= htmlspecialchars($tutor['name']) ?>
-																	</option>
-																<?php endforeach; ?>
-															</optgroup>
-														</select>
-														<div id="tutor_name_area_<?= $key ?>" class="mb-3" <?php if (!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;" <?php endif; ?>>
-															<div class="form-label d-flex align-items-center">
-																<label class="me-2">講師名</label>
-																<span class="badge bg-danger">必須</span>
-															</div>
-															<input type="text" name="tutor_name_<?= $key ?>" class="form-control" placeholder=""
-																value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key] ?? '')) ?>" />
-															<?php if (!empty($errors['tutor_name_' . $key])): ?>
-																<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key]); ?></div>
-															<?php endif; ?>
-														</div>
-														<?php if (!empty($errors['tutor_id_' . $key])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key]); ?></div>
-														<?php endif; ?>
-														<div class="mb-3">
-															<div class="form-label d-flex align-items-center">
-																<label class="me-2">講義名</label>
-																<span class="badge bg-danger">必須</span>
-															</div>
-															<input type="text" name="lecture_name_<?= $key ?>" class="form-control" placeholder=""
-																value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key] ?? '')) ?>" />
-															<?php if (!empty($errors['lecture_name_' . $key])): ?>
-																<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key]); ?></div>
-															<?php endif; ?>
-														</div>
-														<div class="mb-5">
-															<div class="form-label d-flex align-items-center">
-																<label class="me-2">講義概要</label>
-																<span class="badge bg-danger">必須</span>
-															</div>
-															<textarea name="program_<?= $key ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key] ?? '')) ?></textarea>
-															<?php if (!empty($errors['program_' . $key])): ?>
-																<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key]); ?></div>
-															<?php endif; ?>
-														</div>
-														<hr>
-													<?php endforeach; ?>
-												<?php endif ?>
-											<?php endforeach; ?>
-											<div class="mb-3">
-												<div class="form-label d-flex align-items-center">
-													<button type="button" class="add_colum btn btn-primary ms-auto me-0" data-target="">項目追加</button>
-												</div>
-											</div>
-										</div>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">
+											<input name="is_top" type="checkbox" value="1" <?php if (isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
+											<span class="form-check-label">トップに固定する</span>
+										</label>
+									</div>
 									<div class="mb-3">
 										<label class="form-label">交通アクセス</label>
 										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
@@ -474,82 +397,80 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3 one_area">
 										<?php foreach ($courses as $no => $details): ?>
 											<?php if($no == 1): ?>
-											<?php foreach ($details as $key => $detail): ?>
-												<?php if($key == 0): ?>
-													<input type="hidden" id="course_info_id" name="course_info_id" value="<?= $detail['course_info_id'] ?? '' ?>">
-													<div class="mb-3">
-														<div class="form-label d-flex align-items-center">
-															<label class="me-2">アーカイブ公開日</label>
+												<?php foreach ($details as $key => $detail): ?>
+													<?php if($key == 0): ?>
+														<input type="hidden" id="course_info_id" name="course_info_id" value="<?= $detail['course_info_id'] ?? '' ?>">
+														<div class="mb-3">
+															<div class="form-label d-flex align-items-center">
+																<label class="me-2">アーカイブ公開日</label>
+															</div>
+																<input name="release_date" class="form-control" type="date"
+															value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
+																<?php if (!empty($errors['release_date'])): ?>
+																	<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
+																<?php endif; ?>
 														</div>
-															<input name="release_date" class="form-control" type="date"
-														value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['release_date'] ?? '', $old_input['release_date'] ?? '')) ?>" />
-															<?php if (!empty($errors['release_date'])): ?>
-																<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
+														<div class="mb-3">
+															<div class="form-label d-flex align-items-center">
+																<label class="me-2">講義資料公開日</label>
+															</div>
+															<input name="material_release_date" class="form-control" type="date"
+																value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['material_release_date'] ?? '', $old_input['material_release_date'] ?? '')) ?>" />
+															<?php if (!empty($errors['material_release_date'])): ?>
+																<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date']); ?></div>
 															<?php endif; ?>
-													</div>
-													<div class="mb-3">
-														<div class="form-label d-flex align-items-center">
-															<label class="me-2">講義資料公開日</label>
 														</div>
-														<input name="material_release_date" class="form-control" type="date"
-															value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['material_release_date'] ?? '', $old_input['material_release_date'] ?? '')) ?>" />
-														<?php if (!empty($errors['material_release_date'])): ?>
-															<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date']); ?></div>
+													<?php endif ?>
+													<div class="form-label d-flex align-items-center">
+														<label class="me-2">講師</label>
+													</div>
+													<select id="tutor_id_<?= $key ?>" class=" form-control mb-3" name="tutor_id_<?= $key ?>">
+														<optgroup label="">
+															<option value="">講師無し</option>
+															<?php foreach ($tutors as $tutor): ?>
+																<option value="<?= htmlspecialchars($tutor['id']) ?>"
+																<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key] ?? null) ? 'selected' : '' ?>>
+																	<?= htmlspecialchars($tutor['name']) ?>
+																</option>
+															<?php endforeach; ?>
+														</optgroup>
+													</select>
+													<div id="tutor_name_area_<?= $key ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講師名</label>
+														</div>
+														<input type="text" name="tutor_name_<?= $key ?>" class="form-control" placeholder=""
+															value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key] ?? '')) ?>" />
+														<?php if (!empty($errors['tutor_name_' . $key])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key]); ?></div>
 														<?php endif; ?>
 													</div>
-												<?php endif ?>
-												<div class="form-label d-flex align-items-center">
-													<label class="me-2">講師</label>
-													<span class="badge bg-danger">必須</span>
-												</div>
-												<select id="tutor_id_<?= $key ?>" class=" form-control mb-3" name="tutor_id_<?= $key ?>">
-													<optgroup label="">
-														<option value="">講師無し</option>
-														<?php foreach ($tutors as $tutor): ?>
-															<option value="<?= htmlspecialchars($tutor['id']) ?>"
-															<?= isSelected($tutor['id'], $detail['tutor_id'] ?? null, $old_input['tutor_id_' . $key] ?? null) ? 'selected' : '' ?>>
-																<?= htmlspecialchars($tutor['name']) ?>
-															</option>
-														<?php endforeach; ?>
-													</optgroup>
-												</select>
-												<div id="tutor_name_area_<?= $key ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
-													<div class="form-label d-flex align-items-center">
-														<label class="me-2">講師名</label>
-														<span class="badge bg-danger">必須</span>
-													</div>
-													<input type="text" name="tutor_name_<?= $key ?>" class="form-control" placeholder=""
-														value="<?= htmlspecialchars(isSetValue($detail['tutor_name'] ?? '', $old_input['tutor_name_' . $key] ?? '')) ?>" />
-													<?php if (!empty($errors['tutor_name_' . $key])): ?>
-														<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_name_' . $key]); ?></div>
+													<?php if (!empty($errors['tutor_id_' . $key])): ?>
+														<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key]); ?></div>
 													<?php endif; ?>
-												</div>
-												<?php if (!empty($errors['tutor_id_' . $key])): ?>
-													<div class="text-danger mt-2"><?= htmlspecialchars($errors['tutor_id_' . $key]); ?></div>
-												<?php endif; ?>
-												<div class="mb-3">
-													<div class="form-label d-flex align-items-center">
-														<label class="me-2">講義名</label>
-														<span class="badge bg-danger">必須</span>
+													<div class="mb-3">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講義名</label>
+															<span class="badge bg-danger">必須</span>
+														</div>
+														<input type="text" name="lecture_name_<?= $key ?>" class="form-control" placeholder=""
+															value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key] ?? '')) ?>" />
+														<?php if (!empty($errors['lecture_name_' . $key])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key]); ?></div>
+														<?php endif; ?>
 													</div>
-													<input type="text" name="lecture_name_<?= $key ?>" class="form-control" placeholder=""
-														value="<?= htmlspecialchars(isSetValue($detail['name'] ?? '', $old_input['lecture_name_' . $key] ?? '')) ?>" />
-													<?php if (!empty($errors['lecture_name_' . $key])): ?>
-														<div class="text-danger mt-2"><?= htmlspecialchars($errors['lecture_name_' . $key]); ?></div>
-													<?php endif; ?>
-												</div>
-												<div class="mb-5">
-													<div class="form-label d-flex align-items-center">
-														<label class="me-2">講義概要</label>
-														<span class="badge bg-danger">必須</span>
+													<div class="mb-5">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講義概要</label>
+															<span class="badge bg-danger">必須</span>
+														</div>
+														<textarea name="program_<?= $key ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key] ?? '')) ?></textarea>
+														<?php if (!empty($errors['program_' . $key])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key]); ?></div>
+														<?php endif; ?>
 													</div>
-													<textarea name="program_<?= $key ?>" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($detail['program'] ?? '', $old_input['program_' . $key] ?? '')) ?></textarea>
-													<?php if (!empty($errors['program_' . $key])): ?>
-														<div class="text-danger mt-2"><?= htmlspecialchars($errors['program_' . $key]); ?></div>
-													<?php endif; ?>
-												</div>
-												<hr>
-											<?php endforeach; ?>
+													<hr>
+												<?php endforeach; ?>
 											<?php endif ?>
 										<?php endforeach; ?>
 										<div class="mb-3">
@@ -601,7 +522,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 														<div class="mb-3">
 															<div class="form-label d-flex align-items-center">
 																<label class="me-2">講師</label>
-																<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 															</div>
 															<select id="tutor_id_<?= $i ?>_<?= $key+1 ?>" class="form-control mb-3" name="tutor_id_<?= $i ?>_<?= $key+1 ?>">
 																<option value="">講師無し</option>
@@ -619,7 +539,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 														<div id="tutor_name_area_<?= $i ?>_<?= $key+1 ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
 															<div class="form-label d-flex align-items-center">
 																<label class="me-2">講師名</label>
-																<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 															</div>
 															<input type="text" name="tutor_name_<?= $i ?>_<?= $key+1 ?>" class="form-control"
 																value="<?= htmlspecialchars($detail['tutor_name'] ?? '') ?>">
@@ -656,7 +575,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 													<div class="mb-3">
 														<div class="form-label d-flex align-items-center">
 															<label class="me-2">講師</label>
-															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
 														<select id="tutor_id_<?= $i ?>_1" class="form-control mb-3" name="tutor_id_<?= $i ?>_1">
 															<option value="">講師無し</option>
@@ -673,7 +591,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 													<div id="tutor_name_area_<?= $i ?>_1" class="mb-3">
 														<div class="form-label d-flex align-items-center">
 															<label class="me-2">講師名</label>
-															<?php if($i < 3): ?><span class="badge bg-danger">必須</span><?php endif; ?>
 														</div>
 														<input type="text" name="tutor_name_<?= $i ?>_1" class="form-control" value="">
 														<?php if (!empty($errors['tutor_name_' . $i . '_1'])): ?>

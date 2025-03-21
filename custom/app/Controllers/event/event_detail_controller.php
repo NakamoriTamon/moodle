@@ -49,6 +49,7 @@ if (!empty($event)) {
     }
 
     $tutor_ids = [];
+    $tutor_names = [];
     foreach($event['course_infos'] as $select_course) {
         if(!empty($select_course['id'])) {
             $deadline_date = new DateTime($select_course['deadline_date']);
@@ -63,9 +64,14 @@ if (!empty($event)) {
             if(isset($select_course['details'])) {
                 foreach($select_course['details'] as $details) {
                     $tutor_id = $details['tutor_id'];
+                    $tutor_name = $details['tutor_name'];
                     if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
                         if(!empty($tutor_id)) {
                             $tutor_ids[] = $tutor_id;
+                        } else {
+                            if(!empty($tutor_name)) {
+                                $tutor_names[] = $tutor_name;
+                            }
                         }
                     }
                 }
@@ -74,6 +80,7 @@ if (!empty($event)) {
     }
     // 重複を削除
     $tutor_ids = array_unique($tutor_ids);
+    $tutor_names = array_unique($tutor_names);
     
     foreach ($tutor_ids as $tutor_id) {
         $select_tutor[] = $tutorModel->getTutorsById($tutor_id);
