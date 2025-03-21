@@ -83,6 +83,25 @@ class EventApplicationModel extends BaseModel
         return [];
     }
 
+    // バッチ用 ユーザIDからイベントを取得
+    public function getEventApplicationByPaymentKbn_Zero()
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_application
+                WHERE payment_kbn = 0");
+                $stmt->execute();
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                return 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            return "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
     // イベントIDに基づいて講座を取得
     private function getEventApplicationCourseInfos($eventApplicationID)
     {
