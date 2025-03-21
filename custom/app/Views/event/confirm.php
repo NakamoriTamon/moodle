@@ -126,7 +126,7 @@ if (!is_null($courseInfoId)) {
                         <li class="list_item03">
                             <p class="list_label">チケット名称</p>
                             <p class="list_field">
-                                <?= $event_name ?>
+                                <?= htmlspecialchars($event_name) ?>
                             </p>
                         </li>
                         <li class="long_item">

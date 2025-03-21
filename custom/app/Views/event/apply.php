@@ -59,7 +59,7 @@ $triggerOther = "";
 $payMethod = null;
 $ticket = 1;
 $notification_kbn = 1;
-$now_notification = null;
+$now_notification = 1;
 $note = "";
 $triggersArray = [];
 $mailsArray = [];
@@ -77,6 +77,7 @@ $dayDate = $day->format('Y-m-d');
 $now = new DateTime();
 $nowDate = $now->format('Y-m-d');
 $tekijuku_discount = 0;
+$tekijuku_text = "";
 if (isloggedin() && isset($_SESSION['USER'])) {
     global $DB, $USER;
     
@@ -91,7 +92,6 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         exit();
     }
 
-    $tekijuku_text = "";
     if($tekijuku) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];

@@ -306,45 +306,45 @@ class EventModel extends BaseModel
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                c.course_date,
+                                c.deadline_date,
+                                ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                        ),
+                        event_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                MIN(c.course_date) AS min_course_date,
+                                MAX(c.course_date) AS max_course_date
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                            GROUP BY e.id
+                        )
                         SELECT 
-                            e.id AS event_id,
-                            c.course_date,
-                            c.deadline_date,
-                            ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
-                        FROM mdl_event e
-                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                    ),
-                    event_dates AS (
-                        SELECT 
-                            e.id AS event_id,
-                            MIN(c.course_date) AS min_course_date,
-                            MAX(c.course_date) AS max_course_date
-                        FROM mdl_event e
-                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                        GROUP BY e.id
-                    )
-                    SELECT 
-                        e.*,
-                        CASE
-                            WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                            WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
-                            AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
-                            WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
-                        END AS set_event_deadline_status,
-                        (SELECT cd.course_date 
-                        FROM closest_dates cd 
-                        WHERE cd.event_id = e.id 
-                        ORDER BY cd.time_diff ASC 
-                        LIMIT 1) AS closest_course_date,
-                        CASE
-                            WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
-                            WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                            WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
-                            ELSE 0
-                        END AS event_status,
-                        CASE
+                            e.*,
+                            CASE
+                                WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                                AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
+                            END AS set_event_deadline_status,
+                            (SELECT cd.course_date 
+                            FROM closest_dates cd 
+                            WHERE cd.event_id = e.id 
+                            ORDER BY cd.time_diff ASC 
+                            LIMIT 1) AS closest_course_date,
+                            CASE
+                                WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
+                                WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
+                                WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
+                                ELSE 0
+                            END AS event_status,
+                            CASE
                                 WHEN :current_timestamp <= (
                                     COALESCE(
                                         (SELECT cd.deadline_date FROM closest_dates cd 
@@ -386,21 +386,35 @@ class EventModel extends BaseModel
 
                                 ELSE 0
                             END AS deadline_status
-                    FROM mdl_event e
-                    LEFT JOIN event_dates ed ON e.id = ed.event_id
+                        FROM mdl_event e
+                        LEFT JOIN event_dates ed ON e.id = ed.event_id
                     LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
                     LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
                     LEFT JOIN mdl_event_application ea ON ea.event_id = e.id';
 
                 $where = ' WHERE e.visible = 1';
                 $groupBy = ' GROUP BY e.id';
-                $orderBy = ' ORDER BY is_top DESC, MIN(ci.course_date) ASC';
+                $orderBy = ' ORDER BY 
+                    CASE 
+                        WHEN event_status IN (1, 2) AND is_top = 1 THEN 1  -- 1番目: event_statusが1または2 & is_top = 1
+                        WHEN event_status IN (1, 2) AND is_top = 0 THEN 2  -- 2番目: event_statusが1または2 & is_top = 0
+                        WHEN event_status = 3 AND is_top = 1 THEN 3        -- 3番目: event_statusが3 & is_top = 1
+                        WHEN event_status = 3 AND is_top = 0 THEN 4        -- 4番目: event_statusが3 & is_top = 0
+                        ELSE 5  -- その他（万が一 event_status の値が 1, 2, 3 以外の場合）
+                    END,
+                    MIN(ci.course_date) ASC, MIN(ci.course_date) ASC';
 
                 // 動的に検索条件を追加
                 $params = [
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
+                if (!empty($filters['shortname']) && !empty($filters['userid'])) {
+                    if ($filters['shortname'] != ROLE_ADMIN) {
+                        $where .= ' AND e.userid = :userid';
+                        $params[':userid'] = $filters['userid'];
+                    }
+                }
                 if (!empty($filters['category_id'])) {
                     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
                     if (is_array($filters['category_id'])) {
