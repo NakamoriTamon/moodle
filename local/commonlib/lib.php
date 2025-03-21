@@ -480,6 +480,7 @@ function validate_other_input($input, $other_input)
     return null;
 }
 
+// 日付の比較　同日可
 function validate_date_comparison($start_date, $end_date, $text1, $text2)
 {
     // 日付を DateTime オブジェクトに変換
@@ -488,7 +489,22 @@ function validate_date_comparison($start_date, $end_date, $text1, $text2)
 
     // $start_date が $end_date より未来ならエラー
     if ($start > $end) {
-        return $text1 . 'は' . $text2 . 'より前の日付になっています。';
+        return $text1 . 'が' . $text2 . 'より前の日付になっています。';
+    }
+
+    return null;
+}
+
+// 日付の比較　同日不可
+function validate_date_comparison_not_same_day($start_date, $end_date, $text1, $text2)
+{
+    // 日付を DateTime オブジェクトに変換
+    $start = new DateTime($start_date);
+    $end = new DateTime($end_date);
+
+    // $start_date が $end_date より未来ならエラー
+    if ($start >= $end) {
+        return $text1 . 'を' . $text2 . 'より後の日付にしてください。';
     }
 
     return null;

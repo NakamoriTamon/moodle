@@ -378,6 +378,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 																<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date']); ?></div>
 															<?php endif; ?>
 													</div>
+													<div class="mb-3">
+														<div class="form-label d-flex align-items-center">
+															<label class="me-2">講義資料公開日</label>
+														</div>
+														<input name="material_release_date" class="form-control" type="date"
+															value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][1]['material_release_date'] ?? '', $old_input['material_release_date'] ?? '')) ?>" />
+														<?php if (!empty($errors['material_release_date'])): ?>
+															<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date']); ?></div>
+														<?php endif; ?>
+													</div>
 												<?php endif ?>
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">講師</label>
@@ -463,6 +473,16 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
                                             value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][$i]['release_date'] ?? '', $old_input['release_date_' . $i] ?? '')) ?>" />
 												<?php if (!empty($errors['release_date_' . $i])): ?>
 													<div class="text-danger mt-2"><?= htmlspecialchars($errors['release_date_' . $i]); ?></div>
+												<?php endif; ?>
+											</div>
+											<div class="mb-3">
+												<div class="form-label d-flex align-items-center">
+													<label class="me-2">講義資料公開日</label>
+												</div>
+												<input name="material_release_date_<?= $i ?>" class="form-control" type="date"
+													value="<?= htmlspecialchars(isSetDate ($eventData['select_course'][$i]['material_release_date'] ?? '', $old_input['material_release_date_' . $i] ?? '')) ?>" />
+												<?php if (!empty($errors['material_release_date'])): ?>
+													<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date_' . $i]); ?></div>
 												<?php endif; ?>
 											</div>
 											<?php if (isset($courses[$i])): ?>
@@ -712,16 +732,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
                                             value="<?= htmlspecialchars(isSetValue($eventData['archive_streaming_period'] ?? '', $old_input['archive_streaming_period'] ?? '')) ?>" />
 										<?php if (!empty($errors['archive_streaming_period'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['archive_streaming_period']); ?></div>
-										<?php endif; ?>
-									</div>
-									<div class="mb-3">
-										<div class="form-label d-flex align-items-center">
-											<label class="me-2">講義資料公開日</label>
-										</div>
-										<input name="material_release_date" class="form-control" type="date"
-											value="<?= explode (' ', htmlspecialchars(isSetValue($eventData['material_release_date'] ?? '', $old_input['material_release_date'] ?? '')))[0] ?>" />
-										<?php if (!empty($errors['material_release_date'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['material_release_date']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
