@@ -32,6 +32,10 @@ $description = $_POST['discription'] ?? null;
 
 $_SESSION['old_input'] = $_POST;
 
+if (!empty($kana)) {
+    $kana = preg_replace('/[\x{3000}\s]/u', '', $kana);
+}
+
 // バリデーション
 $name_size = 50;
 $name_error = validate_max_text($name, 'お名前', $name_size, true);
