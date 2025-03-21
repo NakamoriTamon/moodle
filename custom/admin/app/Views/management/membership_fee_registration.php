@@ -216,6 +216,12 @@ unset($_SESSION['old_input']);
                             <div class="d-flex w-100 align-items-center justify-content-end">
                                 <button id="submit" class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
                             </div>
+                            <div class="d-flex w-100 align-items-center justify-content-end">
+                                <button id="request" class="btn btn-secondary mt-3 mb-3 email-button">[テスト送信]請求メール</button>
+                                <button id="reminder1" class="btn btn-secondary mt-3 mb-3 email-button">[テスト送信]催促1</button>
+                                <button id="reminder2" class="btn btn-secondary mt-3 mb-3 email-button">[テスト送信]催促2</button>
+                                <button id="expulsion" class="btn btn-secondary mt-3 mb-3 email-button">[テスト送信]除名</button>
+                            </div>
                         </div>
                     </div>
                 <?php } ?>
@@ -244,5 +250,33 @@ unset($_SESSION['old_input']);
         const nextPage = $(this).data("page");
         $('input[name="page"]').val(nextPage);
         $('#search-form').submit();
+    });
+    //ダミーメール送付
+    $(document).ready(function() {
+        $('.email-button').click(function() {
+            let action = $(this).attr('id');
+            sendEmail(action, $(this));
+        });
+        function sendEmail(action, button) {
+            button.prop('disabled', true);
+            let originalText = button.text();
+            button.text('送信中...');
+            $.ajax({
+                url: '/custom/admin/app/Views/management/send_mail.php',
+                method: 'POST', 
+                contentType: 'application/json',
+                data: JSON.stringify({ action: action }),
+                success: function(response) {
+                    alert('メールが送信されました: ' + action);
+                },
+                error: function(xhr, status, error) {
+                    alert('エラーが発生しました。');
+                },
+                complete: function() {
+                    button.prop('disabled', false);
+                    button.text(originalText);
+                }
+            });
+        }
     });
 </script>
