@@ -80,10 +80,10 @@ class MypageController
         );
     }
 
-    // イベント申し込み情報を取得
-    public function getEventApplications($offset = 0, $limit = 1, $page = 1, $get_application = 'booking')
+    public function getEventApplications($offset = 0, $limit = 4, $page = 1, $get_application = 'booking')
     {
         try {
+            global $url_secret_key;
 
             // limit と offset を整数にキャスト
             $limit = intval($limit);
@@ -102,54 +102,95 @@ class MypageController
                 throw new InvalidArgumentException('Invalid comparison operator');
             }
 
-            // SQLクエリ（ページネーション対応）
-            $sql = "
-                SELECT 
-                    ea.id AS event_application_id,
-                    ea.event_id,
-                    ea.user_id,
-                    ea.price,
-                    ea.ticket_count,
-                    ea.payment_date,
-                    e.id AS event_id,
-                    e.name AS event_name,
-                    e.venue_name AS venue_name,
-                    ci.id AS course_id,
-                    ci.no,
-                    ci.course_date
-                FROM 
-                    {event_application} ea
-                JOIN 
-                    {event} e ON ea.event_id = e.id
-                JOIN 
-                    {event_application_course_info} eaci ON ea.id = eaci.event_application_id
-                JOIN 
-                    {course_info} ci ON eaci.course_info_id = ci.id
-                WHERE 
-                    ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
-                ORDER BY 
-                    ci.course_date ASC
-                LIMIT $limit OFFSET $offset;
-            ";
+            // 本人用チケットのみを取得（TICKET_TYPE['SELF']）
+            $self_ticket_type = TICKET_TYPE['SELF'];
 
-            // パラメータ設定
+            // コースごとのデータを取得するためのクエリ
+            // イベント申し込みコース情報を中心に据えた設計
+            $course_sql = "
+        SELECT 
+            eaci.id AS event_application_course_info_id,
+            ea.id AS event_application_id,
+            ea.event_id,
+            ea.user_id,
+            ea.price,
+            ea.ticket_count,
+            ea.payment_date,
+            ea.event_application_package_types,
+            e.name AS event_name,
+            e.venue_name AS venue_name,
+            ci.id AS course_id,
+            ci.no,
+            ci.course_date,
+            eaci.participation_kbn,
+            eaci.ticket_type,
+            elf.lecture_format_id
+        FROM 
+            {event_application_course_info} eaci
+        JOIN 
+            {event_application} ea ON ea.id = eaci.event_application_id
+        JOIN 
+            {event} e ON e.id = ea.event_id
+        JOIN 
+            {course_info} ci ON ci.id = eaci.course_info_id
+        JOIN 
+            {event_lecture_format} elf ON elf.event_id = e.id
+        WHERE 
+            ea.user_id = :user_id 
+            AND ci.course_date $comparison_operator :current_date
+            AND eaci.ticket_type = :self_ticket_type
+        ORDER BY 
+            ci.course_date ASC
+        ";
+
+            // カウント用クエリ
+            $count_sql = "
+        SELECT COUNT(eaci.id) as count
+        FROM 
+            {event_application_course_info} eaci
+        JOIN 
+            {event_application} ea ON ea.id = eaci.event_application_id
+        JOIN 
+            {course_info} ci ON ci.id = eaci.course_info_id
+        WHERE 
+            ea.user_id = :user_id 
+            AND ci.course_date $comparison_operator :current_date
+            AND eaci.ticket_type = :self_ticket_type
+        ";
+
             $params = [
                 'user_id' => $this->USER->id,
-                'current_date' => $current_date,  // 日付を別で渡す
+                'current_date' => $current_date,
+                'self_ticket_type' => $self_ticket_type,
             ];
 
             // トータルカウントの取得
-            $totalCount = (int) $this->getTotalEventApplicationsCount($get_application);
+            $totalCount = (int) $this->DB->count_records_sql($count_sql, $params);
+
             // トータルページ数の計算
             $totalPages = ceil($totalCount / $perPage);
 
-            // SQLクエリを実行してデータを取得
-            $data = $this->DB->get_records_sql($sql, $params);
+            // ページネーション用のLIMITとOFFSET追加
+            $course_sql .= " LIMIT $limit OFFSET $offset";
+
+            // データの取得
+            $courses = $this->DB->get_records_sql($course_sql, $params);
+
+            // IDを暗号化するためのメソッド
+            $encrypt = function ($id) use ($url_secret_key) {
+                $iv = substr(hash('sha256', $url_secret_key), 0, 16);
+                return urlencode(base64_encode(openssl_encrypt((string)$id, 'AES-256-CBC', $url_secret_key, 0, $iv)));
+            };
+
+            // 各レコードのevent_application_course_info_idを暗号化
+            foreach ($courses as &$course) {
+                // 暗号化したIDを追加
+                $course->encrypted_eaci_id = $encrypt($course->event_application_course_info_id);
+            }
 
             // ページネーション情報とデータをまとめて返す
-            $pagenete_data = [
-                'data' => $data,
+            $paginate_data = [
+                'data' => $courses,
                 'pagination' => [
                     'current_page' => $page,
                     'total_pages' => $totalPages,
@@ -157,52 +198,24 @@ class MypageController
                     'total_count' => $totalCount
                 ]
             ];
+
+            return $paginate_data;
         } catch (Exception $e) {
-            var_dump($e);
-        }
+            error_log('getEventApplications Error: ' . $e->getMessage());
 
-        return $pagenete_data;
-    }
-
-    private function getTotalEventApplicationsCount($get_application)
-    {
-        try {
-
-            $comparison_operator = ($get_application === 'booking') ? '>=' : '<';
-
-            // 安全な演算子が選択されたことを確認
-            if (!in_array($comparison_operator, ['>=', '<'], true)) {
-                // 無効な演算子が指定された場合、処理を終了するかエラーを返す
-                throw new InvalidArgumentException('Invalid comparison operator');
-            }
-
-            $current_date = date('Y-m-d');
-            $sql = "
-                SELECT COUNT(*) AS count
-                FROM 
-                    {event_application} ea
-                JOIN 
-                    {event} e ON ea.event_id = e.id
-                JOIN 
-                    {event_application_course_info} eaci ON ea.id = eaci.event_application_id
-                JOIN 
-                    {course_info} ci ON eaci.course_info_id = ci.id
-                WHERE 
-                    ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
-            ";
-
-            $params = [
-                'user_id' => $this->USER->id,
-                'current_date' => $current_date,  // 現在日付
+            // エラー時は空の結果を返す
+            return [
+                'data' => [],
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => 0,
+                    'per_page' => $perPage,
+                    'total_count' => 0
+                ],
+                'error' => $e->getMessage()
             ];
-            $count = $this->DB->get_record_sql($sql, $params)->count;
-        } catch (Exception $e) {
-            var_dump($e);
         }
-        return $count;
     }
-
 
     /**
      * マイページアカウント停止

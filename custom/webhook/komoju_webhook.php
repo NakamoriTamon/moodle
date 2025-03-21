@@ -67,6 +67,8 @@ if ($data['status'] === 'captured') {
             $event_application_id = $data['metadata']['event_application_id'] ?? null;
             $payment_method_type = $data['metadata']['payment_method_type'] ?? null;
 
+            $user_email = $data['metadata']['user_email'] ?? null;
+
             // クレジットの2重送信を回避する
             if (empty($payment_method_type)) {
                 exit;
@@ -160,9 +162,15 @@ if ($data['status'] === 'captured') {
                 // QRをインライン画像で追加
                 $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
 
+                $ticket_type = TICKET_TYPE['SELF'];
+                if ($user_email !== $course['participant_mail']) {
+                    $ticket_type = TICKET_TYPE['ADDITIONAL'];
+                }
+
+                $dear = $ticket_type === TICKET_TYPE['SELF'] ? '様' : '';
                 $htmlBody = "
                 <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                    <p style=\"text-align: left; font-weight:bold;\">" . $name . "様</p>
+                    <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p>
                     <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
                     <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                     <div>

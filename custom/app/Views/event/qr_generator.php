@@ -5,16 +5,14 @@ require_once('/var/www/html/moodle/config.php');
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 
+// Content-Type設定
 header('Content-Type: image/png');
 
-$base_url = $CFG->wwwroot;
-$event_application_id = $_GET['event_application_id'] ?? null;
-$course_id = $_GET['event_application_course_info'] ?? null;
+// 暗号化されたIDを取得
+$encrypted_id = $_GET['eaci_id'] ?? '';
 
-$url = $base_url . "/custom/app/Controllers/event/event_proof_controller.php?event_application_id=$event_application_id&event_application_course_info=$course_id";
-
-$qrCode = new QrCode($url);
+$qr_code = new QrCode($encrypted_id);
 $writer = new PngWriter();
-$qr_code_image = $writer->write($qrCode)->getString();
-
+$qr_code_image = $writer->write($qr_code)->getString();
+// 画像として出力
 echo $qr_code_image;

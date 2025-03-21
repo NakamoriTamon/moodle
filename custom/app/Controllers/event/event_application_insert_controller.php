@@ -23,6 +23,7 @@ use PHPMailer\PHPMailer\Exception;
 // ログイン判定
 if (isloggedin() && isset($_SESSION['USER'])) {
     $user_id = $_SESSION['USER']->id;
+    $user_email = $_SESSION['USER']->email;
 } else {
     $_SESSION['message_error'] = 'ユーザ情報が取得できませんでした。ログインしてください。';
     header('Location: /custom/app/Views/front/index.php');
@@ -38,7 +39,8 @@ $participation_fee = 0;
 $eventModel = new eventModel();
 
 $event_kbn = htmlspecialchars(optional_param('event_kbn', '', PARAM_INT));
-if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
+$event_application_package_type = EVENT_APPLICATION_PACKAGE_TYPE['SINGLE'];
+if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) { // 複数コース　単発申し込み
     $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
     // イベント情報がなかった場合
     if (is_null($event)) {
@@ -47,7 +49,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
         return;
     }
     $participation_fee = $event['single_participation_fee'];
-} else {
+} else { // 複数コース　一括申し込み
     $event = $eventModel->getEventById($eventId);
     // イベント情報がなかった場合
     if (is_null($event)) {
@@ -56,6 +58,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
         return;
     }
     $participation_fee = $event['participation_fee'];
+    $event_application_package_type = EVENT_APPLICATION_PACKAGE_TYPE['BUNDLE'];
 }
 // 毎日開催イベント
 if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
@@ -179,7 +182,7 @@ if (!empty($guardian_kbn) && ADULT_AGE >= $age) {
 }
 
 $event_customfield_category_id =  htmlspecialchars(required_param('event_customfield_category_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-$eventCustomFieldModel = new eventCustomFieldModel();
+$eventCustomFieldModel = new EventCustomFieldModel();
 $fieldList = [];
 $fieldInputDataList = [];
 $params = [];
@@ -275,12 +278,14 @@ if ($result) {
                     event_id, user_id, event_custom_field_id, field_value
                     , name, name_kana, email, ticket_count, price, pay_method
                     , request_mail_kbn, applicant_kbn, application_date
-                    , note, contact_phone, guardian_name, guardian_email, guardian_phone
+                    , note, contact_phone, guardian_name, guardian_email
+                    , guardian_phone, event_application_package_types
                 ) VALUES (
                     :event_id , :user_id , :event_custom_field_id , :field_value
                     , :name , :name_kana , :email , :ticket_count , :price , :pay_method
                     , :request_mail_kbn , :applicant_kbn , CURRENT_TIMESTAMP
-                    , :note , :contact_phone , :guardian_name , :guardian_email, :guardian_phone
+                    , :note , :contact_phone , :guardian_name , :guardian_email
+                    , :guardian_phone, :event_application_package_types
                 )
             ");
 
@@ -301,7 +306,8 @@ if ($result) {
                 ':contact_phone' => $contact_phone,
                 ':guardian_name' => $guardian_name,
                 ':guardian_email' => $guardian_email,
-                ':guardian_phone' => $guardian_phone
+                ':guardian_phone' => $guardian_phone,
+                ':event_application_package_types' => $event_application_package_type
             ]);
 
 
@@ -322,18 +328,23 @@ if ($result) {
             }
 
 
-            // 知った経由　mdl_event_application_course_info
+            // 申し込み～コース中間テーブル　mdl_event_application_course_info
             $itmt3 = $pdo->prepare("
-                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail) 
-                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail)
+                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail, ticket_type) 
+                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail, :ticket_type)
                 ");
             foreach ($mails as $mail) {
+                $ticket_type = TICKET_TYPE['SELF'];
+                if ($user_email !== $mail) {
+                    $ticket_type = TICKET_TYPE['ADDITIONAL'];
+                }
                 foreach ($select_courses as $courses) {
                     $itmt3->execute([
                         ':event_id' => $eventId,
                         ':event_application_id' => $eventApplicationId,
                         ':course_info_id' => $courses['id'], // 空白を除去
-                        ':participant_mail' => $mail
+                        ':participant_mail' => $mail,
+                        ':ticket_type' => $ticket_type
                     ]);
                 }
             }
@@ -378,6 +389,10 @@ if ($result) {
 
                 foreach ($eventApplication['course_infos'] as $course) {
                     global $url_secret_key;
+                    $ticket_type = TICKET_TYPE['SELF'];
+                    if ($user_email !== $mail) {
+                        $ticket_type = TICKET_TYPE['ADDITIONAL'];
+                    }
                     $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
                     // QR生成
                     $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
@@ -418,9 +433,15 @@ if ($result) {
                     // QRをインライン画像で追加
                     $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
 
+                    $ticket_type = TICKET_TYPE['SELF'];
+                    if ($user_email !== $course['participant_mail']) {
+                        $ticket_type = TICKET_TYPE['ADDITIONAL'];
+                    }
+
+                    $dear = $ticket_type === TICKET_TYPE['SELF'] ? '様' : '';
                     $htmlBody = "
                         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                            <p style=\"text-align: left; font-weight:bold;\">" . $name . "様</p>
+                            <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p>
                             <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
                             <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                             <div>
@@ -474,6 +495,7 @@ if ($result) {
                     'event_id' => $eventId,
                     'event_application_id' => $eventApplicationId,
                     'payment_method_type' => $pay_method,
+                    'user_email' => $user_email,
                 ],
             ];
 

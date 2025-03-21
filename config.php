@@ -103,24 +103,37 @@ $type_code_list = [1 => '普通会員', 2 => '賛助会員'];
 define('TYPE_CODE_LIST', $type_code_list);
 define('TEKIJUKU_COMMEMORATION_IS_DELETE', [ //　適塾記念会　退会状況
   'ACTIVE' => 0,   // 未退会
-  'INACTIVE' => 1  // 退会
+  'INACTIVE' => 1,  // 退会
 ]);
+// イベントテーブル用 mdl_event
 define('IS_APPLY_BTN', [ //　申し込みボタンを表示
   'DISABLED' => 0,   // 非表示
-  'ENABLED' => 1  // 表示
+  'ENABLED' => 1,  // 表示
 ]);
+// 権限テーブル用 mdl_user
 define('ROLE', [ // 権限ロール
   'COURSECREATOR' => 2,
   'USER' => 7,
-  'ADMIN' => 9
+  'ADMIN' => 9,
 ]);
+// ユーザーテーブル用 mdl_role_assignments
 define('CONFIRMED', [ // メール確認状況
   'IS_UNCONFIRMED' => 0,
-  'IS_CONFIRMED' => 1
+  'IS_CONFIRMED' => 1,
 ]);
-define('PARTICIPATION_KBN', [ // イベント参加状況　申し込み～コース中間テーブル用
+// 申し込み～コース中間テーブル用 mdl_event_application_course_info
+define('PARTICIPATION_KBN', [ // イベント参加状況
   'PARTICIPATION' => 1, // 参加
-  'NON_PARTICIPATION' => 2 // 不参加 
+  'NON_PARTICIPATION' => 2, // 不参加 
+]);
+define('TICKET_TYPE', [ // チケットタイプ区分
+  'SELF' => 1, // 本人分
+  'ADDITIONAL' => 2, // 追加分 
+]);
+// 申し込みテーブル用 mdl_event_application
+define('EVENT_APPLICATION_PACKAGE_TYPE', [ // パッケージ種別
+  'SINGLE' => 1, // 単発申し込み
+  'BUNDLE' => 2, // 一括申し込み 
 ]);
 
 $lecture_format_on_site = 1; //現地開催

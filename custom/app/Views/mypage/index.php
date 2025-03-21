@@ -1,7 +1,11 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
+global $url_secret_key;
 
+// シークレットキーをJSに渡すための一時的なトークンを生成
+$temp_key_token = md5(uniqid() . time());
+$_SESSION['temp_key_token'] = $temp_key_token;
 // ページネート表示数
 $perPage = 4;
 // 予約情報　現在のページ数
@@ -28,16 +32,16 @@ $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
 $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 
 // イベント状態を取得
-$event_id_list = [];
-foreach ($event_applications as $event_application) {
-    foreach ($event_application as $application) {
-        if (!empty($application->event_id)) {
-            $event_id_list = [$application->event_id];
-        }
-    }
-}
+// $event_id_list = [];
+// foreach ($event_applications as $event_application) {
+//     foreach ($event_application as $application) {
+//         if (!empty($application->event_id)) {
+//             $event_id_list = [$application->event_id];
+//         }
+//     }
+// }
 // 講義形式を持ってくる
-$event_lecture_formats = $mypage_controller->getEventLectureFormats($event_id_list);
+// $event_lecture_formats = $mypage_controller->getEventLectureFormats($event_id_list);
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
@@ -55,6 +59,7 @@ if ($currentDate < $startDate) {
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_success'], $_SESSION['message_']);
 ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -446,6 +451,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             <?php $allCourseDateNull = true; ?>
             <?php if (!empty($event_applications['data'])): ?>
                 <?php foreach ($event_applications['data'] as $application): ?>
+
                     <?php
                     if (is_null($application->course_date)) {
                         continue;
@@ -455,14 +461,24 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                     $date = date('Y/m/d', strtotime($application->course_date));
                     $weekday = $weekdays[date('w', strtotime($date))];
                     $format_date = $date . " ($weekday)";
-                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' : '無料';
+                    $package_types = '';
+                    switch ($application->event_application_package_types) {
+                        case EVENT_APPLICATION_PACKAGE_TYPE['SINGLE']:
+                            $package_types = '';
+                            break;
+                        case EVENT_APPLICATION_PACKAGE_TYPE['BUNDLE']:
+                            $package_types = '（一括申し込み）';
+                            break;
+                        default:
+                            $package_types = '';
+                            break;
+                    }
+
+                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' . $package_types : '無料';
                     // QR表示判定
                     $qr_class = '';
-                    foreach ($event_lecture_formats as $format) {
-                        if ($format && !empty($application->payment_date)) {
-                            $qr_class = 'js_pay';
-                            break;
-                        }
+                    if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
+                        $qr_class = 'js_pay';
                     }
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
@@ -481,12 +497,14 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
                                         <li>【受講料】<span class="txt_other_money"><?php echo $price ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
-                                        <li>【決済】<span class="txt_other_pay <?= empty($application->payment_date) ? 'payment-text-red' : '' ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
+                                        <?php if ($application->price != 0) : ?>
+                                            <li>【決済】<span class="txt_other_pay <?= empty($application->payment_date) ? 'payment-text-red' : '' ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </button>
                         </form>
-                        <a href="#" class="info_wrap_qr" data-id="<?= $application->event_application_id ?>" data-name="<?= $event_name ?>" data-course-id="<?= $application->course_id ?>" data-date="<?= $format_date ?>">
+                        <a href="#" class="info_wrap_qr" data-event-application-course-info-id="<?= $application->encrypted_eaci_id ?>" data-name="<?= $event_name ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
                             <p class="txt">デジタル<br class="nosp" />チケットを<br />表示する</p>
@@ -596,6 +614,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
+    const key_token = <?php echo json_encode($temp_key_token); ?>;
+
     $(".info_wrap_qr").on("click", function(e) {
         e.preventDefault();
         if ($(this).parents('div').hasClass('js_pay')) {
@@ -604,9 +624,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             $("body").addClass("modal_fix").css({
                 top: -srlpos
             });
-
-            const id = $(this).data("id");
-            const course_id = $(this).data("course-id");
+            const encrypted_eaci_id = $(this).data("event-application-course-info-id");
             const name = $(this).data("name");
             const date = $(this).data("date");
 
@@ -614,7 +632,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             $('#modal_event_name').text(name);
 
             // QRコード画像をセット
-            $("#qrImage").attr("src", "/custom/app/Views/event/qr_generator.php?event_application_id=" + id + "&event_application_course_info=" + course_id);
+            $("#qrImage").attr("src", "/custom/app/Views/event/qr_generator.php?eaci_id=" + encrypted_eaci_id);
 
             return false;
         }
