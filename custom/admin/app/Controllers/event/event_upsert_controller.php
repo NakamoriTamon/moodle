@@ -176,7 +176,7 @@ if ($event_kbn == SINGLE_EVENT) {
 
             $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', false); // バリデーションチェック;
             if(empty($value)) {
-                $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, true); // バリデーションチェック;
+                $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
                 $_SESSION['errors']["tutor_name_{$lectureNumber}"] = null;
             }
@@ -269,7 +269,7 @@ if ($event_kbn == SINGLE_EVENT) {
             $_SESSION['errors']["material_release_date_{$lectureNumber}"] = validate_date($_POST["material_release_date_{$lectureNumber}"], "講義資料公開日", false);
             if(empty($value)) {
                 $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", false); // バリデーションチェック;
-                $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = null;
+                $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}_{$itemNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
                 $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", $required_flg); // バリデーションチェック;
                 $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = null;
@@ -321,6 +321,7 @@ if ($event_kbn == SINGLE_EVENT) {
                         'deadline_date' => $deadline_date
                     ];
                 }
+                $test = $_POST["tutor_name_{$lectureNumber}_{$itemNumber}"];
                 $lectures[$lectureNumber]["detail"][$count] = [];
                 $lectures[$lectureNumber]["detail"][$count] = [
                     'tutor_id' => empty($value) ? null : $value,
@@ -838,12 +839,17 @@ try {
                 )
             ");
         
+            $tutor_id = empty($detail["tutor_id"]) ? null : $detail["tutor_id"];
+            $tutor_name = null;
+            if(empty($tutor_id)) {
+                $tutor_name = empty($detail["tutor_name"]) ? "" : $detail["tutor_name"];
+            }
             $stmt->execute([
                 ':course_info_id' => $courseInfoId,
-                ':tutor_id' => $detail["tutor_id"],
+                ':tutor_id' => $tutor_id,
                 ':name' => $detail["lecture_name"],
                 ':program' => $detail["program"],
-                ':tutor_name' => $detail["tutor_name"],
+                ':tutor_name' => $tutor_name,
             ]);
         }
 
