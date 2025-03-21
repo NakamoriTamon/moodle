@@ -21,6 +21,11 @@ $payment_method = $_POST['payment_method'];
 $note = $_POST['note'];
 $_SESSION['old_input'] = $_POST;
 
+// フリガナの空白を削除する
+if (!empty($kana)) {
+    $kana = preg_replace('/[\x{3000}\s]/u', '', $kana);
+}
+
 // バリデーションチェック
 $name_size = 50;
 $size = 500;
