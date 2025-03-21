@@ -84,10 +84,10 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                 </li>
             </ul>
             <div class="header_tool">
-                <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
-                    <p>ユーザー登録</p>
-                </a>
                 <?php if (empty($login_id)): ?>
+                    <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
+                        <p>ユーザー登録</p>
+                    </a>
                     <a href="/custom/app/Views/login/index.php" class="btn_h btn_login">
                         <p>ログイン</p>
                     </a>
