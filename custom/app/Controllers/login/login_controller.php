@@ -33,12 +33,13 @@ global $DB;
 // $password = password_hash($password, PASSWORD_DEFAULT);
 
 // 管理者のメールアカウントも含む
-$user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1, 'deleted' => 0]);
+$user_list = $DB->get_records('user', ['email' => $email, 'confirmed' => 1, 'deleted' => 0, 'is_apply' => 1]);
 
 if (!$user_list) {
     $user_id = ltrim($email, '0');
-    $user_list = $DB->get_records('user', ['id' => $user_id, 'confirmed' => 1, 'deleted' => 0]);
+    $user_list = $DB->get_records('user', ['id' => $user_id, 'confirmed' => 1, 'deleted' => 0, 'is_apply' => 1]);
 }
+
 // ユーザー情報がなければログイン不可
 if (!$user_list) {
     $_SESSION['message_error'] = 'ログインに失敗しました。';
@@ -49,7 +50,7 @@ foreach ($user_list as $user) {
     $login_user = $DB->get_record('role_assignments', ['userid' => $user->id]);
 
     if (
-        $login_user
+        $login_user && $login_user->roleid == ROLE['USER']
         && validate_internal_user_password($user, $password) // パスワードが通らない時は一時的にこの行をコメントアウト後userのpasswordをUIで変更してください。
     ) {
         complete_user_login($user); // 追加　セッションに$USER情報を入れる
