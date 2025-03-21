@@ -49,6 +49,7 @@ if ($surveys['exist']) {
         <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->course_date))); ?> / 【第<?= htmlspecialchars($event->no); ?>回】 <?= htmlspecialchars($event->name); ?></p>
         <form method="POST" action="/custom/app/Views/survey/survey-upsert.php" class="whitebox quest_form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <input type="hidden" name="event_id" value="<?php echo $event->event_id ?>">
             <input type="hidden" name="course_info_id" value="<?php echo $event->id ?>">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <div class="inner_s">
