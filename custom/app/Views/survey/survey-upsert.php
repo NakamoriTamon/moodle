@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $courseInfoId = (int) sanitize_post('course_info_id');
+    $eventId = (int) sanitize_post('event_id');
     $impression = sanitize_post('impression');
     $participation = sanitize_post('participation');
     $foundMethod = sanitize_post_array('found_method');
@@ -132,6 +133,7 @@ try {
     $record = new stdClass();
     $record->course_info_id = $courseInfoId;
     $record->user_id = $_SESSION['user_id'];
+    $record->event_id = $eventId;
     $record->thoughts = $impression;
     $record->attend = $participation;
     $record->found_method = implode(', ', (array)$foundMethod);
