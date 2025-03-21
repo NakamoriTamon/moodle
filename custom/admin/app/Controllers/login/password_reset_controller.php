@@ -9,6 +9,7 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 ini_set('display_errors', 1);
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
@@ -21,7 +22,14 @@ if (is_null($_SESSION['errors']['email'])) {
     global $DB;
 
     // 入力されたメールアドレスが存在するか確認
-    $user = $DB->get_record('user', ['email' => $email]);
+    $user_list = $DB->get_records('user', ['email' => $email, 'deleted' => 0]);
+    foreach ($user_list as $user) {
+        $role = $DB->get_record('role_assignments', ['userid' => $user->id]);
+        if ($role->roleid != ROLE['USER']) {
+            $user = $user;
+            break;
+        }
+    }
 
     if ($user) {
         $userRoles = $DB->get_records_sql("
@@ -33,7 +41,7 @@ if (is_null($_SESSION['errors']['email'])) {
 
         $roles = array_map(fn($role) => $role->shortname, $userRoles);
         // 権限がadminかcoursecreatorでない場合
-        if(!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
+        if (!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
             $_SESSION['result_message'] = '入力したメールアドレスは存在しません。';
             header('Location: /custom/admin/app/Views/login/result.php');
             return;
@@ -67,7 +75,7 @@ if (is_null($_SESSION['errors']['email'])) {
         $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/login/reset.php?token=' . $token;
 
         $mail = new PHPMailer(true);
-        
+
         $mail->isSMTP();
         $test = getenv('MAIL_HOST');
         $mail->Host = $_ENV['MAIL_HOST'];
@@ -77,13 +85,13 @@ if (is_null($_SESSION['errors']['email'])) {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->CharSet = PHPMailer::CHARSET_UTF8;
         $mail->Port = $_ENV['MAIL_PORT'];
-    
+
         $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
         $mail->addAddress($email);
-    
+
         $mail->addReplyTo('no-reply@example.com', 'No Reply');
         $mail->isHTML(true);
-    
+
         $htmlBody = "
             <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                 <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">以下のリンクをクリックしてパスワードを再設定してください。</P><br /><br />
@@ -92,10 +100,10 @@ if (is_null($_SESSION['errors']['email'])) {
                 あらかじめご了承ください。</p>
             </div>
         ";
-    
+
         $mail->Subject = 'パスワード再設定のリクエスト';
         $mail->Body = $htmlBody;
-    
+
         $mail->SMTPOptions = array(
             'ssl' => array(
                 'verify_peer' => false,
@@ -103,7 +111,7 @@ if (is_null($_SESSION['errors']['email'])) {
                 'allow_self_signed' => true
             )
         );
-    
+
         $mail->send();
 
         $_SESSION['result_message'] = '再設定用のメールを送信しました。';
@@ -116,4 +124,3 @@ if (is_null($_SESSION['errors']['email'])) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     header('Location: /custom/admin/app/Views/login/recipient.php');
 }
-?>

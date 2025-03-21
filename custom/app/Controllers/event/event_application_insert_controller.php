@@ -527,8 +527,6 @@ if ($result) {
 
             // セッションURLが取得できたらリダイレクト
             if (isset($result['session_url'])) {
-                $pdo->commit();
-
                 // セッションをクリア
                 unset($SESSION->formdata);
                 // header("Location: " . $result['session_url']);
@@ -545,6 +543,8 @@ if ($result) {
                     ':komoju_url' => $redirect_url,
                     ':id' => $eventApplicationId // 一意の識別子をWHERE条件として設定
                 ]);
+
+                $pdo->commit();
 
                 echo "<script>window.location.href='$redirect_url';</script>";
                 exit;

@@ -223,7 +223,9 @@ $now = $now->format('Ymd');
   <!-- juku -->
 </main>
 
-<a href="/custom/app/Views/user/index.php" id="mascot"><img src="/custom/public/assets/img/home/mascot.png" alt="" /></a>
+<?php if (empty($login_id)): ?>
+  <a href="/custom/app/Views/user/index.php" id="mascot"><img src="/custom/public/assets/img/home/mascot.png" alt="" /></a>
+<?php endif; ?>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script src="/custom/public/assets/js/home.js"></script>

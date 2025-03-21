@@ -21,7 +21,15 @@ class LoginController
         }
 
         // ユーザー情報を取得
-        $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0], '*');
+        $user_list = $DB->get_records('user', ['email' => $email, 'deleted' => 0]);
+        foreach ($user_list as $user) {
+            $role = $DB->get_record('role_assignments', ['userid' => $user->id]);
+            if ($role->roleid != ROLE['USER']) {
+                $user = $user;
+                break;
+            }
+        }
+
         if ($user && password_verify($password, $user->password)) {
 
             // ユーザーのロールを取得

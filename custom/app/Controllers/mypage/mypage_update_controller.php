@@ -34,12 +34,16 @@ class MypageUpdateController
     public function updateUserInfo()
     {
         global $DB;
+        global $USER;
 
         $user_id = $_SESSION['USER']->id;
         $name_size = 50;
         $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['name'] = validate_text($name, 'お名前', $name_size, true);
         $name_kana = htmlspecialchars(required_param('name_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        if (!empty($name_kana)) {
+            $name_kana = preg_replace('/[\x{3000}\s]/u', '', $name_kana);
+        }
         $_SESSION['errors']['name_kana'] = validate_kana($name_kana, $name_size);
         $city = htmlspecialchars(required_param('city', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['city'] = validate_select($city, 'お住いの都道府県', true);
@@ -64,17 +68,18 @@ class MypageUpdateController
             }
         }
         $birthday = empty($_POST['birthday']) ? null : $_POST['birthday']; // 生年月日
-        
+
         $child_name = htmlspecialchars(required_param('child_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['child_name'] = validate_text($child_name, 'お子様の氏名', $name_size, false);
+        $phone = htmlspecialchars(required_param('phone', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
         // ユーザー重複チェック(管理者含む)
         $timestamp_format = date("Y-m-d H:i:s", strtotime($birthday));
-        $user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $kana, 'deleted' => 0]);
+        $user_list = $DB->get_records('user', ['phone1' => $phone, 'birthday' => $timestamp_format, 'name_kana' => $name_kana, 'deleted' => 0]);
         if (!empty($user_list)) {
             foreach ($user_list as $user) {
                 $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
-                if ($general_user) {
+                if ($general_user && $USER->id != $user->id) {
                     $email_error = '既に使用されています。';
                     $_SESSION['errors']['email'] = $email_error;
                     break;

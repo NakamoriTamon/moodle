@@ -72,24 +72,41 @@ class QrController
      */
     public function index()
     {
-        // 検索項目取得
-        $category_id = $_POST['category_id'] ?? null;
-        $event_id = $_POST['event_id'] ?? null;
-        $course_no = $_POST['course_no'] ?? null;
+        // optional_paramを使用して安全にパラメータを取得
+        $category_id = optional_param('category_id', null, PARAM_INT);
+        $event_id = optional_param('event_id', null, PARAM_INT);
+        $course_no = optional_param('course_no', null, PARAM_INT);
         $exclude_event_status_id = EVENT_END;
-        $_SESSION['old_input'] = $_POST;
 
-        $filters = array_filter([
+        // 入力値をセッションに保存（すべて整数型として安全に保存）
+        $_SESSION['old_input'] = [
             'category_id' => $category_id,
-            'exclude_event_status' => $exclude_event_status_id,
             'event_id' => $event_id,
             'course_no' => $course_no
-        ]);
+        ];
 
-        // null の要素を削除しイベント検索
-        $filters = array_filter($filters);
+        $filters = [];
+
+        // nullでない値のみフィルターに追加
+        if ($category_id !== null) {
+            $filters['category_id'] = $category_id;
+        }
+
+        if ($event_id !== null) {
+            $filters['event_id'] = $event_id;
+        }
+
+        if ($course_no !== null) {
+            $filters['course_no'] = $course_no;
+        }
+
+        // 終了したイベントを除外
+        $filters['exclude_event_status'] = $exclude_event_status_id;
+
+        // イベント検索
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
         $category_list = $this->categoryModel->getCategories();
+
         $data = [
             'category_list' => $category_list,
             'event_list' => $event_list,
@@ -110,25 +127,21 @@ class QrController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        // POSTパラメータ取得
-        $category_id = $_POST['category_id'] ?? null;
-
-        if (!$category_id) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'カテゴリーIDが指定されていません'
-            ]);
-            exit;
-        }
+        // POSTパラメータ取得 - カテゴリIDが空（すべて選択）の場合は処理を継続
+        $category_id = optional_param('category_id', null, PARAM_INT);
 
         // 終了したイベントを除外
         $exclude_event_status_id = EVENT_END;
 
-        // フィルター設定
+        // フィルター設定 - カテゴリIDが指定されている場合のみフィルターに追加
         $filters = [
-            'category_id' => $category_id,
             'exclude_event_status' => $exclude_event_status_id
         ];
+
+        // カテゴリIDが存在する場合のみフィルターに追加
+        if (!empty($category_id)) {
+            $filters['category_id'] = $category_id;
+        }
 
         // イベント検索
         $events = $this->eventModel->getEvents($filters, 1, 100000);
@@ -152,8 +165,8 @@ class QrController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        // POSTパラメータ取得
-        $event_id = $_POST['event_id'] ?? null;
+        // optional_paramを使用して安全にパラメータを取得
+        $event_id = optional_param('event_id', 0, PARAM_INT);
 
         if (!$event_id) {
             echo json_encode([
@@ -181,10 +194,13 @@ class QrController
             $course_numbers[] = $i;
         }
 
+        // イベント名を安全にエスケープしてJSONに含める
+        $event_name = isset($event['name']) ? clean_param($event['name'], PARAM_TEXT) : '';
+
         echo json_encode([
             'status' => 'success',
             'course_numbers' => $course_numbers,
-            'event_name' => $event['name']
+            'event_name' => $event_name
         ]);
         exit;
     }
@@ -202,12 +218,12 @@ class QrController
     {
         header('Content-Type: application/json; charset=utf-8');
 
-        // POSTパラメータ取得
-        $qr_data = $_POST['qr_data'] ?? null;
-        $event_id = $_POST['event_id'] ?? null;
-        $course_no = $_POST['course_no'] ?? null;
+        // optional_paramとclean_paramを使用して安全にパラメータを取得
+        $qr_data = clean_param(optional_param('qr_data', '', PARAM_TEXT), PARAM_TEXT);
+        $event_id = optional_param('event_id', 0, PARAM_INT);
+        $course_no = optional_param('course_no', 0, PARAM_INT);
 
-        if (!$qr_data || !$event_id || !$course_no) {
+        if (empty($qr_data) || empty($event_id) || empty($course_no)) {
             echo json_encode([
                 'status' => 'error',
                 'message' => '必要なパラメータが不足しています'
@@ -272,8 +288,13 @@ class QrController
         // まず暗号化されたデータを復号化
         try {
             $decoded_id = $this->decrypt($qr_data, $url_secret_key);
-            if ($decoded_id && is_numeric($decoded_id)) {
-                return $decoded_id;
+            // 復号化結果が数値であることを厳密に確認
+            if ($decoded_id !== false && is_numeric($decoded_id)) {
+                // 整数型として安全に変換
+                $id = clean_param($decoded_id, PARAM_INT);
+                if ($id > 0) { // 正の整数であることを確認
+                    return $id;
+                }
             }
         } catch (\Exception $e) {
             error_log('QRコード復号化エラー: ' . $e->getMessage());
@@ -290,7 +311,7 @@ class QrController
      * @param string $value 復号する暗号化データ
      * @param string $key   復号に使用する秘密鍵
      * 
-     * @return string 復号されたデータ
+     * @return string|false 復号されたデータ、失敗時はfalse
      */
     private function decrypt($value, $key)
     {
@@ -313,6 +334,12 @@ class QrController
         global $DB;
 
         try {
+            // IDが有効な整数であることを確認
+            $id = clean_param($id, PARAM_INT);
+            if ($id <= 0) {
+                throw new \Exception('無効なIDが指定されました');
+            }
+
             // トランザクション開始
             $transaction = $DB->start_delegated_transaction();
 
@@ -357,6 +384,18 @@ class QrController
      */
     private function verifyEventApplication($id, $event_id, $course_no)
     {
+        // すべてのパラメータが整数であることを確認
+        $id = clean_param($id, PARAM_INT);
+        $event_id = clean_param($event_id, PARAM_INT);
+        $course_no = clean_param($course_no, PARAM_INT);
+
+        if ($id <= 0 || $event_id <= 0 || $course_no <= 0) {
+            return [
+                'status' => 'error',
+                'message' => '無効なパラメータが指定されました'
+            ];
+        }
+
         // 申し込み情報を取得
         $app_info = $this->eventApplicationCourseInfoModel->getByEventApplicationCouresInfoId($id);
 
@@ -413,7 +452,7 @@ class QrController
 
 // POSTリクエストの処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $post_kbn = $_POST['post_kbn'] ?? '';
+    $post_kbn = optional_param('post_kbn', '', PARAM_ALPHANUMEXT);
     $controller = new QrController();
 
     switch ($post_kbn) {

@@ -36,7 +36,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                         <li class="list_item02 req">
                             <p class="list_label">フリガナ</p>
                             <div class="list_field f_txt">
-                                <input type="text" name="kana" pattern="^[ァ-ヶー]+$" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>" />
+                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? '') ?>" />
                                 <?php if (!empty($errors['kana'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['kana']); ?>

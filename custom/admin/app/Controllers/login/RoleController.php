@@ -33,5 +33,5 @@ if (in_array('coursecreator', $roles) && in_array(parse_url($request_uri, PHP_UR
     redirect('/custom/admin/app/Views/event/index.php'); // イベント画面へリダイレクト
     exit;
 } else if (!in_array('admin', $roles) && !in_array('coursecreator', $roles)) {
-    redirect('/custom/app/Views/index.php');
+    redirect('/custom/admin/app/Views/login/login.php');
 }

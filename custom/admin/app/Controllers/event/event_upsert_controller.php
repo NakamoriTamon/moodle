@@ -141,8 +141,6 @@ $real_time_distribution_url = empty($_POST['real_time_distribution_url']) ? null
 $_SESSION['errors']['real_time_distribution_url'] = validate_url($real_time_distribution_url, 'リアルタイム配信URL', false);
 $archive_streaming_period = empty($_POST['archive_streaming_period']) ? null : $_POST['archive_streaming_period']; // アーカイブ配信期間
 $_SESSION['errors']['archive_streaming_period'] = validate_int($archive_streaming_period, 'アーカイブ配信期間', false); // バリデーションチェック
-$material_release_date = empty($_POST['material_release_date']) ?  null : $_POST['material_release_date']; // 講義資料公開日
-$_SESSION['errors']['material_release_date'] = validate_date($material_release_date, '講義資料公開日', false);
 $material_release_period = empty($_POST['material_release_period']) ? null : $_POST['material_release_period']; // 講義資料公開期間
 $_SESSION['errors']['material_release_period'] = validate_int($material_release_period, '講義資料公開期間', false); // バリデーションチェック
 $is_double_speed = isset($_POST['is_double_speed']) ? 1 : 0; // 動画倍速機能
@@ -178,20 +176,22 @@ if ($event_kbn == SINGLE_EVENT) {
 
             $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', false); // バリデーションチェック;
             if(empty($value)) {
-                $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, true); // バリデーションチェック;
+                $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
                 $_SESSION['errors']["tutor_name_{$lectureNumber}"] = null;
             }
             $_SESSION['errors']["lecture_name_{$lectureNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}"], '講義名', 225, true); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}"] = validate_textarea($_POST["program_{$lectureNumber}"], '講義概要', true); // バリデーションチェック;
-            $_SESSION['errors']["release_date"] = validate_select($_POST["release_date"], "アーカイブ公開日", false);
+            $_SESSION['errors']["release_date"] = validate_date($_POST["release_date"], "アーカイブ公開日", false);
+            $_SESSION['errors']["material_release_date"] = validate_date($_POST["material_release_date"], "講義資料公開日", false);
 
             if(!$error_flg 
                 && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
                 || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
                 || $_SESSION['errors']["program_{$lectureNumber}"]
                 || $_SESSION['errors']["tutor_name_{$lectureNumber}"]
-                || $_SESSION['errors']["release_date"])
+                || $_SESSION['errors']["release_date"]
+                || $_SESSION['errors']["material_release_date"])
             ) {
                 $error_flg = true;
             }
@@ -202,13 +202,15 @@ if ($event_kbn == SINGLE_EVENT) {
                 } else {
                     $deadline_date = $deadline;
                 }
+                
                 // データ収集
                 if (empty($lectures[1])) {
                     $lectures[1] = [
                         'course_info_id' => $_POST["course_info_id"],
                         'course_date' => $event_date,
                         'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
-                        'deadline_date' => $deadline_date
+                        'deadline_date' => $deadline_date,
+                        'material_release_date' => empty($_POST["material_release_date"]) ? null : $_POST["material_release_date"],
                     ];
                 }
                 
@@ -236,6 +238,7 @@ if ($event_kbn == SINGLE_EVENT) {
             if($lectureNumber > 2
             && empty($_POST["course_date_{$lectureNumber}"])
             && empty($_POST["release_date_{$lectureNumber}"])
+            && empty($_POST["material_release_date_{$lectureNumber}"])
             && empty($value)
             && empty($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"])
             && empty($_POST["program_{$lectureNumber}_{$itemNumber}"])
@@ -248,7 +251,7 @@ if ($event_kbn == SINGLE_EVENT) {
             if (empty($lectures[$lectureNumber])) {
                 $lectures[$lectureNumber] = [];
                 $event_date = $_POST["course_date_1"];
-                $_SESSION['errors']["course_date_1"] = validate_select($_POST["course_date_1"], "開催日", $required_flg); // バリデーションチェック;
+                $_SESSION['errors']["course_date_1"] = validate_date($_POST["course_date_1"], "開催日", $required_flg); // バリデーションチェック;
                 if(is_null($_SESSION['errors']["course_date_1"])) {
                     if(is_null($deadline) && !is_null($event_date)) {
                         $date = new DateTime($event_date);
@@ -261,11 +264,12 @@ if ($event_kbn == SINGLE_EVENT) {
                 }
             }
 
-            $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_select($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;
-            $_SESSION['errors']["release_date_{$lectureNumber}"] = validate_select($_POST["release_date_{$lectureNumber}"], "アーカイブ公開日", false);
+            $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_date($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;
+            $_SESSION['errors']["release_date_{$lectureNumber}"] = validate_date($_POST["release_date_{$lectureNumber}"], "アーカイブ公開日", false);
+            $_SESSION['errors']["material_release_date_{$lectureNumber}"] = validate_date($_POST["material_release_date_{$lectureNumber}"], "講義資料公開日", false);
             if(empty($value)) {
                 $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", false); // バリデーションチェック;
-                $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = null;
+                $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}_{$itemNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
                 $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", $required_flg); // バリデーションチェック;
                 $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = null;
@@ -273,6 +277,16 @@ if ($event_kbn == SINGLE_EVENT) {
             $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"], "講義名", 225, $required_flg); // バリデーションチェック;
             $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"] = validate_textarea($_POST["program_{$lectureNumber}_{$itemNumber}"], "講義概要", $required_flg); // バリデーションチェック;
 
+            // 第2講座以降の場合
+            if($lectureNumber > 1) {
+                // 現在講座の開催日が一つ前の講座より前の日付になっていないかチェック 
+                $before_no = $lectureNumber - 1;
+                if(is_null($_SESSION['errors']["course_date_{$lectureNumber}"]) && is_null($_SESSION['errors']["course_date_{$before_no}"])) {
+                    $before_course_date = $_POST["course_date_{$before_no}"];
+                    $course_date = $_POST["course_date_{$lectureNumber}"];
+                    $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_date_comparison_not_same_day($before_course_date, $course_date, "第{$lectureNumber}講座", "第{$before_no}講座");
+                }
+            }
             if(!$error_flg 
                 && ($_SESSION['errors']["course_date_{$lectureNumber}"]
                 || $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"]
@@ -303,9 +317,11 @@ if ($event_kbn == SINGLE_EVENT) {
                         'course_info_id' => $_POST["course_info_id_{$lectureNumber}"],
                         'course_date' => $_POST["course_date_{$lectureNumber}"],
                         'release_date' => empty($_POST["release_date_{$lectureNumber}"]) ? null : $_POST["release_date_{$lectureNumber}"],
+                        'material_release_date' => empty($_POST["material_release_date_{$lectureNumber}"]) ? null : $_POST["material_release_date_{$lectureNumber}"],
                         'deadline_date' => $deadline_date
                     ];
                 }
+                $test = $_POST["tutor_name_{$lectureNumber}_{$itemNumber}"];
                 $lectures[$lectureNumber]["detail"][$count] = [];
                 $lectures[$lectureNumber]["detail"][$count] = [
                     'tutor_id' => empty($value) ? null : $value,
@@ -322,6 +338,8 @@ if ($event_kbn == SINGLE_EVENT) {
         && $_SESSION['errors']['end_event_date'] == null
         && $_SESSION['errors']['end_hour'] == null) {
 
+        $_SESSION['errors']["release_date"] = validate_date($_POST["release_date"], "アーカイブ公開日", false);
+        $_SESSION['errors']["material_release_date"] = validate_date($_POST["material_release_date"], "講義資料公開日", false);
         $count = 1;
         $detail = [];
         foreach ($_POST as $key => $value) {
@@ -341,7 +359,9 @@ if ($event_kbn == SINGLE_EVENT) {
                 if(!$error_flg 
                     && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
                     || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
-                    || $_SESSION['errors']["program_{$lectureNumber}"])
+                    || $_SESSION['errors']["program_{$lectureNumber}"]
+                    || $_SESSION['errors']["release_date"]
+                    || $_SESSION['errors']["material_release_date"])
                 ) {
                     $error_flg = true;
                 }
@@ -404,6 +424,7 @@ if ($event_kbn == SINGLE_EVENT) {
                 'course_info_id' => $course_info_id,
                 'course_date' => $courseDate,
                 'release_date' => empty($_POST["release_date"]) ? null : $_POST["release_date"],
+                'material_release_date' => empty($_POST["material_release_date"]) ? null : $_POST["material_release_date"],
                 'deadline_date' => $deadlineDate->format('Y-m-d H:i:s') // `YYYY-MM-DD HH:MM:SS` 形式
             ];
             $lectures[$count]["detail"] = $detail;
@@ -440,7 +461,6 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['note']
     || $_SESSION['errors']['start_event_date']
     || $_SESSION['errors']['end_event_date']
-    || $_SESSION['errors']['material_release_date']
     || $_SESSION['errors']['material_release_period']
     || $_SESSION['errors']['inquiry_mail']
     || $error_flg) {
@@ -507,7 +527,6 @@ try {
                 end_event_date = :end_event_date,
                 tekijuku_discount = :tekijuku_discount,
                 real_time_distribution_url = :real_time_distribution_url,
-                material_release_date = :material_release_date,
                 material_release_period = :material_release_period,
                 inquiry_mail = :inquiry_mail,
                 updated_at = CURRENT_TIMESTAMP
@@ -547,7 +566,6 @@ try {
             ':end_event_date' => $end_event_date,
             ':tekijuku_discount' => $tekijuku_discount,
             ':real_time_distribution_url' => $real_time_distribution_url,
-            ':material_release_date' => $material_release_date,
             ':material_release_period' => $material_release_period,
             ':inquiry_mail' => $inquiry_mail,
             ':id' => $id // 一意の識別子をWHERE条件として設定
@@ -562,7 +580,7 @@ try {
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, survey_custom_id, is_apply_btn, start_event_date, end_event_date
-                , tekijuku_discount, real_time_distribution_url, material_release_date, material_release_period, inquiry_mail
+                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail
             ) 
             VALUES (
                 :userid, :name, :description
@@ -570,7 +588,7 @@ try {
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :survey_custom_id, :is_apply_btn, :start_event_date, :end_event_date
-                , :tekijuku_discount, :real_time_distribution_url, :material_release_date, :material_release_period, :inquiry_mail
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail
             )
         ");
     
@@ -609,7 +627,6 @@ try {
             , ':end_event_date' => $end_event_date
             , ':tekijuku_discount' => $tekijuku_discount
             , ':real_time_distribution_url' => $real_time_distribution_url
-            , ':material_release_date' => $material_release_date
             , ':material_release_period' => $material_release_period
             , ':inquiry_mail' => $inquiry_mail
         ]);
@@ -769,6 +786,7 @@ try {
                         course_date = :course_date,
                         release_date = :release_date,
                         deadline_date = :deadline_date,
+                        material_release_date = :material_release_date,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = :id
                 ");
@@ -777,6 +795,7 @@ try {
                     ':course_date' => $lecture["course_date"],
                     ':release_date' => $lecture["release_date"],
                     ':deadline_date' => $lecture["deadline_date"],
+                    ':material_release_date' => $lecture["material_release_date"],
                     ':id' => $courseInfoId
                 ]);
             }
@@ -791,10 +810,10 @@ try {
             // mdl_courseへのINSERT
             $stmt = $pdo->prepare("
                 INSERT INTO mdl_course_info (
-                    created_at, updated_at, no, course_date, release_date, deadline_date
+                    created_at, updated_at, no, course_date, release_date, deadline_date, material_release_date
                 )
                 VALUES (
-                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date, :material_release_date
                 )
             ");
         
@@ -803,6 +822,7 @@ try {
                 ':course_date' => $lecture["course_date"],
                 ':release_date' => $lecture["release_date"],
                 ':deadline_date' => $lecture["deadline_date"],
+                ':material_release_date' => $lecture["material_release_date"],
             ]);
             $courseInfoId = $pdo->lastInsertId();
         }
@@ -819,12 +839,17 @@ try {
                 )
             ");
         
+            $tutor_id = empty($detail["tutor_id"]) ? null : $detail["tutor_id"];
+            $tutor_name = null;
+            if(empty($tutor_id)) {
+                $tutor_name = empty($detail["tutor_name"]) ? "" : $detail["tutor_name"];
+            }
             $stmt->execute([
                 ':course_info_id' => $courseInfoId,
-                ':tutor_id' => $detail["tutor_id"],
+                ':tutor_id' => $tutor_id,
                 ':name' => $detail["lecture_name"],
                 ':program' => $detail["program"],
-                ':tutor_name' => $detail["tutor_name"],
+                ':tutor_name' => $tutor_name,
             ]);
         }
 
