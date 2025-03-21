@@ -186,6 +186,8 @@ define('ROLES', $roles);
 
 $default_thumbnail = '/custom/public/assets/img/no_image.jpg';
 define('DEFAULT_THUMBNAIL', $default_thumbnail);
+$default_thumbnail_2 = '/custom/public/assets/img/no_image_2.jpg';
+define('DEFAULT_THUMBNAIL_2', $default_thumbnail_2);
 
 // 決済情報
 $komoju_api_key = 'sk_test_6nhd2x41v77mupxnbjl9nwlk'; // テスト用秘密鍵

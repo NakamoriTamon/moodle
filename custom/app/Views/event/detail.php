@@ -226,12 +226,21 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <h2 class="block_ttl">登壇者</h2>
                             <?php foreach ($select_tutor as $turor): ?>
                                 <div class="speaker">
-                                    <div class="speaker_img"><img src="" alt="" /></div>
+                                    <div class="speaker_img"><img src="<?= htmlspecialchars(empty($turor['path']) ? DEFAULT_THUMBNAIL_2 : $turor['path']) ?>" alt="<?= htmlspecialchars($turor['name']) ?>" /></div>
                                     <div class="speaker_desc">
                                         <h4 class="sub_ttl"><?= htmlspecialchars($turor['name']) ?></h4>
                                         <p class="sent">
                                             <?= nl2br(htmlspecialchars($turor['overview'], ENT_QUOTES, 'UTF-8')); ?>
                                         </p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php foreach ($tutor_names as $tutor_name): ?>
+                                <div class="speaker">
+                                    <div class="speaker_img"><img src="<?= DEFAULT_THUMBNAIL_2 ?>" alt="<?= htmlspecialchars($tutor_name) ?>" /></div>
+                                    <div class="speaker_desc">
+                                        <h4 class="sub_ttl"><?= htmlspecialchars($tutor_name) ?></h4>
+                                        <p class="sent"></p>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
