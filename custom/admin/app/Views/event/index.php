@@ -5,6 +5,7 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/event/event_cont
 
 $event_statuses = DISPLAY_EVENT_STATUS_LIST;
 $old_input = $_SESSION['old_input'] ?? [];
+$pageNo = $_GET['page'] ?? 1;
 
 unset($_SESSION['old_input']); // 一度表示したら削除
 ?>
@@ -36,7 +37,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-055 p-025">
-							<form method="POST" action="/custom/admin/app/Controllers/event/event_controller.php">
+							<form method="" action="/custom/admin/app/Controllers/event/event_controller.php">
 								<input type="hidden" name="action" value="index">
 								<div class="sp-block d-flex justify-content-between">
 									<div class="mb-3 w-100">
@@ -173,14 +174,14 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 								<div class="d-flex">
 									<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
 										<ul class="pagination">
-											<?php if ($currentPage >= 1 && $totalCount > $perPage): ?>
-												<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage) - 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+											<?php if (intval($pageNo) - 1 >= 1 && $totalCount > $perPage): ?>
+												<li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($pageNo) - 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
 											<?php endif; ?>
 											<?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
-												<li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+												<li class="paginate_button page-item <?= $i == $pageNo ? 'active' : '' ?>"><a href="?page=<?= $i ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
 											<?php endfor; ?>
-											<?php if ($currentPage >= 0 && $totalCount > $perPage): ?>
-												<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage) + 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+											<?php if ($totalCount/$perPage >= intval($pageNo) + 1 && $totalCount > $perPage): ?>
+												<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($pageNo) + 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
 											<?php endif; ?>
 										</ul>
 									</div>
