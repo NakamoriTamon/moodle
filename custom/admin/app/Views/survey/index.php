@@ -1,9 +1,28 @@
-<?php include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+<?php
 require_once('/var/www/html/moodle/config.php');
+include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/survey/survey_controller.php');
 
-$event_statuses = DISPLAY_EVENT_STATUS_LIST;
+$survey_controller = new SurveyController();
+$result_list = $survey_controller->index();
+
+// バリデーションエラー
+$errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// 情報取得
+$category_list = $result_list['category_list'] ?? [];
+$event_list = $result_list['event_list']  ?? [];
+$survey_list = $result_list['survey_list'];
+
+// ページネーション
+$total_count = $result_list['total_count'];
+$per_page = $result_list['per_page'];
+$current_page = $result_list['current_page'];
+$page = $result_list['page'];
+
 ?>
 
 
@@ -29,98 +48,92 @@ $old_input = $_SESSION['old_input'] ?? [];
 					</ul>
 				</div>
 			</nav>
-
 			<main class="content">
 				<div class="card">
 					<div class="card-body p-055 p-025">
-						<form method="POST" action="/custom/admin/app/Controllers/survey/survey_controller.php">
-							<input type="hidden" name="action" value="index">
-							<div class="sp-block d-flex justify-content-between">
+						<form id="form" method="POST" action="/custom/admin/app/Views/survey/index.php" class="w-100">
+							<input type="hidden" name="page" value="<?= $page ?>">
+							<div class="d-flex sp-block justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">カテゴリー</label>
-									<select name="category_id" class="form-control" id="category-select">
+									<select name="category_id" class="form-control">
 										<option value="">すべて</option>
-										<?php foreach ($categorys as $category): ?>
-											<option value="<?= htmlspecialchars($category['id']) ?>"
-												<?= isset($old_input['category_id']) && $category['id'] == $old_input['category_id'] ? 'selected' : '' ?>>
+										<?php foreach ($category_list as $category) { ?>
+											<option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
 												<?= htmlspecialchars($category['name']) ?>
 											</option>
-										<?php endforeach; ?>
+										<?php } ?>
 									</select>
 								</div>
-								<div class="sp-ms-0 ms-3 mb-3 w-100">
+								<div class="ms-3 sp-ms-0 mb-3 w-100">
 									<label class="form-label" for="notyf-message">開催ステータス</label>
-									<select name="event_status" class="form-control" id="status-select">
+									<select name="event_status_id" class="form-control">
 										<option value="">すべて</option>
-										<?php foreach ($event_statuses as $id => $name): ?>
-											<option value="<?= htmlspecialchars($id) ?>"
-												<?= isset($old_input['event_status']) && $id == $old_input['event_status'] ? 'selected' : '' ?>>
-												<?= htmlspecialchars($name) ?>
-											</option>
-										<?php endforeach; ?>
+										<?php foreach ($display_status_list as $key => $event_status) { ?>
+											<option value=<?= $key ?> <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+												<?= htmlspecialchars($event_status) ?></option>
+										<?php } ?>
 									</select>
 								</div>
 							</div>
-							<div class="sp-block d-flex justify-content-between">
+							<div class="d-flex sp-block justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">イベント名</label>
-									<select name="event_id" class="form-control" id="event-select">
-										<option value="">すべて</option>
-										<?php if (isset($events) && !empty($events)): ?>
-											<?php foreach ($events as $event): ?>
-												<option value="<?= htmlspecialchars($event['id']) ?>"
-													<?= isset($old_input['event_id']) && $event['id'] == $old_input['event_id'] ? 'selected' : '' ?>>
-													<?= htmlspecialchars($event['name']) ?>
-												</option>
-											<?php endforeach; ?>
-										<?php endif; ?>
+									<select name="event_id" class="form-control">
+										<option value="" selected disabled>未選択</option>
+										<?php foreach ($event_list as $event): ?>
+											<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
+												<?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
+												<?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+											</option>
+										<?php endforeach; ?>
 									</select>
 								</div>
 								<div class="sp-ms-0 ms-3 mb-3 w-100">
 									<label class="form-label" for="notyf-message">回数</label>
-									<select name="event_count" class="form-control" id="count-select">
-										<option value="">すべて</option>
-										<?php if (isset($event_counts) && !empty($event_counts)): ?>
-											<?php foreach ($event_counts as $count): ?>
-												<option value="<?= htmlspecialchars($count['id']) ?>"
-													<?= isset($old_input['event_count']) && $count['id'] == $old_input['event_count'] ? 'selected' : '' ?>>
-													<?= htmlspecialchars($count['no']) ?>回目
+									<div class="d-flex align-items-center">
+										<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+											<option value="">未選択</option>
+											<?php for ($i = 1; $i < 10; $i++) { ?>
+												<option value=<?= $i ?>
+													<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+													<?= "第" . $i . "回" ?>
 												</option>
-											<?php endforeach; ?>
-										<?php endif; ?>
-									</select>
+											<?php } ?>
+										</select>
+									</div>
 								</div>
 							</div>
 							<!-- <hr> -->
 							<div class="d-flex w-100">
-								<!-- 検索ボタンを廃止 -->
+								<button id="search-button" class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
 							</div>
 						</form>
 					</div>
 				</div>
+				<!-- 非表示のform -->
+				<form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/survey/survey_export_controller.php">
+					<input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
+					<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
+					<input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
+					<input type="hidden" name="event_count" value="<?= $old_input['event_count'] ?? '' ?>">
+				</form>
+
 				<div class="search-area col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
-								<div></div>
-								<!-- 非表示のform -->
-								<form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/survey/survey_export_controller.php">
-									<input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
-									<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
-									<input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
-									<input type="hidden" name="event_count" value="<?= $old_input['event_count'] ?? '' ?>">
-								</form>
-								<!-- 元のデザインのボタン -->
+								<div class=" mt-3 mb-3 me-auto ml-025 fw-bold">総件数 : <?= $total_count ?? 0 ?> 件</div>
 								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center">
 									<i class="align-middle me-1" data-feather="download"></i>CSV出力
 								</button>
-								<div class="btn mt-3 mb-3 mr-025 ms-auto fw-bold">総件数 : <?= $totalCount ?>件</div>
 							</div>
 							<div class="card m-auto mb-5 w-95">
 								<table class="table table-responsive table-striped table_list text-break">
 									<thead>
 										<tr>
 											<th class="w-25 p-4">回答時間</th>
+											<th class="w-25 p-4">回数</th>
 											<th class="w-25 p-4">本日の講義内容について、ご意見・ご感想をお書きください</th>
 											<th class="w-25 p-4">今までに大阪大学公開講座のプログラムに参加されたことはありますか </th>
 											<th class="w-25 p-4">本日のプログラムをどのようにしてお知りになりましたか</th>
@@ -150,289 +163,132 @@ $old_input = $_SESSION['old_input'] ?? [];
 										</tr>
 									</thead>
 									<tbody>
-										<?php if (isset($surveyApplications) && !empty($surveyApplications)): ?>
-											<?php foreach ($surveyApplications as $key => $surveyApplication): ?>
-												<tr>
-													<td class="p-4">2024/12/26 10:00</td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['thoughts']) ?></td>
-													<td class="p-4">
-														<?php if ($surveyApplication['attend'] == 1): ?>
-															はい
-														<?php else: ?>
-															いいえ
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['found_method'] == 1): ?>
-															チラシ
-														<?php elseif ($surveyApplication['found_method'] == 2): ?>
-															ウェブサイト
-														<?php elseif ($surveyApplication['found_method'] == 3): ?>
-															大阪大学公開講座「知の広場」からのメール
-														<?php elseif ($surveyApplication['found_method'] == 4): ?>
-															SNS（X, Instagram, Facebookなど）
-														<?php elseif ($surveyApplication['found_method'] == 5): ?>
-															21世紀懐徳堂からのメールマガジン
-														<?php elseif ($surveyApplication['found_method'] == 6): ?>
-															大阪大学卒業生メールマガジン
-														<?php elseif ($surveyApplication['found_method'] == 7): ?>
-															大阪大学入試課からのメール
-														<?php elseif ($surveyApplication['found_method'] == 8): ?>
-															Peatixからのメール
-														<?php elseif ($surveyApplication['found_method'] == 9): ?>
-															知人からの紹介
-														<?php elseif ($surveyApplication['found_method'] == 10): ?>
-															講師・スタッフからの紹介
-														<?php elseif ($surveyApplication['found_method'] == 11): ?>
-															自治体の広報・掲示
-														<?php elseif ($surveyApplication['found_method'] == 12): ?>
-															スマートニュース広告
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?= htmlspecialchars($surveyApplication['other_found_method']) ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['reason'] == 1): ?>
-															テーマに関心があったから
-														<?php elseif ($surveyApplication['reason'] == 2): ?>
-															本日のプログラム内容に関心があったから
-														<?php elseif ($surveyApplication['reason'] == 3): ?>
-															本日のゲストに関心があったから
-														<?php elseif ($surveyApplication['reason'] == 4): ?>
-															大阪大学のプログラムに参加したかったから
-														<?php elseif ($surveyApplication['reason'] == 5): ?>
-															教養を高めたいから
-														<?php elseif ($surveyApplication['reason'] == 6): ?>
-															仕事に役立つと思われたから
-														<?php elseif ($surveyApplication['reason'] == 7): ?>
-															日常生活に役立つと思われたから
-														<?php elseif ($surveyApplication['reason'] == 8): ?>
-															余暇を有効に利用したかったから
-														<?php endif; ?>
-													</td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['other_reason']) ?></td>
-													<td class="p-4">
-														<?php if ($surveyApplication['satisfaction'] == 1): ?>
-															非常に満足
-														<?php elseif ($surveyApplication['satisfaction'] == 2): ?>
-															満足
-														<?php elseif ($surveyApplication['satisfaction'] == 3): ?>
-															ふつう
-														<?php elseif ($surveyApplication['satisfaction'] == 4): ?>
-															不満
-														<?php elseif ($surveyApplication['satisfaction'] == 5): ?>
-															非常に不満
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['understanding'] == 1): ?>
-															よく理解できた
-														<?php elseif ($surveyApplication['understanding'] == 2): ?>
-															理解できた
-														<?php elseif ($surveyApplication['understanding'] == 3): ?>
-															ふつう
-														<?php elseif ($surveyApplication['understanding'] == 4): ?>
-															理解できなかった
-														<?php elseif ($surveyApplication['understanding'] == 5): ?>
-															全く理解できなかった
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['good_point'] == 1): ?>
-															テーマについて考えを深めることができた
-														<?php elseif ($surveyApplication['good_point'] == 2): ?>
-															最先端の研究について学べた
-														<?php elseif ($surveyApplication['good_point'] == 3): ?>
-															大学の研究者と対話ができた
-														<?php elseif ($surveyApplication['good_point'] == 4): ?>
-															大学の講義の雰囲気を味わえた
-														<?php elseif ($surveyApplication['good_point'] == 5): ?>
-															大阪大学について知ることができた
-														<?php elseif ($surveyApplication['good_point'] == 6): ?>
-															身の周りの社会課題に対する解決のヒントが得られた
-														<?php endif; ?>
-													</td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['other_good_point']) ?></td>
-													<td class="p-4">
-														<?php if ($surveyApplication['time'] == 1): ?>
-															適当である
-														<?php elseif ($surveyApplication['time'] == 2): ?>
-															長すぎる
-														<?php elseif ($surveyApplication['time'] == 3): ?>
-															短すぎる
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['holding_environment'] == 1): ?>
-															とても快適だった
-														<?php elseif ($surveyApplication['holding_environment'] == 2): ?>
-															快適だった
-														<?php elseif ($surveyApplication['holding_environment'] == 3): ?>
-															ふつう
-														<?php elseif ($surveyApplication['holding_environment'] == 4): ?>
-															あまり快適ではなかった
-														<?php elseif ($surveyApplication['holding_environment'] == 5): ?>
-															全く快適ではなかった
-														<?php endif; ?>
-													</td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['no_good_enviroment_reason']) ?></td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['lecture_suggestions']) ?></td>
-													<td class="p-4"><?= htmlspecialchars($surveyApplication['speaker_suggestions']) ?></td>
-													<td class="p-4">
-														<?php if ($surveyApplication['work'] == 1): ?>
-															高校生以下
-														<?php elseif ($surveyApplication['work'] == 2): ?>
-															学生（高校生、大学生、大学院生等）
-														<?php elseif ($surveyApplication['work'] == 3): ?>
-															会社員
-														<?php elseif ($surveyApplication['work'] == 4): ?>
-															自営業・フリーランス
-														<?php elseif ($surveyApplication['work'] == 5): ?>
-															公務員
-														<?php elseif ($surveyApplication['work'] == 6): ?>
-															教職員
-														<?php elseif ($surveyApplication['work'] == 7): ?>
-															パート・アルバイト
-														<?php elseif ($surveyApplication['work'] == 8): ?>
-															主婦・主夫
-														<?php elseif ($surveyApplication['work'] == 9): ?>
-															定年退職
-														<?php elseif ($surveyApplication['work'] == 10): ?>
-															その他
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php if ($surveyApplication['sex'] == 1): ?>
-															男性
-														<?php elseif ($surveyApplication['sex'] == 2): ?>
-															女性
-														<?php elseif ($surveyApplication['sex'] == 3): ?>
-															その他
-														<?php endif; ?>
-													</td>
-													<td class="p-4">
-														<?php
-														if (!empty($surveyApplication['prefectures'])) {
-															echo htmlspecialchars($prefectures[$surveyApplication['prefectures']] ?? $surveyApplication['prefectures']);
-														}
-														?>
-														<?= htmlspecialchars($surveyApplication['address']) ?>
-													</td>
-												</tr>
-											<?php endforeach; ?>
-										<?php endif; ?>
+										<?php foreach ($survey_list as $key => $survey): ?>
+											<?php
+											$found_num_list = array_map('trim', explode(",", $survey['found_method']));
+											$reason_num_list = array_map('trim', explode(",", $survey['reason']));
+											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction']));
+											?>
+											<tr>
+												<td class="p-4">2024/12/26 10:00</td>
+												<td class="p-4"><?= htmlspecialchars('第' . $survey['course_info']['no'] . '回') ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['thoughts']) ?></td>
+												<td class="p-4">
+													<?= htmlspecialchars(DECISION_LIST[$survey['attend']]) ?>
+												</td>
+												<td class="p-4">
+													<?php
+													$last_key = count($found_num_list) - 1;
+													foreach ($found_num_list as $key => $found_num) { ?>
+														<?= htmlspecialchars(FOUND_METHOD_LIST[$found_num]) ?>
+														<?= $key !== $last_key ? ',' : ''; ?>
+													<?php } ?>
+												</td>
+												<td class="p-4">
+													<?= htmlspecialchars($survey['other_found_method']) ?>
+												</td>
+												<td class="p-4">
+													<?php
+													$last_key = count($reason_num_list) - 1;
+													foreach ($reason_num_list as $key => $reason_num) { ?>
+														<?= htmlspecialchars(REASON_LIST[$reason_num]) ?>
+														<?= $key !== $last_key ? ',' : ''; ?>
+													<?php } ?>
+												</td>
+												<td class="p-4"><?= htmlspecialchars($survey['other_reason']) ?></td>
+												<td class="p-4">
+													<?= htmlspecialchars(SATISFACTION_LIST[$survey['satisfaction']]) ?>
+												</td>
+												<td class="p-4">
+													<?= htmlspecialchars(UNDERSTANDING_LIST[$survey['understanding']]) ?>
+												</td>
+												<td class="p-4">
+													<?= htmlspecialchars(GOOD_POINT_LIST[$survey['good_point']]) ?>
+												</td>
+												<td class="p-4"><?= htmlspecialchars($survey['other_good_point']) ?></td>
+												<td class="p-4"><?= htmlspecialchars(TIME_LIST[$survey['time']]) ?></td>
+												<td class="p-4">
+													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]) ?>
+												</td>
+												<td class="p-4"><?= htmlspecialchars($survey['no_good_enviroment_reason']) ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions']) ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['speaker_suggestions']) ?></td>
+												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']]) ?></td>
+												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']]) ?></td>
+												<td class="p-4">
+													<?= htmlspecialchars($survey['prefectures'] . $survey['address']) ?>
+												</td>
+											</tr>
+										<?php endforeach; ?>
 									</tbody>
 								</table>
+
+							</div>
+							<div class="d-flex">
+								<div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+									<ul class="pagination">
+										<?php
+										$total_pages = ceil($total_count / $per_page);
+										$start_page = max(1, $current_page - 1);
+										$end_page = min($total_pages, $start_page + 2);
+
+										// 前のページボタン
+										if ($current_page > 1): ?>
+											<li class="paginate_button page-item previous">
+												<a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+											</li>
+										<?php endif; ?>
+
+										<?php
+										// ページ番号の表示
+										for ($i = $start_page; $i <= $end_page; $i++): ?>
+											<li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+												<a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+											</li>
+										<?php endfor; ?>
+
+										<?php
+										// 次のページボタン
+										if ($current_page < $total_pages): ?>
+											<li class="paginate_button page-item next">
+												<a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+											</li>
+										<?php endif; ?>
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-
 			</main>
 		</div>
 	</div>
 
 	<script src="/custom/admin/public/js/app.js"></script>
-	<!-- <script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const categorySelect = document.getElementById('category-select');
-			const statusSelect = document.getElementById('status-select');
-			const eventSelect = document.getElementById('event-select');
-			const countSelect = document.getElementById('count-select');
-			const searchForm = document.querySelector('form');
+	<script>
+		$(document).ready(function() {
+			// 検索フォームから検索時URLを動的に変更
+			const params = new URLSearchParams(window.location.search);
+			const currentPage = $('input[name="page"]').val();
+			params.set('page', currentPage);
+			history.replaceState(null, '', window.location.pathname + '?' + params.toString());
 
-			// カテゴリーまたは開催ステータスが変更されたときのイベントリスナー
-			categorySelect.addEventListener('change', updateEventOptions);
-			statusSelect.addEventListener('change', updateEventOptions);
-
-			// イベント名が変更されたときのイベントリスナー
-			eventSelect.addEventListener('change', updateCountOptions);
-
-			// 回数が変更されたときに自動的にフォームをサブミット
-			countSelect.addEventListener('change', function() {
-				searchForm.submit();
+			// 検索
+			$('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+				$("#form").submit();
 			});
-
-			function updateEventOptions() {
-				const categoryId = categorySelect.value;
-				const eventStatus = statusSelect.value;
-
-				// 選択された値をもとにAjaxリクエストを送信
-				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded',
-						},
-						body: `ajax=get_filtered_events&category_id=${categoryId}&event_status=${eventStatus}`
-					})
-					.then(response => response.json())
-					.then(data => {
-						// イベント選択肢を更新
-						updateSelectOptions(eventSelect, data);
-
-						// イベントが変更されたので回数も更新
-						countSelect.innerHTML = '<option value="">すべて</option>';
-
-						// フォームを送信して結果を更新
-						searchForm.submit();
-					})
-					.catch(() => {
-						// エラー時は空のオプションを設定して送信
-						updateSelectOptions(eventSelect, []);
-						countSelect.innerHTML = '<option value="">すべて</option>';
-						searchForm.submit();
-					});
-			}
-
-			function updateCountOptions() {
-				const eventId = eventSelect.value;
-
-				// イベントが選択されていない場合、回数をリセットして検索
-				if (!eventId) {
-					countSelect.innerHTML = '<option value="">すべて</option>';
-					searchForm.submit();
-					return;
-				}
-
-				// 選択されたイベントIDに基づいて回数を取得
-				fetch('/custom/admin/app/Controllers/survey/survey_controller.php', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded',
-						},
-						body: `ajax=get_event_counts&event_id=${eventId}`
-					})
-					.then(response => response.json())
-					.then(data => {
-						// 回数選択肢を更新（「回目」を付けて表示）
-						updateSelectOptions(countSelect, data, item => `${item.no}回目`);
-
-						// フォームを送信して結果を更新
-						searchForm.submit();
-					})
-					.catch(() => {
-						// エラー時は空のオプションを設定して送信
-						countSelect.innerHTML = '<option value="">すべて</option>';
-						searchForm.submit();
-					});
-			}
-
-			// select要素のオプションを更新するヘルパー関数
-			function updateSelectOptions(selectElement, data, textFormatter = null) {
-				selectElement.innerHTML = '<option value="">すべて</option>';
-
-				if (data && data.length > 0) {
-					data.forEach(item => {
-						const option = document.createElement('option');
-						option.value = item.id;
-						option.textContent = textFormatter ? textFormatter(item) : item.name;
-						selectElement.appendChild(option);
-					});
-				}
-			}
+			$('#search-button').on('click', function(event) {
+				$('input[name="page"]').val(1);
+			});
+			// ページネーション押下時
+			$(document).on("click", ".paginate_button a", function(e) {
+				e.preventDefault();
+				const nextPage = $(this).data("page");
+				$('input[name="page"]').val(nextPage);
+				$('#form').submit();
+			});
 		});
-	</script> -->
+	</script>
 </body>
 
 </html>

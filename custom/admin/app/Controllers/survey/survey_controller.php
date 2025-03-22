@@ -1,204 +1,154 @@
 <?php
-require_once('/var/www/html/moodle/config.php');
-require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
-require_once($CFG->dirroot . '/custom/app/Models/CategoryModel.php');
-require_once($CFG->dirroot . '/custom/app/Models/LectureFormatModel.php');
-require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
-require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/SurveyApplicationModel.php');
+global $DB;
+class SurveyController
+{
 
-// // Ajaxリクエストの処理 - カテゴリーとステータスでフィルタリングされたイベントを取得
-// if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_filtered_events') {
-//     handleFilteredEventsRequest();
-//     exit;
-// }
+    private $categoryModel;
+    private $eventModel;
+    private $surveyApplicationModel;
 
-// // Ajaxリクエストの処理 - 特定のイベントに紐づく回数を取得
-// if (isset($_POST['ajax']) && $_POST['ajax'] === 'get_event_counts') {
-//     handleEventCountsRequest();
-//     exit;
-// }
+    public function __construct()
+    {
+        $this->categoryModel = new CategoryModel();
+        $this->eventModel = new EventModel();
+        $this->surveyApplicationModel = new SurveyApplicationModel();
+    }
 
-// // 通常のコントローラー処理
-// global $USER, $DB, $COURSE;
+    public function index()
+    {
 
-// // ユーザー情報の取得
-// $userid = $USER->id;
-// $shortname = '';
+        global $USER;
+        global $DB;
 
-// // ユーザーのロールを取得
-// $sql = "SELECT r.id, r.shortname 
-//         FROM {role_assignments} ra
-//         JOIN {role} r ON ra.roleid = r.id
-//         WHERE ra.userid = :userid";
+        // 検索項目取得
+        $page = $_POST['page'] ?? null;
+        $category_id = $_POST['category_id'] ?? null;
+        $event_status_id = $_POST['event_status_id'] ?? null;
+        $event_id = $_POST['event_id'] ?? null;
+        $course_no = $_POST['course_no'] ?? null;
+        $_SESSION['old_input'] = $_POST;
 
-// $params = ['userid' => $userid];
-// $roles = $DB->get_records_sql($sql, $params);
+        // ページネーション
+        $per_page = 15;
+        $current_page = $_GET['page'];
 
-// foreach ($roles as $role) {
-//     $shortname = $role->shortname;
-// }
+        if (empty($current_page) && !empty($page)) {
+            $current_page  = $page;
+        }
+        if (empty($current_page) && empty($page)) {
+            $current_page  = 1;
+        }
 
-// // モデルのインスタンス化
-// $eventModel = new EventModel();
-// $categoryModel = new CategoryModel();
-// $surveyApplicationModel = new SurveyApplicationModel();
+        // イベント選択時かつ他の選択肢が選択された際に対象イベントが含まれていなければ消す
+        $first_filters = array_filter([
+            'category_id' => $category_id,
+            'event_status' => $event_status_id,
+        ]);
+        $first_filters = array_filter($first_filters);
+        $found = false;
+        if (!empty($first_filters) && !empty($event_id)) {
+            $first_event_list = $this->eventModel->getEvents($first_filters, 1, 100000);
+            foreach ($first_event_list as $first_event) {
+                if ($event_id == $first_event['id']) {
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                $event_id = $found ? $event_id : null;
+            }
+        }
 
-// // カテゴリーの取得
-// $categorys = $categoryModel->getCategories();
+        $filters = array_filter([
+            'category_id' => $category_id,
+            'event_status' => $event_status_id,
+            'event_id' => $event_id,
+            'course_no' => $course_no
+        ]);
 
-// // ページネーション設定
-// $currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
-// $perPage = 10; // 1ページあたりの件数
+        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
 
-// // 検索条件を取得（POSTまたはGETから）
-// $category_id = $_POST['category_id'] ?? $_GET['category_id'] ?? '';
-// $event_status = $_POST['event_status'] ?? $_GET['event_status'] ?? '';
-// $event_id = $_POST['event_id'] ?? $_GET['event_id'] ?? '';
-// $course_info_id = $_POST['event_count'] ?? $_GET['event_count'] ?? ''; // 回数ID
+        // null の要素を削除しイベント検索
+        $filters = array_filter($filters);
+        $event_list = $this->eventModel->getEvents($filters, 1, 100000);
+        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
 
-// // イベントの取得
-// if (!empty($category_id) || !empty($event_status)) {
-//     // カテゴリーまたは開催ステータスで絞り込みされた場合
-//     $events = $eventModel->getEvents([
-//         'userid' => $userid,
-//         'shortname' => $shortname,
-//         'category_id' => $category_id,
-//         'event_status' => $event_status
-//     ], $currentPage, $perPage);
-// } else {
-//     // 絞り込みがない場合は全てのイベントを取得
-//     $events = $eventModel->getEvents([
-//         'userid' => $userid,
-//         'shortname' => $shortname
-//     ], $currentPage, $perPage);
-// }
+        $is_display = false;
+        $is_single = false;
+        $course_info_id = null;
 
-// // イベントに関連する回数を取得
-// $event_counts = [];
-// if (!empty($event_id)) {
-//     $sql = "SELECT ci.id, ci.no 
-//             FROM {event_course_info} eci
-//             JOIN {course_info} ci ON eci.course_info_id = ci.id
-//             WHERE eci.event_id = :event_id
-//             ORDER BY ci.no ASC";
+        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
+        if ($role->roleid == ROLE['COURSECREATOR']) {
+            foreach ($event_list  as $key => $event) {
+                if ($event['userid'] != $USER->id) {
+                    unset($event_list[$key]);
+                }
+            }
+            foreach ($select_event_list as $select_key => $select_event) {
+                if ($select_event['userid'] != $USER->id) {
+                    unset($select_event_list[$select_key]);
+                }
+            }
+        }
 
-//     $params = ['event_id' => $event_id];
-//     $courseInfos = $DB->get_records_sql($sql, $params);
+        // イベント情報を特定する
+        foreach ($event_list as $event) {
+            if (!empty($event_id)) {
+                // 単発イベントの場合
+                if ($event['event_kbn'] == 1) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        $course_info_id = $course_info['id'];
+                        $course_no = 1;
+                        $_SESSION['old_input']['course_no'] = "1";
+                        $is_single = true;
+                        $is_display = true;
+                    }
+                }
+                // 複数回イベントの場合
+                if ($event['event_kbn'] == 2 && !empty($course_no)) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        if ($course_info['no'] == $course_no) {
+                            $course_info_id = $course_info['id'];
+                            $is_display = true;
+                        }
+                    }
+                }
+            }
+        }
 
-//     foreach ($courseInfos as $courseInfo) {
-//         $event_counts[] = [
-//             'id' => $courseInfo->id,
-//             'no' => $courseInfo->no
-//         ];
-//     }
-// }
+        $survey_list = [];
+        $total_count = 0;
+        if (!empty($course_info_id) && !empty($event_id)) {
+            $survey_list = $this->surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, $current_page);
+            $total_count = $this->surveyApplicationModel->getCountSurveyApplications($course_info_id, $event_id);
+        }
 
-// // アンケート回答を取得
-// $surveyApplications = $surveyApplicationModel->getSurveyApplications([
-//     'category_id' => $category_id,
-//     'event_status' => $event_status,
-//     'event_id' => $event_id,
-//     'course_info_id' => $course_info_id,
-// ], $currentPage, $perPage);
+        // 講座回数でソートする
+        usort($survey_list, function ($a, $b) {
+            return $a['course_info']['no'] <=> $b['course_info']['no'];
+        });
 
-// // 総件数の取得
-// $totalCount = $surveyApplicationModel->getSurveyTotal([
-//     'category_id' => $category_id,
-//     'event_status' => $event_status,
-//     'event_id' => $event_id,
-//     'course_info_id' => $course_info_id,
-// ]);
+        $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
+        $category_list = $this->categoryModel->getCategories();
 
-// // フォーム送信処理
-// $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
+        $data = [
+            'category_list' => $category_list,
+            'event_list' => $event_list,
+            'is_display' => $is_display,
+            'is_single' => $is_single,
+            'course_info_id' => $course_info_id,
+            'course_no' => $course_no,
+            'survey_list' => $survey_list,
+            'total_count' => $total_count,
+            'per_page' => $per_page,
+            'current_page' => $current_page,
+            'page' => $current_page,
+        ];
 
-// // 検索条件をセッションに保存
-// $_SESSION['old_input'] = [
-//     'category_id' => $category_id,
-//     'event_status' => $event_status,
-//     'event_id' => $event_id,
-//     'event_count' => $course_info_id
-// ];
-
-// // 現在の検索条件からクエリ文字列を作成（空の値は除外）
-// $queryParams = [
-//     'category_id' => $category_id,
-//     'event_status' => $event_status,
-//     'event_id' => $event_id,
-//     'event_count' => $course_info_id
-// ];
-// $queryString = http_build_query(array_filter($queryParams));
-
-// // indexアクションの場合はビューを表示
-// if ($action === 'index') {
-//     include $CFG->dirroot . '/custom/admin/app/Views/survey/index.php';
-// }
-
-// /**
-//  * カテゴリーとステータスでフィルタリングされたイベントのAjaxリクエストを処理
-//  */
-// function handleFilteredEventsRequest() {
-//     // POSTリクエストからパラメータを取得
-//     $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : '';
-//     $event_status = isset($_POST['event_status']) ? $_POST['event_status'] : '';
-
-//     // EventModelのインスタンス化
-//     $eventModel = new EventModel();
-
-//     // カテゴリとステータスに基づいてイベントをフィルタリング
-//     $filteredEvents = $eventModel->getEvents([
-//         'category_id' => $category_id,
-//         'event_status' => $event_status
-//     ]);
-
-//     // 結果を簡略化（IDと名前のみ）
-//     $result = array_map(function($event) {
-//         return [
-//             'id' => $event['id'],
-//             'name' => $event['name']
-//         ];
-//     }, $filteredEvents);
-
-//     // JSONとしてレスポンス
-//     header('Content-Type: application/json');
-//     echo json_encode($result);
-// }
-
-// /**
-//  * イベントIDに基づいて回数を取得するAjaxリクエストを処理
-//  */
-// function handleEventCountsRequest() {
-//     // POSTリクエストからパラメータを取得
-//     $event_id = isset($_POST['event_id']) ? $_POST['event_id'] : '';
-
-//     if (empty($event_id)) {
-//         header('Content-Type: application/json');
-//         echo json_encode([]);
-//         return;
-//     }
-
-//     global $DB;
-
-//     // イベントに紐づく回数（course_info）を取得
-//     $sql = "SELECT ci.id, ci.no 
-//             FROM {event_course_info} eci
-//             JOIN {course_info} ci ON eci.course_info_id = ci.id
-//             WHERE eci.event_id = :event_id
-//             ORDER BY ci.no ASC";
-
-//     $params = ['event_id' => $event_id];
-//     $courseInfos = $DB->get_records_sql($sql, $params);
-
-//     $result = [];
-//     foreach ($courseInfos as $courseInfo) {
-//         $result[] = [
-//             'id' => $courseInfo->id,
-//             'no' => $courseInfo->no
-//         ];
-//     }
-
-// $result = [];
-// // JSONとしてレスポンス
-// header('Content-Type: application/json');
-// echo json_encode($result);
-// }
+        return $data;
+    }
+}

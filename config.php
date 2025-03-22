@@ -249,5 +249,105 @@ define('IS_PARTICIPATION_LIST', $is_participation_list);
 $is_apply_list = [0 => '未承認', 1 => '承認'];
 define('IS_APPLY_LIST', $is_apply_list);
 
+/* 
+*アンケート回答項目
+*/
+$decision_list = [1 => 'はい', 2 => 'いいえ'];
+define('DECISION_LIST', $decision_list);
+// 本日のプログラムをどのようにしてお知りになりましたか
+$found_method_list = [
+  1 => 'チラシ',
+  2 => 'ウェブサイト',
+  3 => '大阪大学公開講座「知の広場」からのメール',
+  4 => 'SNS（X, Instagram, Facebookなど)',
+  5 => '21世紀懐徳堂からのメールマガジン',
+  6 => '大阪大学卒業生メールマガジン',
+  7 => '大阪大学入試課からのメール',
+  8 => 'Peatixからのメール',
+  9 => '知人からの紹介',
+  10 => '講師・スタッフからの紹介',
+  11 => '自治体の広報・掲示',
+  12 => 'スマートニュース広告'
+];
+define('FOUND_METHOD_LIST', $found_method_list);
+// 本日のテーマを受講した理由は何ですか
+$reason_list = [
+  1 => 'テーマに関心があったから',
+  2 => '本日のプログラム内容に関心があったから',
+  3 => '本日のゲストに関心があったから',
+  4 => '大阪大学のプログラムに参加したかったから',
+  5 => '教養を高めたいから',
+  6 => '仕事に役立つと思われたから',
+  7 => '日常生活に役立つと思われたから',
+  8 => '余暇を有効に利用したかったから'
+];
+define('REASON_LIST', $reason_list);
+// 本日のテーマを受講した理由は何ですか
+$satisfaction_list =  [
+  1 => '非常に満足',
+  2 => '満足',
+  3 => 'ふつう',
+  4 => '不満',
+  5 => '非常に不満',
+];
+define('SATISFACTION_LIST', $satisfaction_list);
+// 本日のプログラムの理解度について、あてはまるもの1つをお選びください
+$understanding_list =  [
+  1 => 'よく理解できた',
+  2 => '理解できた',
+  3 => 'ふつう',
+  4 => '理解できなかった',
+  5 => '全く理解できなかった'
+];
+define('UNDERSTANDING_LIST', $understanding_list);
+// 本日のプログラムの理解度について、あてはまるもの1つをお選びください
+$good_point_list =  [
+  1 => 'テーマについて考えを深めることができた',
+  2 => '最先端の研究について学べた',
+  3 => '大学の研究者と対話ができた',
+  4 => '大学の講義の雰囲気を味わえた',
+  5 => '大阪大学について知ることができた',
+  6 => '身の周りの社会課題に対する解決のヒントが得られた'
+];
+define('GOOD_POINT_LIST', $good_point_list);
+// 本日のプログラムの開催時間(90分)についてあてはまるものを1つお選びください
+$time_list = [
+  1 => '適当である',
+  2 => '長すぎる',
+  3 => '短すぎる',
+];
+define('TIME_LIST', $time_list);
+// 本日のプログラムの開催環境について、あてはまるものを１つお選びください。
+$holding_environment_list = [
+  1 => 'とても快適だった',
+  2 => '快適だった',
+  3 => 'ふつう',
+  4 => 'あまり快適ではなかった',
+  5 => '全く快適ではなかった',
+];
+define('HOLDING_ENVIRONMENT_LIST', $holding_environment_list);
+// ご職業等を教えてください
+$work_list = [
+  1 => '高校生以下',
+  2 => '学生（高校生、大学生、大学院生等）',
+  3 => '会社員',
+  4 => '自営業・フリーランス',
+  5 => '公務員',
+  6 => '教職員',
+  7 => 'パート・アルバイト',
+  8 => '主婦・主夫',
+  9 => '定年退職',
+  10 => 'その他'
+];
+define('WORK_LIST', $work_list);
+// 性別をご回答ください
+$sex_list = [
+  1 => '男性',
+  2 => '女性',
+  3 => 'その他'
+];
+define('SEX_LIST', $sex_list);
+
+													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

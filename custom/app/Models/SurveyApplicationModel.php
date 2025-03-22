@@ -2,87 +2,64 @@
 class SurveyApplicationModel extends BaseModel
 {
     // アンケート回答を取得するメソッド
-    public function getSurveyApplications($filters = [], int $page = 1, int $perPage = 10)
+    public function getSurveyApplications($course_info_id, $event_id, int $page = 1, int $perPage = 15)
     {
         if ($this->pdo) {
             try {
-                $now = new DateTime();
-                $currentTimestamp = $now->format('Y-m-d H:i:s');
-                
-                // ベースのSQLクエリ
-                $sql = 'WITH event_dates AS (
-                            SELECT 
-                                e.id AS event_id,
-                                MIN(c.course_date) AS min_course_date,
-                                MAX(c.course_date) AS max_course_date
-                            FROM mdl_event e
-                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                            GROUP BY e.id
-                        )
-                        SELECT sa.*, e.name as event_name, sa.course_info_id,
-                        CASE
-                            WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
-                            WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                            WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
-                            ELSE 0
-                        END AS event_status
-                        FROM mdl_survey_application sa
-                        LEFT JOIN mdl_event e ON e.id = sa.event_id
-                        LEFT JOIN event_dates ed ON e.id = ed.event_id';
 
-                $where = ' WHERE 1=1';
-                $having = '';
-                $orderBy = ' ORDER BY sa.id DESC';
+                $offset = ($page - 1) * $perPage; // OFFSETの計算
+                $query = "SELECT * FROM mdl_survey_application";
+                $params = [];
+                $conditions = [];
 
-                // 動的に検索条件を追加
-                $params = [
-                    ':current_timestamp' => $currentTimestamp
-                ];
-                
-                if (!empty($filters['category_id'])) {
-                    $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = sa.event_id';
-                    $where .= ' AND ec.category_id = :category_id';
-                    $params[':category_id'] = $filters['category_id'];
+                if (!empty($course_info_id)) {
+                    $conditions[] = "course_info_id = :course_info_id";
+                    $params[':course_info_id'] = (int)$course_info_id;
                 }
-                
-                if (!empty($filters['event_status'])) {
-                    if (!empty($having)) {
-                        $having .= ' AND';
-                    } else {
-                        $having = ' HAVING';
-                    }
-                    $having .= ' event_status = :event_status';
-                    $params[':event_status'] = $filters['event_status'];
+                if (!empty($event_id)) {
+                    $conditions[] = "event_id = :event_id";
+                    $params[':event_id'] = (int)$event_id;
                 }
-                
-                if (!empty($filters['event_id'])) {
-                    $where .= ' AND sa.event_id = :event_id';
-                    $params[':event_id'] = $filters['event_id'];
+                if (!empty($conditions)) {
+                    $query .= " WHERE " . implode(" AND ", $conditions);
                 }
-                
-                if (!empty($filters['course_info_id'])) {
-                    $where .= ' AND sa.course_info_id = :course_info_id';
-                    $params[':course_info_id'] = $filters['course_info_id'];
+                $query .= " LIMIT :perPage OFFSET :offset";
+                $stmt = $this->pdo->prepare($query);
+                foreach ($params as $key => $value) {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
                 }
+                $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
-                // ページネーション用のオフセットを計算
-                $offset = ($page - 1) * $perPage;
-                $limit = " LIMIT $perPage OFFSET $offset";
+                $stmt->execute();
+                $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // 最終SQLの組み立て
-                $sql .= $where;
-                if (!empty($having)) {
-                    $sql .= $having;
+                foreach ($result_list as &$result) {
+                    $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
                 }
-                $sql .= $orderBy . $limit;
+                return $result_list;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+            return [];
+        } else {
+            echo "データの取得に失敗しました";
+        }
 
-                // クエリの実行
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute($params);
-                $surveys = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return [];
+    }
 
-                return $surveys;
+    // 講座回数を取得
+    private function getCourseInfoById($id)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT no FROM mdl_course_info WHERE id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+                $user_result_list = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $user_result_list;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }
@@ -94,92 +71,41 @@ class SurveyApplicationModel extends BaseModel
     }
 
     // アンケート回答の総数を取得
-    public function getSurveyTotal($filters = [])
+    public function getCountSurveyApplications($course_info_id, $event_id)
     {
         if ($this->pdo) {
             try {
-                $now = new DateTime();
-                $currentTimestamp = $now->format('Y-m-d H:i:s');
-                
-                // ベースのSQLクエリ
-                $sql = 'WITH event_dates AS (
-                            SELECT 
-                                e.id AS event_id,
-                                MIN(c.course_date) AS min_course_date,
-                                MAX(c.course_date) AS max_course_date
-                            FROM mdl_event e
-                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                            GROUP BY e.id
-                        )
-                        SELECT COUNT(*) as total
-                        FROM (
-                            SELECT sa.id, sa.course_info_id,
-                            CASE
-                                WHEN :current_timestamp < ed.min_course_date THEN 1 -- 開催前
-                                WHEN :current_timestamp BETWEEN ed.min_course_date AND ed.max_course_date THEN 2 -- 開催中
-                                WHEN :current_timestamp > ed.max_course_date THEN 3 -- 開催終了
-                                ELSE 0
-                            END AS event_status
-                            FROM mdl_survey_application sa
-                            LEFT JOIN mdl_event e ON e.id = sa.event_id
-                            LEFT JOIN event_dates ed ON e.id = ed.event_id';
+                $query = "SELECT COUNT(*) AS count FROM mdl_survey_application";
+                $params = [];
+                $conditions = [];
 
-                $where = ' WHERE 1=1';
-                $having = '';
-
-                // 動的に検索条件を追加
-                $params = [
-                    ':current_timestamp' => $currentTimestamp
-                ];
-                
-                if (!empty($filters['category_id'])) {
-                    $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = sa.event_id';
-                    $where .= ' AND ec.category_id = :category_id';
-                    $params[':category_id'] = $filters['category_id'];
+                if (!empty($course_info_id)) {
+                    $conditions[] = "course_info_id = :course_info_id";
+                    $params[':course_info_id'] = (int)$course_info_id;
                 }
-                
-                if (!empty($filters['event_id'])) {
-                    $where .= ' AND sa.event_id = :event_id';
-                    $params[':event_id'] = $filters['event_id'];
+                if (!empty($event_id)) {
+                    $conditions[] = "event_id = :event_id";
+                    $params[':event_id'] = (int)$event_id;
                 }
-                
-                if (!empty($filters['course_info_id'])) {
-                    $where .= ' AND sa.course_info_id = :course_info_id';
-                    $params[':course_info_id'] = $filters['course_info_id'];
+                if (!empty($conditions)) {
+                    $query .= " WHERE " . implode(" AND ", $conditions);
                 }
 
-                $sql .= $where;
-                
-                if (!empty($filters['event_status'])) {
-                    if (!empty($having)) {
-                        $having .= ' AND';
-                    } else {
-                        $having = ' HAVING';
-                    }
-                    $having .= ' event_status = :event_status';
-                    $params[':event_status'] = $filters['event_status'];
+                $stmt = $this->pdo->prepare($query);
+                foreach ($params as $key => $value) {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
                 }
-                
-                if (!empty($having)) {
-                    $sql .= $having;
-                }
-                
-                $sql .= ') as filtered_surveys';
+                $stmt->execute();
+                $count = $stmt->fetchColumn();
 
-                // クエリの実行
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute($params);
-                $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-                
-                return $totalCount;
+                return $count;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }
+
+            return 0;
         } else {
             echo "データの取得に失敗しました";
         }
-
-        return 0;
     }
-} 
+}
