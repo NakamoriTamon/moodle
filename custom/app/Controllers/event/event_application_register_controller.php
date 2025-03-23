@@ -19,10 +19,15 @@ class EventRegisterController
 
     public function events(int $page = 1, int $perPage = 10)
     {
-        global $DB;
+        try {
+            global $DB;
 
-        // 全件取得（イベント申し込みの全レコード）
-        $sql = "WITH cmt_data AS (
+            // ページネーションの設定
+            $offset = ($page - 1) * $perPage;
+
+            // 本人用チケットのみを取得（TICKET_TYPE['SELF']）
+            $self_ticket_type = TICKET_TYPE['SELF'];
+            $sql = "WITH cmt_data AS (
             SELECT 
                 cm.course_info_id, 
                 GROUP_CONCAT(cm.file_name ORDER BY cm.file_name) AS materials
@@ -37,67 +42,121 @@ class EventRegisterController
             GROUP BY cmv.course_info_id
         )
         SELECT 
-            eac.event_application_id, 
-            eac.course_info_id, 
-            e.id AS event_id, 
-            e.name, 
+            eaci.id AS event_application_course_info_id,
+            ea.id AS event_application_id,
+            ea.event_id,
+            ea.user_id,
+            ea.price,
+            ea.ticket_count,
+            ea.payment_date,
+            ea.event_application_package_types,
+            e.name AS event_name,
+            e.venue_name,
             e.thumbnail_img,
-            e.archive_streaming_period, 
+            e.archive_streaming_period,
             e.start_hour,
-            ci.no, 
-            ci.release_date, 
-            ci.course_date, 
-            cmt_data.materials, 
+            ci.id AS course_id,
+            ci.no,
+            ci.course_date,
+            ci.release_date,
+            eaci.participation_kbn,
+            eaci.ticket_type,
+            cmt_data.materials,
             cmv_data.movies
-        FROM {event_application_course_info} eac
-        JOIN {event_application} ea ON ea.id = eac.event_application_id
-        JOIN {event} e ON e.id = ea.event_id
-        JOIN {course_info} ci ON ci.id = eac.course_info_id
-        LEFT JOIN cmt_data ON cmt_data.course_info_id = ci.id
-        LEFT JOIN cmv_data ON cmv_data.course_info_id = ci.id
-        WHERE (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
-        AND ea.user_id = :user_id";
+        FROM 
+            {event_application_course_info} eaci
+        JOIN 
+            {event_application} ea ON ea.id = eaci.event_application_id
+        JOIN 
+            {event} e ON e.id = ea.event_id
+        JOIN 
+            {course_info} ci ON ci.id = eaci.course_info_id
+        LEFT JOIN 
+            cmt_data ON cmt_data.course_info_id = ci.id
+        LEFT JOIN 
+            cmv_data ON cmv_data.course_info_id = ci.id
+        WHERE 
+            (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
+            AND ea.user_id = :user_id
+            AND eaci.ticket_type = :self_ticket_type
+        ORDER BY 
+            ci.course_date DESC
+        LIMIT $perPage OFFSET $offset";
 
-        // パラメータ設定
-        $params = [
-            'user_id' => $this->USER->id,
-        ];
+            // パラメータ設定
+            $params = [
+                'user_id' => $this->USER->id,
+                'self_ticket_type' => $self_ticket_type,
+            ];
 
-        // SQLでイベント申し込み情報を取得
-        $event_application_courses = $DB->get_records_sql($sql, $params);
+            // トータル件数を取得するためのクエリ
+            $count_sql = "
+            SELECT COUNT(eaci.id) as count
+            FROM 
+                {event_application_course_info} eaci
+            JOIN 
+                {event_application} ea ON ea.id = eaci.event_application_id
+            WHERE 
+                (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
+                AND ea.user_id = :user_id
+                AND eaci.ticket_type = :self_ticket_type
+        ";
 
-        // 総件数を取得
-        $totalCount = count($event_application_courses);
+            // 総件数取得
+            $totalCount = (int) $DB->count_records_sql($count_sql, $params);
 
-        // ページネーションのオフセット
-        $offset = ($page - 1) * $perPage;
+            // 総ページ数計算
+            $totalPages = ceil($totalCount / $perPage);
 
-        // 必要なページ分のデータを抽出
-        $paginatedEvents = array_slice($event_application_courses, $offset, $perPage);
+            // SQLでイベント申し込み情報を取得
+            $events = $DB->get_records_sql($sql, $params);
 
-        // material_names と movie_names を配列に変換して追加
-        foreach ($paginatedEvents as $event) {
-            // material_names を配列に変換
-            if (!empty($event->materials)) {
-                $event->materials = explode(',', $event->materials);
+            // materialsとmoviesを配列に変換して追加
+            foreach ($events as $event) {
+                // 表示時に必要なnameプロパティの互換性維持
+                $event->name = $event->event_name;
+
+                // course_info_idプロパティの追加（表示ページでの互換性のため）
+                $event->course_info_id = $event->course_id;
+
+                // material_namesを配列に変換
+                if (!empty($event->materials)) {
+                    $event->materials = explode(',', $event->materials);
+                }
+
+                // movie_namesを配列に変換
+                if (!empty($event->movies)) {
+                    $event->movies = explode(',', $event->movies);
+                }
             }
 
-            // movie_names を配列に変換
-            if (!empty($event->movies)) {
-                $event->movies = explode(',', $event->movies);
-            }
+            // ページネーション情報とデータをまとめて返す
+            $paginate_data = [
+                'data' => $events,
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => $totalPages,
+                    'per_page' => $perPage,
+                    'total_count' => $totalCount
+                ]
+            ];
+
+            return $paginate_data;
+        } catch (Exception $e) {
+            error_log('events Error: ' . $e->getMessage());
+            var_dump($e);
+            // エラー時は空の結果を返す
+            return [
+                'data' => [],
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => 0,
+                    'per_page' => $perPage,
+                    'total_count' => 0
+                ],
+                'error' => $e->getMessage()
+            ];
         }
-
-        // 結果を返す
-        return [
-            'data' => $paginatedEvents,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total_count' => $totalCount,
-                'total_pages' => ceil($totalCount / $perPage)
-            ]
-        ];
     }
 
 
