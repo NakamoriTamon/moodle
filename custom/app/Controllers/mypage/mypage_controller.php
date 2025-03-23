@@ -1,7 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/lib/classes/context/system.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
@@ -30,7 +29,6 @@ class MypageController
 {
     private $DB;
     private $USER;
-    private $eventApplicationModel;
     private $dotenv;
 
     public function __construct()
@@ -38,7 +36,6 @@ class MypageController
         global $DB, $USER;
         $this->DB = $DB;
         $this->USER = $USER;
-        $this->eventApplicationModel = new EventApplicationModel();
 
         $this->dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
         $this->dotenv->load();
@@ -73,10 +70,30 @@ class MypageController
     // 適塾記念情報を取得
     public function getTekijukuCommemoration()
     {
+        // 標準で取得するカラム
+        $columns = 'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, paid_date, note, is_published, is_subscription, is_delete, department, major, official, is_university_member';
+
+        // 現在の日付を取得
+        $current_date = new DateTime();
+        $current_year = (int)$current_date->format('Y');
+        $current_month = (int)$current_date->format('n');
+
+        // 年度の計算（4月1日を年度の始まりとする）
+        $fiscal_year = $current_year;
+        if ($current_month < 4) {
+            $fiscal_year = $current_year - 1;
+        }
+
+        // 対象年度のカラムが存在し、かつ2031年度未満であるか確認
+        if ($fiscal_year >= 2024 && $fiscal_year <= 2030) {
+            // 指定の年度のis_deposit_YYYYカラムを追加
+            $columns .= ", is_deposit_{$fiscal_year}";
+        }
+
         return $this->DB->get_record(
             'tekijuku_commemoration',
             ['fk_user_id' => $this->USER->id],
-            'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, note, is_published, is_subscription, is_delete, department, major, official, is_university_member'
+            $columns
         );
     }
 

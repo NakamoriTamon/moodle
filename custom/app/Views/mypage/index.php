@@ -26,22 +26,42 @@ if (!$is_general_user) {
 }
 
 $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+// 適塾表示フラグ
+$is_disply_tekijuku_commemoration = false;
+if ($tekijuku_commemoration !== false) {
+    if (!empty($tekijuku_commemoration->paid_date)) {
+        $is_disply_tekijuku_commemoration = true;
+    } else {
+        $current_date = new DateTime();
+        $current_year = (int)$current_date->format('Y');
+        $current_month = (int)$current_date->format('n');
+
+        // 年度の計算（4月1日を年度の始まりとする）
+        $fiscal_year = $current_year;
+        if ($current_month < 4) {
+            $fiscal_year = $current_year - 1;
+        }
+
+        // 対象年度のカラムが存在し、かつ2031年度未満であるか確認
+        if ($fiscal_year >= 2024 && $fiscal_year <= 2030) {
+            // 該当年度のデポジットフラグを確認
+            $deposit_column = "is_deposit_{$fiscal_year}";
+
+            // 該当年度のデポジットフラグが存在し、値が'1'の場合に表示
+            if (
+                property_exists($tekijuku_commemoration, $deposit_column) &&
+                $tekijuku_commemoration->$deposit_column == '1'
+            ) {
+                $is_disply_tekijuku_commemoration = true;
+            }
+        }
+    }
+}
+
 $event_applications = $mypage_controller->getEventApplications($event_application_offset, $perPage, $event_application_page); // 予約情報を引っ張ってくる
 $event_histories = $mypage_controller->getEventApplications($event_history_offset, $perPage, $event_history_page, 'histories'); // イベント履歴を引っ張ってくる
 $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
 $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
-
-// イベント状態を取得
-// $event_id_list = [];
-// foreach ($event_applications as $event_application) {
-//     foreach ($event_application as $application) {
-//         if (!empty($application->event_id)) {
-//             $event_id_list = [$application->event_id];
-//         }
-//     }
-// }
-// 講義形式を持ってくる
-// $event_lecture_formats = $mypage_controller->getEventLectureFormats($event_id_list);
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
@@ -70,7 +90,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
-        <?php if ($tekijuku_commemoration !== false): ?>
+        <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
                     <p class="card_head">適塾記念会デジタル会員証</p>
