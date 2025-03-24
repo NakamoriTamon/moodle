@@ -71,6 +71,13 @@ $url = "apply.php?id=" . $eventId;
 if (!is_null($courseInfoId)) {
     $url .= "&course_info_id=" . $courseInfoId;
 }
+
+$btn_text = "";
+if($price > 0) {
+    $btn_text = "決済画面へ進む";
+} else {
+   $btn_text = "申し込み";
+}
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
@@ -216,9 +223,11 @@ if (!is_null($courseInfoId)) {
                             </li>
                         <?php endif ?>
                     </ul>
-                    <p class="cancel">申し込み後のキャンセル（返金）はできません。</p>
+                    <?php if($price > 0): ?>
+                        <p class="cancel">申し込み後のキャンセル（返金）はできません。</p>
+                    <?php endif ?>
                     <div class="form_btn">
-                        <input type="submit" name="action" class="btn btn_red" value="決済画面へ進む" />
+                        <input type="submit" name="action" class="btn btn_red" value="<?= $btn_text ?>" />
                         <input type="button" class="btn btn_gray" value="内容を修正する" onclick="location.href='<?= htmlspecialchars($url) ?>';" />
                     </div>
                 </div>
