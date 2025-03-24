@@ -19,10 +19,14 @@
 						<i class="align-middle" data-feather="database"></i> <span class="align-middle">情報管理</span>
 					</a>
 					<ul id="information-side" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/index.php">管理者一覧</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/user_registration.php">ユーザー情報管理</a></li>
+						<?php if (in_array('admin', $roles)): ?>
+							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/index.php">管理者一覧</a></li>
+							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/user_registration.php">ユーザー情報管理</a></li>
+						<?php endif; ?>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/event_registration.php">イベント登録情報管理</a></li>
-						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/membership_fee_registration.php">費用請求</a></li>
+						<?php if (in_array('admin', $roles)): ?>
+							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/membership_fee_registration.php">費用請求</a></li>
+						<?php endif; ?>
 						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li> -->
 					</ul>
 				</li>

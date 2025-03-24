@@ -364,12 +364,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span class="form-check-label">トップに固定する</span>
 										</label>
 									</div>
-									<div class="mb-3">
-										<label class="form-label">
-											<input name="is_top" type="checkbox" value="1" <?php if(isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
-											<span class="form-check-label">トップに固定する</span>
-										</label>
-									</div>
 									<div class="mb-3 one_area">
 										<?php foreach ($courses as $no => $details): ?>
 											<?php if($no == 1): ?>
