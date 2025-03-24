@@ -503,8 +503,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
                         <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
+
                             <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
                             <input type="hidden" name="course_id" value="<?php echo $application->course_id ?>">
+                            <input type="hidden" name="id" value="<?php echo $application->event_application_id ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
                                     <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
@@ -566,6 +568,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont">
                                 <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
                                 <input type="hidden" name="course_id" value="<?php echo $history->course_id ?>">
+                                <input type="hidden" name="id" value="<?php echo $history->event_application_id ?>">
                                 <button type="submit" class="info_wrap_cont_btn">
                                     <p class="date">
                                         <?php echo date('Y/m/d', strtotime($history->course_date)); ?>

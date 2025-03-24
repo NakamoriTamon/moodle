@@ -15,6 +15,7 @@ $course_id = $_POST['course_id'] ?? null;
 $companion_name = $_POST['companion_name'] ?? null;
 $application_id = $_POST['application_id'] ?? null;
 $_SESSION['reserve']['course_id'] = $course_id;
+$_SESSION['reserve']['id'] = $application_id;
 $_SESSION['old_input'] = $_POST;
 
 $name_size = 50;
