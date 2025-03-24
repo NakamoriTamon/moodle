@@ -24,10 +24,10 @@ $headers = getallheaders();
 $signature = $headers['X-Komoju-Signature'] ?? '';
 
 // 本番環境のではコメント解除
-if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
-    http_response_code(400);
-    exit('Invalid signature');
-}
+// if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
+//     http_response_code(400);
+//     exit('Invalid signature');
+// }
 
 // 決済完了のステータスをチェック
 if ($data['status'] === 'captured') {
@@ -165,12 +165,15 @@ if ($data['status'] === 'captured') {
                 $ticket_type = TICKET_TYPE['SELF'];
                 if ($user_email !== $course['participant_mail']) {
                     $ticket_type = TICKET_TYPE['ADDITIONAL'];
+                    $name = "";
+                } else {
+                    $name = $data['metadata']['user_name'] ?? null;
                 }
 
-                $dear = $ticket_type === TICKET_TYPE['SELF'] ? '様' : '';
+                $dear = !empty($name) ? '様' : '';
                 $htmlBody = "
                 <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                    <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p>
+                    <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p><br />
                     <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
                     <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                     <div>
@@ -178,13 +181,11 @@ if ($data['status'] === 'captured') {
                     </div>
                     <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
                     <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
-                    <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p>
+                    <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
                     <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
                     あらかじめご了承ください。</p>
                 </div>
             ";
-
-                $name = "";
 
                 $mail->Subject = 'チケットの購入が完了しました';
                 $mail->Body = $htmlBody;
