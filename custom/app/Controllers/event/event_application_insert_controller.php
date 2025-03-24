@@ -442,7 +442,7 @@ if ($result) {
                     $htmlBody = "
                         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                             <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p>
-                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申込みが完了いたしました。</P>
+                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申し込みが完了いたしました。</P>
                             <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                             <div>
                                 <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
@@ -457,7 +457,7 @@ if ($result) {
 
                     $name = "";
 
-                    $mail->Subject = 'チケットのお申込みが完了しました';
+                    $mail->Subject = 'チケットのお申し込みが完了しました';
                     $mail->Body = $htmlBody;
 
                     $mail->SMTPOptions = array(

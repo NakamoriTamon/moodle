@@ -365,30 +365,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</label>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">交通アクセス</label>
-										<textarea name="access" class=" form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['access'] ?? '', $old_input['access'] ?? '')) ?></textarea>
-										<?php if (!empty($errors['access'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['access']); ?></div>
-										<?php endif; ?>
-									</div>
-									<div class="mb-3">
-										<div class="form-label d-flex align-items-center">
-											<label class="form-label">Google Map&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.google.co.jp/maps/?hl=ja" target="_blank">Google Mapを開く</a></label>
-										</div>
-										<div class="mb-3">
-											<input name="google_map" class=" form-control" type="text"
-												value="<?= htmlspecialchars(isSetValue($eventData['google_map'] ?? '', ($old_input['google_map'] ?? ''))) ?>" />
-											<?php if (!empty($errors['google_map'])): ?>
-												<div class="text-danger mt-2"><?= $errors['google_map']; ?></div>
-											<?php endif; ?>
-										</div>
-										<div class="mb-3">
-										<?php if (!is_null($eventData) && !empty($eventData['google_map'])): ?>
-											<?= $eventData['google_map'] ?>
-										<?php endif; ?>
-										</div>
-									</div>
-									<div class="mb-3">
 										<label class="form-label">
 											<input name="is_top" type="checkbox" value="1" <?php if(isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
 											<span class="form-check-label">トップに固定する</span>
