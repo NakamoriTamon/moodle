@@ -218,16 +218,6 @@
 #detail .access .access_item02 .info li {
   width: calc(50% - 5%);
 }
-#detail .access .access_item02 .inquiry li {
-  white-space: nowrap;
-  width: calc(50% - 5%);
-}
-#detail .access .access_item02 .inquiry li a {
-  display: inline-block;
-  margin-left: 5px; /* 任意の間隔を設定 */
-  color: #22a9e2;
-  text-decoration: underline;
-}
 #detail .program .btn {
   width: 300px;
   height: 60px;
@@ -268,9 +258,6 @@
   width: 25px;
   height: 20px;
   background: url(../common/img/icon_mail.svg) no-repeat center / contain;
-}
-.program_sent{
-    font-weight: normal;
 }
 
 /*-------------------------------------
@@ -319,12 +306,23 @@
   background: url(../common/img/icon_pdf.svg) no-repeat center / contain;
 }
 
+/*  ipad
+---------------------------------------------- */
+@media only screen and (max-width: 1024px) {
+  #result .result_list {
+    gap: 20px;
+  }
+  #result .result_list .event_item {
+    width: calc(50% - 10px);
+  }
+}
+
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
   .ttl_event {
     margin-bottom: 20px;
-    font-size: 2rem;
+    font-size: 20px;
   }
 
   /*-------------------------------------
@@ -334,8 +332,6 @@
     padding: 100px 0 0;
   }
   #result .result_list {
-    display: flex;
-    flex-wrap: wrap;
     gap: 30px;
   }
   #result .result_list .event_item {
@@ -380,13 +376,13 @@
     width: 100%;
   }
   #desc .desc_info .event_ttl {
-    font-size: 2rem;
+    font-size: 20px;
   }
   #desc .desc_info .event_status {
     margin: 20px 0 10px;
   }
   #desc .desc_info .event_sched {
-    font-size: 1.4rem;
+    font-size: 14px;
   }
   #desc .desc_info .category {
     margin-top: 30px;

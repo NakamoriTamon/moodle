@@ -29,7 +29,7 @@ const aboutSwiper02 = new Swiper(".about_swiper02", {
   },
   breakpoints: {
     959: {
-      slidesPerView: 3,
+      slidesPerView: 4,
       spaceBetween: 60,
     },
   },
@@ -48,6 +48,10 @@ const newSwiper = new Swiper(".new_swiper", {
   },
   breakpoints: {
     959: {
+      slidesPerView: 2.5,
+      spaceBetween: 50,
+    },
+    1024: {
       slidesPerView: 3.5,
       spaceBetween: 50,
     },
@@ -70,8 +74,4 @@ $(document).ready(function () {
       mascot.fadeIn(200);
     }
   });
-});
-
-document.getElementById('clear_button').addEventListener('click', function() {
-  document.getElementById('search_cont').reset();
 });

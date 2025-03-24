@@ -107,42 +107,6 @@
 #form .form_cont .list li .list_field .note::before {
   content: "※";
 }
-
-#form .form_cont .list li .list_item05 .list_field.f_txt {
-  display: flex;
-  flex-direction: column; /* 入力欄とエラーメッセージを縦並びに */
-}
-
-#form .form_cont .list li .list_field.f_txt .post_code {
-  display: flex;
-  align-items: center; /* 入力欄とボタンを横並び */
-  gap: 10px; /* 入力欄とボタンの間にスペース */
-}
-
-#form .form_cont .list li .list_field.f_txt input {
-  flex-grow: 1; /* 入力欄が横幅を埋める */
-  padding: 8px;
-  font-size: 1.6rem;
-}
-
-#form .form_cont .list li .list_field.f_txt button {
-  padding: 8px;
-  font-size: 1.6rem;
-  cursor: pointer;
-  white-space: nowrap;
-  background-color: #949494;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-}
-
-#form .form_cont .list li .list_field.f_txt button:hover {
-  background-color: rgb(82, 82, 82);
-}
-#form .form_cont .list li .text-danger {
-  margin-top: 5px; /* エラーメッセージを入力欄の下に表示 */
-  color: red;
-}
 #form .form_cont .list li .select {
   max-width: 470px;
 }
@@ -219,6 +183,7 @@
   height: 60px;
 }
 
+
 /*-------------------------------------
  confirm
  -------------------------------------*/
@@ -247,32 +212,20 @@
 /*-------------------------------------
  user
  -------------------------------------*/
-#form.user .form_cont .list .list_item03 .select {
+#form.user .form_cont .list .list_item03 .select,
+#form.user .form_cont .list .list_item10 .f_txt {
   width: 36%;
   min-width: 270px;
 }
 #form.user .form_cont .agree {
   gap: 0 40px;
   max-width: 600px;
-  width: 560px;
   margin: 40px 0 0 320px;
   padding: 30px;
 }
 #form.user .form_cont .agree .agree_txt {
   font-size: 1.4rem;
   line-height: 1.8;
-}
-#parents_input_area,
-#parents_check_area{
-  display: none;
-}
-/* 初期はdisable状態 */
-#form.user #submit:disabled{
-  background: #ccc;
-}
-
-.submit_btn:disabled{
-  background: #ccc;
 }
 
 /*-------------------------------------
@@ -308,134 +261,6 @@
   margin-top: 60px;
 }
 
-
-#form.mypage_cont .form_cont .list li .f_num {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-#form.mypage_cont .form_cont .list li .f_num #unit {
-  width: 20%;
-}
-#form.mypage_cont .form_cont .list li .f_num button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  font-size: 22px;
-  border-radius: 3px;
-  background: #cccccc;
-  color: #fff;
-}
-#form.mypage_cont .hidden {
-  display: none !important;
-}
-
-/*-------------------------------------
-tekijuku
--------------------------------------*/
-.checkbox_label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-#subpage .is_subscription_area{
-  display: none;
-}
-#form.tekijuku .form_cont .list li .f_num {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-#form.tekijuku .form_cont .list li .f_num #unit {
-  width: 20%;
-}
-#form.tekijuku .form_cont .list li .f_num button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  font-size: 22px;
-  border-radius: 3px;
-  background: #cccccc;
-  color: #fff;
-}
-#form.tekijuku .hidden {
-  display: none !important;
-}
-
-/*-------------------------------------
-pagination
--------------------------------------*/
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.pagination a,
-.pagination span {
-  padding: 10px 15px;
-  margin: 0 5px;
-  font-size: 14px;
-  text-decoration: none;
-  color: #333;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-.pagination a:hover {
-  background-color: #007bff;
-  color: #fff;
-}
-
-.pagination .prev,
-.pagination .next {
-  font-weight: bold;
-}
-
-.pagination .page-info {
-  font-weight: bold;
-  color: #333;
-}
-
-/* 次のページや前のページがクリックできない場合のスタイル */
-.pagination .prev[disabled],
-.pagination .next[disabled] {
-  background-color: #ddd;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.flex-wrap{
-  flex-wrap: wrap;
-}
-
-.flex-wrap .ano_f_txt,
-.flex-wrap .ano_list_label{
-  padding-top: 15px;
-}
-
-/*-------------------------------------
-reserve
--------------------------------------*/
-#main_success_message {
-    margin: auto;
-    background: #81bfda;
-    color: #fff;
-    padding: 8px 5px;
-    border-radius: 4px;
-    margin-bottom: 5rem;
-    width: 80%;
-    max-width: 700px;
-    text-align: center;
-    font-weight: bold;
-}
-
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
@@ -449,7 +274,6 @@ reserve
     width: 50px;
     height: 50px;
   }
-  
 
   /*-------------------------------------
  form
@@ -468,7 +292,7 @@ reserve
     margin-bottom: 10px;
   }
   #form .form_cont .list li.req .list_label::after {
-    font-size: 1.2rem;
+    font-size: 12px;
   }
   #form .form_cont .list li .list_label span {
     margin-top: 0;
@@ -479,8 +303,6 @@ reserve
   #form .form_cont .list li .list_field .note:first-of-type {
     margin-top: 10px;
   }
-  
-
   #form .form_cont .list li .select {
     width: 80%;
   }
@@ -505,7 +327,7 @@ reserve
   }
   #form .form_cont .agree {
     gap: 30px;
-    width: 100% !important;
+    width: 100%;
   }
   #form .form_cont .form_btn {
     margin: 30px auto 0;
@@ -514,8 +336,8 @@ reserve
   #form .form_cont .form_btn .btn {
     height: 50px;
   }
-  .responsive_br {
-    display: none;
+  #form .form_cont .agree label {
+    font-size: 12px;
   }
 
   /*-------------------------------------
@@ -534,7 +356,7 @@ reserve
   }
   #form.complete .form_cont .cpt_txt {
     margin-bottom: 20px;
-    font-size: 2.2rem;
+    font-size: 22px;
     font-weight: 700;
   }
 
@@ -553,6 +375,9 @@ reserve
     margin: 40px 0 0 0;
     padding: 20px;
   }
+  #form.user .form_cont .agree .agree_txt {
+    font-size: 12px;
+  }
 
   /*-------------------------------------
  mypage
@@ -560,14 +385,4 @@ reserve
   #form.mypage_cont .box_bottom_btn {
     margin-top: 40px;
   }
-
-  /*-------------------------------------
- history
- -------------------------------------*/
-  
- .flex-wrap .ano_f_txt,
- .flex-wrap .ano_list_label {
-    padding-top: 0px;
-  }
-
 }
