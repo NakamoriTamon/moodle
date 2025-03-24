@@ -138,7 +138,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                     <table class="table table-responsive table-striped table_list" style="width:100%">
                                         <thead>
                                             <tr>
-                                                <th class="ps-4 pe-4">会員ID</th>
+                                                <th class="ps-4 pe-4">会員番号</th>
                                                 <th class="ps-4 pe-4">ユーザー名</th>
                                                 <th class="ps-4 pe-4">メールアドレス</th>
                                                 <th class="ps-4 pe-4">メニュー</th>

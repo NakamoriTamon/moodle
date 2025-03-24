@@ -15,7 +15,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
                     <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
                     <ul class=" list">
                         <li class="list_item01">
-                            <p class="list_label">メールアドレス（もしくはユーザーID）</p>
+                            <p class="list_label">メールアドレス（もしくは会員番号）</p>
                             <div class="list_field f_txt">
                                 <input type="text" name="email" autocomplete="off" />
                                 <?php if (!empty($errors['email'])): ?>

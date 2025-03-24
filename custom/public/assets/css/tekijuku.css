@@ -40,9 +40,10 @@
   line-height: 2;
 }
 
-.juku_block {
-  text-align: center; /* 親要素にテキストを中央揃え */
-}
+/* 親要素にテキストを中央揃え */
+/* .juku_block {
+  text-align: center;
+} */
 
 .btn-container {
   display: flex; /* フレックスボックスを使用 */
@@ -57,6 +58,9 @@
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
+  #subpage {
+    font-size: 2rem;
+  }
   /*-------------------------------------
  juku 
  -------------------------------------*/
@@ -72,6 +76,6 @@
   }
   #juku .juku_block .memb_list {
     margin-bottom: 20px;
-    font-size: 1.6rem;
+    font-size: 2.2rem;
   }
 }

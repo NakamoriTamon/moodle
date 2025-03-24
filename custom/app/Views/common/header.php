@@ -7,7 +7,7 @@ require_once('/var/www/html/moodle/custom/app/Controllers/tekijuku/tekijuku_inde
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-// ログインユーザーID
+// ログインユーザーID(会員番号)
 $login_id = $_SESSION['user_id'] ?? null;
 
 $tekijuku_index_controller = new TekijukuIndexController;

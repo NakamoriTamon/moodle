@@ -67,7 +67,7 @@ $page = $result_list['page'];
                                     <table class="table table-responsive table-striped table_list">
                                         <thead>
                                             <tr>
-                                                <th class="ps-4 pe-4 text-nowrap">ユーザーID</th>
+                                                <th class="ps-4 pe-4 text-nowrap">会員番号</th>
                                                 <th class="ps-4 pe-4 text-nowrap">氏名</th>
                                                 <th class="ps-4 pe-4 text-nowrap">フリガナ</th>
                                                 <th class="ps-4 pe-4 text-nowrap">生年月日</th>

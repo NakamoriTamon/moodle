@@ -6,7 +6,7 @@ require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 
 global $USER, $DB, $COURSE;
 
-// ユーザーIDを取得
+// ユーザーID(会員番号)を取得
 $userid = $USER->id;
 
 // ユーザーのロールを取得

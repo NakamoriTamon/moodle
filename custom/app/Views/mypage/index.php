@@ -121,7 +121,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
                             <ul class="list">
                                 <li class="list_item01">
-                                    <p class="list_label">ユーザーID</p>
+                                    <p class="list_label">会員番号</p>
                                     <div class="list_field f_txt"><?php echo $user_id; ?></div>
                                 </li>
                                 <li class="list_item02 req">
@@ -301,7 +301,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                 <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= $tekijuku_success ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
-                                        <p class="list_label">ユーザーID</p>
+                                        <p class="list_label">会員番号</p>
                                         <div class="list_field f_txt"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></div>
                                     </li>
                                     <li class="list_item02 req">

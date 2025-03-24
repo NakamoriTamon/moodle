@@ -94,7 +94,7 @@ unset($_SESSION['old_input']);
                                     <table class="table table-responsive table-striped table_list" style="width:100%">
                                         <thead>
                                             <tr>
-                                                <th class="ps-4 pe-4 text-nowrap">会員ID</th>
+                                                <th class="ps-4 pe-4 text-nowrap">会員番号</th>
                                                 <th class="ps-4 pe-4 text-nowrap">ユーザー名</th>
                                                 <th class="ps-4 pe-4 text-nowrap">メールアドレス</th>
                                                 <th class="ps-4 pe-4 text-nowrap">メニュー</th>

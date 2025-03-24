@@ -90,7 +90,7 @@
   font-size: 1.8rem;
 }
 #card .card_id::before {
-  content: "会員ID";
+  content: "会員番号";
   display: inline-block;
   padding-right: 10px;
   font-size: 1.4rem;
