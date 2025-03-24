@@ -79,7 +79,7 @@ input[type="password"],
 input[type="date"],
 input[type="number"] {
   height: 40px;
-  padding: 0 20px;
+  padding: 0 10px;
 }
 textarea {
   height: 150px;
@@ -159,14 +159,15 @@ select {
 }
 /* バリデーション */
 .error-msg {
-  color: red;
+  color: #cc0000;
   margin-top: 3px;
+  font-size: 14px;
 }
 /* 登録失敗などの大元のエラー */
 .error{
   text-align: center;
   margin-bottom: 4rem;
-  color: red;
+  color: #cc0000;
   font-size: 18px;
 }
 .success{
@@ -192,8 +193,8 @@ select {
   width: 100%;
   height: 100vh;
   min-height: 860px;
-  background: url(../../common/img/bg_heading.png) no-repeat center bottom / 100%;
-  z-index: -1px;
+  background: url(../../common/img/bg_heading.png) no-repeat center bottom / cover;
+ 
 }
 #heading {
   padding: 235px 0 140px;
@@ -405,9 +406,11 @@ select {
   z-index: 999;
 }
 #header .header_logo {
+  flex: 1;
   width: 320px;
 }
 #header nav {
+  flex: 0 0 auto;
   display: flex;
   gap: 20px;
   padding: 10px 0;
@@ -557,7 +560,6 @@ select {
  イベント共通パーツ
  -------------------------------------*/
 .event_item {
-  /* aspect-ratio: 10/13; */
   position: relative;
   background: #fff;
   border-radius: 10px;
@@ -727,7 +729,7 @@ select {
   width: calc(100% - 7em - 30px);
 }
 #search_cont .search_list li .f_txt input[type="text"],
-#search_cont .search_list li .f_date input[type="date"],
+#search_cont .search_list li .f_date input[type="text"],
 #search_cont .search_list li .f_select {
   height: 50px;
   border-radius: 3px;
@@ -867,15 +869,9 @@ select {
   width: 100%;
 }
 
-/*  mobile & smart phone
+/*  ipad
 ---------------------------------------------- */
-@media only screen and (max-width: 959px) {
-  /*-------------------------------------
- common 
- -------------------------------------*/
-  body {
-    font-size: 1.4rem;
-  }
+@media only screen and (max-width: 1024px) {
   .inner_l,
   .inner_m,
   .inner_s {
@@ -888,126 +884,6 @@ select {
   .inner_l .inner_m .inner_s {
     width: 90%;
   }
-  input[type="text"],
-  input[type="email"] {
-    padding: 0 10px;
-  }
-  textarea {
-    height: 120px;
-    padding: 10px;
-  }
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-  }
-  input[type="checkbox"]:checked:before {
-    width: 5px;
-    height: 10px;
-  }
-  input[type="radio"] {
-    width: 18px;
-    height: 18px;
-  }
-  select {
-    padding: 0 20px 0 10px;
-  }
-  .select::after {
-    right: 16px;
-  }
-  .error{
-    font-size: 15px;
-  }
-  .success{
-    font-size: 15px;
-  }
-
-  /*-------------------------------------
- 下層ページ共通
- -------------------------------------*/
-  #subpage::after {
-    height: 80vh;
-    min-height: inherit;
-    background: url(../../common/img/bg_heading-sp.png) no-repeat center / cover;
-    z-index: -1px;
-  }
-  #heading {
-    padding: 150px 0 100px;
-  }
-  #heading .head_ttl {
-    font-size: 3.6rem;
-  }
-  #heading .head_ttl::after {
-    font-size: 1.8rem;
-  }
-  .sub_ttl {
-    font-size: 1.6rem;
-    line-height: 1.7;
-  }
-  .whitebox {
-    padding: 50px 0;
-  }
-  .sent {
-    line-height: 1.8;
-  }
-  .block_ttl {
-    height: 40px;
-    margin-bottom: 20px;
-    padding: 0 20px;
-    font-size: 1.8rem;
-  }
-
-  /*-------------------------------------
- button 
--------------------------------------*/
-  .btn {
-    width: 300px;
-    height: 60px;
-  }
-  .btn.nopc {
-    display: flex !important;
-  }
-  .btn::after {
-    right: 10px;
-  }
-  .btn.arrow::after {
-    width: 10px;
-    height: 10px;
-  }
-  .btn_h {
-    border-radius: 0;
-    line-height: 1.3;
-  }
-  .box_bottom_btn {
-    margin: 60px auto 0;
-  }
-
-  /*-------------------------------------
- カテゴリボタン 
--------------------------------------*/
-  #category {
-    gap: 10px 20px;
-  }
-  #category .cat_item {
-    width: calc(50% - 10px);
-    height: 45px;
-  }
-  #category .cat_item input[type="checkbox"] {
-    display: none;
-  }
-  #category .cat_item .cat_btn {
-    font-size: 14px;
-  }
-  #category .cat_item .cat_btn .obj {
-    width: 35px;
-  }
-
-  /*-------------------------------------
- pankuzu
- -------------------------------------*/
-  #pankuzu {
-    margin-top: 100px;
-  }
-
   /*-------------------------------------
  header 
  -------------------------------------*/
@@ -1016,6 +892,7 @@ select {
     padding: 0 0 0 2.5%;
   }
   #header .header_logo {
+    flex: none;
     width: 130px;
   }
   #header nav {
@@ -1159,6 +1036,132 @@ select {
   #header .header_bottom .btn_h::before {
     left: 20px;
   }
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /*-------------------------------------
+ common 
+ -------------------------------------*/
+  body {
+    font-size: 14px;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    padding: 0 10px;
+  }
+  textarea {
+    height: 120px;
+    padding: 10px;
+  }
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+  input[type="checkbox"]:checked:before {
+    width: 5px;
+    height: 10px;
+  }
+  input[type="radio"] {
+    width: 18px;
+    height: 18px;
+  }
+  select {
+    padding: 0 20px 0 10px;
+  }
+  .select::after {
+    right: 16px;
+  }
+
+  /*-------------------------------------
+ 下層ページ共通
+ -------------------------------------*/
+  #subpage::after {
+    height: 80vh;
+    min-height: inherit;
+    background: url(../../common/img/bg_heading-sp.png) no-repeat center / cover;
+    z-index: -1px;
+  }
+  #heading {
+    padding: 150px 0 100px;
+  }
+  #heading .head_ttl {
+    font-size: 36px;
+  }
+  #heading .head_ttl::after {
+    font-size: 18px;
+  }
+  .sub_ttl {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .whitebox {
+    padding: 50px 0;
+  }
+  .sent {
+    line-height: 1.8;
+  }
+  .block_ttl {
+    height: 40px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    font-size: 18px;
+  }
+
+  /*-------------------------------------
+ button 
+-------------------------------------*/
+  .btn {
+    width: 300px;
+    height: 60px;
+  }
+  .btn.nopc {
+    display: flex !important;
+  }
+  .btn::after {
+    right: 10px;
+  }
+  .btn.arrow::after {
+    width: 10px;
+    height: 10px;
+  }
+  .btn_h {
+    border-radius: 0;
+    line-height: 1.3;
+  }
+  .box_bottom_btn {
+    margin: 60px auto 0;
+  }
+
+  /*-------------------------------------
+ カテゴリボタン 
+-------------------------------------*/
+  #category {
+    gap: 10px 20px;
+  }
+  #category .cat_item {
+    width: calc(50% - 10px);
+    height: 45px;
+  }
+  #category .cat_item input[type="checkbox"] {
+    display: none;
+  }
+  #category .cat_item .cat_btn {
+    font-size: 14px;
+  }
+  #category .cat_item .cat_btn .obj {
+    width: 35px;
+  }
+
+  /*-------------------------------------
+ pankuzu
+ -------------------------------------*/
+  #pankuzu {
+    margin-top: 100px;
+    font-size: 12px;
+  }
 
   /*-------------------------------------
  footer 
@@ -1190,13 +1193,13 @@ select {
     height: 10px;
   }
   #footer .footer_top .footer_cont .menu .menu_btm {
-    font-size: 1rem;
+    font-size: 10px;
   }
   #footer .footer_top .footer_cont .menu .menu_btm {
     justify-content: flex-start;
   }
   #footer .footer_btm .copy {
-    font-size: 1rem;
+    font-size: 10px;
   }
 
   /*-------------------------------------
@@ -1204,6 +1207,7 @@ select {
  -------------------------------------*/
   .event_item .event_ttl {
     line-height: 1.5;
+    font-size: 16px;
   }
   .event_item .event_category li {
     font-size: 10px;
@@ -1215,7 +1219,7 @@ select {
     font-size: 10px;
   }
   .event_sched {
-    font-size: 1.2rem;
+    font-size: 12px;
     line-height: 2;
   }
 
@@ -1279,7 +1283,7 @@ select {
   }
   #search_cont .search_btn .btn {
     height: 55px;
-    font-size: 1.6rem;
+    font-size: 16px;
   }
   #search_cont .search_btn .btn_clear {
     width: 34%;

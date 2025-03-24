@@ -78,7 +78,7 @@
     margin-bottom: 80px;
   }
   #guide .struct .struct_txt {
-    font-size: 1.8rem;
+    font-size: 16px;
   }
   #guide .struct .struct_cont {
     flex-direction: column;

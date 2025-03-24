@@ -27,26 +27,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 60px 0 30px;
+  margin: 60px 0 140px;
   cursor: pointer;
-}
-#mypage .radio_input, .radio_label{
-  vertical-align: middle;
-}
-#home .radio_label{
-  margin-right: 10px;
-}
-#main_success_message{
-  margin: auto;
-  background: #81bfda;
-  color: #fff;
-  padding: 8px 5px;
-  border-radius: 4px;
-  margin-bottom: 5rem;
-  width: 80%;
-  max-width: 700px;
-  text-align: center;
-  font-weight: bold;
 }
 
 /*-------------------------------------
@@ -124,25 +106,6 @@
 }
 #card .card_pres .card_pres_name {
   font-size: 1.8rem;
-}
-
-.card-wrapper {
-  position: relative;
-  display: block; /* ← inline-block から block に変更 */
-  margin: 0 auto; /* ← 中央寄せにするために追加 */
-  width: fit-content; /* ← 必要に応じて追加。コンテンツに合わせて幅を調整 */
-}
-.inactive-text {
-  position: absolute;
-  bottom: 0;
-  right: 0; /* right: 0; はそのまま */
-  padding: 10px;
-  font-size: 20px;
-  color: #ff0000;
-  text-align: right; /* テキスト自体を右寄せにする (念のため) */
-}
-.payment-text-red{
-   color: #ff0000 !important;
 }
 
 /*-------------------------------------
@@ -254,7 +217,7 @@
  modal
  -------------------------------------*/
 #modal.modal_ticket .modal_cont {
-  padding: 40px 30px 70px;
+  padding: 40px 0 70px;
   width: 350px;
   height: auto;
   border-top: 20px solid #81bfda;
@@ -293,7 +256,7 @@
     height: 30px;
   }
   .set_check {
-    margin: 40px 0 20px;
+    margin: 40px 0 60px;
   }
 
   /*-------------------------------------
@@ -311,19 +274,19 @@
     line-height: 1.7;
   }
   #card .card_name {
-    font-size: 2.4rem;
+    font-size: 24px;
   }
   #card .card_id {
-    font-size: 1.6rem;
+    font-size: 16px;
   }
   #card .card_id::before {
     padding-right: 20px;
-    font-size: 1.2rem;
+    font-size: 12px;
   }
   #card .card_desc {
     margin: 20px 0;
     line-height: 2.3;
-    font-size: 1.2rem;
+    font-size: 11px;
   }
   #card .card_pres {
     margin-right: 40px;
@@ -334,26 +297,10 @@
     height: 35px;
   }
   #card .card_pres .card_pres_pos {
-    font-size: 1.2rem;
+    font-size: 12px;
   }
   #card .card_pres .card_pres_name {
-    font-size: 1.6rem;
-  }
-
-  .card-wrapper {
-    position: relative;
-    display: block; /* ← inline-block から block に変更 */
-    margin: 0 auto; /* ← 中央寄せにするために追加 */
-    width: fit-content; /* ← 必要に応じて追加。コンテンツに合わせて幅を調整 */
-  }
-  .inactive-text {
-    position: absolute;
-    bottom: 0;
-    right: 0; /* right: 0; はそのまま */
-    padding: 10px;
-    font-size: 20px;
-    color: #ff0000;
-    text-align: right; /* テキスト自体を右寄せにする (念のため) */
+    font-size: 16px;
   }
 
   /*-------------------------------------
@@ -369,13 +316,13 @@
   }
   .info_wrap .info_wrap_cont .txt .txt_ttl {
     line-height: 1.5;
-    font-size: 1.6rem;
+    font-size: 16px;
   }
   .info_wrap .info_wrap_cont .txt .txt_other {
     margin-top: 15px;
     flex-wrap: wrap;
     gap: 5px 1em;
-    font-size: 1.2rem;
+    font-size: 12px;
   }
   .info_wrap .info_wrap_qr {
     flex-direction: row;
@@ -384,7 +331,7 @@
     border-radius: 0 0 8px 8px;
   }
   .info_wrap .info_wrap_qr .txt {
-    font-size: 1.2rem;
+    font-size: 12px;
   }
   .info_wrap.js_pay .info_wrap_qr .txt {
     color: #fff;

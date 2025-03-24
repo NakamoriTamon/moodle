@@ -73,10 +73,10 @@ if (!is_null($courseInfoId)) {
 }
 
 $btn_text = "";
-if($price > 0) {
+if ($price > 0) {
     $btn_text = "決済画面へ進む";
 } else {
-   $btn_text = "申し込み";
+    $btn_text = "申し込む";
 }
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
@@ -223,7 +223,7 @@ if($price > 0) {
                             </li>
                         <?php endif ?>
                     </ul>
-                    <?php if($price > 0): ?>
+                    <?php if ($price > 0): ?>
                         <p class="cancel">申し込み後のキャンセル（返金）はできません。</p>
                     <?php endif ?>
                     <div class="form_btn">

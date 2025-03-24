@@ -7,23 +7,53 @@
 /*-------------------------------------
  juku 
  -------------------------------------*/
-#juku .juku_about {
+#juku .juku_about01 {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 5%;
+  align-items: flex-end;
+  gap: 13%;
   margin-bottom: 40px;
 }
-#juku .juku_about .desc {
+#juku .juku_about01::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 11%;
+  width: 28%;
+  aspect-ratio: 1/1;
+  background: url(../common/img/img_juku01.png) no-repeat center / contain;
+}
+#juku .juku_about01 .desc {
+  max-width: 580px;
+  width: 48%;
   padding-top: 20px;
 }
-#juku .juku_about .desc a {
+#juku .juku_about01 .desc a {
   display: inline;
   color: #81bfda;
   text-decoration: underline;
 }
-#juku .juku_about img {
-  width: 44%;
+#juku .juku_about02 {
+  margin: 60px 0 80px;
+  padding: 60px 0;
+  background: #fff;
+}
+#juku .juku_about02 .juku_about-cont {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 5%;
+}
+#juku .juku_about02 .juku_about-cont .juku_about-txt {
+  width: 58%;
+}
+#juku .juku_about02 .juku_about-txt .juku_about-txt__ttl {
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 2.8rem;
+}
+#juku .juku_about02 .juku_about-cont img {
+  width: 36%;
 }
 #juku .juku_block {
   margin-bottom: 80px;
@@ -45,15 +75,6 @@
   text-align: center;
 } */
 
-.btn-container {
-  display: flex; /* フレックスボックスを使用 */
-  justify-content: center; /* ボタンを横方向に中央揃え */
-  align-items: center; /* ボタンを縦方向に中央揃え */
-  margin-top: 20px; /* ボタンと上の要素との間隔を調整 */
-}
-#entry_btn-container{
-  margin-top: 30px;
-}
 
 /*  mobile & smart phone
 ---------------------------------------------- */
@@ -64,14 +85,36 @@
   /*-------------------------------------
  juku 
  -------------------------------------*/
-  #juku .juku_about {
+  #juku .juku_about01 {
     display: block;
   }
-  #juku .juku_about .desc {
+  #juku .juku_about01::after {
+    position: initial;
+    display: block;
+    margin: 30px auto 0;
+    width: 180px;
+  }
+  #juku .juku_about01 .desc {
+    width: 100%;
     padding-top: 0;
   }
-  #juku .juku_about img {
-    margin: 30px auto 0;
+  #juku .juku_about02 {
+    margin: 40px 0 80px;
+    padding: 30px 0;
+  }
+  #juku .juku_about02 .juku_about-cont {
+    flex-direction: column;
+    gap: 5%;
+  }
+  #juku .juku_about02 .juku_about-cont .juku_about-txt {
+    width: 100%;
+  }
+  #juku .juku_about02 .juku_about-txt .juku_about-txt__ttl {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  #juku .juku_about02 .juku_about-cont img {
+    margin: 20px auto 0;
     width: 200px;
   }
   #juku .juku_block .memb_list {
