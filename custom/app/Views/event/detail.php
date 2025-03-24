@@ -221,7 +221,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <?php if (count($select_tutor) > 0): ?>
+                    <?php if (count($select_tutor) > 0 || count($tutor_names) > 0): ?>
                         <div class="detail_item">
                             <h2 class="block_ttl">登壇者</h2>
                             <?php foreach ($select_tutor as $turor): ?>
