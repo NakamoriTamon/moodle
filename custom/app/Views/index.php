@@ -46,6 +46,7 @@ $now = $now->format('Ymd');
         <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
         <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
         <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
+        <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
       </ul>
     </div>
   </section>

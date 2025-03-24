@@ -236,6 +236,11 @@
   aspect-ratio: 29 / 32;
   background: #e9e9e9;
 }
+#detail .speaker .speaker_img  img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 #detail .speaker .speaker_desc {
   width: calc(100% - 290px - 3%);
 }

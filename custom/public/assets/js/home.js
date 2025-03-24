@@ -19,7 +19,7 @@ const aboutSwiper01 = new Swiper(".about_swiper01", {
 const aboutSwiper02 = new Swiper(".about_swiper02", {
   speed: 10000,
   slidesPerView: 1.2,
-  spaceBetween: 45,
+  spaceBetween: 40,
   loop: true,
   centeredSlides: true,
   preventInteractionOnTransition: true,
@@ -53,7 +53,7 @@ const newSwiper = new Swiper(".new_swiper", {
     },
     1024: {
       slidesPerView: 3.5,
-      spaceBetween: 50,
+      spaceBetween: 30,
     },
   },
 });

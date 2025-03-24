@@ -139,6 +139,7 @@
 }
 #new .new_swiper {
   position: relative;
+  padding-bottom: 15px;
 }
 #new .new_swiper .swiper-slide {
   height: auto;
@@ -260,6 +261,21 @@
   #mv .mv_scroll {
     bottom: 0;
   }
+
+  /*-------------------------------------
+ about 
+  -------------------------------------*/
+  #about .about_cont {
+    gap: 5%;
+  }
+
+  /*-------------------------------------
+  mascot
+  -------------------------------------*/
+  #mascot {
+    bottom: 60px;
+  }
+
 }
 
 /*  mobile & smart phone
