@@ -39,7 +39,7 @@ class LoginController
 
         if(empty($user->confirmed)) {
             // 認証失敗時のエラーメッセージ
-            $this->redirectWithError('本登録が完了していません。登録したメールアドレスから本登録をかんりょうしてからもう一度ログインしてください。', '/custom/admin/app/Views/login/login.php');
+            $this->redirectWithError('本登録が完了していません。登録したメールアドレスから本登録を完了してからもう一度ログインしてください。', '/custom/admin/app/Views/login/login.php');
         }
         if ($user && password_verify($password, $user->password)) {
 
