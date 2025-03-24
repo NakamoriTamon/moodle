@@ -3,7 +3,7 @@ require_once('/var/www/html/moodle/config.php');
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
 require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/membership_fee_registration_controller.php');
 $membership_fee_registration_controller = new MembershipFeeRegistrationController();
-$result_list = $membership_fee_registration_controller->index($_GET['id']);
+$result_list = $membership_fee_registration_controller->index($_GET['id'] ?? null);
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -58,7 +58,7 @@ unset($_SESSION['old_input']);
                                         <select name="year" class="form-control">
                                             <option value="" selected disabled>未選択</option>
                                             <?php for ($i = 2024; $i < 2031; $i++) { ?>
-                                                <option value=<?= htmlspecialchars($i) ?> <?php if ($old_input['year'] == $i) { ?>selected<?php } ?>>
+                                                <option value=<?= htmlspecialchars($i) ?> <?php if (isset($old_input['year']) && $old_input['year'] == $i) { ?>selected<?php } ?>>
                                                     <?= htmlspecialchars($i) . "年度" ?>
                                                 </option>
                                             <?php } ?>
@@ -68,7 +68,7 @@ unset($_SESSION['old_input']);
                                 <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-4 sp-ms-0 w-100">
                                         <label class="form-label" for="notyf-message">フリーワード</label>
-                                        <input id="notyf-message" name="keyword" type="text" class="form-control" placeholder="田中 翔太" value="<?= $old_input['keyword'] ?>">
+                                        <input id="notyf-message" name="keyword" type="text" class="form-control" placeholder="田中 翔太" value="<?= isset($old_input['keyword']) ? $old_input['keyword'] : '' ?>">
                                     </div>
                                     <div class="w-100"></div>
                                 </div>

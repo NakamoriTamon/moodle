@@ -8,6 +8,7 @@ class MaterialController
 {
     private $categoryModel;
     private $eventModel;
+    private $materialModel;
 
     public function __construct()
     {

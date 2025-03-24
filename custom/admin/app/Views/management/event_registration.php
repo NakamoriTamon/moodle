@@ -109,7 +109,7 @@ $page = $result_list['page'];
                                 <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-3 w-100">
                                         <label class="form-label" for="notyf-message">フリーワード</label>
-                                        <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars($old_input['keyword'], ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
+                                        <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars(isset($old_input['keyword']) ? $old_input['keyword'] : '', ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
                                     </div>
                                     <div class="mb-3 w-100"></div>
                                 </div>

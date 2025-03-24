@@ -450,6 +450,7 @@ class QrController
     }
 }
 
+$course_numbers = [];
 // POSTリクエストの処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post_kbn = optional_param('post_kbn', '', PARAM_ALPHANUMEXT);
