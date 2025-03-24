@@ -233,14 +233,15 @@ $course_id = $result_list['course_info'] ?? [];
 				}
 			});
 
-
-
 			$(document).on('change', '.fileUpload', function(e) {
 				var file = this.files[0];
 				if (!file) return;
 				var fileName = file.name;
 				var fileURL = URL.createObjectURL(file);
-				var linkElem = create_file_link(fileURL, fileName);
+				// hiddenフィールドから course_no を取得（なければデフォルト '1' を使用）
+				var courseNo = $('#course_no').val() || '1';
+				// 3つの引数を渡す
+				var linkElem = create_file_link(fileURL, courseNo, fileName);
 				$(this).closest('.uploadRow').find('.fileInfo').html(linkElem).removeClass('d-none');
 				feather.replace();
 			});
@@ -430,14 +431,15 @@ $course_id = $result_list['course_info'] ?? [];
 				uploadNextFile(0);
 			});
 
-			function create_file_link(url, file_name) {
+			function create_file_link(courseInfo, courseNo, file_name) {
 				const file_link_container = document.createElement('div');
 				file_link_container.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
 
 				const link = document.createElement('a');
-				link.href = url;
-				link.target = '_blank';
-				link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none');
+				link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none', 'open-pdf');
+				link.setAttribute('data-course_info', courseInfo);
+				link.setAttribute('data-course_no', courseNo);
+				link.setAttribute('data-file_name', file_name);
 
 				const icon = document.createElement('i');
 				icon.setAttribute('data-feather', 'file-text');
@@ -453,6 +455,7 @@ $course_id = $result_list['course_info'] ?? [];
 				return file_link_container;
 			}
 
+
 			(function init_existing_files() {
 				const existing_materials = <?= json_encode($material_list, JSON_UNESCAPED_UNICODE) ?>;
 				for (const key in existing_materials) {
@@ -467,7 +470,10 @@ $course_id = $result_list['course_info'] ?? [];
 							if (!row) continue;
 							const file_info = row.querySelector('.fileInfo');
 							if (!file_info) continue;
-							const link_elem = create_file_link('/uploads/material/' + file_name, file_name);
+							// hiddenフィールドから course_no を取得（なければデフォルト '1' を使用）
+							var courseNo = $('#course_no').val() || '1';
+							// course_info には既存の material オブジェクトから course_info_id を使用する
+							const link_elem = create_file_link(material.course_info_id, courseNo, file_name);
 							file_info.appendChild(link_elem);
 							file_info.classList.remove('d-none');
 						}
@@ -475,6 +481,19 @@ $course_id = $result_list['course_info'] ?? [];
 				}
 				feather.replace();
 			})();
+
+
+			$(document).on("click", ".open-pdf", function(e) {
+				e.preventDefault();
+				var materialCourseNo = $(this).data("course_no");
+				var materialCourseId = $(this).data("course_info");
+				var materialFileName = $(this).data("file_name");
+				const pdfUrl = "/uploads/material/" + materialCourseId + '/' + materialCourseNo + '/' + materialFileName;
+				window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
+			});
+
+
+
 
 			$('#add-btn').on('click', function(e) {
 				e.preventDefault();
