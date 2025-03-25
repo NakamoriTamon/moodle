@@ -29,31 +29,47 @@ $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
-    if (!empty($tekijuku_commemoration->paid_date)) {
-        $is_disply_tekijuku_commemoration = true;
-    } else {
-        $current_date = new DateTime();
-        $current_year = (int)$current_date->format('Y');
-        $current_month = (int)$current_date->format('n');
+    // 現在の日付を取得
+    $current_date = new DateTime();
+    $current_year = (int)$current_date->format('Y');
+    $current_month = (int)$current_date->format('n');
 
-        // 年度の計算（4月1日を年度の始まりとする）
-        $fiscal_year = $current_year;
-        if ($current_month < 4) {
-            $fiscal_year = $current_year - 1;
+    // 現在の年度を計算（4月1日を年度の始まりとする）
+    $current_fiscal_year = $current_year;
+    if ($current_month < 4) {
+        $current_fiscal_year = $current_year - 1;
+    }
+
+    if (!empty($tekijuku_commemoration->paid_date)) {
+        // paid_dateが存在する場合
+        $paid_date = new DateTime($tekijuku_commemoration->paid_date);
+
+        // 支払日の年度を計算
+        $paid_year = (int)$paid_date->format('Y');
+        $paid_month = (int)$paid_date->format('n');
+        $paid_fiscal_year = $paid_year;
+        if ($paid_month < 4) {
+            $paid_fiscal_year = $paid_year - 1;
         }
 
-        // 対象年度のカラムが存在し、かつ2031年度未満であるか確認
-        if ($fiscal_year >= 2024 && $fiscal_year <= 2030) {
-            // 該当年度のデポジットフラグを確認
-            $deposit_column = "is_deposit_{$fiscal_year}";
+        // 現在の年度と支払い年度が同じであればtrue
+        if ($current_fiscal_year === $paid_fiscal_year) {
+            $is_disply_tekijuku_commemoration = true;
+        }
+    }
 
-            // 該当年度のデポジットフラグが存在し、値が'1'の場合に表示
-            if (
-                property_exists($tekijuku_commemoration, $deposit_column) &&
-                $tekijuku_commemoration->$deposit_column == '1'
-            ) {
-                $is_disply_tekijuku_commemoration = true;
-            }
+    // is_deposit_フラグの確認（paid_dateの有無に関わらず確認）
+    // 対象年度のカラムが存在し、かつ2031年度未満であるか確認
+    if ($current_fiscal_year >= 2024 && $current_fiscal_year <= 2030) {
+        // 該当年度のデポジットフラグを確認
+        $deposit_column = "is_deposit_{$current_fiscal_year}";
+
+        // 該当年度のデポジットフラグが存在し、値が'1'の場合に表示
+        if (
+            property_exists($tekijuku_commemoration, $deposit_column) &&
+            $tekijuku_commemoration->$deposit_column == '1'
+        ) {
+            $is_disply_tekijuku_commemoration = true;
         }
     }
 }
