@@ -5,8 +5,10 @@ include('/var/www/html/moodle/custom/app/Controllers/event/event_application_res
 
 $event_application_reserve_controller = new EventReserveController();
 $session_course_id = $_SESSION['reserve']['course_id'];
+$session_application_id = $_SESSION['reserve']['id'];
 $course_id = $_POST['course_id'] ?? $session_course_id;
-$result_list = $event_application_reserve_controller->index($course_id);
+$application_id =  $_POST['id'] ?? $session_application_id;
+$result_list = $event_application_reserve_controller->index($course_id, $application_id);
 $success = $_SESSION['message_success'];
 $common_array = $result_list['common_array'];
 $common_application = $result_list['common_application'];
@@ -16,6 +18,7 @@ $pay_method = $result_list['pay_method'];
 $is_payment = $result_list['is_payment'];
 $companion_array = $result_list['companion_array'];
 $child_name = $result_list['child_name'];
+$realtime_path = $result_list['realtime_path'];
 $old_input = $_SESSION['old_input'];
 
 unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors']);
@@ -30,7 +33,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
   <div class="inner_l">
     <section id="form" class="event confirm">
       <form id="upsert_form" method="POST" action="/custom/app/Controllers/event/event_application_reserve_upsert_controller.php">
-        <input type="hidden" name="application_id" value="<?= $common_application['id'] ?>">
+        <input type="hidden" name="application_id" value="<?= $application_id ?>">
         <input type="hidden" name="course_id" value="<?= $course_id ?>">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
         <div class="whitebox form_cont">
@@ -56,7 +59,12 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               </li>
               <li class="list_item05">
                 <p class="list_label">金額</p>
-                <p class="list_field f_txt"><?= htmlspecialchars($price) ?></p>
+                <p class="list_field f_txt">
+                  <?= htmlspecialchars($price . ' ') ?>
+                  <?php if ($price != '無料') { ?>
+                    <?= htmlspecialchars($common_application['event_application_package_types'] == 2 ? '(一括申し込み)' : '') ?>
+                  <?php } ?>
+                </p>
               </li>
               <?php if ($price != '無料') { ?>
                 <li class="list_item06">
@@ -94,6 +102,12 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                       </p>
                     <?php $email_count = $email_count + 1;
                   } ?>
+                </li>
+              <?php } ?>
+              <?php if (!empty($realtime_path)) { ?>
+                <li class="list_item10">
+                  <p class="list_label">リアルタイム配信パス</p>
+                  <a href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer"" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
                 </li>
               <?php } ?>
               <?php if (!empty($child_name)) { ?>

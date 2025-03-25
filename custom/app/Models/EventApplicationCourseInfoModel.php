@@ -165,7 +165,7 @@ class EventApplicationCourseInfoModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT name FROM mdl_event WHERE id = :id");
+                $stmt = $this->pdo->prepare("SELECT name, real_time_distribution_url FROM mdl_event WHERE id = :id");
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 $event_result_list = $stmt->fetch(PDO::FETCH_ASSOC);
