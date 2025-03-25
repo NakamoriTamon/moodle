@@ -69,6 +69,10 @@
   font-weight: 700;
   line-height: 2;
 }
+.tekijuki_add_btn{
+  margin: auto;
+  margin-top: 30px;
+}
 
 /* 親要素にテキストを中央揃え */
 /* .juku_block {

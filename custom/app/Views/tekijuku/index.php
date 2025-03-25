@@ -10,8 +10,8 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
 
 <main id="subpage">
     <section id="heading" class="inner_l">
-    <h2 class="head_ttl" data-en="ABOUT TEKIJUKU COMMEMORATION ASSOCIATION">
-          適塾記念会について
+        <h2 class="head_ttl" data-en="ABOUT TEKIJUKU COMMEMORATION ASSOCIATION">
+            適塾記念会について
         </h2>
     </section>
     <!-- heading -->
@@ -28,18 +28,18 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                 <!-- <img src="/custom/public/assets/common/img/img_juku.png" alt="" /> -->
             </div>
             <div class="juku_about02">
-            <div class="inner_m juku_about-cont">
-              <div class="juku_about-txt">
-                <h2 class="juku_about-txt__ttl">適塾について</h2>
-                <p class="sent">
-                  大阪市中央区北浜のオフィス街に現存する適塾は、我が国蘭学塾唯一の遺構であり、当時の大阪北浜の町家の姿を示す貴重な建物です。
-                  幕末の蘭医学研究所の第一人者とされる緒方洪庵（1810-1863）は、西洋医学の研究、種痘事業やコレラ治療など、医学史上に多くの業績を残しました。また、適塾は福沢諭吉・大村益次郎・橋本左内・長与専斎など、幕末から明治維新にかけて、近代日本の国家形成に関与する幾多の人物を輩出しました。
-                  1869（明治2）年に洪庵の息子惟準を院長とした大阪仮病院と、オランダ人医師ボードウィンを迎えて創立された大阪医学校は、幾多の変遷を経て、大阪帝国大学医学部、そして大阪大学医学部へと発展し今日にいたっています。
-                </p>
-              </div>
-              <img src="/custom/public/assets/common/img/img_juku02.png" alt="" />
+                <div class="inner_m juku_about-cont">
+                    <div class="juku_about-txt">
+                        <h2 class="juku_about-txt__ttl">適塾について</h2>
+                        <p class="sent">
+                            大阪市中央区北浜のオフィス街に現存する適塾は、我が国蘭学塾唯一の遺構であり、当時の大阪北浜の町家の姿を示す貴重な建物です。
+                            幕末の蘭医学研究所の第一人者とされる緒方洪庵（1810-1863）は、西洋医学の研究、種痘事業やコレラ治療など、医学史上に多くの業績を残しました。また、適塾は福沢諭吉・大村益次郎・橋本左内・長与専斎など、幕末から明治維新にかけて、近代日本の国家形成に関与する幾多の人物を輩出しました。
+                            1869（明治2）年に洪庵の息子惟準を院長とした大阪仮病院と、オランダ人医師ボードウィンを迎えて創立された大阪医学校は、幾多の変遷を経て、大阪帝国大学医学部、そして大阪大学医学部へと発展し今日にいたっています。
+                        </p>
+                    </div>
+                    <img src="/custom/public/assets/common/img/img_juku02.png" alt="" />
+                </div>
             </div>
-          </div>
             <div class="juku_block prize">
                 <h2 class="block_ttl">特典</h2>
                 <ul class="juku_list sent">
@@ -97,11 +97,11 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                     </div>
                 <?php elseif ($isTekijukuCommemorationMember === 'isActive'): ?>
                     <div class="btn-container">
-                        <button class="btn btn_gray" disabled>入会済み</button>
+                        <button class="btn btn_gray tekijuki_add_btn" disabled>入会済み</button>
                     </div>
                 <?php else: ?>
                     <div class="btn-container">
-                        <button class="btn btn_gray" disabled>退会済み</button>
+                        <button class="btn btn_gray tekijuki_add_btn" disabled>退会済み</button>
                     </div>
                 <?php endif ?>
             </div>
