@@ -9,20 +9,39 @@ require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
 try {
     $transaction = $DB->start_delegated_transaction();
 
-    // 検索条件の取得
-    $filters = array_filter([
-        'category_id' => $_POST['category_id'] ?? null,
-        'event_status_id' => $_POST['event_status_id'] ?? null,
-        'event_id' => $_POST['event_id'] ?? null,
-    ]);
+    $surveyApplicationModel = new SurveyApplicationModel();
+
+    $course_info_id = $_POST['course_info_id'];
+    $event_id = $_POST['event_id'];
+    $_SESSION['old_input'] = $_POST;
 
     // アンケートデータの取得
-    $surveyApplicationModel = new SurveyApplicationModel();
-    $survey_list = $surveyApplicationModel->getSurveyApplications($filters);
+    $survey_period = 0;
+    $survey_list = [];
+    $path_name = '';
+    if (!empty($course_info_id) || !empty($event_id)) {
+        $survey_list = $surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, 1, 100000);
+        if (!empty($course_info_id)) {
+            $survey = reset($survey_list);
+            $name = $survey['event']['name'];
+            $no = $survey['course_info']['no'];
+            $path_name = '第' . $no . '回_' . $name;
+        } else {
+            $path_name = $survey['event']['name'];
+        }
+    }
+
+    // アンケート時間集計
+    foreach ($survey_list as $survey) {
+        $start = strtotime($survey['event']["start_hour"]);
+        $end = strtotime($survey['event']["end_hour"]);
+        $survey_period = ($end - $start) / 60;
+    }
 
     // CSVヘッダー
     $csv_list[0] = [
         '回答時間',
+        '回数',
         '本日の講義内容について、ご意見・ご感想をお書きください',
         '今までに大阪大学公開講座のプログラムに参加されたことはありますか',
         '本日のプログラムをどのようにしてお知りになりましたか',
@@ -33,7 +52,7 @@ try {
         '本日のプログラムの理解度について、あてはまるもの1つをお選びください',
         '本日のプログラムで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
         'その他',
-        '本日のプログラムの開催時間(90分)についてあてはまるものを1つお選びください',
+        '本日のプログラムの開催時間(' . $survey_period . '分)についてあてはまるものを1つお選びください',
         '本日のプログラムの開催環境について、あてはまるものを１つお選びください。',
         '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
         '今後の大阪大学公開講座で、希望するジャンルやテーマ、話題があれば、ご提案ください',
@@ -46,113 +65,20 @@ try {
     // データの書き込み
     $count = 1;
     foreach ($survey_list as $survey) {
-        // 参加経験
-        $attend = $survey['attend'] == '1' ? 'はい' : 'いいえ';
-
-        // プログラムを知った方法
-        $found_method = match($survey['found_method']) {
-            '1' => 'チラシ',
-            '2' => 'ウェブサイト',
-            '3' => '大阪大学公開講座「知の広場」からのメール',
-            '4' => 'SNS（X, Instagram, Facebookなど）',
-            '5' => '21世紀懐徳堂からのメールマガジン',
-            '6' => '大阪大学卒業生メールマガジン',
-            '7' => '大阪大学入試課からのメール',
-            '8' => 'Peatixからのメール',
-            '9' => '知人からの紹介',
-            '10' => '講師・スタッフからの紹介',
-            '11' => '自治体の広報・掲示',
-            '12' => 'スマートニュース広告',
-            default => ''
-        };
-
-        // 受講理由
-        $reason = match($survey['reason']) {
-            '1' => 'テーマに関心があったから',
-            '2' => '本日のプログラム内容に関心があったから',
-            '3' => '本日のゲストに関心があったから',
-            '4' => '大阪大学のプログラムに参加したかったから',
-            '5' => '教養を高めたいから',
-            '6' => '仕事に役立つと思われたから',
-            '7' => '日常生活に役立つと思われたから',
-            '8' => '余暇を有効に利用したかったから',
-            default => ''
-        };
-
-        // 満足度
-        $satisfaction = match($survey['satisfaction']) {
-            1 => '非常に満足',
-            2 => '満足',
-            3 => 'ふつう',
-            4 => '不満',
-            5 => '非常に不満',
-            default => ''
-        };
-
-        // 理解度
-        $understanding = match($survey['understanding']) {
-            1 => 'よく理解できた',
-            2 => '理解できた',
-            3 => 'ふつう',
-            4 => '理解できなかった',
-            5 => '全く理解できなかった',
-            default => ''
-        };
-
-        // 良かった点
-        $good_point = match($survey['good_point']) {
-            1 => 'テーマについて考えを深めることができた',
-            2 => '最先端の研究について学べた',
-            3 => '大学の研究者と対話ができた',
-            4 => '大学の講義の雰囲気を味わえた',
-            5 => '大阪大学について知ることができた',
-            6 => '身の周りの社会課題に対する解決のヒントが得られた',
-            default => ''
-        };
-
-        // 開催時間
-        $time = match($survey['time']) {
-            1 => '適当である',
-            2 => '長すぎる',
-            3 => '短すぎる',
-            default => ''
-        };
-
-        // 開催環境
-        $holding_environment = match($survey['holding_environment']) {
-            1 => 'とても快適だった',
-            2 => '快適だった',
-            3 => 'ふつう',
-            4 => 'あまり快適ではなかった',
-            5 => '全く快適ではなかった',
-            default => ''
-        };
-
-        // 職業
-        $work = match($survey['work']) {
-            '1' => '高校生以下',
-            '2' => '学生（高校生、大学生、大学院生等）',
-            '3' => '会社員',
-            '4' => '自営業・フリーランス',
-            '5' => '公務員',
-            '6' => '教職員',
-            '7' => 'パート・アルバイト',
-            '8' => '主婦・主夫',
-            '9' => '定年退職',
-            '10' => 'その他',
-            default => ''
-        };
-
-        // 性別
-        $sex = match($survey['sex']) {
-            1 => '男性',
-            2 => '女性',
-            3 => 'その他',
-            default => ''
-        };
+        $attend = DECISION_LIST[$survey['attend']]; // 参加経験
+        $found_method = FOUND_METHOD_LIST[$survey['found_method']]; // プログラムを知った方法
+        $reason = REASON_LIST[$survey['reason']]; // 受講理由
+        $satisfaction = SATISFACTION_LIST[$survey['satisfaction']]; // 満足度
+        $understanding = UNDERSTANDING_LIST[$survey['understanding']];  // 理解度
+        $good_point = GOOD_POINT_LIST[$survey['good_point']];  // 良かった点
+        $time = TIME_LIST[$survey['time']]; // 開催時間
+        $holding_environment = HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]; // 開催環境
+        $work = WORK_LIST[$survey['work']]; // 職業
+        $sex = SEX_LIST[$survey['sex']];   // 性別
 
         $csv_array = [
             $survey['created_at'],
+            $survey['course_info']['no'],
             $survey['thoughts'],
             $attend,
             $found_method,
@@ -195,7 +121,7 @@ try {
         die("ファイルを開けませんでした");
     }
 
-        // UTF-8 BOMを追加
+    // UTF-8 BOMを追加
     fwrite($fp, "\xEF\xBB\xBF");
 
     // データをCSVとして書き込み（カンマ区切り）
@@ -214,24 +140,22 @@ try {
 
     // ファイルのダウンロード
     header('Content-Type: text/csv; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="survey_list_' . date('YmdHis') . '.csv"');
+    header('Content-Disposition: attachment; filename="' . $path_name . '_' . date('YmdHi') . '.csv"');
     header('Content-Transfer-Encoding: binary');
     header('Content-Length: ' . filesize($save_path));
-    
+
     readfile($save_path);
     unlink($save_path); // ファイルを削除
 
     $transaction->allow_commit();
-    // $_SESSION['message_success'] = 'CSVファイルのダウンロードが完了しました';
     header('Location: /custom/admin/app/Views/survey/index.php');
     exit;
-
 } catch (Exception $e) {
     try {
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
-        // $_SESSION['message_error'] = 'CSVファイルの出力に失敗しました';
+        $_SESSION['message_error'] = 'CSVファイルの出力に失敗しました';
         redirect('/custom/admin/app/Views/survey/index.php');
         exit;
     }
-} 
+}
