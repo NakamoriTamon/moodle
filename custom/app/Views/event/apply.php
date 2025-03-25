@@ -44,7 +44,7 @@ $capacity = $event['capacity'];
 if($responce['event']['capacity'] == 0) {
     $aki_ticket = 50;
 } else {
-    $aki_ticket = $responce['event']['capacity'] - $responce['sum_ticket_count'];
+    $aki_ticket = $responce['aki_ticket'];
 }
 
 $event_customfield_category_id = $event['event_customfield_category_id'];

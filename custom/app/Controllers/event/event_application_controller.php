@@ -98,7 +98,14 @@ class EventApplicationController
         }
 
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
-        $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)['sum_ticket_count'] ?? 0;
+        // 空数確認
+        $ticket_data = $this->eventApplicationModel->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true)[0];
+
+        if($event['capacity'] == 0) {
+            $aki_ticket = 0;
+        } else {
+            $aki_ticket = $ticket_data['available_tickets'];
+        }
 
         $cognitions = $this->cognitionModel->getCognition();
         $paymentTypes = $this->paymentTypeModel->getPaymentTypes();
@@ -158,7 +165,7 @@ class EventApplicationController
             }
         }
 
-        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'sum_ticket_count' => $sum_ticket_count];
+        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket];
     }
 
     public function getEvenApplicationById($eventId)
