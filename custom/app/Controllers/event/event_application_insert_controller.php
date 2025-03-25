@@ -387,6 +387,7 @@ if ($result) {
                 $eventApplicationModel = new EventApplicationModel();
                 $eventApplication = $eventApplicationModel->getEventApplicationByEventId($eventApplicationId);
 
+                $user_name = $name;
                 foreach ($eventApplication['course_infos'] as $course) {
                     global $url_secret_key;
                     $ticket_type = TICKET_TYPE['SELF'];
@@ -436,12 +437,17 @@ if ($result) {
                     $ticket_type = TICKET_TYPE['SELF'];
                     if ($user_email !== $course['participant_mail']) {
                         $ticket_type = TICKET_TYPE['ADDITIONAL'];
+
+                        $user_name = "";
+                    } else {
+                        $user_name = $name;
                     }
 
-                    $dear = $ticket_type === TICKET_TYPE['SELF'] ? '様' : '';
+                    // $dear = $ticket_type === TICKET_TYPE['SELF'] ? '様' : '';
+                    $dear = !empty($user_name) ? '様' : '';
                     $htmlBody = "
                         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                            <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p>
+                            <p style=\"text-align: left; font-weight:bold;\">" . $user_name . $dear . "</p><br />
                             <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申し込みが完了いたしました。</P>
                             <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
                             <div>
@@ -449,13 +455,11 @@ if ($result) {
                             </div>
                             <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
                             <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
-                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
                             <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
                             あらかじめご了承ください。</p>
                         </div>
                     ";
-
-                    $name = "";
 
                     $mail->Subject = 'チケットのお申し込みが完了しました';
                     $mail->Body = $htmlBody;
