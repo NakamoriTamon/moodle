@@ -49,7 +49,7 @@ class MypageController
         return $this->DB->get_record(
             'user',
             ['id' => $this->USER->id],
-            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn, child_name, guardian_phone',
+            'id, name, name_kana, email, phone1, city, guardian_kbn, birthday, guardian_name, guardian_email, description, notification_kbn, child_name, guardian_phone, is_dummy_email',
         );
     }
 
@@ -71,7 +71,7 @@ class MypageController
     public function getTekijukuCommemoration()
     {
         // 標準で取得するカラム
-        $columns = 'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, paid_date, note, is_published, is_subscription, is_delete, department, major, official, is_university_member';
+        $columns = 'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, paid_date, note, is_published, is_subscription, is_delete, department, major, official, is_university_member, is_dummy_email';
 
         // 現在の日付を取得
         $current_date = new DateTime();

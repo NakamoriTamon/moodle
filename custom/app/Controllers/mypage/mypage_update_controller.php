@@ -51,6 +51,10 @@ class MypageUpdateController
         $email = required_param('email', PARAM_TEXT);
         $_SESSION['errors']['email'] = validate_custom_email($email);
 
+        // 現在のユーザー情報を取得
+        $current_user = $DB->get_record('user', ['id' => $user_id]);
+        $email_changed = ($current_user && $current_user->email !== $email);
+
         $user_list = $DB->get_records_select(
             'user',
             'email = :email AND id != :user_id AND deleted = 0',
@@ -173,6 +177,11 @@ class MypageUpdateController
                 $data->guardian_email = $guardian_email;
                 $data->child_name = $child_name;
 
+                // メールアドレスが変更された場合、is_dummy_emailを0に設定
+                if ($email_changed) {
+                    $data->is_dummy_email = 0;
+                }
+
                 if (!empty($password)) {
                     $data->password = password_hash($password, PASSWORD_DEFAULT);
                 }
@@ -219,6 +228,11 @@ class MypageUpdateController
         $_SESSION['errors']['address'] = validate_max_text($address, '住所', $size, true);
         $email = required_param('tekijuku_email', PARAM_TEXT);
         $_SESSION['errors']['tekijuku_email'] = validate_custom_email($email);
+
+        // 現在の会員情報を取得
+        $current_record = $DB->get_record('tekijuku_commemoration', ['id' => $id]);
+        $email_changed = ($current_record && $current_record->email !== $email);
+
         $techiku_commem_count = $DB->get_records_select(
             'tekijuku_commemoration',
             'email = :email AND fk_user_id != :fk_user_id AND is_delete = 0',
@@ -283,6 +297,11 @@ class MypageUpdateController
                 $data->major = $major;
                 $data->official = $official;
                 $data->is_university_member = $is_university_member;
+
+                // メールアドレスが変更された場合、is_dummy_emailを0に設定
+                if ($email_changed) {
+                    $data->is_dummy_email = 0;
+                }
 
                 $DB->update_record_raw('tekijuku_commemoration', $data);
 

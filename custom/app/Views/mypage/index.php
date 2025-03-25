@@ -28,6 +28,7 @@ if (!$is_general_user) {
 $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
+$is_tekijuku_dummy_email = true;
 if ($tekijuku_commemoration !== false) {
     // 現在の日付を取得
     $current_date = new DateTime();
@@ -72,6 +73,7 @@ if ($tekijuku_commemoration !== false) {
             $is_disply_tekijuku_commemoration = true;
         }
     }
+    $is_tekijuku_dummy_email = $tekijuku_commemoration->is_dummy_email;
 }
 
 $event_applications = $mypage_controller->getEventApplications($event_application_offset, $perPage, $event_application_page); // 予約情報を引っ張ってくる
@@ -106,7 +108,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
-        <?php if ($is_disply_tekijuku_commemoration): ?>
+        <?php if ($is_disply_tekijuku_commemoration && !$user->is_dummy_email && !$is_tekijuku_dummy_email): ?>
             <div class="card-wrapper">
                 <div id="card">
                     <p class="card_head">適塾記念会デジタル会員証</p>
@@ -183,6 +185,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                             oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
                                         <?php if (!empty($errors['email'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
+                                        <?php endif; ?>
+                                        <?php if (empty($errors['email']) && $user->is_dummy_email): ?>
+                                            <div class=" text-danger mt-2">メールアドレスを変更してください</div>
                                         <?php endif; ?>
                                     </div>
                                 </li>
@@ -389,6 +394,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
                                             <?php if (!empty($errors['tekijuku_email'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_email']); ?></div>
+                                            <?php endif; ?>
+
+                                            <?php if (empty($errors['tekijuku_email']) && $is_tekijuku_dummy_email): ?>
+                                                <div class=" text-danger mt-2">メールアドレスを変更してください</div>
                                             <?php endif; ?>
                                         </div>
                                     </li>
