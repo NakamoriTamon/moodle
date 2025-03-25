@@ -96,8 +96,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
         if($tekijuku_discount > 0) {
-            $participation_fee = $participation_fee - $tekijuku_discount;
-            $price = $participation_fee;
+            $price = $participation_fee - $tekijuku_discount;
             $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
         }
     }
@@ -275,8 +274,8 @@ if (!empty($old_input)) {
                             
                             <li class="list_item05">
                                 <p class="list_label">金額</p>
-                                <?php if($participation_fee < 1): ?>
-                                    <p class="list_field">無料<?= $tekijuku_text ?></p>
+                                <?php if($price < 1): ?>
+                                    <p class="list_field" id="show_price">無料<?= $tekijuku_text ?></p>
                                 <?php else: ?>
                                     <p class="list_field" id="show_price"><?= htmlspecialchars(number_format($price)); ?>円</p>
                                 <?php endif; ?>
@@ -479,10 +478,14 @@ if (!empty($old_input)) {
     const akiTicketCount = $('#aki_ticket').val();
     // ブラウザバック対応
     $('input[name="ticket"]').on('change', function() {
-        const price = participation_fee * $(this).val();
-        var test = $('#price').text();
+        const price = participation_fee * $(this).val() - tekijuku_discount;
+        if(price == 0) {
+            $('#show_price').text("無料" + tekijuku_text);
+        } else {
+            $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
+        }
+
         $('#price').val(price);
-        $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
     });
 
     document.getElementById('ticket').addEventListener('blur', function() {
@@ -538,9 +541,14 @@ if (!empty($old_input)) {
             total_numner = 0;
             $input.each(function(val) {
                 total_numner = $(this).val();
-                const price = participation_fee * $(this).val();
+                const price = participation_fee * $(this).val() - tekijuku_discount;
+                if(price == 0) {
+                    $('#show_price').text("無料" + tekijuku_text);
+                } else {
+                    $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
+                }
+                
                 $('#price').val(price);
-                $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
             });
             createInputMail();
             return total_numner;
