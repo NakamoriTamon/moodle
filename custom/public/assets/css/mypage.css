@@ -30,6 +30,25 @@
   margin: 60px 0 140px;
   cursor: pointer;
 }
+#main_success_message {
+    margin: auto;
+    background: #81bfda;
+    color: #fff;
+    padding: 8px 5px;
+    border-radius: 4px;
+    margin-bottom: 5rem;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    font-weight: bold;
+}
+.radio_input,
+.radio_label{
+  vertical-align: middle;
+}
+.radio_input{
+  margin-right: .3rem;
+}
 
 /*-------------------------------------
  card
@@ -257,6 +276,9 @@
   }
   .set_check {
     margin: 40px 0 60px;
+  }
+  .radio_input{
+    margin-right: 0rem;
   }
 
   /*-------------------------------------
