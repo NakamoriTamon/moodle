@@ -18,13 +18,21 @@ class EventHistoryController
     {
         global $USER;
         $course_id = $data['course_id'];
+        $application_id = $data['id'];
+
+        var_dump($application_id);
         $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
 
         // 自身のユーザーのみ取得する
         foreach ($histry_list as $key => $histry) {
+            if ($histry['event_application_id'] != $application_id) {
+                unset($histry_list[$key]);
+                continue;
+            }
             $user = reset($histry['application'])['user'];
             if ($user['id'] != $USER->id) {
                 unset($histry_list[$key]);
+                continue;
             }
         }
 

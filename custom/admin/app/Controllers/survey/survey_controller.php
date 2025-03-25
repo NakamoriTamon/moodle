@@ -35,7 +35,7 @@ class SurveyController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'];
+        $current_page = $_GET['page'] ?? 1;
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
@@ -122,7 +122,7 @@ class SurveyController
 
         $survey_list = [];
         $total_count = 0;
-        if (!empty($course_info_id) && !empty($event_id)) {
+        if (!empty($course_info_id) || !empty($event_id)) {
             $survey_list = $this->surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, $current_page);
             $total_count = $this->surveyApplicationModel->getCountSurveyApplications($course_info_id, $event_id);
         }

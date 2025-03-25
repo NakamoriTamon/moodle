@@ -12,7 +12,7 @@ $email = $_POST['email'];
 $password = required_param('password', PARAM_RAW); // パスワード
 $_SESSION['old_input'] = $_POST;
 
-$email_error = empty($email) ? 'メールアドレスかユーザーIDを入力してください。' : null;
+$email_error = empty($email) ? 'メールアドレスか会員番号を入力してください。' : null;
 $password_error = empty($password) ? 'パスワードを入力してください。' : null;
 
 // エラーメッセージをセッションに保存
@@ -54,7 +54,7 @@ foreach ($user_list as $user) {
         && validate_internal_user_password($user, $password) // パスワードが通らない時は一時的にこの行をコメントアウト後userのpasswordをUIで変更してください。
     ) {
         complete_user_login($user); // 追加　セッションに$USER情報を入れる
-        $_SESSION['user_id'] = $user->id; // DBから取得したユーザーIDを保存
+        $_SESSION['user_id'] = $user->id; // DBから取得したユーザーID(会員番号)を保存
         unset($_SESSION['old_input']['email']);
         header('Location: /custom/app/Views/index.php');
         exit;

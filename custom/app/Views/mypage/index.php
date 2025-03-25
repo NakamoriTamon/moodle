@@ -110,9 +110,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             <div class="card-wrapper">
                 <div id="card">
                     <p class="card_head">適塾記念会デジタル会員証</p>
-                    <p class="card_year"><?php echo $currentYear; ?>年度の<br class="nopc" />本会会員ということを証明する</p>
-                    <p class="card_name"><?php echo $tekijuku_commemoration->name ?? ''; ?></p>
-                    <p class="card_id"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></p>
+                    <p class="card_year"><?php echo htmlspecialchars($currentYear); ?>年度の<br class="nopc" />本会会員ということを証明する</p>
+                    <p class="card_name"><?php echo htmlspecialchars($tekijuku_commemoration->name ?? ''); ?></p>
+                    <p class="card_id"><?php echo htmlspecialchars($tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''); ?></p>
                     <ul class="card_desc">
                         <li>・本会員証は他人への貸与や譲渡はできません。</li>
                         <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
@@ -137,8 +137,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
                             <ul class="list">
                                 <li class="list_item01">
-                                    <p class="list_label">ユーザーID</p>
-                                    <div class="list_field f_txt"><?php echo $user_id; ?></div>
+                                    <p class="list_label">会員番号</p>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user_id); ?></div>
                                 </li>
                                 <li class="list_item02 req">
                                     <p class="list_label">お名前</p>
@@ -310,15 +310,15 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                         <?php endif; ?>
                     </h3>
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
-                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo $tekijuku_commemoration->id ?>>
+                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration->id) ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
-                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
-                                <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= $tekijuku_success ?></p><?php } ?>
+                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= htmlspecialchars($basic_error) ?></p><?php } ?>
+                                <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= htmlspecialchars($tekijuku_success) ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
-                                        <p class="list_label">ユーザーID</p>
-                                        <div class="list_field f_txt"><?php echo $tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''; ?></div>
+                                        <p class="list_label">会員番号</p>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''); ?></div>
                                     </li>
                                     <li class="list_item02 req">
                                         <p class="list_label">会員種別</p>
@@ -399,7 +399,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                                 <input class="radio_input" id="payment_<?= $key ?>" style="vertical-align: middle;" type="radio" name="payment_method" value="<?= $key ?>"
                                                     <?php
                                                     // デフォルトの選択
-                                                    if ((!$old_input['payment_method'] && $key == 1) ||
+                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
                                                         isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration->payment_method, null)
                                                     ) {
                                                         echo 'checked';
@@ -519,22 +519,24 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
                         <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
-                            <input type="hidden" name="event_id" value="<?php echo $application->event_id ?>">
-                            <input type="hidden" name="course_id" value="<?php echo $application->course_id ?>">
+
+                            <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($application->event_id) ?>">
+                            <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($application->course_id) ?>">
+                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($application->event_application_id) ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
-                                    <?php echo date('Y/m/d', strtotime($application->course_date)); ?>
+                                    <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?>
                                 </p>
                                 <div class="txt">
                                     <p class="txt_ttl">
-                                        <?php echo '【第' . $application->no . '回】' . $application->event_name ?>
+                                        <?php echo htmlspecialchars('【第' . $application->no . '回】' . $application->event_name) ?>
                                     </p>
                                     <ul class="txt_other">
-                                        <li>【会場】<span class="txt_other_place"><?php echo $application->venue_name ?></span></li>
-                                        <li>【受講料】<span class="txt_other_money"><?php echo $price ?></span></li>
-                                        <li>【購入枚数】<span class="txt_other_num"><?php echo $application->ticket_count ?> 枚</span></li>
+                                        <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li>
+                                        <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($price) ?></span></li>
+                                        <li>【購入枚数】<span class="txt_other_num"><?php echo htmlspecialchars($application->ticket_count) ?> 枚</span></li>
                                         <?php if ($application->price != 0) : ?>
-                                            <li>【決済】<span class="txt_other_pay <?= empty($application->payment_date) ? 'payment-text-red' : '' ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
+                                            <li>【決済】<span class="txt_other_pay <?= htmlspecialchars(empty($application->payment_date) ? 'payment-text-red' : '') ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
                                         <?php endif; ?>
                                     </ul>
                                 </div>
@@ -549,11 +551,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                 <?php endforeach; ?>
                 <div class="pagination">
                     <?php if ($event_applications['pagination']['current_page'] > 1): ?>
-                        <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] - 1 ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] ?>#event_application" class="prev">← 前へ</a>
+                        <a href="?event_application_page=<?php echo htmlspecialchars($event_applications['pagination']['current_page'] - 1) ?>&event_history_page=<?php echo htmlspecialchars($event_histories['pagination']['current_page']) ?>#event_application" class="prev">← 前へ</a>
                     <?php endif; ?>
-                    <span class="page-info">Page <?php echo $event_applications['pagination']['current_page']; ?> / <?php echo $event_applications['pagination']['total_pages']; ?></span>
+                    <span class="page-info">Page <?php echo htmlspecialchars($event_applications['pagination']['current_page']); ?> / <?php echo htmlspecialchars($event_applications['pagination']['total_pages']); ?></span>
                     <?php if ($event_applications['pagination']['current_page'] < $event_applications['pagination']['total_pages']): ?>
-                        <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] + 1 ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] ?>#event_application" class="next">次へ →</a>
+                        <a href="?event_application_page=<?php echo htmlspecialchars($event_applications['pagination']['current_page'] + 1) ?>&event_history_page=<?php echo htmlspecialchars($event_histories['pagination']['current_page']) ?>#event_application" class="next">次へ →</a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -580,19 +582,20 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
                         <div class="info_wrap js_pay">
                             <form action="/custom/app/Views/event/history.php" method="POST" class="info_wrap_cont">
-                                <input type="hidden" name="event_id" value="<?php echo $history->event_id ?>">
-                                <input type="hidden" name="course_id" value="<?php echo $history->course_id ?>">
+                                <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($history->event_id) ?>">
+                                <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($history->course_id) ?>">
+                                <input type="hidden" name="id" value="<?php echo htmlspecialchars($history->event_application_id) ?>">
                                 <button type="submit" class="info_wrap_cont_btn">
                                     <p class="date">
-                                        <?php echo date('Y/m/d', strtotime($history->course_date)); ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($history->course_date))); ?>
                                     </p>
                                     <div class="txt">
                                         <p class="txt_ttl">
-                                            <?php echo '【第' . $history->no . '回】' . $history->event_name ?>
+                                            <?php echo htmlspecialchars('【第' . $history->no . '回】' . $history->event_name) ?>
                                         </p>
                                         <ul class="txt_other">
-                                            <li>【会場】<span class="txt_other_place"><?php echo $history->venue_name ?></span></li>
-                                            <li>【受講料】<span class="txt_other_money"><?php echo $history_price ?></span></li>
+                                            <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li>
+                                            <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($history_price) ?></span></li>
                                         </ul>
                                     </div>
                                 </button>
@@ -603,11 +606,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
                     <div class="pagination">
                         <?php if ($event_histories['pagination']['current_page'] > 1): ?>
-                            <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] - 1 ?>#event_histories" class="prev">← 前へ</a>
+                            <a href="?event_application_page=<?php echo htmlspecialchars($event_applications['pagination']['current_page']) ?>&event_history_page=<?php echo htmlspecialchars($event_histories['pagination']['current_page'] - 1) ?>#event_histories" class="prev">← 前へ</a>
                         <?php endif; ?>
-                        <span class="page-info">Page <?php echo $event_histories['pagination']['current_page']; ?> / <?php echo $event_histories['pagination']['total_pages']; ?></span>
+                        <span class="page-info">Page <?php echo htmlspecialchars($event_histories['pagination']['current_page']); ?> / <?php echo htmlspecialchars($event_histories['pagination']['total_pages']); ?></span>
                         <?php if ($event_histories['pagination']['current_page'] < $event_histories['pagination']['total_pages']): ?>
-                            <a href="?event_application_page=<?php echo $event_applications['pagination']['current_page'] ?>&event_history_page=<?php echo $event_histories['pagination']['current_page'] + 1 ?>#event_histories" class="next">次へ →</a>
+                            <a href="?event_application_page=<?php echo htmlspecialchars($event_applications['pagination']['current_page']) ?>&event_history_page=<?php echo htmlspecialchars($event_histories['pagination']['current_page'] + 1) ?>#event_histories" class="next">次へ →</a>
                         <?php endif; ?>
                     </div>
             </div>

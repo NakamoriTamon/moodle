@@ -109,7 +109,7 @@ $page = $result_list['page'];
                                 <div class="d-flex sp-block justify-content-between">
                                     <div class="mb-3 w-100">
                                         <label class="form-label" for="notyf-message">フリーワード</label>
-                                        <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars($old_input['keyword'], ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
+                                        <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars(isset($old_input['keyword']) ? $old_input['keyword'] : '', ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
                                     </div>
                                     <div class="mb-3 w-100"></div>
                                 </div>
@@ -143,7 +143,7 @@ $page = $result_list['page'];
                                                         <th class="ps-4 pe-4">ID</th>
                                                         <th class="ps-4 pe-4">イベント名</th>
                                                         <th class="ps-4 pe-4">講座回数</th>
-                                                        <th class="ps-4 pe-4">ユーザーID</th>
+                                                        <th class="ps-4 pe-4">会員番号</th>
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
                                                         <th class="ps-4 pe-4">決済方法</th>

@@ -79,9 +79,9 @@
   padding: 20px 0 0 42px;
 }
 
-/*  mobile & smart phone
+/*  ipad
 ---------------------------------------------- */
-@media only screen and (max-width: 959px) {
+@media only screen and (max-width: 1024px) {
   #faq .faq_tab {
     flex-direction: column;
     gap: 15px;
@@ -97,6 +97,11 @@
     justify-content: space-between;
     gap: 0;
   }
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
   #faq .faq_block {
     margin-bottom: 80px;
   }
@@ -105,7 +110,7 @@
     line-height: 1.6;
   }
   #faq .faq_block .list li .l_quest {
-    font-size: 1.8rem;
+    font-size: 16px;
   }
   #faq .faq_block .list li .l_quest::before {
     margin-top: 5px;

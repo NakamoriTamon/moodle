@@ -49,7 +49,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 							<div class="card">
 								<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
 									<form id="form" method="POST" action="/custom/admin/app/Views/event/movie.php" class="w-100">
-										<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id']) ?>">
+										<input type="hidden" name="id" value="<?= htmlspecialchars(isset($movie['id']) ? $movie['id'] : '') ?>">
 										<div class="sp-block d-flex justify-content-between">
 											<div class="mb-3 w-100">
 												<label class="form-label" for="notyf-message">カテゴリー</label>
@@ -125,7 +125,7 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 									<input type="hidden" name="course_no" value="<?= htmlspecialchars($result_list['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<div class="movie-container mb-4">
 										<input type="hidden" name="id" value="<?= !empty($movie->id) ? (int)$movie->id : 0 ?>">
-										<h5><?= htmlspecialchars($movie->name, ENT_QUOTES, 'UTF-8') ?></h5>
+										<h5><?= htmlspecialchars(!empty($movie->name) ? $movie->name : '', ENT_QUOTES, 'UTF-8') ?></h5>
 										<div class="fields-container">
 											<div>
 												<div class="add_field mb-3 d-flex align-items-center">

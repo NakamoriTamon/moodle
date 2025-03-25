@@ -54,7 +54,7 @@ class MypageController
     }
 
     /**
-     * $user_id ログイン中のユーザーID
+     * $user_id ログイン中のユーザーID(会員番号)
      * return bool 管理者か否か
      */
     public function isGeneralUser($user_id)

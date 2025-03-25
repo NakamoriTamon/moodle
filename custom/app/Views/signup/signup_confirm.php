@@ -20,10 +20,10 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
 
     <div class="inner_l">
         <section id="form" class="complete">
-            <ul id="flow">
+            <!-- <ul id="flow">
                 <li>入力</li>
                 <li class="active">完了</li>
-            </ul>
+            </ul> -->
             <div class="whitebox form_cont">
                 <p class="cpt_txt"><?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?></p>
                 <p class="sent">

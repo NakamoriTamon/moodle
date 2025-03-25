@@ -170,7 +170,7 @@ $page = $result_list['page'];
 											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction']));
 											?>
 											<tr>
-												<td class="p-4">2024/12/26 10:00</td>
+												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at']))) ?></td>
 												<td class="p-4"><?= htmlspecialchars('第' . $survey['course_info']['no'] . '回') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['thoughts']) ?></td>
 												<td class="p-4">

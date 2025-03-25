@@ -231,7 +231,7 @@ class QrController
             exit;
         }
 
-        // QRコードからユーザーIDを抽出
+        // QRコードからユーザーID(会員番号)を抽出
         $event_application_course_info_id = $this->extractUserIdFromQr($qr_data);
 
         if (!$event_application_course_info_id) {
@@ -450,6 +450,7 @@ class QrController
     }
 }
 
+$course_numbers = [];
 // POSTリクエストの処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post_kbn = optional_param('post_kbn', '', PARAM_ALPHANUMEXT);

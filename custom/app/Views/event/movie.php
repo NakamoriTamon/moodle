@@ -1,38 +1,20 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
-require_once($CFG->dirroot . '/custom/admin/app/Controllers/movie/movie_controller.php');
+require_once($CFG->dirroot . '/custom/app/Controllers/event/event_movie_controller.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 include($CFG->dirroot . '/custom/app/Views/common/header.php');
 
-if (isset($old_input['event_id'])) {
-    $event_id = $old_input['event_id'];
-} else {
-    $event_id = $_GET['event_id'];
+$course_info_id = isset($_POST['course_info_id']) ? $_POST['course_info_id'] : null;
+if (empty($course_info_id)) {
 }
-
-$reserve_controller = new EventRegisterController();
-
-$movie = $reserve_controller->movie_list($event_id);
-$course_list = $reserve_controller->course_list($movie->course_info_id);
-$result_list = $reserve_controller->event_list($event_id);
+$event_movie_controller = new EventMovieController();
+$result_list = $event_movie_controller->index($course_info_id);
 
 // バリデーションエラー
 $errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
-
-if ($movie) {
-    $category_list = $result_list['category_list'] ?? [];
-    $event_list = $result_list['event_list']  ?? [];
-    $file_name = $movie->file_name;
-    $course_info_id = $movie->course_info_id;
-} else {
-    $_SESSION['message_error'] = '動画資料が存在しません';
-    header('Location: /custom/app/Views/event/register.php');
-    exit;
-}
-
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -47,7 +29,7 @@ if ($movie) {
             <div class="movie_wrap w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
                 <video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
                     <?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload noplaybackrate"' : 'controlsList="nodownload"'; ?>>
-                    <source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $result_list['course_info_id'] . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
+                    <source id="movie_video_source" src="<?= htmlspecialchars($result_list['path'], ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
                     <p>動画再生をサポートしていないブラウザです。</p>
                 </video>
             </div>
@@ -62,39 +44,40 @@ if ($movie) {
     <li><a href="register.php">申し込みイベント</a></li>
     <li>イベント動画</li>
 </ul>
+
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
 <script>
     $(document).ready(function() {
-        // PHPから動画ファイル名を取得
-        let video_file_name = null;
-        <?php if (isset($movie->course_info_id) && isset($file_name) && isset($result_list['course_no'])): ?>
-            video_file_name = "<?php echo htmlspecialchars($movie->course_info_id . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8'); ?>";
-        <?php endif; ?>
+        // PHPから取得した $course_info_id
+        let course_info_id = "<?= $course_info_id ?>";
 
-        const is_double_speed = $('.movie_wrap').data('is-double-speed');
-
-        if (video_file_name) {
-            let video_path = "/uploads/movie/" + video_file_name;
-            $('#movie_video_source').attr('src', video_path);
-
-            $('#movie_video')[0].load();
-            $('#movie_video')[0].oncanplay = function() {
-                $('#movie_video').show();
-                $('#movie_img').hide();
-            }
+        // 1. もし POST でデータを受け取ったら sessionStorage に保存
+        if (course_info_id) {
+            sessionStorage.setItem('course_info_id', course_info_id);
         }
 
-        $('#movie_video').on('contextmenu', function(event) {
-            event.preventDefault();
-        });
+        // 2. リロード時に sessionStorage から取得し、再送信
+        if (!course_info_id && sessionStorage.getItem('course_info_id')) {
+            const course_info_id = sessionStorage.getItem('course_info_id');
+            sessionStorage.removeItem('course_info_id');
+            let form = $('<form>', {
+                action: '/custom/app/Views/event/movie.php',
+                method: 'POST',
+                style: 'display: none;'
+            });
 
-        $('#movie_video_source').on('click', function(event) {
-            event.preventDefault();
-        });
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'course_info_id',
+                value: course_info_id
+            }).appendTo(form);
 
-        $('#movie_video').on('contextmenu', function(event) {
-            event.preventDefault();
-        });
+            $('body').append(form);
+            form.submit();
+        }
 
+        const is_double_speed = "<?= $result_list['is_double_speed'] ?>";
         $('#movie_video').on('mouseenter', function() {
             $(this).prop('controlsList', 'nodownload');
             if (is_double_speed != 1) {
@@ -115,5 +98,3 @@ if ($movie) {
         });
     });
 </script>
-
-<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>

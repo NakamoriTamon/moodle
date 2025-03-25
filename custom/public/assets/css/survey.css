@@ -126,7 +126,7 @@
   }
   #quest .quest_form .form_block .comment {
     margin-top: 5px;
-    font-size: 1rem;
+    font-size: 10px;
   }
   #quest .quest_form .form_block.form02 > .comment {
     margin: 10px 0 30px;

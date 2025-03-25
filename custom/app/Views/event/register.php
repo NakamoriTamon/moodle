@@ -86,7 +86,7 @@ function viewDates($event)
 
                                 // 動画ボタン
                                 if ($now >= $view_date['releaseDate'] && $now <= $view_date['releaseEndDate'] && isset($event->movies)) {
-                                    echo '<a href="movie.php?event_id=' . htmlspecialchars($event->event_id) . '" class="btn_movie">イベント動画</a>';
+                                    echo "<a href='#'class='btn_movie' data-course-info-id='" . htmlspecialchars($event->course_info_id) . "'>イベント動画</a>";
                                 } else {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
                                 }
@@ -173,6 +173,27 @@ function viewDates($event)
         $("body").addClass("modal_fix").css({
             top: -srlpos
         });
+    });
+    $(".btn_movie").on("click", function(e) {
+        e.preventDefault();
+        const course_info_id = $(this).data("course-info-id");
+
+        // フォームを作成して自動送信
+        let form = $('<form>', {
+            action: '/custom/app/Views/event/movie.php', // 指定のURLにPOST
+            method: 'POST',
+            style: 'display: none;'
+        });
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'course_info_id',
+            value: course_info_id
+        }).appendTo(form);
+
+        $('body').append(form);
+        form.submit();
+
     });
 
     $(".js_close").on("click", function() {

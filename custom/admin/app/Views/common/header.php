@@ -1,5 +1,5 @@
 <?php
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/login/RoleController.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/login/roleController.php');
 
 // CSRF動的トークン生成
 if (empty($_SESSION['csrf_token'])) {

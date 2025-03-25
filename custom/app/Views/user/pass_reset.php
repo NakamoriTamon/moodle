@@ -1,4 +1,5 @@
 <?php
+unset($_SESSION['old_input']);
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/user/user_pass_reset_controller.php');
 
