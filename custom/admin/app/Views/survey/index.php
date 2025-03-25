@@ -16,6 +16,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $survey_list = $result_list['survey_list'];
+$survey_period = $result_list['survey_period'];
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -114,9 +115,10 @@ $page = $result_list['page'];
 				<!-- 非表示のform -->
 				<form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/survey/survey_export_controller.php">
 					<input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
-					<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
+					<input type="hidden" name="course_info_id" value="<?= $result_list['course_info_id'] ?>">
 					<input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
-					<input type="hidden" name="event_count" value="<?= $old_input['event_count'] ?? '' ?>">
+					<input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
+					<input type="hidden" name="course_no" value="<?= $old_input['course_no'] ?? '' ?>">
 				</form>
 
 				<div class="search-area col-12 col-lg-12">
@@ -124,7 +126,7 @@ $page = $result_list['page'];
 						<div class="card-body p-0">
 							<div class="d-flex w-100 mt-3 align-items-center justify-content-end">
 								<div class=" mt-3 mb-3 me-auto ml-025 fw-bold">総件数 : <?= $total_count ?? 0 ?> 件</div>
-								<button class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center">
+								<button id="csv_button" class="btn btn-primary ms-auto mt-3 mb-3 mr-025 d-flex justify-content-center align-items-center">
 									<i class="align-middle me-1" data-feather="download"></i>CSV出力
 								</button>
 							</div>
@@ -148,7 +150,7 @@ $page = $result_list['page'];
 												てください
 											</th>
 											<th class="w-25 p-4">その他</th>
-											<th class="w-25 p-4">本日のプログラムの開催時間(90分)についてあてはまるものを1つお選びください </th>
+											<th class="w-25 p-4">本日のプログラムの開催時間<?= !empty($survey_period) ? '(' . $survey_period . '分)' : '' ?>についてあてはまるものを1つお選びください </th>
 											<th class="w-25 p-4">
 												本日のプログラムの開催環境について、あてはまるものを１つお選びください。
 												※「あまり快適ではなかった」「全く快適ではなかった」と回答された方は次の
@@ -286,6 +288,9 @@ $page = $result_list['page'];
 				const nextPage = $(this).data("page");
 				$('input[name="page"]').val(nextPage);
 				$('#form').submit();
+			});
+			$('#csv_button').on('click', function(event) {
+				$('#csvExportForm').submit();
 			});
 		});
 	</script>
