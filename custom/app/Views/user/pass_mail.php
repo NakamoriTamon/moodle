@@ -1,4 +1,6 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+<?php
+unset($_SESSION['old_input']);
+include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/setting.css" />
 
 <main id="subpage">

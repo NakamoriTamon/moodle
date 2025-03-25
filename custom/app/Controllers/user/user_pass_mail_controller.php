@@ -33,7 +33,16 @@ if (empty($email)) {
     exit;
 }
 
-$user = $DB->get_record('user', ['email' => $email]);
+$user_list = $DB->get_records('user', ['email' => $email, 'deleted' => 0, 'confirmed' => 1]);
+if (!empty($user_list)) {
+    foreach ($user_list as $user) {
+        $general_user = $DB->get_record('role_assignments', ['userid' => $user->id, 'roleid' => 7]);
+        if ($general_user) {
+            break;
+        }
+    }
+}
+
 if (empty($user)) {
     $_SESSION['errors'] = ['email' => 'アカウントが存在しません'];
     header('Location: /custom/app/Views/user/pass_mail.php');
