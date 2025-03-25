@@ -467,6 +467,13 @@ reserve
   background: #81bfda;
   color: #fff;
 }
+#realtime_path{
+  text-decoration: underline;
+  color: #81bfda;
+}
+#realtime_path:hover{
+color: #009adb;
+}
 
 /*  mobile & smart phone
 ---------------------------------------------- */

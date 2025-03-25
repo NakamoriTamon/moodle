@@ -107,7 +107,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               <?php if (!empty($realtime_path)) { ?>
                 <li class="list_item10">
                   <p class="list_label">リアルタイム配信パス</p>
-                  <a href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer"" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
+                  <a id="realtime_path" href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer"" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
                 </li>
               <?php } ?>
               <?php if (!empty($child_name)) { ?>
