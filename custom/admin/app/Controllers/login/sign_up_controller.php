@@ -57,7 +57,7 @@ if ($name_error || $department_error || $email_error || $password_error) {
             // ユーザーを作成
             $new_user = new stdClass();
             $new_user->username = strtolower($name . time()); // 例: john.doe1672901234
-            $new_user->auth = 'manual'; // 手動認証
+            $new_user->auth = 'email'; // ユーザーがメールで確認する認証
             $new_user->confirmed = CONFIRMED['IS_UNCONFIRMED'];
             $new_user->lastname = '';
             $new_user->firstname = '';

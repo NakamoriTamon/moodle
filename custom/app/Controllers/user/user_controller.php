@@ -149,6 +149,7 @@ $guardian_kbn = !empty($child_name) ? 1 : 0;
 try {
     $transaction = $DB->start_delegated_transaction();
     $record = new stdClass();
+    $record->auth = 'email'; // ユーザーがメールで確認する認証
     $record->username = $name . uniqid();
     $record->password = password_hash($password, PASSWORD_DEFAULT);
     $record->email = $email;

@@ -1,4 +1,5 @@
 <?php
+require_once($CFG->dirroot . '/user/lib.php');
 require_once('/var/www/html/moodle/config.php');
 
 class adminRegistrationController
@@ -16,6 +17,11 @@ class adminRegistrationController
             // 有効期限確認
             $expiration_time = (int)$this->decrypt_id($expiration_time, $url_secret_key);
             if (time() > $expiration_time) {
+                $id = $this->decrypt_id($id, $url_secret_key);
+                $user = core_user::get_user($id);
+                $test = user_delete_user($user); // 有効期間切れのためユーザー情報を削除
+                $transaction->allow_commit();
+                $_SESSION['message_error'] = '登録に失敗しました。もう一度アカウントの作成から行ってください';
                 return false;
             }
 
@@ -34,7 +40,6 @@ class adminRegistrationController
             return true;
         } catch (Throwable $e) {
             try {
-                var_dump($e);
                 die();
                 $transaction->rollback($e);
             } catch (Throwable $e) {
