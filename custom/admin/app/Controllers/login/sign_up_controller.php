@@ -17,8 +17,8 @@ $email = $_POST['email'] ?? null;
 $password = $_POST['password'] ?? null;
 
 // バリデーションチェック
-$name_error = validate_text($name, '担当者名', 100, true);
-$department_error = validate_text($department, "所属部局", 255, true);
+$name_error = validate_text($name, '担当者名', 50, true);
+$department_error = validate_text($department, "所属部局", 50, true);
 $email_error = validate_custom_email($email);
 $password_error = validate_password($password);
 
