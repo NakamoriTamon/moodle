@@ -79,4 +79,33 @@ class TekijukuCommemorationModel extends BaseModel
             echo 'データの取得に失敗しました: ' . $e->getMessage();
         }
     }
+    
+    // 適塾の支払いが完了している情報を取得
+    public function getTekijukuUserByPaid($fk_user_id)
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+
+                $sql = "SELECT * FROM mdl_tekijuku_commemoration as t
+                         WHERE t.is_delete = 0
+                        AND t.fk_user_id = :fk_user_id
+                        AND (t.paid_date IS NOT NULL OR t.is_deposit_2025 = 1)";
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                
+                $stmt->execute([":fk_user_id" => $fk_user_id]);
+                $tekijuku = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $tekijuku;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 }
