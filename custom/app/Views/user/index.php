@@ -151,6 +151,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                             <p class="list_label">備考</p>
                             <div class="list_field f_txtarea">
                                 <textarea name="discription"><?= htmlspecialchars($old_input['discription'] ?? '') ?></textarea>
+                                <?php if (!empty($errors['discription'])): ?>
+                                    <div class="error-msg mt-2">
+                                        <?= htmlspecialchars($errors['discription']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </li>
                         <div id="parents_input_area">

@@ -45,7 +45,8 @@ $email_error = validate_custom_email($email);
 $password_error = validate_password($password);
 $phone_error = validate_tel_number($phone);
 $birthday_error = validate_date($birthday, '生年月日', true);
-$child_name_error = validate_max_text($birthday, 'お子様の氏名', $name_size);
+$child_name_error = validate_max_text($child_name, 'お子様の氏名', $name_size);
+$discription_error = validate_max_text($description, '備考', 200);
 
 // 確認用入力内容のバリデーションチェック
 $confirm_email_error = validate_custom_email($email_confirm);
@@ -133,7 +134,8 @@ $_SESSION['errors'] = [
     'guardian_name' => $guardian_name_error,
     'guardian_email' => $guardian_email_error,
     'guardian_phone' => $guardian_phone_error,
-    'child_name' => $child_name_error
+    'child_name' => $child_name_error,
+    'discription' => $discription_error,
 ];
 
 foreach ($_SESSION['errors'] as $error) {
