@@ -407,6 +407,9 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                                     ?> />
                                                 <label for="payment_<?= $key ?>" class="radio_label"><?= $value ?></label>
                                             <?php } ?>
+                                            <?php if (!empty($errors['payment_method'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
+                                            <?php endif; ?>
                                         </div>
                                     </li>
                                     <li class="list_item10">
@@ -536,7 +539,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($price) ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo htmlspecialchars($application->ticket_count) ?> 枚</span></li>
                                         <?php if ($application->price != 0) : ?>
-                                            <li>【決済】<span class="txt_other_pay <?= htmlspecialchars(empty($application->payment_date) ? 'payment-text-red' : '') ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
+                                            <li>【決済】<span class=" <?= htmlspecialchars(empty($application->payment_date) ? 'txt_other_pay' : '') ?>"><?= !empty($application->payment_date) ? '決済済' : '未決済' ?></span></li>
                                         <?php endif; ?>
                                     </ul>
                                 </div>

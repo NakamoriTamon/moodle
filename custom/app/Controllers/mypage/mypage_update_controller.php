@@ -238,7 +238,11 @@ class MypageUpdateController
         $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
         $_SESSION['errors']['note'] = validate_max_text($note, '備考', $size, false);
 
-        $payment_method = htmlspecialchars(required_param('payment_method', PARAM_INT), ENT_QUOTES, 'UTF-8');
+        $payment_method = htmlspecialchars($_POST['payment_method']);
+        if (empty($payment_method)) {
+            $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
+        }
+
         $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
         $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
 

@@ -472,7 +472,15 @@ reserve
   color: #81bfda;
 }
 #realtime_path:hover{
-color: #009adb;
+  color: #009adb;
+}
+#tekijuku-registration{
+  width: initial !important;
+}
+#tekijuku-registration input,
+#tekijuku-registration label
+{
+  vertical-align: middle !important;
 }
 
 /*  mobile & smart phone
