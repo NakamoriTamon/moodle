@@ -100,7 +100,7 @@ class EventApplicationController
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
         // 空数確認
         // capacity:0(無制限)の場合
-        if($event['capacity'] == 0) {
+        if($event['capacity'] < 1) {
             $aki_ticket = 0;
         } else {
             // $courseInfoIdが無い場合、空数が最小のレコードを取得
@@ -110,7 +110,8 @@ class EventApplicationController
                 $ticket_data = $result[0];
                 $aki_ticket = $ticket_data['available_tickets'];
             } else {
-                $aki_ticket = 0;
+                // 申込がない場合、空数MAXなので定員数を設定
+                $aki_ticket = $event['capacity'];
             }
         } 
 
