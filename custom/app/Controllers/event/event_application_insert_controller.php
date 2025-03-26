@@ -49,7 +49,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) { // 複数コース�
         return;
     }
     $participation_fee = $event['single_participation_fee'];
-} else { // 複数コース　一括申し込み
+} else { // 複数コース　一括申し込み もしくは 単発コース
     $event = $eventModel->getEventById($eventId);
     // イベント情報がなかった場合
     if (is_null($event)) {
@@ -58,7 +58,7 @@ if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) { // 複数コース�
         return;
     }
     $participation_fee = $event['participation_fee'];
-    $event_application_package_type = EVENT_APPLICATION_PACKAGE_TYPE['BUNDLE'];
+    $event_application_package_type = $event_kbn == PLURAL_EVENT ? EVENT_APPLICATION_PACKAGE_TYPE['BUNDLE'] : EVENT_APPLICATION_PACKAGE_TYPE['SINGLE'];
 }
 // 毎日開催イベント
 if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
