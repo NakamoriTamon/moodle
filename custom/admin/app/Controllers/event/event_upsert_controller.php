@@ -4,9 +4,19 @@ require_once('/var/www/html/moodle/lib/moodlelib.php');
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
-global $USER;
+use PHPMailer\PHPMailer\PHPMailer;
+use Dotenv\Dotenv;
+
+$targetModel = new TargetModel();
+
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
+$targets = $targetModel->getTargets();
+
+global $USER, $DB;
 $userid = $USER->id;
 $event_kbns = EVENT_KBN_LIST;
 // フォームからのデータを受け取る
@@ -36,16 +46,16 @@ if ($event_kbn == SINGLE_EVENT) {
     $_SESSION['errors']['end_event_date'] = null;
 } else {
     $_SESSION['errors']['event_date'] = null;
-    if($event_kbn == EVERY_DAY_EVENT) {
+    if ($event_kbn == EVERY_DAY_EVENT) {
         $start_event_date = empty($_POST['start_event_date']) ? null : $_POST['start_event_date']; // 開催日
         $end_event_date = empty($_POST['end_event_date']) ? null : $_POST['end_event_date']; // 開催日
-        if(!empty($id)) {
+        if (!empty($id)) {
             $start_event_date = $start_event_date ? (new DateTime($start_event_date))->format('Y-m-d') : null;
             $end_event_date = $end_event_date ? (new DateTime($end_event_date))->format('Y-m-d') : null;
         }
         $_SESSION['errors']['start_event_date'] = validate_date($start_event_date, '開催日(開始日)', true);
         $_SESSION['errors']['end_event_date'] = validate_date($end_event_date, '開催日(終了日)', true);
-        if(is_null($_SESSION['errors']['start_event_date']) && is_null($_SESSION['errors']['end_event_date'])) {
+        if (is_null($_SESSION['errors']['start_event_date']) && is_null($_SESSION['errors']['end_event_date'])) {
             $_SESSION['errors']['start_event_date'] = validate_date_comparison($start_event_date, $end_event_date, '開催日(開始日)', '開催日(終了日)');
         }
     } else {
@@ -79,7 +89,7 @@ $tekijuku_discount = empty($_POST['tekijuku_discount']) ? 0 : $_POST['tekijuku_d
 $_SESSION['errors']['tekijuku_discount'] = validate_int_zero_ok($tekijuku_discount, '適塾記念会会員割引額', false); // バリデーションチェック
 
 // 複数回シリーズのイベント　の場合
-if($event_kbn == PLURAL_EVENT) {
+if ($event_kbn == PLURAL_EVENT) {
     $single_participation_fee = empty($_POST['single_participation_fee']) ? 0 : $_POST['single_participation_fee']; // 単体の参加費
     $_SESSION['errors']['single_participation_fee'] = validate_int_zero_ok($single_participation_fee, '参加費', false);
     $title = "参加費( 全て受講 )";
@@ -89,11 +99,12 @@ if($event_kbn == PLURAL_EVENT) {
     $_SESSION['errors']['all_deadline'] = validate_int_zero_ok($all_deadline, '各回申し込み締切日', false);
 
     // 適塾記念会会員割引額が単体の参加費、参加費より大きくないか確認
-    if(is_null($_SESSION['errors']['single_participation_fee'])
+    if (
+        is_null($_SESSION['errors']['single_participation_fee'])
         && is_null($_SESSION['errors']['participation_fee'])
         && is_null($_SESSION['errors']['tekijuku_discount'])
     ) {
-        if($tekijuku_discount > $single_participation_fee || $tekijuku_discount > $participation_fee) {
+        if ($tekijuku_discount > $single_participation_fee || $tekijuku_discount > $participation_fee) {
             $_SESSION['errors']['tekijuku_discount'] = "適塾記念会会員割引額は参加費( 全て受講 )、参加費より大きい金額を入力しないでください。";
         }
     }
@@ -104,10 +115,11 @@ if($event_kbn == PLURAL_EVENT) {
     $all_deadline = 0;
     $single_participation_fee = $participation_fee;
     // 適塾記念会会員割引額が単体の参加費、参加費より大きくないか確認
-    if(is_null($_SESSION['errors']['participation_fee'])
+    if (
+        is_null($_SESSION['errors']['participation_fee'])
         && is_null($_SESSION['errors']['tekijuku_discount'])
     ) {
-        if($tekijuku_discount > $participation_fee) {
+        if ($tekijuku_discount > $participation_fee) {
             $_SESSION['errors']['tekijuku_discount'] = "適塾記念会会員割引額は参加費より大きい金額を入力しないでください。";
         }
     }
@@ -118,21 +130,20 @@ $_SESSION['errors']['deadline'] = validate_date($deadline, '申し込み締切�
 $capacity = empty($_POST['capacity']) ? 0 : $_POST['capacity']; // 定員
 $_SESSION['errors']['capacity'] = validate_int_zero_ok($capacity, '定員', false); // バリデーションチェック
 // イベント毎日開催の場合
-if($event_kbn == EVERY_DAY_EVENT) {
+if ($event_kbn == EVERY_DAY_EVENT) {
     // 開始日
-    if(!empty($deadline) && is_null($_SESSION['errors']['start_event_date']) && is_null($_SESSION['errors']['deadline'])) {
+    if (!empty($deadline) && is_null($_SESSION['errors']['start_event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $start_event_date, '申し込み締切日', '開催日(開始日)');
     }
-    
-    if(!empty($deadline) && is_null($_SESSION['errors']['end_event_date']) && is_null($_SESSION['errors']['deadline'])) {
+
+    if (!empty($deadline) && is_null($_SESSION['errors']['end_event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $end_event_date, '申し込み締切日', '開催日(終了日)');
     }
-
 }
 // 23時59分59秒を付ける
-if(!is_null($deadline)) {
+if (!is_null($deadline)) {
     $deadline = $deadline . ' 23:59:59';
-} elseif($event_kbn != EVERY_DAY_EVENT && is_null($deadline) && !is_null($event_date)) {
+} elseif ($event_kbn != EVERY_DAY_EVENT && is_null($deadline) && !is_null($event_date)) {
     $date = new DateTime($event_date);
     $date->modify('-1days');
     $deadline = $date->format('Y-m-d 23:59:59');
@@ -166,7 +177,7 @@ $pdo->beginTransaction();
 
 $count = 0;
 if ($event_kbn == SINGLE_EVENT) {
-    if(!empty($deadline) && is_null($_SESSION['errors']['event_date']) && is_null($_SESSION['errors']['deadline'])) {
+    if (!empty($deadline) && is_null($_SESSION['errors']['event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $event_date, '申し込み締切日', '開催日');
     }
     // イベント区分が 1 の場合: tutor_id_番号 の形式
@@ -175,7 +186,7 @@ if ($event_kbn == SINGLE_EVENT) {
             $lectureNumber = $matches[1]; // 講座番号
 
             $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', false); // バリデーションチェック;
-            if(empty($value)) {
+            if (empty($value)) {
                 $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
                 $_SESSION['errors']["tutor_name_{$lectureNumber}"] = null;
@@ -185,24 +196,25 @@ if ($event_kbn == SINGLE_EVENT) {
             $_SESSION['errors']["release_date"] = validate_date($_POST["release_date"], "アーカイブ公開日", false);
             $_SESSION['errors']["material_release_date"] = validate_date($_POST["material_release_date"], "講義資料公開日", false);
 
-            if(!$error_flg 
+            if (
+                !$error_flg
                 && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
-                || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
-                || $_SESSION['errors']["program_{$lectureNumber}"]
-                || $_SESSION['errors']["tutor_name_{$lectureNumber}"]
-                || $_SESSION['errors']["release_date"]
-                || $_SESSION['errors']["material_release_date"])
+                    || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
+                    || $_SESSION['errors']["program_{$lectureNumber}"]
+                    || $_SESSION['errors']["tutor_name_{$lectureNumber}"]
+                    || $_SESSION['errors']["release_date"]
+                    || $_SESSION['errors']["material_release_date"])
             ) {
                 $error_flg = true;
             }
 
-            if(!$error_flg) {
-                if(empty($deadline)) {
+            if (!$error_flg) {
+                if (empty($deadline)) {
                     $deadline_date = $event_date . ' ' . $end_hour;
                 } else {
                     $deadline_date = $deadline;
                 }
-                
+
                 // データ収集
                 if (empty($lectures[1])) {
                     $lectures[1] = [
@@ -213,7 +225,7 @@ if ($event_kbn == SINGLE_EVENT) {
                         'material_release_date' => empty($_POST["material_release_date"]) ? null : $_POST["material_release_date"],
                     ];
                 }
-                
+
                 $lectures[1]["detail"][$lectureNumber] = [];
                 $lectures[1]["detail"][$lectureNumber] = [
                     'tutor_id' => empty($value) ? null : $value,
@@ -235,14 +247,16 @@ if ($event_kbn == SINGLE_EVENT) {
             $itemNumber = $matches[2];   // 項目番号
 
             // 全て未入力の場合
-            if($lectureNumber > 2
-            && empty($_POST["course_date_{$lectureNumber}"])
-            && empty($_POST["release_date_{$lectureNumber}"])
-            && empty($_POST["material_release_date_{$lectureNumber}"])
-            && empty($value)
-            && empty($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"])
-            && empty($_POST["program_{$lectureNumber}_{$itemNumber}"])
-            && empty($_POST["tutor_name_{$lectureNumber}_{$itemNumber}"])){
+            if (
+                $lectureNumber > 2
+                && empty($_POST["course_date_{$lectureNumber}"])
+                && empty($_POST["release_date_{$lectureNumber}"])
+                && empty($_POST["material_release_date_{$lectureNumber}"])
+                && empty($value)
+                && empty($_POST["lecture_name_{$lectureNumber}_{$itemNumber}"])
+                && empty($_POST["program_{$lectureNumber}_{$itemNumber}"])
+                && empty($_POST["tutor_name_{$lectureNumber}_{$itemNumber}"])
+            ) {
                 // 追加せず次へ
                 continue;
             }
@@ -252,13 +266,13 @@ if ($event_kbn == SINGLE_EVENT) {
                 $lectures[$lectureNumber] = [];
                 $event_date = $_POST["course_date_1"];
                 $_SESSION['errors']["course_date_1"] = validate_date($_POST["course_date_1"], "開催日", $required_flg); // バリデーションチェック;
-                if(is_null($_SESSION['errors']["course_date_1"])) {
-                    if(is_null($deadline) && !is_null($event_date)) {
+                if (is_null($_SESSION['errors']["course_date_1"])) {
+                    if (is_null($deadline) && !is_null($event_date)) {
                         $date = new DateTime($event_date);
                         $date->modify('-1days');
                         $deadline = $date->format('Y-m-d 23:59:59');
                     }
-                    if(!$error_flg && !empty($deadline)) {
+                    if (!$error_flg && !empty($deadline)) {
                         $_SESSION['errors']["course_date_1"] = validate_date_comparison($deadline, $event_date, '開催日', '申し込み締切日');
                     }
                 }
@@ -267,7 +281,7 @@ if ($event_kbn == SINGLE_EVENT) {
             $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_date($_POST["course_date_{$lectureNumber}"], "開催日", $required_flg); // バリデーションチェック;
             $_SESSION['errors']["release_date_{$lectureNumber}"] = validate_date($_POST["release_date_{$lectureNumber}"], "アーカイブ公開日", false);
             $_SESSION['errors']["material_release_date_{$lectureNumber}"] = validate_date($_POST["material_release_date_{$lectureNumber}"], "講義資料公開日", false);
-            if(empty($value)) {
+            if (empty($value)) {
                 $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"] = validate_select($value, "講師", false); // バリデーションチェック;
                 $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}_{$itemNumber}"], '講師名', 225, false); // バリデーションチェック;
             } else {
@@ -278,37 +292,38 @@ if ($event_kbn == SINGLE_EVENT) {
             $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"] = validate_textarea($_POST["program_{$lectureNumber}_{$itemNumber}"], "講義概要", $required_flg); // バリデーションチェック;
 
             // 第2講座以降の場合
-            if($lectureNumber > 1) {
+            if ($lectureNumber > 1) {
                 // 現在講座の開催日が一つ前の講座より前の日付になっていないかチェック 
                 $before_no = $lectureNumber - 1;
-                if(is_null($_SESSION['errors']["course_date_{$lectureNumber}"]) && is_null($_SESSION['errors']["course_date_{$before_no}"])) {
+                if (is_null($_SESSION['errors']["course_date_{$lectureNumber}"]) && is_null($_SESSION['errors']["course_date_{$before_no}"])) {
                     $before_course_date = $_POST["course_date_{$before_no}"];
                     $course_date = $_POST["course_date_{$lectureNumber}"];
                     $_SESSION['errors']["course_date_{$lectureNumber}"] = validate_date_comparison_not_same_day($before_course_date, $course_date, "第{$lectureNumber}講座", "第{$before_no}講座");
                 }
             }
-            if(!$error_flg 
+            if (
+                !$error_flg
                 && ($_SESSION['errors']["course_date_{$lectureNumber}"]
-                || $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"]
-                || $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"]
-                || $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"]
-                || $_SESSION['errors']['all_deadline']
-                || $_SESSION['errors']['single_participation_fee']
-                || $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"]
-                || $_SESSION['errors']["course_date_1"])
+                    || $_SESSION['errors']["tutor_id_{$lectureNumber}_{$itemNumber}"]
+                    || $_SESSION['errors']["lecture_name_{$lectureNumber}_{$itemNumber}"]
+                    || $_SESSION['errors']["program_{$lectureNumber}_{$itemNumber}"]
+                    || $_SESSION['errors']['all_deadline']
+                    || $_SESSION['errors']['single_participation_fee']
+                    || $_SESSION['errors']["tutor_name_{$lectureNumber}_{$itemNumber}"]
+                    || $_SESSION['errors']["course_date_1"])
             ) {
                 $error_flg = true;
             }
 
-            if(!$error_flg) {
+            if (!$error_flg) {
                 // 各講義の申込締切日を算出
                 $course_date = optional_param("course_date_{$lectureNumber}", '', PARAM_RAW);
                 $date = new DateTime($course_date);
-                if($all_deadline > 0) {
+                if ($all_deadline > 0) {
                     $date->modify('-' . $all_deadline . 'days');
                     $deadline_date = $date->format('Y-m-d 23:59:59'); // YYYY-MM-DD形式に変換
                 } else {
-                    $deadline_date = $date->format('Y-m-d '. $end_hour); // YYYY-MM-DD形式に変換
+                    $deadline_date = $date->format('Y-m-d ' . $end_hour); // YYYY-MM-DD形式に変換
                 }
 
                 // 各フィールドを収集
@@ -334,9 +349,11 @@ if ($event_kbn == SINGLE_EVENT) {
         }
     }
 } elseif ($event_kbn == EVERY_DAY_EVENT) {
-    if($_SESSION['errors']['start_event_date'] == null
+    if (
+        $_SESSION['errors']['start_event_date'] == null
         && $_SESSION['errors']['end_event_date'] == null
-        && $_SESSION['errors']['end_hour'] == null) {
+        && $_SESSION['errors']['end_hour'] == null
+    ) {
 
         $_SESSION['errors']["release_date"] = validate_date($_POST["release_date"], "アーカイブ公開日", false);
         $_SESSION['errors']["material_release_date"] = validate_date($_POST["material_release_date"], "講義資料公開日", false);
@@ -346,7 +363,7 @@ if ($event_kbn == SINGLE_EVENT) {
             if (preg_match('/^tutor_id_(\d+)$/', $key, $matches)) {
                 $lectureNumber = $matches[1]; // 講座番号
 
-                if(empty($value)) {
+                if (empty($value)) {
                     $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', false); // バリデーションチェック;
                     $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, true); // バリデーションチェック;
                 } else {
@@ -356,29 +373,30 @@ if ($event_kbn == SINGLE_EVENT) {
                 $_SESSION['errors']["lecture_name_{$lectureNumber}"] = validate_text($_POST["lecture_name_{$lectureNumber}"], '講義名', 225, true); // バリデーションチェック;
                 $_SESSION['errors']["program_{$lectureNumber}"] = validate_textarea($_POST["program_{$lectureNumber}"], '講義概要', true); // バリデーションチェック;
 
-                if(!$error_flg 
+                if (
+                    !$error_flg
                     && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
-                    || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
-                    || $_SESSION['errors']["program_{$lectureNumber}"]
-                    || $_SESSION['errors']["release_date"]
-                    || $_SESSION['errors']["material_release_date"])
+                        || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
+                        || $_SESSION['errors']["program_{$lectureNumber}"]
+                        || $_SESSION['errors']["release_date"]
+                        || $_SESSION['errors']["material_release_date"])
                 ) {
                     $error_flg = true;
                 }
 
-                if(!$error_flg) {
+                if (!$error_flg) {
                     // `start_event_date` と `end_event_date` を取得
-                    if(!is_null($start_event_date)) {
+                    if (!is_null($start_event_date)) {
                         $startDate = new DateTime($start_event_date);
                     }
-                    if(!is_null($end_event_date)) {
+                    if (!is_null($end_event_date)) {
                         $endDate = new DateTime($end_event_date);
                     }
-                    $endHour = (int) $end_hour; 
+                    $endHour = (int) $end_hour;
 
                     // 日付範囲内の全日を `course_date` に設定
                     $courseDates = [];
-                    if(!is_null($start_event_date) && !is_null($end_event_date)) {
+                    if (!is_null($start_event_date) && !is_null($end_event_date)) {
                         while ($startDate <= $endDate) {
                             $courseDates[] = $startDate->format('Y-m-d'); // `YYYY-MM-DD` 形式で保存
                             $startDate->modify('+1 day'); // 1日ずつ増やす
@@ -394,7 +412,7 @@ if ($event_kbn == SINGLE_EVENT) {
             }
         }
 
-        if(!empty($id)) {
+        if (!empty($id)) {
             $stmt = $pdo->prepare("
                 SELECT course_info_id
                 FROM mdl_event_course_info 
@@ -409,12 +427,12 @@ if ($event_kbn == SINGLE_EVENT) {
         // 各 `course_date` ごとに `deadline_date` を設定
         foreach ($courseDates as $key => $courseDate) {
             $deadlineDate = new DateTime($courseDate);
-            if($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
+            if ($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
                 $deadlineDate->modify('-' . $all_deadline . 'days');
             }
             $deadlineDate->setTime($endHour, 0, 0); // `end_hour` をセット
 
-            if(isset($eventCourseInfos[$key])) {
+            if (isset($eventCourseInfos[$key])) {
                 $course_info_id = $eventCourseInfos[$key];
             } else {
                 $course_info_id = null;
@@ -434,7 +452,8 @@ if ($event_kbn == SINGLE_EVENT) {
 }
 
 // エラーがある場合
-if($_SESSION['errors']['name']
+if (
+    $_SESSION['errors']['name']
     || $_SESSION['errors']['description']
     || $_SESSION['errors']['category_id']
     || $_SESSION['errors']['lecture_format_id']
@@ -463,9 +482,10 @@ if($_SESSION['errors']['name']
     || $_SESSION['errors']['end_event_date']
     || $_SESSION['errors']['material_release_period']
     || $_SESSION['errors']['inquiry_mail']
-    || $error_flg) {
+    || $error_flg
+) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
-    if($id) {
+    if ($id) {
         header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $id);
     } else {
         header('Location: /custom/admin/app/Views/event/upsert.php');
@@ -491,7 +511,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 try {
 
-    if(!empty($id)) {
+    if (!empty($id)) {
         $stmt = $pdo->prepare("
             UPDATE mdl_event
             SET 
@@ -591,62 +611,62 @@ try {
                 , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail
             )
         ");
-    
+
         $stmt->execute([
-            'userid' => $userid
-            , ':name' => $name
-            , ':description' => $description
-            , ':event_date' => $event_date
-            , ':start_hour' => $start_hour
-            , ':end_hour' => $end_hour
-            , ':target' => $target
-            , ':venue_name' => $venue_name
-            , ':access' => $access
-            , ':google_map' => $google_map
-            , ':is_top' => $is_top
-            , ':program' => $program
-            , ':sponsor' => $sponsor
-            , ':co_host' => $co_host
-            , ':sponsorship' => $sponsorship
-            , ':cooperation' => $cooperation
-            , ':plan' => $plan
-            , ':capacity' => $capacity
-            , ':participation_fee' => $participation_fee
-            , ':single_participation_fee' => $single_participation_fee
-            , ':deadline' => $deadline
-            , ':all_deadline' => $all_deadline
-            , ':archive_streaming_period' => $archive_streaming_period
-            , ':is_double_speed' => $is_double_speed
-            , ':note' => $note
-            , ':thumbnail_img' => ""
-            , ':event_kbn' => $event_kbn
-            , ':event_customfield_category_id' => $event_customfield_category_id
-            , ':survey_custom_id' => $survey_custom_id
-            , ':is_apply_btn' => $is_apply_btn
-            , ':start_event_date' => $start_event_date
-            , ':end_event_date' => $end_event_date
-            , ':tekijuku_discount' => $tekijuku_discount
-            , ':real_time_distribution_url' => $real_time_distribution_url
-            , ':material_release_period' => $material_release_period
-            , ':inquiry_mail' => $inquiry_mail
+            'userid' => $userid,
+            ':name' => $name,
+            ':description' => $description,
+            ':event_date' => $event_date,
+            ':start_hour' => $start_hour,
+            ':end_hour' => $end_hour,
+            ':target' => $target,
+            ':venue_name' => $venue_name,
+            ':access' => $access,
+            ':google_map' => $google_map,
+            ':is_top' => $is_top,
+            ':program' => $program,
+            ':sponsor' => $sponsor,
+            ':co_host' => $co_host,
+            ':sponsorship' => $sponsorship,
+            ':cooperation' => $cooperation,
+            ':plan' => $plan,
+            ':capacity' => $capacity,
+            ':participation_fee' => $participation_fee,
+            ':single_participation_fee' => $single_participation_fee,
+            ':deadline' => $deadline,
+            ':all_deadline' => $all_deadline,
+            ':archive_streaming_period' => $archive_streaming_period,
+            ':is_double_speed' => $is_double_speed,
+            ':note' => $note,
+            ':thumbnail_img' => "",
+            ':event_kbn' => $event_kbn,
+            ':event_customfield_category_id' => $event_customfield_category_id,
+            ':survey_custom_id' => $survey_custom_id,
+            ':is_apply_btn' => $is_apply_btn,
+            ':start_event_date' => $start_event_date,
+            ':end_event_date' => $end_event_date,
+            ':tekijuku_discount' => $tekijuku_discount,
+            ':real_time_distribution_url' => $real_time_distribution_url,
+            ':material_release_period' => $material_release_period,
+            ':inquiry_mail' => $inquiry_mail
         ]);
-    
+
         // mdl_eventの挿入IDを取得
         $eventId = $pdo->lastInsertId();
     }
-    if(empty($eventId) || (!empty($eventId) && !empty($thumbnail_img['name']))) {
+    if (empty($eventId) || (!empty($eventId) && !empty($thumbnail_img['name']))) {
         if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
             // 一時ファイルと元のファイル情報を取得
             $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
             $originalName = pathinfo($thumbnail_img['name'], PATHINFO_FILENAME); // 元のファイル名
             $extension = pathinfo($thumbnail_img['name'], PATHINFO_EXTENSION);  // 拡張子
-        
+
             // 保存先ディレクトリの設定
             $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
             $uploadsDir = $moodleDir . '/uploads';
             $thumbnailsDir = $uploadsDir . '/thumbnails';
             $eventDir = $thumbnailsDir . '/' . $eventId;
-        
+
             // 必要なディレクトリを順番に作成
             if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
                 $result = mkdir($uploadsDir, 0755, true);
@@ -657,7 +677,7 @@ try {
                     return;
                 }
             }
-        
+
             if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
                 $result = mkdir($thumbnailsDir, 0755, true);
                 if (!$result) {
@@ -667,7 +687,7 @@ try {
                     return;
                 }
             }
-        
+
             if (!file_exists($eventDir) && !is_dir($eventDir)) {
                 $result = mkdir($eventDir, 0755, true);
                 if (!$result) {
@@ -680,15 +700,15 @@ try {
 
             // 1. 保存先ディレクトリの全ファイルを取得
             $allFiles = scandir($eventDir);
-        
+
             // 保存先ファイルパスを生成
             $timestamp = date('YmdHis');
             $newFileName = "thumbnail_{$timestamp}.{$extension}";
             $destination = $eventDir . '/' . $newFileName;
-        
+
             // ファイルを保存
             if (move_uploaded_file($tmpName, $destination)) {
-        
+
                 // ファイルURLを取得
                 $relativePath = '/uploads/thumbnails/' . $eventId . '/' . $newFileName;
                 $fileUrl = new moodle_url($relativePath);
@@ -701,7 +721,7 @@ try {
                         unlink($eventDir .  '/' . $file); // ファイルを削除
                     }
                 }
-        
+
                 // データベースに保存する場合
                 $stmt = $pdo->prepare("
                     UPDATE mdl_event
@@ -710,7 +730,7 @@ try {
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = :id
                 ");
-        
+
                 $stmt->execute([
                     ':thumbnail_img' => $fileUrl, // ファイルURLを保存
                     ':id' => $eventId // イベントID
@@ -735,7 +755,7 @@ try {
 
 
     // カテゴリー登録処理
-    foreach($selectedCategories as $key => $category_id) {
+    foreach ($selectedCategories as $key => $category_id) {
         // 2. mdl_event_categoryへのINSERT
         $stmt = $pdo->prepare("
             INSERT INTO mdl_event_category (
@@ -745,7 +765,7 @@ try {
                 CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :category_id
             )
         ");
-    
+
         $stmt->execute([
             ':event_id' => $eventId, // mdl_eventの挿入IDを使用
             ':category_id' => $category_id
@@ -755,9 +775,9 @@ try {
     // $eventIdに紐づくデータを削除
     $stmt = $pdo->prepare("DELETE FROM mdl_event_lecture_format WHERE event_id = :event_id");
     $stmt->execute([':event_id' => $eventId]); // 削除対象のevent_id
-    
+
     // 講義形式登録処理
-    foreach($lecture_format_ids as $key => $lecture_format_id) {
+    foreach ($lecture_format_ids as $key => $lecture_format_id) {
         // 2. mdl_event_lecture_formatへのINSERT
         $stmt = $pdo->prepare("
             INSERT INTO mdl_event_lecture_format (
@@ -767,7 +787,7 @@ try {
                 CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :lecture_format_id
             )
         ");
-    
+
         $stmt->execute([
             ':event_id' => $eventId, // mdl_eventの挿入IDを使用
             ':lecture_format_id' => $lecture_format_id
@@ -775,11 +795,11 @@ try {
     }
 
     // 講座登録登録処理
-    foreach($lectures as $key => $lecture) {
+    foreach ($lectures as $key => $lecture) {
         if (!empty($lecture['course_info_id'])) {
             $courseInfoId = $lecture['course_info_id'];
 
-            if($event_kbn != EVERY_DAY_EVENT) {
+            if ($event_kbn != EVERY_DAY_EVENT) {
                 $stmt = $pdo->prepare("
                     UPDATE mdl_course_info
                     SET 
@@ -790,7 +810,7 @@ try {
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = :id
                 ");
-        
+
                 $stmt->execute([
                     ':course_date' => $lecture["course_date"],
                     ':release_date' => $lecture["release_date"],
@@ -799,7 +819,7 @@ try {
                     ':id' => $courseInfoId
                 ]);
             }
-            
+
             // **mdl_course_info_detail の削除**
             $stmt = $pdo->prepare("
                 DELETE FROM mdl_course_info_detail 
@@ -816,7 +836,7 @@ try {
                     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date, :material_release_date
                 )
             ");
-        
+
             $stmt->execute([
                 ':no' => $key,
                 ':course_date' => $lecture["course_date"],
@@ -828,7 +848,7 @@ try {
         }
 
         // 講座詳細登録処理
-        foreach($lecture["detail"] as $key => $detail) {
+        foreach ($lecture["detail"] as $key => $detail) {
             // mdl_course_info_detailへのINSERT
             $stmt = $pdo->prepare("
                 INSERT INTO mdl_course_info_detail (
@@ -838,10 +858,10 @@ try {
                     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :course_info_id, :tutor_id, :name, :program, :tutor_name
                 )
             ");
-        
+
             $tutor_id = empty($detail["tutor_id"]) ? null : $detail["tutor_id"];
             $tutor_name = null;
-            if(empty($tutor_id)) {
+            if (empty($tutor_id)) {
                 $tutor_name = empty($detail["tutor_name"]) ? "" : $detail["tutor_name"];
             }
             $stmt->execute([
@@ -864,7 +884,7 @@ try {
                     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :course_info_id
                 )
             ");
-        
+
             $stmt->execute([
                 ':event_id' => $eventId, // mdl_eventの挿入IDを使用
                 ':course_info_id' => $courseInfoId
@@ -873,6 +893,11 @@ try {
     }
 
     $pdo->commit();
+
+    if (empty($id)) { // 新規登録の場合のみメールマガジン送信
+        exec("php /var/www/html/moodle/custom/app/scripts/send_event_notification.php --eventid={$eventId} > /dev/null 2>&1 &");
+    }
+
     $_SESSION['message_success'] = '登録が完了しました';
     header('Location: /custom/admin/app/Views/event/index.php');
 } catch (PDOException $e) {
