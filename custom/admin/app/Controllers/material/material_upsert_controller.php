@@ -155,11 +155,23 @@ if (isset($_FILES['file'])) {
     }
 }
 
+$ids_post = isset($_SESSION['registered_material_ids'])
+    ? array_map('intval', $_SESSION['registered_material_ids'])
+    : (isset($_POST['ids']) ? array_map('intval', (array)$_POST['ids']) : []);
+
+$delete_files = (array) ($_POST['files'] ?? []);
+
+$files = array_filter($_POST['files'], function ($value) {
+    return $value !== "";
+});
+foreach ($files as $key => &$value) {
+    $value = $key;
+}
+
+
 $material_list = $DB->get_records('course_material', array('course_info_id' => $_POST['course_info_id']));
-$ids_post = $_SESSION['registered_material_ids'] ?? $_POST['ids'] ?? [];
-$delete_files = $_POST['files'];
 foreach ($material_list as $key => $material_record) {
-    if (!in_array($key, $ids_post) || $delete_files[$key] == 'delete') {
+    if (!in_array((int)$key, $ids_post) || (isset($delete_files[$key]) && $delete_files[$key] == 'delete' || in_array((int)$key, $files))) {
         $target_id = (int)$key;
         if ($target_id > 0) {
             $record = $DB->get_record('course_material', array('id' => $target_id));
@@ -173,6 +185,7 @@ foreach ($material_list as $key => $material_record) {
         }
     }
 }
+
 
 $_SESSION['message_success'] = '登録が完了しました';
 echo json_encode(['status' => 'success']);
