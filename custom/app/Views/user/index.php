@@ -201,10 +201,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                     </ul>
                     <div class="agree">
                         <p class="agree_txt">
-                            個人情報の提供について、大阪大学の個人情報保護に関する<a href="https://www.osaka-u.ac.jp/ja/misc/privacy.html">プライバシーポリシー</a>を確認し、同意します。
+                            個人情報の提供について、大阪大学の個人情報保護に関する<a href="https://www.osaka-u.ac.jp/ja/misc/privacy.html" target="_blank" id="privacyLink">プライバシーポリシー</a>を確認し、同意します。
                         </p>
                         <label for="agree">
-                            <input type="checkbox" name="agree" id="agree" <?= !empty($old_input['agree']) ? "checked" : ''; ?> />同意する
+                            <input type="checkbox" name="agree" id="agree" value="1" <?= !empty($old_input['agree']) ? "checked" : ''; ?> disabled />同意する
                         </label>
                     </div>
                     <div class="form_btn">
@@ -304,6 +304,24 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
 
         $('#user_form').on('submit', function() {
             $(this).find('input[type=submit]').prop('disabled', true); // 送信ボタンを無効化
+        });
+        // プライバシーポリシーリンクをクリック時
+        $("#privacyLink").on("click", function(event) {
+            event.preventDefault(); // デフォルトのリンク動作を防ぐ
+            window.open($(this).attr("href"), "_blank"); // 別タブで開く
+
+            // ユーザーがフォーカスを失い、戻ってきたらチェックボックスを有効化
+            var checkFocus = setInterval(function() {
+                if (document.hasFocus()) {
+                    clearInterval(checkFocus);
+                    $("#agree").prop("disabled", false);
+                }
+            }, 500);
+        });
+
+        // 送信時にチェックボックスを有効化
+        $("#user_form").on("submit", function() {
+            $("#agree").prop("disabled", false);
         });
     });
 </script>
