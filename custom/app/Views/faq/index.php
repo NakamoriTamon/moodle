@@ -39,7 +39,7 @@
                     </li>
                     <li>
                         <p class="l_quest">ユーザー登録後の確認のメールが届かないのですが。</p>
-                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールにも届いていない場合は、事務局までご連絡（「知の広場」内のお問い合わせフォームに遷移）ください。</p>
+                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールにも届いていない場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php">事務局までご連絡</a>（「知の広場」内のお問い合わせフォームに遷移）ください。</p>
                     </li>
                     <li>
                         <p class="l_quest">

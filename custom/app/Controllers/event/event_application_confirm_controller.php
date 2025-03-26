@@ -9,7 +9,7 @@ require_once('/var/www/html/moodle/custom/app/Models/CognitionModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
-require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
+require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
 
 // セッションをクリア
 unset($SESSION->formdata);
@@ -58,8 +58,8 @@ if ($event_kbn == EVERY_DAY_EVENT && !is_null($courseInfoId)) {
     $participation_fee = $event['single_participation_fee'];
 }
 
-$mypage_controller = new MypageController;
-$tekijuku = $mypage_controller->getTekijukuCommemoration();
+$tekijukuCommemorationModel = new TekijukuCommemorationModel();
+$tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user_id);
 
 $tekijuku_discount = 0;
 if($tekijuku) {

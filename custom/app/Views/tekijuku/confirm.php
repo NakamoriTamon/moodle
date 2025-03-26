@@ -77,7 +77,7 @@ global $old_input;
                         <li class="list_item09">
                             <p class="list_label">金額金額</p>
                             <div class="list_field">
-                                <p><?= htmlspecialchars($old_input['price']) ?></p>
+                                <p><?= htmlspecialchars(number_format($old_input['price']) . '円') ?></p>
                             </div>
                         </li>
                         <li class="list_item09">
@@ -92,8 +92,8 @@ global $old_input;
                                 <p><?= nl2br($old_input['note']) ?></p>
                             </div>
                         </li>
-                        
-                        
+
+
                         <li class="list_item11">
                             <div class="list_field">
                                 <label class="checkbox_label">

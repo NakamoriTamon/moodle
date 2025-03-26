@@ -110,7 +110,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                             <p class="list_label">口数</p>
                             <div class="list_field f_num">
                                 <button type="button" class="num_min" onclick="updateUnitCount(-1)">ー</button>
-                                <input type="number" id="unit" name="unit" value="<?= htmlspecialchars($old_input['unit'] ?? 1) ?>" class="num_txt" onchange="updatePrice()"/>
+                                <input type="number" id="unit" name="unit" value="<?= htmlspecialchars($old_input['unit'] ?? 1) ?>" class="num_txt" onchange="updatePrice()" />
                                 <button type="button" class="num_plus" onclick="updateUnitCount(1)">＋</button>
                             </div>
                         </li>
@@ -121,14 +121,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                         </li>
                         <li class="list_item10 req">
                             <p class="list_label">支払方法</p>
-                            <div class="list_field f_txt radio-group">
+                            <div id="tekijuku-registration" class="list_field f_txt radio-group">
                                 <?php foreach ($payment_select_list as $key => $value) { ?>
-                                    <input class="radio_input" type="radio" name="payment_method" value=<?= $key ?>
+                                    <input class="radio_input" type="radio" id="payment_<?= $key ?>" name="payment_method" value=<?= $key ?>
                                         <?php if (!$old_input['payment_method'] && $key === 1) { ?> checked
                                         <?php } else { ?>
                                         <?= isSelected($key, $old_input['payment_method'] ?? null, null) ? 'checked' : '';
                                         } ?> />
-                                    <label class="radio_label" for="convenience"><?= $value ?></label>
+                                    <label for="payment_<?= $key ?>" class="radio_label" for="convenience"><?= $value ?></label>
                                 <?php } ?>
                             </div>
                         </li>
@@ -251,8 +251,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
     });
 
     // 会員種別ごとの単価
-    const PRICE_REGULAR_MEMBER = 2000;  // 普通会員単価
-    const PRICE_SUPPORTING_MEMBER = 10000;  // 賛助会員単価
+    const PRICE_REGULAR_MEMBER = 2000; // 普通会員単価
+    const PRICE_SUPPORTING_MEMBER = 10000; // 賛助会員単価
 
     // 現在選ばれている会員種別の単価を決定
     let currentUnitPrice = PRICE_REGULAR_MEMBER;
@@ -261,7 +261,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
     function updatePrice() {
         // 会員種別の選択を取得
         const typeCode = document.getElementById('type_code').value;
-        
+
         // 会員種別によって単価を決定
         if (typeCode == 1) {
             currentUnitPrice = PRICE_REGULAR_MEMBER;
@@ -299,7 +299,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
     window.onload = updatePrice;
 
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const checkbox = document.querySelector('input[name="is_university_member"]');
         const fields = document.querySelectorAll("#department_field, #major_field, #official_field");
 

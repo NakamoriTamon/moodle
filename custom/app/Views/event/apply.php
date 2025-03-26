@@ -2,6 +2,7 @@
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_controller.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php'); // 管理者か否か確認用
+require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 // unset($SESSION->formdata);
 $eventId = isset($_GET['id']) ? $_GET['id'] : null;
@@ -83,7 +84,8 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     
     $mypage_controller = new MypageController;
     $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
-    $tekijuku = $mypage_controller->getTekijukuCommemoration();
+    $tekijukuCommemorationModel = new TekijukuCommemorationModel();
+    $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id);
     $is_general_user = $mypage_controller->isGeneralUser($user->id);
     if (!$is_general_user && $user) {
         echo '<script type="text/javascript">

@@ -7,8 +7,6 @@ require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
 // 必要なモデルのrequire文
 
 try {
-    $transaction = $DB->start_delegated_transaction();
-
     $surveyApplicationModel = new SurveyApplicationModel();
 
     $course_info_id = $_POST['course_info_id'];
@@ -147,13 +145,8 @@ try {
 
     readfile($save_path);
     unlink($save_path); // ファイルを削除
-
-    $transaction->allow_commit();
-    header('Location: /custom/admin/app/Views/survey/index.php');
-    exit;
 } catch (Exception $e) {
     try {
-        $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = 'CSVファイルの出力に失敗しました';
         redirect('/custom/admin/app/Views/survey/index.php');
