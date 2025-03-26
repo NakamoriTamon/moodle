@@ -78,6 +78,15 @@
   display: none;
   padding: 20px 0 0 42px;
 }
+#contact_href{
+  display: inline;
+  text-decoration: underline;
+}
+#contact_href:hover{
+  display: inline;
+  text-decoration: none;
+}
+
 
 /*  ipad
 ---------------------------------------------- */
