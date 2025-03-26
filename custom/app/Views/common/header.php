@@ -30,6 +30,19 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
     <meta name="keywords" content="" />
     <title></title>
     <link rel="shortcut icon" href="/common/img/favicon.ico" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0YF1PN4FKM"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-0YF1PN4FKM');
+    </script>
+
     <!-- ogp -->
     <meta property="og:title" content="" />
     <meta property="og:description" content="" />

@@ -6,7 +6,8 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-function is_mobile_device() {
+function is_mobile_device()
+{
     $user_agent = $_SERVER['HTTP_USER_AGENT'];
     return preg_match('/(iPhone|iPod|Android|BlackBerry|Opera Mini|Windows Phone|webOS)/i', $user_agent);
 }

@@ -21,6 +21,7 @@ try {
     $path_name = '';
     if (!empty($course_info_id) || !empty($event_id)) {
         $survey_list = $surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, 1, 100000);
+        $survey = reset($survey_list);
         if (!empty($course_info_id)) {
             $survey = reset($survey_list);
             $name = $survey['event']['name'];
