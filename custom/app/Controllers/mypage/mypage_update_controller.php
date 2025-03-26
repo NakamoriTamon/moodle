@@ -207,11 +207,11 @@ class MypageUpdateController
 
         // 郵便番号形式チェック
         if ($post_code && !preg_match('/^\d+$/', $post_code)) {
-            $post_code_error =  '郵便番号は数値で入力してください';
+            $_SESSION['errors']['post_code'] = '郵便番号は数値で入力してください';
         }
 
         if (empty($post_code)) {
-            $post_code_error =  '郵便番号は必須です。';
+            $_SESSION['errors']['post_code'] = '郵便番号は必須です。';
         }
 
         $address = htmlspecialchars(required_param('address', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
@@ -232,7 +232,7 @@ class MypageUpdateController
 
         $tell_number = htmlspecialchars(required_param('tell_number', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $tell_number = str_replace('ー', '-', $tell_number);
-        $_SESSION['errors']['phone'] = validate_tel_number($tell_number);
+        $_SESSION['errors']['tell_number'] = validate_tel_number($tell_number);
 
 
         $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他

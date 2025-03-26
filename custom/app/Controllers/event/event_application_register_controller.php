@@ -79,8 +79,17 @@ class EventRegisterController
             (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
             AND ea.user_id = :user_id
             AND eaci.ticket_type = :self_ticket_type
+            AND (
+                -- リリース日がNULLの場合: 開催日+23:59:59 を公開終了とする
+                (ci.release_date IS NULL AND ci.course_date >= CURDATE())
+
+                -- リリース日がある場合: `release_date + archive_streaming_period` で公開終了を計算
+                OR (ci.release_date IS NOT NULL 
+                    AND DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY) >= NOW()
+                )
+            )
         ORDER BY 
-            ci.course_date DESC
+            ci.course_date ASC
         LIMIT $perPage OFFSET $offset";
 
             // パラメータ設定
