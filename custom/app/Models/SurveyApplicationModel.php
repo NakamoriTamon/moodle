@@ -36,6 +36,7 @@ class SurveyApplicationModel extends BaseModel
 
                 foreach ($result_list as &$result) {
                     $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
+                    $result['event'] = $this->getEventById($result['event_id']);
                 }
                 return $result_list;
             } catch (\PDOException $e) {
@@ -60,6 +61,26 @@ class SurveyApplicationModel extends BaseModel
                 $user_result_list = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 return $user_result_list;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+    // 開始時間と終了時間を取得
+    private function getEventById($id)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT start_hour, end_hour, name FROM mdl_event WHERE id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+                $event_list = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $event_list;
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
             }

@@ -100,7 +100,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         <li class="list_item02 req">
                             <p class="list_label">メールアドレス</p>
                             <div class="list_field f_txt">
-                                <input type="email" name="email" value="<?= $email ?>" />
+                                <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" />
                                 <?php if (!empty($errors['email'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email']); ?>
@@ -111,7 +111,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         <li class="list_item03 req">
                             <p class="list_label">メールアドレス（確認用）</p>
                             <div class="list_field f_txt">
-                                <input type="email" name="email_confirm" value="<?= $email_confirm ?>" onpaste="return false" autocomplete="off" />
+                                <input type="email" name="email_confirm" value="<?= htmlspecialchars($email_confirm) ?>" onpaste="return false" autocomplete="off" />
                                 <?php if (!empty($errors['email_confirm'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['email_confirm']); ?>
@@ -124,7 +124,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                             <div class="list_field f_select select">
                                 <select name="event_id">
                                     <?php foreach ($events as $event): ?>
-                                        <option value="<?= $event['id'] ?>" <?php if ($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= $event['name'] ?>】について</option>
+                                        <option value="<?= $event['id'] ?>" <?php if ($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= htmlspecialchars($event['name']) ?>】について</option>
                                     <?php endforeach; ?>
                                     <option value="other">その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>

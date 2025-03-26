@@ -122,9 +122,17 @@ class SurveyController
 
         $survey_list = [];
         $total_count = 0;
+        $survey_period = null;
         if (!empty($course_info_id) || !empty($event_id)) {
             $survey_list = $this->surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, $current_page);
             $total_count = $this->surveyApplicationModel->getCountSurveyApplications($course_info_id, $event_id);
+        }
+
+        // アンケート時間集計
+        foreach ($survey_list as $survey) {
+            $start = strtotime($survey['event']["start_hour"]);
+            $end = strtotime($survey['event']["end_hour"]);
+            $survey_period = ($end - $start) / 60;
         }
 
         // 講座回数でソートする
@@ -147,6 +155,7 @@ class SurveyController
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
+            'survey_period' => $survey_period,
         ];
 
         return $data;

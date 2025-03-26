@@ -11,9 +11,9 @@ $controller = new EventEditController();
 $eventData = $controller->getEventData($id);
 $select_categorys = isset($eventData['select_categorys']) ? $eventData['select_categorys'] : [];
 if (!empty($id)) {
-	$ticket_count = $controller->getTicketCount($id);
+	$tickets = $controller->getTicketCount($id);
 } else {
-	$ticket_count = null;
+	$tickets = [];
 }
 
 $start_event_flg = false;
@@ -115,10 +115,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					<div class="card">
 						<div class="card-body p-0">
 							<p class="content_title p-3">イベント登録
-								<?php if ($ticket_count > 0): ?><span style="color: red;"> ※すでに申込があるため一部更新ができません。</span><?php endif; ?>
+								<?php if (count($tickets) > 0): ?><span style="color: red;"> ※すでに申込があるため一部更新ができません。</span><?php endif; ?>
 							</p>
 							<div class="form-wrapper">
-								<?php if (isset($eventData) && !$start_event_flg): ?>
+								<?php if (isset($eventData) && !$start_event_flg && count($tickets) == 0): ?>
 									<form method="POST" action="/custom/admin/app/Controllers/event/event_delete_controller.php" enctype="multipart/form-data">
 										<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 										<input type="hidden" name="del_event_id" value="<?= $id ?? '' ?>">
@@ -656,7 +656,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
-										<label class="form-label">定員<?php if(!empty($ticket_count) && $ticket_count > 0): ?> <span style="color: red;">(申込人数：<?= $ticket_count ?>人)</span><?php endif; ?></label><label>　※未入力、または0の場合、無制限になります。</label>
+										<label class="form-label">定員</label><label>　※未入力、または0の場合、無制限になります。</label>
 										<input name="capacity" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars(isSetValue($eventData['capacity'] ?? '', $old_input['capacity'] ?? '')) ?>" />
 										<?php if (!empty($errors['capacity'])): ?>
@@ -667,7 +667,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<label class="form-label" id="participation_fee_label">参加費<?php if(!empty($eventData) && $eventData['event_kbn'] == PLURAL_EVENT): ?>( 全て受講 )<?php endif; ?></label><label>　※申込が発生すると変更が出来なくなります。</label>
 										<input name="participation_fee" class=" form-control" min="0" type="number"
                                             value="<?= htmlspecialchars(isSetValue($eventData['participation_fee'] ?? '', $old_input['participation_fee'] ?? '')) ?>"
-											<?php if(!empty($ticket_count) && $ticket_count > 0): ?>style="background-color: #e6e6e6;" readonly<?php endif ?>
+											<?php if(!empty(count($tickets) > 0)): ?>style="background-color: #e6e6e6;" readonly<?php endif; ?>
 											 />
 										<?php if (!empty($errors['participation_fee'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['participation_fee']); ?></div>

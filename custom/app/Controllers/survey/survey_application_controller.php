@@ -14,7 +14,9 @@ class SurveyApplicationController
                 ci.no,
                 ci.course_date, 
                 e.id AS event_id, 
-                e.name
+                e.name,
+                e.start_hour,
+                e.end_hour
             FROM mdl_course_info ci
             JOIN mdl_event_course_info ec ON ec.course_info_id = ci.id
             JOIN mdl_event e ON e.id = ec.event_id

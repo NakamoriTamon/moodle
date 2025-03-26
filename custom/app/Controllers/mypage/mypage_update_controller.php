@@ -115,7 +115,7 @@ class MypageUpdateController
         $guardian_email = "";
         if ($age < 13) {
             $guardian_name = htmlspecialchars(required_param('guardian_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-            $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の苗字', $name_size, true);
+            $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の氏名', $name_size, true);
             $guardian_email = required_param('guardian_email', PARAM_EMAIL); // メールアドレス
             $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
         }

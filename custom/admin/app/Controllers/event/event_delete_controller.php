@@ -15,9 +15,9 @@ if (empty($id)) {
 }
 
 $eventApplicationModel = new EventApplicationModel();
-$ticket_count = $eventApplicationModel->getSumTicketCountByEventId($id);
+$tickets = $eventApplicationModel->getSumTicketCountByEventId($id);
 
-if(!empty($ticket_count) && $ticket_count['sum_ticket_count'] > 0) {
+if(!empty($tickets) && count($tickets) > 0) {
     $_SESSION['message_error'] = 'すでに申し込みが存在するため削除できません';
     header('Location: /custom/admin/app/Views/event/index.php');
     exit;

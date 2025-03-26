@@ -71,15 +71,11 @@ class EventEditController {
     // 購入枚数を表示
     public function getTicketCount($id) {
         if ($id === null) {
-            return null; // 新規作成の場合
+            return []; // 新規作成の場合
         }
-        $ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($id);
+        $tickets = $this->eventApplicationModel->getSumTicketCountByEventId($id, null, false);
 
-        if(empty($ticket_count) || $ticket_count['sum_ticket_count'] == 0) {
-            return null;
-        }
-
-        return $ticket_count['sum_ticket_count'];
+        return $tickets;
     }
 }
 ?>

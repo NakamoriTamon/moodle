@@ -98,7 +98,21 @@ class EventApplicationController
         }
 
         $fieldList = $this->eventCustomFieldModel->getCustomFieldById($event['event_customfield_category_id']);
-        $sum_ticket_count = $this->eventApplicationModel->getSumTicketCountByEventId($eventId)['sum_ticket_count'] ?? 0;
+        // 空数確認
+        // $courseInfoIdが無い場合、空数が最小のレコードを取得
+        // $courseInfoIdが有る場合、指定した開催日のレコードを取得
+        $result = $this->eventApplicationModel->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true);
+        if(!empty($result)) {
+            $ticket_data = $result[0];
+            if($event['capacity'] == 0) {
+                $aki_ticket = 0;
+            } else {
+                $aki_ticket = $ticket_data['available_tickets'];
+            }
+        } else {
+            $aki_ticket = 0;
+        }
+
 
         $cognitions = $this->cognitionModel->getCognition();
         $paymentTypes = $this->paymentTypeModel->getPaymentTypes();
@@ -158,7 +172,7 @@ class EventApplicationController
             }
         }
 
-        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'sum_ticket_count' => $sum_ticket_count];
+        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket];
     }
 
     public function getEvenApplicationById($eventId)

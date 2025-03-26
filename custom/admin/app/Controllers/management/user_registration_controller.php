@@ -21,9 +21,11 @@ class UserRegistrationController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'] ?? 1;
+        $current_page = $_GET['page'];
 
-
+        if ($current_page < 0) {
+            $current_page = 1;
+        }
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
         }
