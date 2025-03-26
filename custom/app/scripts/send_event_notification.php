@@ -55,16 +55,29 @@ if (empty($options['eventid'])) {
 
 $eventId = (int)$options['eventid'];
 
+// AWS SES クライアント設定
+$SesClient = new SesClient([
+    'version' => 'latest',
+    'region'  => 'ap-northeast-1', // 東京リージョン
+    'credentials' => [
+        'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+    ]
+]);
+
+// バルク送信の最大数（AWS SESのドキュメントによる）
+$BATCH_SIZE = 50; // SESの制限に基づく値
+
 // イベント情報の取得
 try {
     $stmt = $pdo->prepare("SELECT capacity, name, event_kbn, event_date, start_hour, end_hour, venue_name, description, target, start_event_date, end_event_date FROM mdl_event WHERE id = :id");
     $stmt->execute([':id' => $eventId]);
     $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // if (!$event) {
-    //     write_log("エラー: 指定されたイベントID {$eventId} は存在しません。", $log_file);
-    //     exit(1);
-    // }
+    if (!$event) {
+        echo "エラー: 指定されたイベントID {$eventId} は存在しません。\n";
+        exit(1);
+    }
 
     // 講義形式情報の取得
     $stmt = $pdo->prepare("
@@ -144,26 +157,26 @@ try {
         }
     }
 
-    // HTMLメール本文を作成
-    $htmlBody = "
+    // HTMLメールテンプレートを作成
+    $htmlTemplate = "
         <html>
         <head>
-            <title>{$event['name']}のご案内</title>
+            <title>{{eventName}}のご案内</title>
         </head>
         <body>
             <div style=\"font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;\">
                 <p>平素より格別のご高配を賜り、誠にありがとうございます。<br>
-                このたび、新たなイベント 「{$event['name']}」 を開催する運びとなりましたので、ご案内申し上げます。</p>
+                このたび、新たなイベント 「{{eventName}}」 を開催する運びとなりましたので、ご案内申し上げます。</p>
 
                 <h2 style=\"margin-top: 0; color: #3366cc;\">■ 開催概要</h2>
                 
-                <p><strong>開催日時:</strong> {$eventDateText}</p>
+                <p><strong>開催日時:</strong> {{eventDateText}}</p>
                 
-                <p><strong>開催場所:</strong> {$venueInfo}</p>
+                <p><strong>開催場所:</strong> {{venueInfo}}</p>
                 
-                <p><strong>対象:</strong> {$mail_target}</p>
+                <p><strong>対象:</strong> {{targetText}}</p>
                 
-                <p><strong>内容:</strong><br> {$event['description']}</p>
+                <p><strong>内容:</strong><br> {{description}}</p>
                 
                 <br>
                 
@@ -173,105 +186,184 @@ try {
 
                     <p style=\"text-align: left; font-size: 13px;\">
 
-                    <a href=\"{$applyUrl}\">{$applyUrl}</a>
+                    <a href=\"{{applyUrl}}\">{{applyUrl}}</a>
                 
-                </div>";
-    if ($event['capacity'] > 0) {
-        $htmlBody .= "
-                    <p>なお、定員に限りがございますので、お早めのご登録をお願い申し上げます。</p>
-                    ";
-    }
-    $htmlBody .= "
-                    <p>皆様のご参加を心よりお待ち申し上げております。</p>
-                    <hr style=\"border: none; border-top: 1px solid #ddd;\">
-
-                    <p style=\"font-size: 12px; color: #666;\">
-                    ※このメールは配信専用メールアドレスから送信されています。<br>
-                    ※このメールに返信いただいても、返信内容の確認及びご返信はできません。<br>
-                    ※配信停止をご希望の方は、マイページからメール配信設定を変更してください。
-                    </p>
                 </div>
-            </body>
+                {{#hasCapacity}}
+                <p>なお、定員に限りがございますので、お早めのご登録をお願い申し上げます。</p>
+                {{/hasCapacity}}
+                
+                <p>皆様のご参加を心よりお待ち申し上げております。</p>
+                <hr style=\"border: none; border-top: 1px solid #ddd;\">
+
+                <p style=\"font-size: 12px; color: #666;\">
+                ※このメールは配信専用メールアドレスから送信されています。<br>
+                ※このメールに返信いただいても、返信内容の確認及びご返信はできません。<br>
+                ※配信停止をご希望の方は、マイページからメール配信設定を変更してください。
+                </p>
+            </div>
+        </body>
         </html>
     ";
 
-    // プレーンテキストメール本文を作成
-    $plainTextBody = "平素より格別のご高配を賜り、誠にありがとうございます。\n"
-        . "このたび、新たなイベント 「{$event['name']}」 を開催する運びとなりましたので、ご案内申し上げます。\n\n"
-        . "■ 開催概要\n\n"
-        . "開催日時: {$eventDateText}\n"
-        . "開催場所: {$venueInfo}\n"
-        . "対象: {$mail_target}\n"
-        . "内容:\n{$event['description']}\n\n"
-        . "お申し込みはこちら: {$applyUrl}\n\n";
+    // プレーンテキストテンプレートを作成
+    $textTemplate = "平素より格別のご高配を賜り、誠にありがとうございます。
+このたび、新たなイベント 「{{eventName}}」 を開催する運びとなりましたので、ご案内申し上げます。
 
-    // プレーンテキストメール本文修正: 定員に関するメッセージを条件分岐で追加
-    if ($event['capacity'] > 0) {
-        $plainTextBody .= "なお、定員に限りがございますので、お早めのご登録をお願い申し上げます。\n";
+■ 開催概要
+
+開催日時: {{eventDateText}}
+開催場所: {{venueInfo}}
+対象: {{targetText}}
+内容:
+{{description}}
+
+お申し込みはこちら: {{applyUrl}}
+
+{{#hasCapacity}}
+なお、定員に限りがございますので、お早めのご登録をお願い申し上げます。
+{{/hasCapacity}}
+皆様のご参加を心よりお待ち申し上げております。
+
+※このメールは配信専用メールアドレスから送信されています。
+※このメールに返信いただいても、返信内容の確認及びご返信はできません。
+※配信停止をご希望の方は、マイページからメール配信設定を変更してください。";
+
+    // テンプレート名を生成（一意であることを保証するためにタイムスタンプを含める）
+    $templateName = 'event_notification_' . $eventId . '_' . time();
+
+    // SESにテンプレートを作成
+    try {
+        $SesClient->createTemplate([
+            'Template' => [
+                'TemplateName' => $templateName,
+                'SubjectPart' => '大阪大学イベント開催のご案内',
+                'HtmlPart' => $htmlTemplate,
+                'TextPart' => $textTemplate,
+            ]
+        ]);
+
+        echo "メールテンプレート「{$templateName}」を作成しました。\n";
+    } catch (AwsException $e) {
+        // テンプレートがすでに存在する場合など
+        echo "テンプレート作成中にエラーが発生しました: " . $e->getMessage() . "\n";
+        // 既存のテンプレートを更新するオプションもあります
+        exit(1);
     }
-    $plainTextBody .= "皆様のご参加を心よりお待ち申し上げております。\n\n"
-        . "※このメールは配信専用メールアドレスから送信されています。\n"
-        . "※このメールに返信いただいても、返信内容の確認及びご返信はできません。\n"
-        . "※配信停止をご希望の方は、マイページからメール配信設定を変更してください。";
 
-    // メール送信対象者を取得 (notification_kbn = 1 のユーザーのみ)
-    $subscribers = $DB->get_records_sql("
-                SELECT email 
-                FROM {user} 
-                WHERE notification_kbn = 1
-            ");
-    // AWS SES クライアント設定
-    $SesClient = new SesClient([
-        'version' => 'latest',
-        'region'  => 'ap-northeast-1', // 東京リージョン
-        'credentials' => [
-            'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
-            'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
-        ]
-    ]);
+    // テンプレートに渡すデフォルトデータ
+    $templateData = [
+        'eventName' => $event['name'],
+        'eventDateText' => $eventDateText,
+        'venueInfo' => $venueInfo,
+        'targetText' => $mail_target,
+        'description' => $event['description'],
+        'applyUrl' => $applyUrl,
+        'hasCapacity' => $event['capacity'] > 0
+    ];
+
+    // メール送信対象者を取得 - 新しい条件を適用
+    $recipients = $DB->get_records_sql("
+        SELECT u.id, u.email, u.firstname, u.lastname
+        FROM {user} u
+        JOIN {role_assignments} ra ON ra.userid = u.id
+        WHERE u.notification_kbn = 1
+        AND ra.roleid = 7
+        AND u.confirmed = 1
+        AND u.deleted = 0
+        AND u.email != ''
+    ");
 
     // 送信先アドレスのリストを作成
-    $bccAddresses = [];
-    // foreach ($subscribers as $subscriber) {
-    //     if (filter_var($subscriber->email, FILTER_VALIDATE_EMAIL)) {
-    //         $bccAddresses[] = $subscriber->email;
-    //     }
-    // }
-    $bccAddresses[] = 'suzuwork2236@gmail.com';
+    $validEmails = [];
+    foreach ($recipients as $recipient) {
+        if (filter_var($recipient->email, FILTER_VALIDATE_EMAIL)) {
+            $validEmails[] = [
+                'email' => $recipient->email,
+                'name' => trim($recipient->firstname . ' ' . $recipient->lastname)
+            ];
+        }
+    }
 
-    // SESでメール送信
+    $totalRecipients = count($validEmails);
+    echo "送信対象者数: {$totalRecipients}人\n";
+
+    if ($totalRecipients === 0) {
+        echo "送信対象者がいません。処理を終了します。\n";
+        // テンプレートをクリーンアップ
+        try {
+            $SesClient->deleteTemplate(['TemplateName' => $templateName]);
+            echo "テンプレート「{$templateName}」を削除しました。\n";
+        } catch (AwsException $e) {
+            echo "テンプレート削除中にエラーが発生しました: " . $e->getMessage() . "\n";
+        }
+        exit(0);
+    }
+
+    // バッチ処理でメール送信
+    $successCount = 0;
+    $failCount = 0;
+    $batches = array_chunk($validEmails, $BATCH_SIZE);
+
+    foreach ($batches as $batchIndex => $batch) {
+        echo "バッチ " . ($batchIndex + 1) . "/" . count($batches) . " 処理中...\n";
+
+        $destinations = [];
+
+        foreach ($batch as $recipient) {
+            $destinations[] = [
+                'Destination' => [
+                    'ToAddresses' => [$recipient['email']]
+                ],
+                'ReplacementTemplateData' => json_encode([
+                    'name' => $recipient['name']
+                ])
+            ];
+        }
+
+        try {
+            $result = $SesClient->sendBulkTemplatedEmail([
+                'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                'ReplyToAddresses' => ['no-reply@example.com'],
+                'DefaultTemplateData' => json_encode($templateData),
+                'Template' => $templateName,
+                'Destinations' => $destinations
+            ]);
+
+            // 成功したメッセージと失敗したメッセージを集計
+            foreach ($result['Status'] as $status) {
+                if ($status['Status'] === 'Success') {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                    echo "送信失敗: " . $status['Error'] . "\n";
+                }
+            }
+
+            echo "バッチ " . ($batchIndex + 1) . " 送信完了\n";
+        } catch (AwsException $e) {
+            echo "バッチ " . ($batchIndex + 1) . " 送信エラー: " . $e->getMessage() . "\n";
+            $failCount += count($batch);
+        }
+
+        // AWS SESのスロットリング対策として少し待機
+        if ($batchIndex < count($batches) - 1) {
+            sleep(1);
+        }
+    }
+
+    // 結果報告
+    echo "送信処理完了。成功: {$successCount}件, 失敗: {$failCount}件\n";
+
+    // テンプレートをクリーンアップ
     try {
-        $result = $SesClient->sendEmail([
-            'Destination' => [
-                'BccAddresses' => $bccAddresses,
-            ],
-            'ReplyToAddresses' => ['no-reply@example.com'],
-            'Source' => $_ENV['MAIL_FROM_ADDRESS'], // 検証済みアドレス
-            'Message' => [
-                'Body' => [
-                    'Html' => [
-                        'Charset' => 'UTF-8',
-                        'Data' => $htmlBody,
-                    ],
-                    'Text' => [
-                        'Charset' => 'UTF-8',
-                        'Data' => $plainTextBody,
-                    ],
-                ],
-                'Subject' => [
-                    'Charset' => 'UTF-8',
-                    'Data' => '大阪大学イベント開催のご案内',
-                ],
-            ],
-        ]);
-        // 成功時の処理
-        echo "メール送信完了。メッセージID: " . $result['MessageId'] . "\n";
+        $SesClient->deleteTemplate(['TemplateName' => $templateName]);
+        echo "テンプレート「{$templateName}」を削除しました。\n";
     } catch (AwsException $e) {
-        // エラー処理
-        error_log("メール送信失敗: " . $e->getMessage());
+        echo "テンプレート削除中にエラーが発生しました: " . $e->getMessage() . "\n";
     }
 } catch (Exception $e) {
-    // write_log("致命的なエラーが発生しました: " . $e->getMessage(), $log_file);
-    var_dump($e->getMessage());
+    echo "致命的なエラーが発生しました: " . $e->getMessage() . "\n";
+    echo "スタックトレース: " . $e->getTraceAsString() . "\n";
     exit(1);
 }
