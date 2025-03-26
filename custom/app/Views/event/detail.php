@@ -246,7 +246,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
-                    <a href="/custom/app/Views/contact/index.php" class="btn btn_contact btn_navy">このイベントを問い合わせる</a>
+                    <a href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>" class="btn btn_contact btn_navy">このイベントを問い合わせる</a>
                 </div>
             </div>
             <a href="index.php" class="btn btn_blue arrow box_bottom_btn">一覧へ戻る</a>
