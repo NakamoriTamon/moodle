@@ -22,7 +22,7 @@ class MaterialController
         global $DB;
         global $USER;
 
-        unset($_SESSION['registered_material_ids']);
+        unset($_SESSION['registered_material_ids'], $_SESSION['material_deletion_done']);
 
         // 検索項目取得
         $category_id     = $_POST['category_id'] ?? null;
@@ -58,7 +58,7 @@ class MaterialController
 
         $material = [];
         $is_display = false;
-        $is_single = true;
+        $is_single = false;
         $course_info_id = null;
         // 講義動画を取得
         foreach ($event_list as $event) {
@@ -71,6 +71,7 @@ class MaterialController
                             $course_number = [1];
                             $_SESSION['old_input']['course_no'] = "1";
                             $is_display = true;
+                            $is_single = true;
                         }
                     }
                     // 複数回イベントの場合
@@ -79,7 +80,6 @@ class MaterialController
                             if ($course_info['no'] == $course_no) {
                                 $course_info_id = $course_info['id'];
                                 $is_display = true;
-                                $is_single = false;
                             }
                         }
                         $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
