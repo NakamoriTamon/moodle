@@ -135,6 +135,11 @@ define('EVENT_APPLICATION_PACKAGE_TYPE', [ // パッケージ種別
   'SINGLE' => 1, // 単発申し込み
   'BUNDLE' => 2, // 一括申し込み 
 ]);
+// 適塾記念会テーブル
+define('IS_SUBSCRIPTION', [
+  'SUBSCRIPTION_DISABLED' => 0,
+  'SUBSCRIPTION_ENABLED' => 1
+]);
 
 $lecture_format_on_site = 1; //現地開催
 define('LECTURE_FORMAT_ON_SITE', $lecture_format_on_site);

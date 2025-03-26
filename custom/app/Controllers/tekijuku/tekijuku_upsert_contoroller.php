@@ -64,18 +64,37 @@ try {
     $id = $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration, true);
     $amount = $type_code === 1 ? 2000 : 10000;
     // 決済データ（サンプル）
-    $data = [
-        'payment_types' => [$payment_method_list[$payment_method]], // 利用可能な決済手段
-        'amount' => $amount,
-        'currency' => 'JPY',
-        'external_order_num' => uniqid(),
-        'return_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/complete.php', // 決済成功後のリダイレクトURL
-        'cancel_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // キャンセル時のリダイレクトURL
-        'metadata' => [
-            'tekujuku_id' => (string)$id,
-            'payment_method_type' => (string)$payment_method,
-        ],
-    ];
+    if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
+        // サブスクリプションの場合はcustomer_paymentモードを使用
+        $data = [
+            'payment_types' => [$payment_method_list[$payment_method]], // 利用可能な決済手段
+            'amount' => $amount,
+            'currency' => 'JPY',
+            'external_order_num' => uniqid(),
+            'return_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/complete.php', // 決済成功後のリダイレクトURL
+            'cancel_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // キャンセル時のリダイレクトURL
+            'metadata' => [
+                'tekujuku_id' => (string)$id,
+                'payment_method_type' => (string)$payment_method,
+            ],
+            'mode' => 'customer_payment', // customerモードを指定
+            'email' => $email,
+        ];
+    } else {
+        // 通常の支払いの場合は従来のpaymentモード
+        $data = [
+            'payment_types' => [$payment_method_list[$payment_method]], // 利用可能な決済手段
+            'amount' => $amount,
+            'currency' => 'JPY',
+            'external_order_num' => uniqid(),
+            'return_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/complete.php', // 決済成功後のリダイレクトURL
+            'cancel_url' => $CFG->wwwroot . '/custom/app/Views/tekijuku/registrate.php', // キャンセル時のリダイレクトURL
+            'metadata' => [
+                'tekujuku_id' => (string)$id,
+                'payment_method_type' => (string)$payment_method,
+            ],
+        ];
+    }
 
     $_SESSION['payment_method_type'] = $payment_method;
 
