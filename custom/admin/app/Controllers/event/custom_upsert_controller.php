@@ -87,6 +87,7 @@ try {
         if (!$event_customfield_id) {
             $customfield->created_at = date('Y-m-d H:i:s');
             $customfield->updated_at = date('Y-m-d H:i:s');
+            $customfield->field_name = '';
             $customfield->name = $item_name;
             $customfield->sort = (int)$sort;
             $customfield->field_type = $field_type;

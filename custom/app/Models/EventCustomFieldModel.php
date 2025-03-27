@@ -6,7 +6,7 @@ class EventCustomFieldModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_customfield WHERE event_customfield_category_id = ? AND is_delete = false");
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_customfield WHERE event_customfield_category_id = ? AND is_delete = false ORDER BY sort, id");
                 $stmt->execute([$id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
@@ -23,7 +23,7 @@ class EventCustomFieldModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_customfield WHERE event_customfield_category_id = ? AND is_delete = false AND id != ?");
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_event_customfield WHERE event_customfield_category_id = ? AND is_delete = false AND id != ? ORDER BY sort, id");
                 $stmt->execute([$id, $event_customfield_id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
