@@ -39,7 +39,7 @@
                     </li>
                     <li>
                         <p class="l_quest">ユーザー登録後の確認のメールが届かないのですが。</p>
-                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールにも届いていない場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php">事務局までご連絡</a>（「知の広場」内のお問い合わせフォームに遷移）ください。</p>
+                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールにも届いていない場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php">事務局までご連絡</a>ください。</p>
                     </li>
                     <li>
                         <p class="l_quest">
@@ -100,7 +100,7 @@
                         <p class="l_quest">
                             申し込んでおいたはずのイベントの直前案内（オンライン講座のURL）が届かないのですが。
                         </p>
-                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールフォルダにも届いてない場合は、事務局にお問い合わせ（「知の広場」内のお問い合わせフォームに遷移）ください。</p>
+                        <p class="l_answer">迷惑メールフォルダをご確認ください。迷惑メールフォルダにも届いてない場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php">事務局にお問い合わせ</a>ください。</p>
                     </li>
                     <li>
                         <p class="l_quest">講座のお知らせのDMが届くのが煩わしいので、止めてほしい。</p>

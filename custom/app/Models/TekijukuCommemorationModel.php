@@ -1,4 +1,6 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
+
 class TekijukuCommemorationModel extends BaseModel
 {
     // 全管理者を取得
@@ -85,17 +87,37 @@ class TekijukuCommemorationModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                // ベースのSQLクエリ
+                $paid_deadline = TEKIJUKU_PAID_DEADLINE; // 適塾支払期限(年度切替日：mm-dd形式)
+                $current_date = date('Y-m-d');
 
-                $sql = "SELECT * FROM mdl_tekijuku_commemoration as t
-                         WHERE t.is_delete = 0
-                        AND t.fk_user_id = :fk_user_id
-                        AND (t.paid_date IS NOT NULL OR t.is_deposit_2025 = 1)";
+                // 年度切り替え日を作成
+                $cutoff_date = date('Y') . '-' . $paid_deadline;
 
-                // クエリの実行
+                if ($current_date < $cutoff_date) {
+                    $current_year = date('Y') - 1; // 4月1日より前なら前年
+                } else {
+                    $current_year = date('Y'); // 4月1日以降ならその年
+                }
+
+                $year_short = $current_year - 2000; // 西暦 → 和暦 (25年度なら 25)
+
+                // SQLをPHPで構築（is_deposit_xx を動的に設定）
+                $sql = "SELECT * FROM mdl_tekijuku_commemoration
+                        WHERE fk_user_id = :fk_user_id
+                        AND (
+                            YEAR(paid_date) = :current_year
+                            OR " . ($current_year <= 2030 ? "is_deposit_$current_year = 1" : "1") . "
+                        )";
+
+                // PDO でバインドする場合
+                $params = [
+                    ':fk_user_id' => $fk_user_id,
+                    ':current_year' => $current_year
+                ];
+
+                // SQLを実行
                 $stmt = $this->pdo->prepare($sql);
-                
-                $stmt->execute([":fk_user_id" => $fk_user_id]);
+                $stmt->execute($params);
                 $tekijuku = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 return $tekijuku;

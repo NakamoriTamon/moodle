@@ -88,6 +88,10 @@ class MypageController
         if ($fiscal_year >= 2024 && $fiscal_year <= 2030) {
             // 指定の年度のis_deposit_YYYYカラムを追加
             $columns .= ", is_deposit_{$fiscal_year}";
+            $next_year = $fiscal_year + 1;
+            if($next_year <= 2030) {
+                $columns .= ", is_deposit_{$next_year}";
+            }
         }
 
         return $this->DB->get_record(
