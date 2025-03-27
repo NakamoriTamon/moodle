@@ -1,6 +1,7 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
+require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
 global $url_secret_key;
 
 // シークレットキーをJSに渡すための一時的なトークンを生成
@@ -25,7 +26,9 @@ if (!$is_general_user) {
     header('Location: /custom/app/Views/logout/index.php');
 }
 
-$tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+// $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+$tekijukuCommemorationModel = new TekijukuCommemorationModel();
+$tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
@@ -66,8 +69,8 @@ if ($tekijuku_commemoration !== false) {
 
         // 該当年度のデポジットフラグが存在し、値が'1'の場合に表示
         if (
-            property_exists($tekijuku_commemoration, $deposit_column) &&
-            $tekijuku_commemoration->$deposit_column == '1'
+            array_key_exists($deposit_column, $tekijuku_commemoration) &&
+            $tekijuku_commemoration[$deposit_column] == '1'
         ) {
             $is_disply_tekijuku_commemoration = true;
         }
@@ -111,8 +114,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                 <div id="card">
                     <p class="card_head">適塾記念会デジタル会員証</p>
                     <p class="card_year"><?php echo htmlspecialchars($currentYear); ?>年度の<br class="nopc" />本会会員ということを証明する</p>
-                    <p class="card_name"><?php echo htmlspecialchars($tekijuku_commemoration->name ?? ''); ?></p>
-                    <p class="card_id"><?php echo htmlspecialchars($tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''); ?></p>
+                    <p class="card_name"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ?? ''); ?></p>
+                    <p class="card_id"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></p>
                     <ul class="card_desc">
                         <li>・本会員証は他人への貸与や譲渡はできません。</li>
                         <li>・この会員証を提示すると適塾に何度でも参観できます。</li>
@@ -122,7 +125,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                         <p class="card_pres_name">熊ノ郷 淳</p>
                     </div>
                 </div>
-                <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
                     <div class="inactive-text">（退会済み）</div>
                 <?php endif; ?>
             </div>
@@ -301,16 +304,16 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             </div>
         </div>
 
-        <?php if ($tekijuku_commemoration !== false && (!is_null($tekijuku_commemoration->paid_date) || (int)$tekijuku_commemoration->is_deposit_2025 === 1)): ?>
+        <?php if ($tekijuku_commemoration !== false && (!is_null($tekijuku_commemoration['paid_date']) || (int)$tekijuku_commemoration[$deposit_column] === 1)): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">適塾記念会 会員情報
-                        <?php if ((int)$tekijuku_commemoration->is_delete === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                        <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
                             <div class="inactive-text">（退会済み）</div>
                         <?php endif; ?>
                     </h3>
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
-                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration->id) ?>>
+                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
                                 <?php if (!empty($basic_error)) { ?><p class="error"> <?= htmlspecialchars($basic_error) ?></p><?php } ?>
@@ -318,16 +321,16 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                 <ul class="list">
                                     <li class="list_item01">
                                         <p class="list_label">会員番号</p>
-                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration->number ? sprintf('%08d', $tekijuku_commemoration->number) : ''); ?></div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></div>
                                     </li>
                                     <li class="list_item02 req">
                                         <p class="list_label">会員種別</p>
-                                        <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration->type_code) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration->type_code] ?></div>
+                                        <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration['type_code']) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></div>
                                     </li>
                                     <li class="list_item03 req">
                                         <p class="list_label">お名前</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration->name); ?>">
+                                            <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration['name']); ?>">
                                             <?php if (!empty($errors['tekijuku_name'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_name']); ?></div>
                                             <?php endif; ?>
@@ -336,7 +339,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item04 req">
                                         <p class="list_label">フリガナ</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration->kana) ?>">
+                                            <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration['kana']) ?>">
                                             <?php if (!empty($errors['kana'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
                                             <?php endif; ?>
@@ -347,7 +350,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <div class="list_field f_txt a">
                                             <div class="post_code">
                                                 <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
-                                                    value="<?= htmlspecialchars($old_input['post_code'] ?? $tekijuku_commemoration->post_code) ?>"
+                                                    value="<?= htmlspecialchars($old_input['post_code'] ?? $tekijuku_commemoration['post_code']) ?>"
                                                     pattern="[0-9]*" inputmode="numeric"
                                                     oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                                 <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
@@ -360,7 +363,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item06 req">
                                         <p class="list_label">住所</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? $tekijuku_commemoration->address) ?>">
+                                            <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? $tekijuku_commemoration['address']) ?>">
                                             <?php if (!empty($errors['address'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['address']); ?></div>
                                             <?php endif; ?>
@@ -371,7 +374,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <div class="list_field f_txt">
                                             <div class="phone-input">
                                                 <input type="text" name="tell_number" maxlength="15"
-                                                    value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration->tell_number) ?>"
+                                                    value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
                                                     pattern="[0-9]*" inputmode="numeric"
                                                     oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                                 <?php if (!empty($errors['tell_number'])): ?>
@@ -383,7 +386,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item08 req">
                                         <p class="list_label">メールアドレス</p>
                                         <div class="list_field f_txt">
-                                            <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration->email) ?>"
+                                            <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration['email']) ?>"
                                                 inputmode="email"
                                                 autocomplete="email"
                                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
@@ -400,7 +403,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                                     <?php
                                                     // デフォルトの選択
                                                     if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
-                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration->payment_method, null)
+                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
                                                     ) {
                                                         echo 'checked';
                                                     }
@@ -415,7 +418,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item10">
                                         <p class="list_label">備考</p>
                                         <div class="list_field f_txt">
-                                            <textarea name="note" rows="5"><?= htmlspecialchars($old_input['note'] ?? $tekijuku_commemoration->note, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                            <textarea name="note" rows="5"><?= htmlspecialchars($old_input['note'] ?? $tekijuku_commemoration['note'], ENT_QUOTES, 'UTF-8'); ?></textarea>
                                             <?php if (!empty($errors['note'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
                                             <?php endif; ?>
@@ -424,7 +427,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item11">
                                         <div class="list_field">
                                             <label class="checkbox_label">
-                                                <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration->is_university_member) == '1' ? 'checked' : ''; ?>>
+                                                <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
                                                 <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
                                             </label>
                                         </div>
@@ -432,7 +435,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item12 req" id="department_field">
                                         <p class="list_label">所属部局（学部・研究科）</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" name="department" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration->department); ?>">
+                                            <input type="text" name="department" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration['department']); ?>">
                                             <?php if (!empty($errors['department'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
                                             <?php endif; ?>
@@ -441,7 +444,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item13" id="major_field">
                                         <p class="list_label">講座/部課/専攻名</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration->major); ?>">
+                                            <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
                                             <?php if (!empty($errors['major'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
                                             <?php endif; ?>
@@ -450,7 +453,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                     <li class="list_item14 req" id="official_field">
                                         <p class="list_label">職名・学年</p>
                                         <div class="list_field f_txt">
-                                            <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration->official); ?>">
+                                            <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
                                             <?php if (!empty($errors['official'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
                                             <?php endif; ?>
@@ -460,7 +463,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <div class="area name">
                                             <label class="checkbox_label" for="">
                                                 <input type="hidden" name="is_published" value="0">
-                                                <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration->is_published) == '1' ? 'checked' : ''; ?>>
+                                                <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
                                                 <label class="checkbox_label">氏名掲載を許可します</label>
                                             </label>
                                         </div>
@@ -469,7 +472,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <div class="area plan">
                                             <label class="checkbox_label" for="">
                                                 <input type="hidden" name="is_subscription" value="0">
-                                                <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration->is_subscription) == '1' ? 'checked' : ''; ?>>
+                                                <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration['is_subscription']) == '1' ? 'checked' : ''; ?>>
                                                 <label class="checkbox_label" for="is_subscription_checkbox">定額課金プランを利用する</label>
                                             </label>
                                         </div>
