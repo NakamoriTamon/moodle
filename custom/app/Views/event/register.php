@@ -19,8 +19,11 @@ $pagination = $eventsData['pagination'];
 $now = new DateTime();
 function viewDates($event)
 {
+    $start_hour = $event->start_hour;
+    $survey_date = new DateTime($event->course_date);
+    $survey_date_part = $survey_date->format('Y-m-d');
+    $surveyReleaseDate = new DateTime("$survey_date_part $start_hour");
     if (empty($event->release_date)) { // リリース情報が無い場合開催時刻　～　終日がアンケートや資料が見れる
-        $start_hour = $event->start_hour;
         $date = new DateTime($event->course_date);
         $date_part = $date->format('Y-m-d');
         $releaseDate = new DateTime("$date_part $start_hour"); // 公開開始
@@ -44,7 +47,8 @@ function viewDates($event)
     return [
         'releaseDate' => $releaseDate,
         'releaseEndDate' => $releaseEndDate,
-        'formattedDate' => $formattedDate
+        'formattedDate' => $formattedDate,
+        'surveyReleaseDate' => $surveyReleaseDate // アンケート用の公開開始時間
     ];
 }
 ?>
@@ -92,7 +96,7 @@ function viewDates($event)
                                 }
 
                                 // アンケートボタン
-                                if ($now >= $view_date['releaseDate'] && $now <= $view_date['releaseEndDate']) {
+                                if ($now >= $view_date['surveyReleaseDate'] && $now <= $view_date['releaseEndDate']) {
                                     echo "<a href='../survey/index.php?course_info_id=" . htmlspecialchars($event->course_info_id) . "' class='btn_answer'>アンケートに回答する</a>";
                                 } else {
                                     echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
