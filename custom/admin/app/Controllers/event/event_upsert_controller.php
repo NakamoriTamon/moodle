@@ -176,6 +176,8 @@ $pdo = $baseModel->getPdo();
 $pdo->beginTransaction();
 
 $count = 0;
+$release_date_input_flg = false; // アーカイブ公開日が入力されたか判定
+$material_release_date_input_flg = false; // 講義資料公開日が入力されたか判定
 if ($event_kbn == SINGLE_EVENT) {
     if (!empty($deadline) && is_null($_SESSION['errors']['event_date']) && is_null($_SESSION['errors']['deadline'])) {
         $_SESSION['errors']['deadline'] = validate_date_comparison($deadline, $event_date, '申し込み締切日', '開催日');
@@ -206,6 +208,14 @@ if ($event_kbn == SINGLE_EVENT) {
                     || $_SESSION['errors']["material_release_date"])
             ) {
                 $error_flg = true;
+            }
+
+            // アーカイブ公開日が入力されている場合
+            if(!empty($_POST["release_date"])) {
+                $release_date_input_flg = true; // 入力判定
+            }
+            if(!empty($_POST["material_release_date"])) {
+                $material_release_date_input_flg = true; //入力判定
             }
 
             if (!$error_flg) {
@@ -315,6 +325,14 @@ if ($event_kbn == SINGLE_EVENT) {
                 $error_flg = true;
             }
 
+            // アーカイブ公開日が入力されている場合
+            if(!empty($_POST["release_date_{$lectureNumber}"])) {
+                $release_date_input_flg = true; // 入力判定
+            }
+            if(!empty($_POST["material_release_date_{$lectureNumber}"])) {
+                $material_release_date_input_flg = true; //入力判定
+            }
+
             if (!$error_flg) {
                 // 各講義の申込締切日を算出
                 $course_date = optional_param("course_date_{$lectureNumber}", '', PARAM_RAW);
@@ -383,7 +401,16 @@ if ($event_kbn == SINGLE_EVENT) {
                 ) {
                     $error_flg = true;
                 }
+                    
+                // アーカイブ公開日が入力されている場合
+                if(!empty($_POST["release_date"])) {
+                    $release_date_input_flg = true; // 入力判定
+                }
+                if(!empty($_POST["material_release_date"])) {
+                    $material_release_date_input_flg = true; //入力判定
+                }
 
+                $courseDates = [];
                 if (!$error_flg) {
                     // `start_event_date` と `end_event_date` を取得
                     if (!is_null($start_event_date)) {
@@ -395,7 +422,6 @@ if ($event_kbn == SINGLE_EVENT) {
                     $endHour = (int) $end_hour;
 
                     // 日付範囲内の全日を `course_date` に設定
-                    $courseDates = [];
                     if (!is_null($start_event_date) && !is_null($end_event_date)) {
                         while ($startDate <= $endDate) {
                             $courseDates[] = $startDate->format('Y-m-d'); // `YYYY-MM-DD` 形式で保存
@@ -449,6 +475,17 @@ if ($event_kbn == SINGLE_EVENT) {
             $count++;
         }
     }
+}
+
+if($release_date_input_flg && empty($archive_streaming_period)) {
+    $_SESSION['errors']['archive_streaming_period'] = "アーカイブ公開日が指定されています。アーカイブ配信期間を入力してください。";
+} else if(!$release_date_input_flg && !empty($archive_streaming_period)) {
+    $_SESSION['errors']['archive_streaming_period'] = "アーカイブ公開日を指定するか、アーカイブ配信期間の入力を削除してください。";
+}
+if($material_release_date_input_flg && empty($material_release_period)) {
+    $_SESSION['errors']['material_release_period'] = "講義資料公開日が指定されています。講義資料公開期間を入力してください。";
+} else if(!$material_release_date_input_flg && !empty($material_release_period)) {
+    $_SESSION['errors']['material_release_period'] = "講義資料公開日を指定するか、講義資料公開期間の入力を削除してください。";
 }
 
 // エラーがある場合
