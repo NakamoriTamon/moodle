@@ -14,6 +14,49 @@ if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST[
     exit;
 }
 
+$post_ids = isset($_SESSION['registered_material_ids'])
+    ? array_map('intval', $_SESSION['registered_material_ids'])
+    : (isset($_POST['ids']) ? array_map('intval', (array)$_POST['ids']) : []);
+
+$post_files = array_filter($_POST['files'], function ($value) {
+    return $value !== "";
+});
+
+$material_list = $DB->get_records('course_material', array('course_info_id' => $_POST['course_info_id']));
+// 削除処理
+if (empty($_SESSION['material_deletion_done'])) {
+    foreach ($material_list as $key => $material_record) {
+        if (!in_array((int)$key, $post_ids)) {
+            $target_id = (int)$key;
+            if ($target_id > 0) {
+                $record = $DB->get_record('course_material', array('id' => $target_id));
+                if ($record) {
+                    $file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $record->file_name;
+                    if (file_exists($file_path)) {
+                        unlink($file_path);
+                    }
+                    $DB->delete_records('course_material', array('id' => $target_id));
+                }
+            }
+        } elseif (isset($post_files[$key])) {
+            if ($material_record->file_name != $post_file[$key]) {
+                $target_id = (int)$key;
+                if ($target_id > 0) {
+                    $update_record = $DB->get_record('course_material', array('id' => $target_id));
+                    if ($update_record) {
+                        $file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $update_record->file_name;
+                        if (file_exists($file_path)) {
+                            unlink($file_path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $_SESSION['material_deletion_done'] = true;
+}
+
 $upload_dir = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/';
 $ids        = $_POST['ids'] ?? [];
 $event_id   = $_POST['event_id'] ?? '';
@@ -98,15 +141,11 @@ if (isset($_FILES['file'])) {
             $err_code = $files['error'][$index] ?? UPLOAD_ERR_NO_FILE;
             $tmp_name = $files['tmp_name'][$index] ?? '';
             $original_file_name = $file;
-            $duplicate_material_list = $DB->get_records('course_material', array('file_name' => $original_file_name));
+            $duplicate_material_list = $DB->get_records('course_material', array('file_name' => $original_file_name, ' course_info_id ' => $_POST['course_info_id']));
             $existingFileNames = array_column($duplicate_material_list, 'file_name');
 
             if (in_array($original_file_name, $existingFileNames)) {
-                $duplicate_material = $DB->get_record('course_material', array('file_name' => $original_file_name));
-                $posted_id = $_POST['id'] ?? 0;
-                if ($posted_id && $posted_id == $duplicate_material->id) {
-                    continue;
-                }
+                $duplicate_material = $DB->get_record('course_material', array('file_name' => $original_file_name, ' course_info_id ' => $_POST['course_info_id']));
 
                 $duplicate_course = $DB->get_record('course_info', array('id' => $duplicate_material->course_info_id));
                 $duplicate_event_course = $DB->get_record('event_course_info', array('course_info_id' => $duplicate_material->course_info_id));
@@ -121,13 +160,22 @@ if (isset($_FILES['file'])) {
                 }
             }
 
-
-            $data = new stdClass();
-            $data->file_name      = $file;
-            $data->course_info_id = $course_info->course_info_id;
-            $data->created_at     = $created_at;
-            $data->updated_at     = $updated_at;
-            $registered_ids[] = $DB->insert_record('course_material', $data);
+            if ($update_record) {
+                $data = new stdClass();
+                $data->id = $update_record->id;
+                $data->file_name      = $file;
+                $data->course_info_id = $course_info->course_info_id;
+                $data->created_at     = $created_at;
+                $data->updated_at     = $updated_at;
+                $registered_ids[] = $DB->update_record('course_material', $data);
+            } else {
+                $data = new stdClass();
+                $data->file_name      = $file;
+                $data->course_info_id = $course_info->course_info_id;
+                $data->created_at     = $created_at;
+                $data->updated_at     = $updated_at;
+                $registered_ids[] = $DB->insert_record('course_material', $data);
+            }
         }
 
         if (!empty($errors)) {
@@ -154,38 +202,6 @@ if (isset($_FILES['file'])) {
         }
     }
 }
-
-$ids_post = isset($_SESSION['registered_material_ids'])
-    ? array_map('intval', $_SESSION['registered_material_ids'])
-    : (isset($_POST['ids']) ? array_map('intval', (array)$_POST['ids']) : []);
-
-$delete_files = (array) ($_POST['files'] ?? []);
-
-$files = array_filter($_POST['files'], function ($value) {
-    return $value !== "";
-});
-foreach ($files as $key => &$value) {
-    $value = $key;
-}
-
-
-$material_list = $DB->get_records('course_material', array('course_info_id' => $_POST['course_info_id']));
-foreach ($material_list as $key => $material_record) {
-    if (!in_array((int)$key, $ids_post) || (isset($delete_files[$key]) && $delete_files[$key] == 'delete' || in_array((int)$key, $files))) {
-        $target_id = (int)$key;
-        if ($target_id > 0) {
-            $record = $DB->get_record('course_material', array('id' => $target_id));
-            if ($record) {
-                $file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $record->file_name;
-                if (file_exists($file_path)) {
-                    unlink($file_path);
-                }
-                $DB->delete_records('course_material', array('id' => $target_id));
-            }
-        }
-    }
-}
-
 
 $_SESSION['message_success'] = '登録が完了しました';
 echo json_encode(['status' => 'success']);
