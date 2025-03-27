@@ -4,7 +4,8 @@ require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once($CFG->dirroot . '/custom/admin/app/Controllers/event/custom_controller.php');
 include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
 $custom_upsert_controller = new CustomController();
-$customs = $custom_upsert_controller->edit($_GET['id']);
+$id = isset($_GET['id']) ? $_GET['id'] : null;
+$customs = $custom_upsert_controller->edit($id);
 $details = isset($customs['detail']) ? $customs['detail'] : [];
 $detail_count = count($details);
 
@@ -48,7 +49,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 									<?php for ($i = 0; $i < $count; $i++) { ?>
 										<div class="field-container <?= ($i > 0) ? 'mt-5' : '' ?>">
 											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-											<input type="hidden" name="id" value="<?= htmlspecialchars($customs['id']) ?>">
+											<input type="hidden" name="id" value="<?= htmlspecialchars($id ?? '') ?>">
 											<div class="mb-4 <?= ($i > 0) ? 'd-none' : '' ?>">
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">カテゴリ区分名</label>
@@ -60,7 +61,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 													<div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
 												<?php endif; ?>
 											</div>
-											<input type="hidden" name="event_customfield_id[]" value="<?= htmlspecialchars($details[$i]['id']) ?>">
+											<input type="hidden" name="event_customfield_id[]" value="<?= htmlspecialchars(isset($details[$i]) ? $details[$i]['id'] : '') ?>">
 											<div class="mb-3">
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">項目名</label>
@@ -68,7 +69,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 												</div>
 												<input type="text" name="item_name[]"
 													class="form-control <?php if ($i < $detail_count) { ?>readonly readonly-select <?php } ?>"
-													value="<?= htmlspecialchars(isSetValue($details[$i]['name'] ?? '', ($old_input['item_name'][$i] ?? ''))) ?>">
+													value="<?= htmlspecialchars(isSetValue(isset($details[$i]) ? $details[$i]['name'] : '', ($old_input['item_name'][$i] ?? ''))) ?>">
 											</div>
 											<div class="mb-3">
 												<div class="form-label d-flex align-items-center">
@@ -249,6 +250,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 					if (nameAttr === "item_name[]" || nameAttr === "name") {
 						if (value.length > 500) {
 							let label = $(this).closest('.mb-3').find('label').text().trim();
+							if (nameAttr === "name") {
+								label = $(this).closest('.mb-4').find('label').text().trim();
+							}
 							let errorMsg = `<div class='text-danger mt-2 error-message'>${label}は500文字以内で入力してください</div>`;
 							$input.after(errorMsg);
 							isValid = false;
