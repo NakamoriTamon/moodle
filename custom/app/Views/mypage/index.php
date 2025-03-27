@@ -301,7 +301,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             </div>
         </div>
 
-        <?php if ($tekijuku_commemoration !== false): ?>
+        <?php if ($tekijuku_commemoration !== false && (!is_null($tekijuku_commemoration->paid_date) || (int)$tekijuku_commemoration->is_deposit_2025 === 1)): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">適塾記念会 会員情報
