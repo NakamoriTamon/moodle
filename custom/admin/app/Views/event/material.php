@@ -309,6 +309,7 @@ $course_id = $result_list['course_info'] ?? [];
 							form_data.append($(this).attr('name'), $(this).val());
 						});
 
+						console.log(form_data);
 
 						$.ajax({
 							url: '/custom/admin/app/Controllers/material/material_upsert_controller.php',
@@ -392,7 +393,9 @@ $course_id = $result_list['course_info'] ?? [];
 								dataType: 'json',
 								success: function(response) {
 									if (response.status === 'error') {
-										callback();
+										$("#ajax-error-message-global")
+											.html('<div class="text-danger">' + response.error + '</div>')
+											.show();
 										return;
 									}
 									const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
