@@ -4,12 +4,12 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
 include('/var/www/html/moodle/custom/app/Controllers/event/event_application_reserve_controller.php');
 
 $event_application_reserve_controller = new EventReserveController();
-$session_course_id = $_SESSION['reserve']['course_id'];
-$session_application_id = $_SESSION['reserve']['id'];
+$session_course_id = isset($_SESSION['reserve']['course_id']) ? $_SESSION['reserve']['course_id'] : null;
+$session_application_id = isset($_SESSION['reserve']['id']) ? $_SESSION['reserve']['id'] : null;
 $course_id = $_POST['course_id'] ?? $session_course_id;
 $application_id =  $_POST['id'] ?? $session_application_id;
 $result_list = $event_application_reserve_controller->index($course_id, $application_id);
-$success = $_SESSION['message_success'];
+$success = isset($_SESSION['message_success']) ? $_SESSION['message_success'] : null;
 $common_array = $result_list['common_array'];
 $common_application = $result_list['common_application'];
 $event_name = $result_list['event_name'];
@@ -19,7 +19,7 @@ $is_payment = $result_list['is_payment'];
 $companion_array = $result_list['companion_array'];
 $child_name = $result_list['child_name'];
 $realtime_path = $result_list['realtime_path'];
-$old_input = $_SESSION['old_input'];
+$old_input = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : null;
 
 unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors']);
 ?>
@@ -82,7 +82,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               <?php if (!empty($child_name)) { ?>
                 <li class="list_item08  <?= !empty($errors['companion_name']) ? 'flex-wrap' : '' ?>">
                   <p class="list_label">お連れ様の氏名</p>
-                  <input class="list_field" type="text" name="companion_name" value="<?= $old_input['companion_name'] ?? htmlspecialchars($child_name) ?>">
+                  <input class="list_field" type="text" name="companion_name" value="<?= htmlspecialchars(isSetValue($child_name ?? '', $old_input['companion_name'] ?? '')) ?>">
                   <?php if (!empty($errors['companion_name'])): ?>
                     <div class="error-msg mt-2">
                       <p class="list_label"></p>
