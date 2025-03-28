@@ -102,6 +102,19 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 
+<!-- 2025年度決済情報ダミーCSS 機能実装後は消す!! -->
+<style>
+    .dummy-radio-group label {
+        margin-right: 10px;
+    }
+
+    @media only screen and (max-width: 959px) {
+        .dummy-radio-group label {
+            margin-right: 0px;
+        }
+    }
+</style>
+
 <main id="subpage">
     <section id="heading" class="inner_l">
         <h2 class="head_ttl" data-en="MEMBER'S PAGE">マイページ</h2>
@@ -488,6 +501,65 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                 </div>
             </div>
         <?php endif; ?>
+
+        <?php if ($tekijuku_commemoration !== false): ?>
+            <div id="tekijuku_payment_form">
+                <div id="form" class="mypage_cont">
+                    <h3 class="mypage_head">
+                        2025年度 適塾記念会決済情報
+                        <span class="payment-status unpaid">未決済</span>
+                    </h3>
+
+                    <!-- 決済状態データ (JavaScript用) -->
+                    <div id="payment-status-data" style="display: none;"></div>
+
+                    <form id="tekijuku_payment_edit_form">
+                        <input type="hidden" name="tekijuku_commemoration_id">
+                        <div class="whitebox form_cont">
+                            <div class="inner_m">
+                                <ul class="list">
+                                    <li class="list_item01 req">
+                                        <p class="list_label">支払方法</p>
+                                        <div class="list_field f_txt radio-group dummy-radio-group">
+                                            <input class="radio_input" id="payment_method_1" style="vertical-align: middle;" type="radio" name="dummy_payment_method" checked="" value="1" data-gtm-form-interact-field-id="1">
+                                            <label for="payment_method_1" class="radio_label">コンビニ決済</label>
+                                            <input class="radio_input" id="payment_method_2" style="vertical-align: middle;" type="radio" name="dummy_payment_method" value="2" data-gtm-form-interact-field-id="2">
+                                            <label for="payment_method_2" class="radio_label">クレジット</label>
+                                            <input class="radio_input" id="payment_method_3" style="vertical-align: middle;" type="radio" name="dummy_payment_method" value="3">
+                                            <label for="payment_method_3" class="radio_label">銀行振込</label>
+                                        </div>
+                                    </li>
+                                    <li class="list_item02  dummy_subsc_area" style="display: none;">
+                                        <div class="area plan">
+                                            <label class="checkbox_label" for="">
+                                                <input type="hidden" name="is_subscription" value="0">
+                                                <input class="checkbox_input"
+                                                    id="payment_is_subscription_checkbox"
+                                                    type="checkbox"
+                                                    name="dummy_is_subscription"
+                                                    value="1"
+                                                    <?= $disabledAttr ?>>
+                                                <label class="checkbox_label" for="payment_is_subscription_checkbox">定額課金プランを利用する</label>
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form_btn">
+                            <input type="hidden" name="post_kbn" value="update_payment">
+                            <a class="btn btn_red box_bottom_btn submit_btn <?php echo $disabledAttr ? 'disabled' : ''; ?>"
+                                href="javascript:void(0);"
+                                id="tekijuku_payment_button"
+                                <?php echo $disabledAttr ? 'disabled' : ''; ?>>
+                                決済へ進む
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="mypage_cont reserve">
             <h3 id="event_application" class="mypage_head">予約情報</h3>
             <?php $allCourseDateNull = true; ?>
@@ -936,5 +1008,14 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
         // チェック状態が変更されたら切り替え
         checkbox.addEventListener("change", toggleFields);
+    });
+    // 2025年度適塾記念会決済情報入力フォーム　ダミーなので本実装後消す！！
+    $('input[name = "dummy_payment_method"]').on('click', function() {
+        const val = $(this).val();
+        if (val == 2) {
+            $('.dummy_subsc_area').css('display', 'block');
+        } else {
+            $('.dummy_subsc_area').css('display', 'none');
+        }
     });
 </script>
