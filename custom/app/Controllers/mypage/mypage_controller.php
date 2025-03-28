@@ -71,7 +71,7 @@ class MypageController
     public function getTekijukuCommemoration()
     {
         // 標準で取得するカラム
-        $columns = 'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, paid_date, note, is_published, is_subscription, is_delete, department, major, official, is_university_member';
+        $columns = 'id, number, type_code, name, kana, post_code, address, tell_number, email, payment_method, paid_date, note, is_published, is_subscription, is_delete, department, major, official, is_university_member, is_dummy_email, is_pre_user';
 
         // 現在の日付を取得
         $current_date = new DateTime();
@@ -89,16 +89,22 @@ class MypageController
             // 指定の年度のis_deposit_YYYYカラムを追加
             $columns .= ", is_deposit_{$fiscal_year}";
             $next_year = $fiscal_year + 1;
-            if($next_year <= 2030) {
+            if ($next_year <= 2030) {
                 $columns .= ", is_deposit_{$next_year}";
             }
         }
 
-        return $this->DB->get_record(
+        $record = $this->DB->get_record(
             'tekijuku_commemoration',
             ['fk_user_id' => $this->USER->id],
             $columns
         );
+
+        if ($record) {
+            return (array)$record;
+        }
+
+        return false;
     }
 
     public function getEventApplications($offset = 0, $limit = 4, $page = 1, $get_application = 'booking')
