@@ -8,13 +8,14 @@ class EventModel extends BaseModel
             try {
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
+                $now_time = time(); // 現在のタイムスタンプ（秒）
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
                                 e.id AS event_id,
                                 c.course_date,
                                 c.deadline_date,
-                                ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                                ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
                             FROM mdl_event e
                             LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
                             LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
@@ -110,6 +111,7 @@ class EventModel extends BaseModel
 
                 // 動的に検索条件を追加
                 $params = [
+                    ':now_time' => $now_time,
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
@@ -304,13 +306,14 @@ class EventModel extends BaseModel
             try {
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
+                $now_time = time(); // 現在のタイムスタンプ（秒）
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
                                 e.id AS event_id,
                                 c.course_date,
                                 c.deadline_date,
-                                ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                                ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
                             FROM mdl_event e
                             LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
                             LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
@@ -406,6 +409,7 @@ class EventModel extends BaseModel
 
                 // 動的に検索条件を追加
                 $params = [
+                    'now_time' => $now_time,
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
@@ -677,13 +681,14 @@ class EventModel extends BaseModel
             try {
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
+                $now_time = time(); // 現在のタイムスタンプ（秒）
                 // ベースのSQLクエリ - COUNT追加
                 $sql = 'WITH closest_dates AS (
                         SELECT 
                             e.id AS event_id,
                             c.course_date,
                             c.deadline_date,
-                            ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                            ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
                         FROM mdl_event e
                         LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
                         LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
@@ -773,6 +778,7 @@ class EventModel extends BaseModel
                 // パラメータ設定
                 $params = [
                     ':id' => $id,
+                    ':now_time' => $now_time,
                     ':current_timestamp' => $currentTimestamp
                 ];
 
@@ -807,13 +813,14 @@ class EventModel extends BaseModel
             try {
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
+                $now_time = time(); // 現在のタイムスタンプ（秒）
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
                                 e.id AS event_id,
                                 c.course_date,
                                 c.deadline_date,
-                                ABS(TIMESTAMPDIFF(SECOND, NOW(), c.course_date)) AS time_diff
+                                ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
                             FROM mdl_event e
                             LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
                             LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
@@ -901,6 +908,7 @@ class EventModel extends BaseModel
                 // 動的に検索条件を追加
                 $params = [
                     ':id' => $id,
+                    ':now_time' => $now_time,
                     ':current_timestamp' => $currentTimestamp
                 ];
 

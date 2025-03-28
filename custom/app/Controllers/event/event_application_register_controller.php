@@ -27,6 +27,9 @@ class EventRegisterController
 
             // 本人用チケットのみを取得（TICKET_TYPE['SELF']）
             $self_ticket_type = TICKET_TYPE['SELF'];
+            
+            $now = new DateTime();
+            $now_time = $now->format('Y-m-d H:i:s');
             $sql = "WITH cmt_data AS (
             SELECT 
                 cm.course_info_id, 
@@ -83,7 +86,7 @@ class EventRegisterController
             AND eaci.ticket_type = :self_ticket_type
             AND (
                 -- リリース日がNULLの場合: 開催日+23:59:59 を公開終了とする
-                (ci.release_date IS NULL AND ci.course_date >= CURDATE())
+                (ci.release_date IS NULL AND ci.course_date >= '$now_time')
 
                 -- リリース日がある場合: `release_date + archive_streaming_period` で公開終了を計算
                 OR (
@@ -97,7 +100,7 @@ class EventRegisterController
                             WHEN ci.material_release_date IS NOT NULL THEN DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY)
                             ELSE '1970-01-01'
                         END
-                    ) >= NOW()
+                    ) >= '$now_time'
                 )
             )
         ORDER BY 
