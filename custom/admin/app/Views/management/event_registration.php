@@ -131,11 +131,12 @@ $page = $result_list['page'];
                                                 <button type="submit" class="btn btn-primary mt-3 mb-3 me-3 d-flex justify-content-center align-items-center">
                                                     更新
                                                 </button>
-                                                <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
+                                                <button id="csv_button" type="button" class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
                                                     <i class="align-middle me-1" data-feather="download"></i>CSV出力
                                                 </button>
                                             </div>
                                         </div>
+                                        
                                         <div class="card m-auto mb-5 w-95">
                                             <table class="table table-responsive table-striped table_list">
                                                 <thead>
@@ -183,6 +184,15 @@ $page = $result_list['page'];
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </form>
+                                    
+                                    <!-- 非表示のform（CSV出力用） -->
+                                    <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/event_registration_export_controller.php">
+                                        <input type="hidden" name="keyword" value="<?= htmlspecialchars(isset($old_input['keyword']) ? $old_input['keyword'] : '', ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="category_id" value="<?= $old_input['category_id'] ?? '' ?>">
+                                        <input type="hidden" name="event_status_id" value="<?= $old_input['event_status_id'] ?? '' ?>">
+                                        <input type="hidden" name="event_id" value="<?= $old_input['event_id'] ?? '' ?>">
+                                        <input type="hidden" name="course_no" value="<?= $old_input['course_no'] ?? '' ?>">
                                     </form>
                                 </div>
                                 <div class="d-flex">
@@ -250,6 +260,11 @@ $page = $result_list['page'];
             const nextPage = $(this).data("page");
             $('input[name="page"]').val(nextPage);
             $('#form').submit();
+        });
+        
+        // CSV出力ボタン押下時
+        $('#csv_button').on('click', function(event) {
+            $('#csvExportForm').submit();
         });
     });
 </script>

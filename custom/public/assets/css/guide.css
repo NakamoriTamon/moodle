@@ -35,21 +35,16 @@
   margin-bottom: 20px;
   font-weight: 700;
 }
-#guide .guide_list,
-#guide .guide_notes {
-  width: 48%;
-  min-width: 580px;
-}
 #guide .guide_list {
   counter-reset: item;
 }
-#guide .guide_list li {
+#guide .guide_list .guide_list-item {
   display: flex;
   align-items: baseline;
   gap: 20px;
   margin-bottom: 40px;
 }
-#guide .guide_list li::before {
+#guide .guide_list .guide_list-item::before {
   content: counter(item);
   counter-increment: item;
   flex: 0 0 auto;
@@ -64,11 +59,45 @@
   font-size: 18px;
   font-weight: 700;
 }
+#guide .guide_flow-img {
+  margin: 40px 0 60px;
+}
 #guide .guide_notes {
-  padding: 20px;
+  padding: 35px 0;
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+#guide .guide_list .guide_list-cont {
+  margin-top: 60px;
+}
+#guide .guide_list .guide_list-cont .subttl {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+#guide .guide_list .guide_list-cont .subttl::before {
+  content: "";
+  width: 8px;
+  height: 46px;
+  background: #81bfda;
+  border-radius: 2px;
+}
+#guide .guide_list .guide_list-case .casettl {
+  margin: 40px 0 15px;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+#contact_href{
+  display: inline;
+  text-decoration: underline;
+}
+#contact_href:hover{
+  display: inline;
+  text-decoration: none;
 }
 
 /*  mobile & smart phone
@@ -98,7 +127,7 @@
     margin-bottom: 10px;
   }
   #guide .guide_list,
-  #guide .guide_notes {
+  #guide .guide_list .guide_list-item { 
     width: 100%;
     min-width: inherit;
   }
@@ -106,13 +135,32 @@
     gap: 10px;
     margin-bottom: 15px;
   }
-  #guide .guide_list li::before {
+  #guide .guide_list .guide_list-item::before {
     width: 22px;
     height: 22px;
     border-radius: 3px;
     font-size: 14px;
   }
+  #guide .guide_flow-img {
+    margin: 15px 0 40px;
+  }
   #guide .guide_notes {
-    padding: 15px;
+    padding: 15px 0;
+  }
+    #guide .guide_list .guide_list-cont {
+    margin-top: 40px;
+  }
+  #guide .guide_list .guide_list-cont .subttl {
+    margin-bottom: 10px;
+    gap: 10px;
+    font-size: 2rem;
+  }
+  #guide .guide_list .guide_list-cont .subttl::before {
+    width: 6px;
+    height: 30px;
+  }
+  #guide .guide_list .guide_list-case .casettl {
+    margin: 30px 0 10px;
+    font-size: 1.8rem;
   }
 }

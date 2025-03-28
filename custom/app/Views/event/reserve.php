@@ -104,10 +104,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                   } ?>
                 </li>
               <?php } ?>
-              <?php if (!empty($realtime_path)) { ?>
+              <?php if (!empty($realtime_path) && ($price == '無料' || $is_payment == '決済済')) { ?>
                 <li class="list_item10">
                   <p class="list_label">リアルタイム配信パス</p>
-                  <a id="realtime_path" href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer"" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
+                  <a id="realtime_path" href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
                 </li>
               <?php } ?>
               <?php if (!empty($child_name)) { ?>
