@@ -1104,9 +1104,10 @@ select {
     line-height: 1.8;
   }
   .block_ttl {
-    height: 40px;
+    min-height: 40px;
+    height: auto;
     margin-bottom: 20px;
-    padding: 0 20px;
+    padding: 5px 20px;
     font-size: 18px;
   }
 
