@@ -57,7 +57,7 @@ $page = $result_list['page'];
                                 <div class="d-flex w-100 align-items-center justify-content-between mt-3">
                                     <div></div>
                                     <div class="d-flex align-items-center button-div mr-025">
-                                        <button class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
+                                        <button type="button" id="csv_button" class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
                                             <i class="align-middle me-1" data-feather="download"></i>CSV出力
                                         </button>
                                         <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
@@ -112,6 +112,11 @@ $page = $result_list['page'];
                                 </div>
                             </div>
                         </form>
+                        
+                        <!-- 非表示のform（CSV出力用） -->
+                        <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/user_registration_export_controller.php">
+                        </form>
+                        
                         <div class="d-flex">
                             <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
                                 <ul class="pagination">
@@ -168,6 +173,11 @@ $page = $result_list['page'];
             const nextPage = $(this).data("page");
             $('input[name="page"]').val(nextPage);
             $('#form').submit();
+        });
+
+        // CSV出力ボタン押下時
+        $('#csv_button').on('click', function(event) {
+            $('#csvExportForm').submit();
         });
     });
 </script>
