@@ -23,32 +23,71 @@ function viewDates($event)
     $survey_date = new DateTime($event->course_date);
     $survey_date_part = $survey_date->format('Y-m-d');
     $surveyReleaseDate = new DateTime("$survey_date_part $start_hour");
-    if (empty($event->release_date)) { // リリース情報が無い場合開催時刻　～　終日がアンケートや資料が見れる
+
+    // 動画リリース情報の処理
+    if (empty($event->release_date)) {
+        // リリース情報がない場合は開催日時から終日を公開期間とする
         $date = new DateTime($event->course_date);
         $date_part = $date->format('Y-m-d');
-        $releaseDate = new DateTime("$date_part $start_hour"); // 公開開始
-
+        $videoReleaseDate = new DateTime("$date_part $start_hour"); // 動画公開開始
         $end_hour = '23:59:59';
-        $releaseEndDate = new DateTime("$date_part $end_hour"); // 比較用　公開終了
-        $formattedDate = $releaseEndDate->format('Y年m月d日'); // 表示用　公開終了
-    } else { // リリース情報が有る場合開催時刻　～　がアンケートや資料が見れる
+        $videoReleaseEndDate = new DateTime("$date_part $end_hour"); // 動画公開終了
+        $videoFormattedDate = $videoReleaseEndDate->format('Y年m月d日'); // 表示用
+    } else {
+        // リリース情報がある場合はそれを使用
         $date = new DateTime($event->release_date);
         $date_part = $date->format('Y-m-d H:i:s');
-        $releaseDate = new DateTime($date_part); // 公開開始
+        $videoReleaseDate = new DateTime($date_part); // 動画公開開始
 
-        $releaseEndDate = new DateTime($event->release_date);
+        $videoReleaseEndDate = new DateTime($event->release_date);
         $interval = new DateInterval('P' . intval($event->archive_streaming_period) . 'D');
-        $releaseEndDate->add($interval); // 比較用　公開終了
-        $formatReleaseEndDate = new DateTime($event->release_date);
-        $formatReleaseEndDate->add($interval);
-        $formatReleaseEndDate->modify('-1 day');
-        $formattedDate = $formatReleaseEndDate->format('Y年m月d日'); // 表示用　公開終了
+        $videoReleaseEndDate->add($interval); // 動画公開終了
+
+        $formatVideoReleaseEndDate = new DateTime($event->release_date);
+        $formatVideoReleaseEndDate->add($interval);
+        $formatVideoReleaseEndDate->modify('-1 day');
+        $videoFormattedDate = $formatVideoReleaseEndDate->format('Y年m月d日'); // 表示用
     }
+
+    // 資料(PDF)リリース情報の処理
+    if (empty($event->material_release_date)) {
+        // 資料リリース情報がない場合は開催日時から終日を公開期間とする
+        $date = new DateTime($event->course_date);
+        $date_part = $date->format('Y-m-d');
+        $materialReleaseDate = new DateTime("$date_part $start_hour"); // 資料公開開始
+        $end_hour = '23:59:59';
+        $materialReleaseEndDate = new DateTime("$date_part $end_hour"); // 資料公開終了
+        $materialFormattedDate = $materialReleaseEndDate->format('Y年m月d日'); // 表示用
+    } else {
+        // 資料リリース情報がある場合はそれを使用
+        $date = new DateTime($event->material_release_date);
+        $date_part = $date->format('Y-m-d H:i:s');
+        $materialReleaseDate = new DateTime($date_part); // 資料公開開始
+
+        $materialReleaseEndDate = new DateTime($event->material_release_date);
+        $interval = new DateInterval('P' . intval($event->material_release_period) . 'D');
+        $materialReleaseEndDate->add($interval); // 資料公開終了
+
+        $formatMaterialReleaseEndDate = new DateTime($event->material_release_date);
+        $formatMaterialReleaseEndDate->add($interval);
+        $formatMaterialReleaseEndDate->modify('-1 day');
+        $materialFormattedDate = $formatMaterialReleaseEndDate->format('Y年m月d日'); // 表示用
+    }
+
+    // アンケート終了日時は動画と資料の公開終了日時のうち遅い方
+    $surveyEndDate = ($videoReleaseEndDate > $materialReleaseEndDate) ? clone $videoReleaseEndDate : clone $materialReleaseEndDate;
+
+    // 表示する終了日時は動画と資料の公開終了日時のうち遅い方
+    $formattedDate = ($videoReleaseEndDate > $materialReleaseEndDate) ? $videoFormattedDate : $materialFormattedDate;
+
     return [
-        'releaseDate' => $releaseDate,
-        'releaseEndDate' => $releaseEndDate,
-        'formattedDate' => $formattedDate,
-        'surveyReleaseDate' => $surveyReleaseDate // アンケート用の公開開始時間
+        'videoReleaseDate' => $videoReleaseDate,
+        'videoReleaseEndDate' => $videoReleaseEndDate,
+        'materialReleaseDate' => $materialReleaseDate,
+        'materialReleaseEndDate' => $materialReleaseEndDate,
+        'formattedDate' => $formattedDate, // 表示用終了日時
+        'surveyReleaseDate' => $surveyReleaseDate, // アンケート公開開始時間
+        'surveyEndDate' => $surveyEndDate // アンケート公開終了時間
     ];
 }
 ?>
@@ -82,21 +121,21 @@ function viewDates($event)
                             <div class="event_btns">
                                 <?php
                                 // PDFボタン
-                                if ($now >= $view_date['releaseDate'] && $now <= $view_date['releaseEndDate'] && isset($event->materials)) {
+                                if ($now >= $view_date['materialReleaseDate'] && $now <= $view_date['materialReleaseEndDate'] && isset($event->materials)) {
                                     echo "<a href='#' class='btn_pdf' data-course-info-id='" . htmlspecialchars($event->course_info_id) . "'>PDF資料</a>";
                                 } else {
                                     echo "<a href='#' class='btn_pdf' style='pointer-events: none;background: #E3E3E3;'>PDF資料</a>";
                                 }
 
                                 // 動画ボタン
-                                if ($now >= $view_date['releaseDate'] && $now <= $view_date['releaseEndDate'] && isset($event->movies)) {
+                                if ($now >= $view_date['videoReleaseDate'] && $now <= $view_date['videoReleaseEndDate'] && isset($event->movies)) {
                                     echo "<a href='#'class='btn_movie' data-course-info-id='" . htmlspecialchars($event->course_info_id) . "'>イベント動画</a>";
                                 } else {
                                     echo "<a href='#' class='btn_movie' style='pointer-events: none;background: #E3E3E3;'>イベント動画</a>";
                                 }
 
                                 // アンケートボタン
-                                if ($now >= $view_date['surveyReleaseDate'] && $now <= $view_date['releaseEndDate']) {
+                                if ($now >= $view_date['surveyReleaseDate'] && $now <= $view_date['surveyEndDate']) {
                                     echo "<a href='../survey/index.php?course_info_id=" . htmlspecialchars($event->course_info_id) . "' class='btn_answer'>アンケートに回答する</a>";
                                 } else {
                                     echo "<a href='#' class='btn_answer' style='pointer-events: none;background: #E3E3E3;'>アンケートに回答する</a>";
