@@ -43,9 +43,9 @@ if ($tekijuku_commemoration !== false) {
         $current_fiscal_year = $current_year - 1;
     }
 
-    if (!empty($tekijuku_commemoration->paid_date)) {
+    if (!empty($tekijuku_commemoration['paid_date'])) {
         // paid_dateが存在する場合
-        $paid_date = new DateTime($tekijuku_commemoration->paid_date);
+        $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
 
         // 支払日の年度を計算
         $paid_year = (int)$paid_date->format('Y');
