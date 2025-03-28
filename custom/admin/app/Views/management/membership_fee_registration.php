@@ -85,11 +85,16 @@ unset($_SESSION['old_input']);
                                 <div class="d-flex w-100 align-items-center justify-content-end mt-3 mb-3">
                                     <div></div>
                                     <div class="d-flex ms-auto  button-div mr-025">
-                                        <button class="btn btn-primary mt-3 d-flex justify-content-center align-items-center">
+                                        <button id="csv_button" class="btn btn-primary mt-3 d-flex justify-content-center align-items-center">
                                             <i class="align-middle me-1" data-feather="download"></i>CSV出力
                                         </button>
                                     </div>
                                 </div>
+                                <!-- 非表示のCSVエクスポートフォーム -->
+                                <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/membership_fee_export_controller.php">
+                                    <input type="hidden" name="year" value="<?= $old_input['year'] ?? '' ?>">
+                                    <input type="hidden" name="keyword" value="<?= $old_input['keyword'] ?? '' ?>">
+                                </form>
                                 <div class="card m-auto mb-5 w-95">
                                     <table class="table table-responsive table-striped table_list" style="width:100%">
                                         <thead>
@@ -240,6 +245,10 @@ unset($_SESSION['old_input']);
         params.set('page', currentPage);
         history.replaceState(null, '', window.location.pathname + '?' + params.toString());
 
+        // CSV出力ボタンのクリックイベント
+        $('#csv_button').on('click', function(event) {
+            $('#csvExportForm').submit();
+        });
     });
     $('#search-button').on('click', function(event) {
         $('input[name="page"]').val(1);
