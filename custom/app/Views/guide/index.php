@@ -103,7 +103,7 @@
                         <div class="guide_list-case">
                             <h4 class="casettl">【コンビニ決済の場合】</h4>
                             <p class="sent">
-                                コンビニによって支払いに必要な情報や手続きが異なります。詳しくはこちら（決済代行業者KOMOJU）をご参照ください。
+                                コンビニによって支払いに必要な情報や手続きが異なります。詳しくは<a id="contact_href" href="https://komoju-ja.helpscoutdocs.com/article/303-article" target="_blank" rel="noopener noreferrer">こちら</a>（決済代行業者KOMOJU）をご参照ください。
                             </p>
                             <img
                                 src="/custom/public/assets/common/img/img_guide_event02.jpg"
