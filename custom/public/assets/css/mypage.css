@@ -198,7 +198,25 @@
 .info_wrap.js_pay .info_wrap_qr .obj_no {
   display: none;
 }
+/* 決済用フォーム */
+.payment-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin-left: 10px;
+   line-height: 1.5;
 
+}
+.payment-status.unpaid {
+  background-color: #f8d7da;
+  color: #721c24;
+  line-height: 1.5;
+}
+.payment-status.in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
 /*-------------------------------------
  history
  -------------------------------------*/
