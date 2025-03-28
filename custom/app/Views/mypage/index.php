@@ -21,9 +21,9 @@ if (!$is_general_user) {
     header('Location: /custom/app/Views/logout/index.php');
 }
 
-$tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
+// $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 $tekijukuCommemorationModel = new TekijukuCommemorationModel();
-// $tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
+$tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
@@ -576,7 +576,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             </div>
         <?php endif; ?>
 
-        <?php var_dump($isPreUser); ?>
 
 
         <?php if ($tekijuku_commemoration !== false): ?>
