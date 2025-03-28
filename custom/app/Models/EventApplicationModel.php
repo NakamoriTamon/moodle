@@ -80,11 +80,14 @@ class EventApplicationModel extends BaseModel
     {
         if ($this->pdo) {
             try {
+                $now = new DateTime();
+                $now_time = $now->format('Y-m-d H:i:s');
+
                 $stmt = $this->pdo->prepare("SELECT ea.*, e.id as eventid, e.name as event_name , e.* FROM mdl_event_application ea
                 LEFT JOIN mdl_event e ON e.id = ea.event_id 
                 WHERE user_id = ?
-                AND DATE(e.event_date) >= CURDATE()");
-                $stmt->execute([$userId]);
+                AND DATE(e.event_date) >= ?");
+                $stmt->execute([$userId, $now_time]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();
@@ -101,11 +104,14 @@ class EventApplicationModel extends BaseModel
     {
         if ($this->pdo) {
             try {
+                $now = new DateTime();
+                $now_time = $now->format('Y-m-d H:i:s');
+
                 $stmt = $this->pdo->prepare("SELECT ea.*, e.id as eventid, e.name as event_name , e.* FROM mdl_event_application ea
                 LEFT JOIN mdl_event e ON e.id = ea.event_id 
                 WHERE user_id = ?
-                AND DATE(e.event_date) < CURDATE()");
-                $stmt->execute([$userId]);
+                AND DATE(e.event_date) < ?");
+                $stmt->execute([$userId, $now_time]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
                 echo 'データの取得に失敗しました: ' . $e->getMessage();

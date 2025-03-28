@@ -66,9 +66,8 @@ if (!empty($events)) {
 
             if ($course_date >= $now) {
                 $event['select_course'][$select_course['no']] = $select_course;
+                $count++;
             }
-
-            $count++;
         }
     }
 }

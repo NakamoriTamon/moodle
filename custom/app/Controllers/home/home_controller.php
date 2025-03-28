@@ -51,9 +51,8 @@ if(!empty($events)) {
             $course_date = (new DateTime($select_course['course_date']))->format('Ymd');
             if ($course_date >= $now) {
                 $event['select_course'][$select_course['no']] = $select_course;
+                $count++;
             }
-
-            $count++;
         }
     }
     
