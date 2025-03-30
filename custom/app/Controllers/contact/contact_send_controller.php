@@ -4,10 +4,9 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 
 use Dotenv\Dotenv;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter;
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 $event_id = "";
 $name = "";
@@ -30,7 +29,7 @@ if (isset($SESSION->formdata)) {
 
 try {
     $inquiry_mail = "";
-    if(is_numeric($event_id)) {
+    if (is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
         $inquiry_mail = empty($event["inquiry_mail"]) ? $_ENV['MAIL_FROM_ADRESS'] : $event["inquiry_mail"];
@@ -41,24 +40,17 @@ try {
     $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
     $dotenv->load();
 
-    $mail = new PHPMailer(true);
+    // SESのクライアント設定
+    $SesClient = new SesClient([
+        'version' => 'latest',
+        'region'  => 'ap-northeast-1', // 東京リージョン
+        'credentials' => [
+            'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+            'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+        ]
+    ]);
 
-    $mail->isSMTP();
-    $test = getenv('MAIL_HOST');
-    $mail->Host = $_ENV['MAIL_HOST'];
-    $mail->SMTPAuth = true;
-    $mail->Username = $_ENV['MAIL_USERNAME'];
-    $mail->Password = $_ENV['MAIL_PASSWORD'];
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->CharSet = PHPMailer::CHARSET_UTF8;
-    $mail->Port = $_ENV['MAIL_PORT'];
-
-    // 事務局側
-    // From
-    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
-    // To
-    $mail->addAddress($inquiry_mail);
-    $mail->isHTML(true);
+    $recipients = [$inquiry_mail];
 
     $htmlBody = "
     <div style=\"text-align: center; font-family: Arial, sans-serif;\">
@@ -78,25 +70,32 @@ try {
     </div>
     ";
 
-    $mail->Subject = 'お問い合わせメール' . $event_name;
-    $mail->Body = $htmlBody;
+    $subject = 'お問い合わせメール' . $event_name;
 
-    $mail->SMTPOptions = array(
-    'ssl' => array(
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-        'allow_self_signed' => true
-    )
-    );
-
-    $mail->send();
-
-    // 送信側
-    // From
-    $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], '大阪大学 知の広場 ハンダイ市民講座事務局');
-    // To
-    $mail->addAddress($email);
-    $mail->isHTML(true);
+    try {
+        $result = $SesClient->sendEmail([
+            'Destination' => [
+                'ToAddresses' => $recipients,
+            ],
+            'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+            'Message' => [
+                'Subject' => [
+                    'Data' => $subject,
+                    'Charset' => 'UTF-8'
+                ],
+                'Body' => [
+                    'Html' => [
+                        'Data' => $htmlBody,
+                        'Charset' => 'UTF-8'
+                    ]
+                ]
+            ]
+        ]);
+    } catch (AwsException $e) {
+        $_SESSION['message_error'] = 'メールの送信に失敗しました';
+        header('Location: /custom/app/Views/contact/index.php');
+        exit;
+    }
 
     $htmlBody = "
     <div style=\"text-align: center; font-family: Arial, sans-serif;\">
@@ -119,18 +118,33 @@ try {
     </div>
     ";
 
-    $mail->Subject = $event_name . 'お問い合わせを受け付けました';
-    $mail->Body = $htmlBody;
+    $recipients = [$email];
+    $subject = $event_name . 'お問い合わせを受け付けました';
 
-    $mail->SMTPOptions = array(
-        'ssl' => array(
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-            'allow_self_signed' => true
-        )
-    );
-
-    $mail->send();
+    try {
+        $result = $SesClient->sendEmail([
+            'Destination' => [
+                'ToAddresses' => $recipients,
+            ],
+            'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+            'Message' => [
+                'Subject' => [
+                    'Data' => $subject,
+                    'Charset' => 'UTF-8'
+                ],
+                'Body' => [
+                    'Html' => [
+                        'Data' => $htmlBody,
+                        'Charset' => 'UTF-8'
+                    ]
+                ]
+            ]
+        ]);
+    } catch (AwsException $e) {
+        $_SESSION['message_error'] = 'メールの送信に失敗しました';
+        header('Location: /custom/app/Views/contact/index.php');
+        exit;
+    }
 
     unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION['message_error']);
     header('Location: /custom/app/Views/contact/complete.php');
