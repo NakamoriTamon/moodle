@@ -132,6 +132,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                                 <?php } ?>
                             </div>
                         </li>
+                        <li class="list_item06">
+                            <p class="list_label"></p>
+                            <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
+                        </li>
                         <li class="list_item11">
                             <p class="list_label">備考</p>
                             <div class="list_field f_txt">
