@@ -137,9 +137,15 @@ define('EVENT_APPLICATION_PACKAGE_TYPE', [ // パッケージ種別
   'BUNDLE' => 2, // 一括申し込み 
 ]);
 // 適塾記念会テーブル
-define('IS_SUBSCRIPTION', [
-  'SUBSCRIPTION_DISABLED' => 0,
-  'SUBSCRIPTION_ENABLED' => 1
+define('IS_SUBSCRIPTION', [ // サブスクリプション
+  'SUBSCRIPTION_DISABLED' => 0, // 解約
+  'SUBSCRIPTION_ENABLED' => 1 // 契約
+]);
+define('PAID_STATUS', [ // 決済状況
+  'UNPAID'                  => 1, // 未決済
+  'PROCESSING'              => 2, // 決済中
+  'COMPLETED'               => 3, // 決済済み
+  'SUBSCRIPTION_PROCESSING' => 4  // 決済中（サブスクリプション）
 ]);
 
 $lecture_format_on_site = 1; //現地開催

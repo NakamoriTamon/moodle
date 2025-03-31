@@ -143,7 +143,7 @@ global $old_input;
                         <?php } ?>
 
                         <div class="form_btn">
-                            <button type="button" class="btn btn_red" onclick="location.href='/custom/app/Controllers/tekijuku/tekijuku_upsert_contoroller.php';">登録する</button>
+                            <button type="button" class="btn btn_red" onclick="location.href='/custom/app/Controllers/tekijuku/tekijuku_upsert_controller.php';">登録する</button>
                             <button type="button" class="btn btn_gray" onclick="location.href='/custom/app/Views/tekijuku/registrate.php';">登録内容を変更する</button>
                         </div>
                     </ul>

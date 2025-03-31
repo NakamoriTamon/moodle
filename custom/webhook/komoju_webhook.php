@@ -48,17 +48,48 @@ if ($data['status'] === 'captured') {
                     ->setTimezone(new DateTimeZone('Asia/Tokyo'))
                     ->format('Y-m-d H:i:s');
             }
+            $amount = $data['amount'];
+            $tekijuku_id = $data['metadata']['tekujuku_id'];
+            $payment_method = $data['metadata']['payment_method'];
+
+            // UPDATE処理からINSERT処理に変更
+            $stmt = $pdo->prepare("
+                INSERT INTO mdl_tekijuku_commemoration_history (
+                    fk_tekijuku_commemoration_id,
+                    created_at,
+                    updated_at,
+                    paid_date,
+                    price,
+                    payment_method
+                ) VALUES (
+                    :fk_tekijuku_commemoration_id,
+                    NOW(),
+                    NOW(),
+                    :paid_date,
+                    :price,
+                    :payment_method
+                )
+            ");
+
+            $stmt->execute([
+                ':fk_tekijuku_commemoration_id' => $tekijuku_id,
+                ':paid_date' => $capturedAtJP,
+                ':price' => $amount,
+                ':payment_method' => $payment_method
+            ]);
+
 
             $stmt = $pdo->prepare("
                 UPDATE mdl_tekijuku_commemoration
                 SET 
-                    paid_date = :paid_date
+                    paid_status = :paid_status,
+                    payment_start_date = null
                 WHERE id = :id
             ");
 
             $stmt->execute([
-                ':paid_date' => $capturedAtJP,
-                ':id' => $data['metadata']['tekujuku_id']
+                ':id' => $data['metadata']['tekujuku_id'],
+                ':paid_status' => PAID_STATUS['COMPLETED'],
             ]);
         } else {
 

@@ -323,7 +323,7 @@ try {
 
         try {
             $result = $SesClient->sendBulkTemplatedEmail([
-                'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                'Source' => '大阪大学 <' . $_ENV['MAIL_FROM_ADDRESS'] . '>',
                 'ReplyToAddresses' => ['no-reply@example.com'],
                 'DefaultTemplateData' => json_encode($templateData),
                 'Template' => $templateName,

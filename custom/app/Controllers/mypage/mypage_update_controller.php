@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'update_membership':
             $controller->updateMembershipInfo();
             break;
+        case 'update_payment_method':
+            $controller->updatePaymentMethod();
+            break;
         case 'email_notification':
             $result = $controller->changeEmailNotifications();
 
@@ -31,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 class MypageUpdateController
 {
+    /**
+     * マイページ情報更新のメソッド
+     */
     public function updateUserInfo()
     {
         global $DB;
@@ -190,6 +196,9 @@ class MypageUpdateController
         }
     }
 
+    /**
+     * 適塾情報の更新メソッド
+     */
     public function updateMembershipInfo()
     {
         global $DB;
@@ -234,19 +243,11 @@ class MypageUpdateController
         $tell_number = str_replace('ー', '-', $tell_number);
         $_SESSION['errors']['tell_number'] = validate_tel_number($tell_number);
 
-
         $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
         $_SESSION['errors']['note'] = validate_max_text($note, '備考', $size, false);
 
-        $payment_method = htmlspecialchars($_POST['payment_method']);
-        if (empty($payment_method)) {
-            $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
-        }
-
         $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
-        $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-        $official = htmlspecialchars(required_param('official', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $is_university_member = optional_param('is_university_member', 0, PARAM_INT);
         $department = htmlspecialchars(required_param('department', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['department'] = validate_text($department, '所属部局（学部・研究科）', $name_size, $is_university_member === 0 ? false : true);
@@ -279,10 +280,8 @@ class MypageUpdateController
                 $data->address = $address;
                 $data->tell_number = $tell_number;
                 $data->email = $email;
-                $data->payment_method = $payment_method;
                 $data->note = $note;
                 $data->is_published = $is_published;
-                $data->is_subscription = $is_subscription;
                 $data->department = $department;
                 $data->major = $major;
                 $data->official = $official;
@@ -298,6 +297,57 @@ class MypageUpdateController
             $pdo->rollBack();
             $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
             header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
+        }
+    }
+
+    /**
+     * 支払い方法変更メソッド
+     */
+    public function updatePaymentMethod()
+    {
+        global $DB;
+
+        $user_id = $_SESSION['USER']->id;
+        $id = htmlspecialchars(required_param('tekijuku_commemoration_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+
+        $payment_method = htmlspecialchars($_POST['payment_method']);
+        if (empty($payment_method)) {
+            $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
+        }
+
+        $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
+
+        foreach ($_SESSION['errors'] as $error) {
+            if (!empty($error)) {
+                $_SESSION['old_input'] = $_POST;
+
+                header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                exit;
+            }
+        }
+
+        try {
+            if (isloggedin() && isset($_SESSION['USER'])) {
+                // 接続情報取得
+                $baseModel = new BaseModel();
+                $pdo = $baseModel->getPdo();
+                $pdo->beginTransaction();
+
+                $data = new stdClass();
+                $data->id = (int)$id;
+                $data->payment_method = $payment_method;
+                $data->is_subscription = $is_subscription;
+
+                $DB->update_record_raw('tekijuku_commemoration', $data);
+
+                $pdo->commit();
+                $_SESSION['payment_success'] = '支払方法の更新が完了しました';
+                header('Location: /custom/app/Views/mypage/index.php#payment_form');
+            }
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            $_SESSION['message_error'] = '支払方法の更新に失敗しました: ' . $e->getMessage();
+            header('Location: /custom/app/Views/mypage/index.php#payment_form');
         }
     }
 

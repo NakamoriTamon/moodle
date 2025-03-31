@@ -225,6 +225,8 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
+
+        <?php var_dump($tekijuku_commemoration); ?>
         <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
