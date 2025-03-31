@@ -237,52 +237,52 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
 {
     global $CFG, $url_secret_key;
 
-            foreach ($eventApplication['course_infos'] as $course) {
-                global $url_secret_key;
-                $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
+    foreach ($eventApplication['course_infos'] as $course) {
+        global $url_secret_key;
+        $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
 
-                // SESのクライアント設定
-                $SesClient = new SesClient([
-                    'version' => 'latest',
-                    'region'  => 'ap-northeast-1', // 東京リージョン
-                    'credentials' => [
-                        'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
-                        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
-                    ]
-                ]);
+        // SESのクライアント設定
+        $SesClient = new SesClient([
+            'version' => 'latest',
+            'region'  => 'ap-northeast-1', // 東京リージョン
+            'credentials' => [
+                'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+            ]
+        ]);
 
-                $recipients = [$course['participant_mail']];
+        $recipients = [$course['participant_mail']];
 
-                $day = new DateTime($course["course_date"]);
-                $course_date = $day->format('Ymd');
-                $ymd = $day->format('Y/m/d');
-                $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
-                $start_hour = $dateTime->format('H:i'); // "00:00"
-                $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
-                $end_hour = $dateTime->format('H:i'); // "00:00"
+        $day = new DateTime($course["course_date"]);
+        $course_date = $day->format('Ymd');
+        $ymd = $day->format('Y/m/d');
+        $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
+        $start_hour = $dateTime->format('H:i'); // "00:00"
+        $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
+        $end_hour = $dateTime->format('H:i'); // "00:00"
 
-                // ✅ QRコードを生成（バイナリデータ）
-                $qrCode = new QrCode($encrypt_event_application_course_info_id);
-                $writer = new PngWriter();
-                $qrCodeImage = $writer->write($qrCode)->getString();
-                $qr_base64 = base64_encode($qrCodeImage);
+        // ✅ QRコードを生成（バイナリデータ）
+        $qrCode = new QrCode($encrypt_event_application_course_info_id);
+        $writer = new PngWriter();
+        $qrCodeImage = $writer->write($qrCode)->getString();
+        $qr_base64 = base64_encode($qrCodeImage);
 
-                // ✅ MIME メッセージの作成
-                $boundary = md5(time());
+        // ✅ MIME メッセージの作成
+        $boundary = md5(time());
 
-                $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
-                $rawMessage .= "To: " . implode(',', $recipients) . "\r\n";
-                $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode("チケットの購入が完了しました") . "?=\r\n";
-                $rawMessage .= "MIME-Version: 1.0\r\n";
-                $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
+        $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
+        $rawMessage .= "To: " . implode(',', $recipients) . "\r\n";
+        $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode("チケットの購入が完了しました") . "?=\r\n";
+        $rawMessage .= "MIME-Version: 1.0\r\n";
+        $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
 
         $ticket_type = TICKET_TYPE['SELF'];
         if ($user_email !== $course['participant_mail']) {
             $ticket_type = TICKET_TYPE['ADDITIONAL'];
         }
 
-                $dear = !empty($name) ? '様' : '';
-                $htmlBody = "
+        $dear = !empty($name) ? '様' : '';
+        $htmlBody = "
                 <div style=\"text-align: center; font-family: Arial, sans-serif;\">
                     <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p><br />
                     <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
@@ -297,39 +297,39 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
                     あらかじめご了承ください。</p>
                 </div>";
 
-                $rawMessage .= "--{$boundary}\r\n";
-                $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
-                $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-                $rawMessage .= $htmlBody . "\r\n\r\n";
-                
-                // ✅ QRコード画像の添付（インライン）
-                $rawMessage .= "--{$boundary}\r\n";
-                $rawMessage .= "Content-Type: image/png; name=\"qr_code.png\"\r\n";
-                $rawMessage .= "Content-Description: QR Code\r\n";
-                $rawMessage .= "Content-Disposition: inline; filename=\"qr_code.png\"\r\n";
-                $rawMessage .= "Content-ID: <qr_code_cid>\r\n";
-                $rawMessage .= "Content-Transfer-Encoding: base64\r\n\r\n";
-                $rawMessage .= chunk_split($qr_base64) . "\r\n\r\n";
-                
-                $rawMessage .= "--{$boundary}--";
-                
-                // ✅ SES で送信
-                try {
-                    $result = $SesClient->sendRawEmail([
-                        'RawMessage' => [
-                            'Data' => $rawMessage
-                        ],
-                        'ReplyToAddresses' => ['no-reply@example.com'],
-                        'Source' => $_ENV['MAIL_FROM_ADDRESS'],
-                        'Destinations' => $recipients
-                    ]);
-                } catch (AwsException $e) {
-                    $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getMessage();
-                    redirect('/custom/app/Views/user/pass_mail.php');
-                    exit;
-                }
-            }
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+        $rawMessage .= $htmlBody . "\r\n\r\n";
+
+        // ✅ QRコード画像の添付（インライン）
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: image/png; name=\"qr_code.png\"\r\n";
+        $rawMessage .= "Content-Description: QR Code\r\n";
+        $rawMessage .= "Content-Disposition: inline; filename=\"qr_code.png\"\r\n";
+        $rawMessage .= "Content-ID: <qr_code_cid>\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $rawMessage .= chunk_split($qr_base64) . "\r\n\r\n";
+
+        $rawMessage .= "--{$boundary}--";
+
+        // ✅ SES で送信
+        try {
+            $result = $SesClient->sendRawEmail([
+                'RawMessage' => [
+                    'Data' => $rawMessage
+                ],
+                'ReplyToAddresses' => ['no-reply@example.com'],
+                'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                'Destinations' => $recipients
+            ]);
+        } catch (AwsException $e) {
+            $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getMessage();
+            redirect('/custom/app/Views/user/pass_mail.php');
+            exit;
         }
+    }
+}
 
 /**
  * 顧客作成イベントの処理
@@ -339,10 +339,11 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
 function handleCustomerCreated($data)
 {
     $external_payment_reference = $data['id'] ?? null;
-    $email = $data['email'] ?? null;
+    $tekijuku_id = $data['metadata']['tekijuku_id'] ?? null;
+    $paid_status = $data['metadata']['paid_status'] ?? PAID_STATUS['UNPAID'];
 
-    if (!$external_payment_reference || !$email) {
-        error_log('顧客IDまたはメールアドレスがありません');
+    if (!$external_payment_reference || !$tekijuku_id) {
+        error_log('顧客IDまたは適塾IDがありません');
         return;
     }
 
@@ -350,19 +351,23 @@ function handleCustomerCreated($data)
     $pdo = $baseModel->getPdo();
 
     try {
+        if ($paid_status == PAID_STATUS['UNPAID']) {
+            processTekijukuPayment($data, $pdo);
+        }
+
         // ユーザーテーブルを顧客IDで更新
         $stmt = $pdo->prepare("
             UPDATE mdl_tekijuku_commemoration
             SET external_payment_reference = :external_payment_reference
-            WHERE email = :email
+            WHERE id = :id
         ");
 
         $stmt->execute([
             ':external_payment_reference' => $external_payment_reference,
-            ':email' => $email
+            ':id' => $tekijuku_id
         ]);
 
-        error_log('顧客ID保存成功: ' . $email . ' -> ' . $external_payment_reference);
+        error_log('顧客ID保存成功: ' . $tekijuku_id . ' -> ' . $external_payment_reference);
     } catch (Exception $e) {
         error_log('顧客ID保存エラー: ' . $e->getMessage());
     }

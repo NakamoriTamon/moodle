@@ -316,6 +316,7 @@ class MypageUpdateController
             $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
         }
 
+        $paid_status = $_POST['paid_status'];
         $is_subscription = htmlspecialchars(required_param('is_subscription', PARAM_INT), ENT_QUOTES, 'UTF-8');
 
         foreach ($_SESSION['errors'] as $error) {
@@ -325,6 +326,13 @@ class MypageUpdateController
                 header('Location: /custom/app/Views/mypage/index.php#payment_form');
                 exit;
             }
+        }
+
+        // 決済中に変更しようとした場合はエラー
+        if (empty($paid_status) || $paid_status == PAID_STATUS['PROCESSING']) {
+            $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました';
+            header('Location: /custom/app/Views/mypage/index.php#payment_form');
+            exit;
         }
 
         try {
@@ -346,7 +354,7 @@ class MypageUpdateController
 
 
                 $amount = $_POST['price'];
-                if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
+                if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED'] && $paid_status == PAID_STATUS['UNPAID']) {
                     // サブスクリプションの場合はcustomer_paymentモードを使用
                     $data = [
                         'payment_types' => [PAYMENT_METHOD_LIST[$payment_method]], // 利用可能な決済手段
@@ -358,6 +366,7 @@ class MypageUpdateController
                         'metadata' => [
                             'tekujuku_id' => (string)$id,
                             'payment_method_type' => (string)$payment_method,
+                            'paid_status' => (string)$paid_status,
                         ],
                         'mode' => 'customer_payment', // customerモードを指定
                     ];

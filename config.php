@@ -144,7 +144,7 @@ define('IS_SUBSCRIPTION', [ // サブスクリプション
 define('PAID_STATUS', [ // 決済状況
   'UNPAID'                  => 1, // 未決済
   'PROCESSING'              => 2, // 決済中
-  'COMPLETED'               => 3, // 決済済み
+  'COMPLETED'               => 3, // 決済済
   'SUBSCRIPTION_PROCESSING' => 4  // 決済中（サブスクリプション）
 ]);
 
