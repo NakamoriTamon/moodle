@@ -43,7 +43,7 @@ $is_hidden_withdraw = !$is_general_user;
         </div>
     </div>
     <div class="footer_btm">
-        <p class="copy">Copyright &copy; 2009 OSAKA UNIVERSITY. All Rights Reserved.</p>
+        <p class="copy">Copyright &copy; 2025 OSAKA UNIVERSITY. All Rights Reserved.</p>
     </div>
 </footer>
 <!-- footer -->
