@@ -121,13 +121,36 @@ function processTekijukuPayment($data, $pdo)
     $stmt = $pdo->prepare("
         UPDATE mdl_tekijuku_commemoration
         SET 
-            paid_date = :paid_date
+            paid_date = :paid_date,
+            paid_status = :paid_status
         WHERE id = :id
     ");
 
     $stmt->execute([
         ':paid_date' => $capturedAtJP,
+        ':paid_status' => PAID_STATUS['COMPLETED'],
         ':id' => $data['metadata']['tekujuku_id']
+    ]);
+
+    $stmt = $pdo->prepare("
+        INSERT INTO mdl_tekijuku_commemoration_history (
+            paid_date,
+            price,
+            fk_tekijuku_commemoration_id, 
+            payment_method
+        ) VALUES (
+            :paid_date,
+            :price,
+            :fk_tekijuku_commemoration_id,
+            :payment_method
+        )
+    ");
+
+    $stmt->execute([
+        ':paid_date' => $capturedAtJP,
+        ':price' => $data['amount'],
+        ':fk_tekijuku_commemoration_id' => $data['metadata']['tekujuku_id'],
+        ':payment_method' => $data['metadata']['payment_method_type']
     ]);
 }
 
@@ -334,7 +357,7 @@ function handleCustomerCreated($data)
 function handleCustomerUpdated($data)
 {
     $external_payment_reference = $data['id'] ?? null;
-    $email = $data['email'] ?? null;
+    // $email = $data['email'] ?? null;
     $source = $data['source'] ?? null;
 
     if (!$external_payment_reference || !$email) {
