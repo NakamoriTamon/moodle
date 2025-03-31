@@ -345,7 +345,7 @@ class MypageUpdateController
         $payment_mode = "customer_payment";
         $payment_status = PAID_STATUS['PROCESSING'];
 
-        // 決済済みの場合はここを通る
+        // 決済済の場合はここを通る
         if ($paid_status == PAID_STATUS['COMPLETED'] || $paid_status == PAID_STATUS['SUBSCRIPTION_PROCESSING']) {
             $amount = 0;
             $payment_mode = "customer";
@@ -362,6 +362,7 @@ class MypageUpdateController
 
                         $data = new stdClass();
                         $data->id = (int)$id;
+                        $data->external_payment_reference = null;
                         $data->paid_status = PAID_STATUS['COMPLETED'];
                         $data->is_subscription = $is_subscription;
 
