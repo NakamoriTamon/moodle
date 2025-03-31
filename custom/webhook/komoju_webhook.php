@@ -339,7 +339,7 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
 function handleCustomerCreated($data)
 {
     $external_payment_reference = $data['id'] ?? null;
-    $tekijuku_id = $data['metadata']['tekijuku_id'] ?? null;
+    $tekijuku_id = $data['metadata']['tekujuku_id'] ?? null;
     $paid_status = $data['metadata']['paid_status'] ?? PAID_STATUS['UNPAID'];
 
     if (!$external_payment_reference || !$tekijuku_id) {
@@ -351,6 +351,7 @@ function handleCustomerCreated($data)
     $pdo = $baseModel->getPdo();
 
     try {
+        $pdo->beginTransaction();
         if ($paid_status == PAID_STATUS['UNPAID']) {
             processTekijukuPayment($data, $pdo);
         }
@@ -366,9 +367,10 @@ function handleCustomerCreated($data)
             ':external_payment_reference' => $external_payment_reference,
             ':id' => $tekijuku_id
         ]);
-
+        $pdo->commit();
         error_log('顧客ID保存成功: ' . $tekijuku_id . ' -> ' . $external_payment_reference);
     } catch (Exception $e) {
+        $pdo->rollBack();
         error_log('顧客ID保存エラー: ' . $e->getMessage());
     }
 }
