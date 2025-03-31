@@ -7,8 +7,8 @@ require_once('/var/www/html/moodle/local/commonlib/lib.php');
 use Dotenv\Dotenv;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 ini_set('display_errors', 1);
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
@@ -74,23 +74,17 @@ if (is_null($_SESSION['errors']['email'])) {
         // 再設定URLを生成
         $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/login/reset.php?token=' . $token;
 
-        $mail = new PHPMailer(true);
+        // SESのクライアント設定
+        $SesClient = new SesClient([
+            'version' => 'latest',
+            'region'  => 'ap-northeast-1', // 東京リージョン
+            'credentials' => [
+                'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+            ]
+        ]);
 
-        $mail->isSMTP();
-        $test = getenv('MAIL_HOST');
-        $mail->Host = $_ENV['MAIL_HOST'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $_ENV['MAIL_USERNAME'];
-        $mail->Password = $_ENV['MAIL_PASSWORD'];
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->CharSet = PHPMailer::CHARSET_UTF8;
-        $mail->Port = $_ENV['MAIL_PORT'];
-
-        $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-        $mail->addAddress($email);
-
-        $mail->addReplyTo('no-reply@example.com', 'No Reply');
-        $mail->isHTML(true);
+        $recipients = [$email];
 
         $htmlBody = "
             <div style=\"text-align: center; font-family: Arial, sans-serif;\">
@@ -101,18 +95,33 @@ if (is_null($_SESSION['errors']['email'])) {
             </div>
         ";
 
-        $mail->Subject = 'パスワード再設定のリクエスト';
-        $mail->Body = $htmlBody;
+        $subject = 'パスワード再設定のリクエスト';
 
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $mail->send();
+        try {
+            $result = $SesClient->sendEmail([
+                'Destination' => [
+                    'ToAddresses' => $recipients,
+                ],
+                'ReplyToAddresses' => ['no-reply@example.com'],
+                'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                'Message' => [
+                    'Subject' => [
+                        'Data' => $subject,
+                        'Charset' => 'UTF-8'
+                    ],
+                    'Body' => [
+                        'Html' => [
+                            'Data' => $htmlBody,
+                            'Charset' => 'UTF-8'
+                        ]
+                    ]
+                ]
+            ]);
+        } catch (AwsException $e) {
+            $_SESSION['message_error'] = '送信に失敗しました';
+            redirect('/custom/app/Views/user/pass_mail.php');
+            exit;
+        }
 
         $_SESSION['result_message'] = '再設定用のメールを送信しました。';
         header('Location: /custom/admin/app/Views/login/result.php');

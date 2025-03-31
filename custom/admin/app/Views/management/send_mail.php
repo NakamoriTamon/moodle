@@ -2,8 +2,8 @@
 require '/var/www/vendor/autoload.php';
 
 use Dotenv\Dotenv;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
@@ -35,40 +35,44 @@ if (!isset($emailTemplates[$action])) {
 }
 
 // メール設定
-$mail = new PHPMailer(true);
-$mail->isSMTP();
-$mail->Host = $_ENV['MAIL_HOST'];
-$mail->SMTPAuth = true;
-$mail->Username = $_ENV['MAIL_USERNAME'];
-$mail->Password = $_ENV['MAIL_PASSWORD'];
-$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-$mail->CharSet = PHPMailer::CHARSET_UTF8;
-$mail->Port = $_ENV['MAIL_PORT'];
+// SESのクライアント設定
+$SesClient = new SesClient([
+    'version' => 'latest',
+    'region'  => 'ap-northeast-1', // 東京リージョン
+    'credentials' => [
+        'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+    ]
+]);
 
-$mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-$mail->addAddress('s.kamei@trans-it.net', 'Recipient Name');
-// $mail->addAddress('s.kamei@trans-it.net', 'Recipient Name');
-// $mail->addAddress('s.kamei@trans-it.net', 'Recipient Name');
-$mail->addReplyTo('no-reply@example.com', 'No Reply');
-$mail->isHTML(true);
+$recipients = ['s.kamei@trans-it.net'];
 
 // メール本文
-$mail->Subject = $emailTemplates[$action];
-$mail->Body = $bodies[$action];
-
-$mail->SMTPOptions = array(
-    'ssl' => array(
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-        'allow_self_signed' => true
-    )
-);
+$subject = $emailTemplates[$action];
 
 try {
-    $mail->send();
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'メール送信に失敗しました: ' . $mail->ErrorInfo]);
+    $result = $SesClient->sendEmail([
+        'Destination' => [
+            'ToAddresses' => $recipients,
+        ],
+        'ReplyToAddresses' => ['no-reply@example.com'],
+        'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+        'Message' => [
+            'Subject' => [
+                'Data' => $subject,
+                'Charset' => 'UTF-8'
+            ],
+            'Body' => [
+                'Html' => [
+                    'Data' => $htmlBody,
+                    'Charset' => 'UTF-8'
+                ]
+            ]
+        ]
+    ]);
+} catch (AwsException $e) {
+    $_SESSION['message_error'] = '送信に失敗しました';
+    redirect('/custom/app/Views/user/pass_mail.php');
     exit;
 }
 

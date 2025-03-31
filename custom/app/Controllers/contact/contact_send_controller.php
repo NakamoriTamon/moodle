@@ -4,7 +4,6 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 
 use Dotenv\Dotenv;
-use PHPMailer\PHPMailer\Exception;
 use Aws\Ses\SesClient;
 use Aws\Exception\AwsException;
 
@@ -126,6 +125,7 @@ try {
             'Destination' => [
                 'ToAddresses' => $recipients,
             ],
+            'ReplyToAddresses' => ['no-reply@example.com'],
             'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
             'Message' => [
                 'Subject' => [

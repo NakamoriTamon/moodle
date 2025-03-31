@@ -8,8 +8,8 @@ require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php')
 use Dotenv\Dotenv;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
@@ -123,33 +123,18 @@ if ($data['status'] === 'captured') {
             foreach ($eventApplication['course_infos'] as $course) {
                 global $url_secret_key;
                 $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
-                // QR生成
-                $baseUrl = $CFG->wwwroot; // MoodleのベースURL（本番環境では自動で変更される）
-                $qrCode = new QrCode($encrypt_event_application_course_info_id);
-                $writer = new PngWriter();
-                $qrCodeImage = $writer->write($qrCode)->getString();
-                $temp_file = tempnam(sys_get_temp_dir(), 'qr_');
-                $qrCodeBase64 = base64_encode($qrCodeImage);
-                $dataUri = 'data:image/png;base64,' . $qrCodeBase64;
-                file_put_contents($temp_file, $qrCodeImage);
 
-                $mail = new PHPMailer(true);
+                // SESのクライアント設定
+                $SesClient = new SesClient([
+                    'version' => 'latest',
+                    'region'  => 'ap-northeast-1', // 東京リージョン
+                    'credentials' => [
+                        'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+                    ]
+                ]);
 
-                $mail->isSMTP();
-                $test = getenv('MAIL_HOST');
-                $mail->Host = $_ENV['MAIL_HOST'];
-                $mail->SMTPAuth = true;
-                $mail->Username = $_ENV['MAIL_USERNAME'];
-                $mail->Password = $_ENV['MAIL_PASSWORD'];
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->CharSet = PHPMailer::CHARSET_UTF8;
-                $mail->Port = $_ENV['MAIL_PORT'];
-
-                $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-                $mail->addAddress($course['participant_mail'], 'Recipient Name');
-
-                $mail->addReplyTo('no-reply@example.com', 'No Reply');
-                $mail->isHTML(true);
+                $recipients = [$course['participant_mail']];
 
                 $day = new DateTime($course["course_date"]);
                 $course_date = $day->format('Ymd');
@@ -158,9 +143,21 @@ if ($data['status'] === 'captured') {
                 $start_hour = $dateTime->format('H:i'); // "00:00"
                 $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
                 $end_hour = $dateTime->format('H:i'); // "00:00"
-                $qr_img = 'qr_code_' . $course_date . '.png';
-                // QRをインライン画像で追加
-                $mail->addEmbeddedImage($temp_file, 'qr_code_cid', $qr_img);
+
+                // ✅ QRコードを生成（バイナリデータ）
+                $qrCode = new QrCode($encrypt_event_application_course_info_id);
+                $writer = new PngWriter();
+                $qrCodeImage = $writer->write($qrCode)->getString();
+                $qr_base64 = base64_encode($qrCodeImage);
+
+                // ✅ MIME メッセージの作成
+                $boundary = md5(time());
+
+                $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
+                $rawMessage .= "To: " . implode(',', $recipients) . "\r\n";
+                $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode("チケットの購入が完了しました") . "?=\r\n";
+                $rawMessage .= "MIME-Version: 1.0\r\n";
+                $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
 
                 $ticket_type = TICKET_TYPE['SELF'];
                 if ($user_email !== $course['participant_mail']) {
@@ -184,22 +181,39 @@ if ($data['status'] === 'captured') {
                     <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
                     <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
                     あらかじめご了承ください。</p>
-                </div>
-            ";
+                </div>";
 
-                $mail->Subject = 'チケットの購入が完了しました';
-                $mail->Body = $htmlBody;
-
-                $mail->SMTPOptions = array(
-                    'ssl' => array(
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true
-                    )
-                );
-
-                $mail->send();
-                unlink($temp_file);
+                $rawMessage .= "--{$boundary}\r\n";
+                $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+                $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+                $rawMessage .= $htmlBody . "\r\n\r\n";
+                
+                // ✅ QRコード画像の添付（インライン）
+                $rawMessage .= "--{$boundary}\r\n";
+                $rawMessage .= "Content-Type: image/png; name=\"qr_code.png\"\r\n";
+                $rawMessage .= "Content-Description: QR Code\r\n";
+                $rawMessage .= "Content-Disposition: inline; filename=\"qr_code.png\"\r\n";
+                $rawMessage .= "Content-ID: <qr_code_cid>\r\n";
+                $rawMessage .= "Content-Transfer-Encoding: base64\r\n\r\n";
+                $rawMessage .= chunk_split($qr_base64) . "\r\n\r\n";
+                
+                $rawMessage .= "--{$boundary}--";
+                
+                // ✅ SES で送信
+                try {
+                    $result = $SesClient->sendRawEmail([
+                        'RawMessage' => [
+                            'Data' => $rawMessage
+                        ],
+                        'ReplyToAddresses' => ['no-reply@example.com'],
+                        'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                        'Destinations' => $recipients
+                    ]);
+                } catch (AwsException $e) {
+                    $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getMessage();
+                    redirect('/custom/app/Views/user/pass_mail.php');
+                    exit;
+                }
             }
         }
 
