@@ -298,6 +298,9 @@
   .radio_input{
     margin-right: 0rem;
   }
+  #is_university_member_label{
+    width: 90%;
+  }
 
   /*-------------------------------------
    card

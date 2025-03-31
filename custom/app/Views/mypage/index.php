@@ -2,11 +2,6 @@
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
 require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
-global $url_secret_key;
-
-// シークレットキーをJSに渡すための一時的なトークンを生成
-$temp_key_token = md5(uniqid() . time());
-$_SESSION['temp_key_token'] = $temp_key_token;
 // ページネート表示数
 $perPage = 4;
 // 予約情報　現在のページ数
@@ -95,26 +90,132 @@ if ($currentDate < $startDate) {
     $currentYear = date('y');
 }
 
+// 決済状態を判定する関数
+function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
+{
+    if ($tekijuku_commemoration === false) {
+        return null; // 適塾記念会会員ではない
+    }
+
+    // デポジットフラグ
+    $isDeposit = false;
+    if ($current_fiscal_year >= 2024 && $current_fiscal_year <= 2030) {
+        $deposit_column = "is_deposit_{$current_fiscal_year}";
+        if (array_key_exists($deposit_column, $tekijuku_commemoration)) {
+            $isDeposit = $tekijuku_commemoration[$deposit_column] == '1';
+        }
+    }
+
+    // 支払日付の有効性チェック（現在の年度内かどうか）
+    $hasPaidDate = false;
+    if (!empty($tekijuku_commemoration['paid_date'])) {
+        $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
+
+        // 支払日の年度を計算
+        $paid_year = (int)$paid_date->format('Y');
+        $paid_month = (int)$paid_date->format('n');
+        $paid_fiscal_year = $paid_year;
+        if ($paid_month < 4) {
+            $paid_fiscal_year = $paid_year - 1;
+        }
+
+        // 現在の年度と支払い年度が同じであればtrue
+        $hasPaidDate = ($current_fiscal_year === $paid_fiscal_year);
+    }
+
+    // var_dump($hasPaidDate);
+    // var_dump($isDeposit);
+    var_dump($tekijuku_commemoration['paid_status']);
+
+    // 決済状態の判定
+    if (($isDeposit || $hasPaidDate)) {
+        return [
+            'status' => 'completed',
+            'label' => '決済済み',
+            'can_edit' => false
+        ];
+    } elseif (!$hasPaidDate && !$isDeposit && $tekijuku_commemoration['paid_status'] == PAID_STATUS['PROCESSING']) {
+        return [
+            'status' => 'in-progress',
+            'label' => '決済中',
+            'can_edit' => false
+        ];
+    } elseif (!$hasPaidDate && !$isDeposit) {
+        return [
+            'status' => 'unpaid',
+            'label' => '未決済',
+            'can_edit' => true
+        ];
+    }
+
+    // 万が一どの条件にも当てはまらない場合のデフォルト
+    return [
+        'status' => 'in-progress',
+        'label' => '決済中(デフォルト)',
+        'can_edit' => false
+    ];
+}
+
+// 決済状態を取得
+$paymentStatus = determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year);
+
+// フォーム要素を無効化する属性文字列を生成
+$disabledAttr = ($paymentStatus && !$paymentStatus['can_edit']) ? 'disabled' : '';
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_success'], $_SESSION['message_']);
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
-
-<!-- 2025年度決済情報ダミーCSS 機能実装後は消す!! -->
 <style>
-    .dummy-radio-group label {
-        margin-right: 10px;
+    /* 決済情報フォーム無効化時のスタイル */
+    .btn.disabled {
+        background-color: #cccccc !important;
+        cursor: not-allowed !important;
+        opacity: 0.6 !important;
+        pointer-events: none;
     }
 
-    @media only screen and (max-width: 959px) {
-        .dummy-radio-group label {
-            margin-right: 0px;
-        }
+    input[type="radio"]:disabled+label,
+    input[type="checkbox"]:disabled+label {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* 非活性状態のフォーム要素のスタイル */
+    .form_cont.disabled input,
+    .form_cont.disabled select,
+    .form_cont.disabled textarea {
+        background-color: #f5f5f5;
+        border-color: #ddd;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    /* 決済状態表示用 */
+    .payment-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        margin-left: 10px;
+    }
+
+    .payment-status.unpaid {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .payment-status.in-progress {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .payment-status.completed {
+        background-color: #d4edda;
+        color: #155724;
     }
 </style>
-
 <main id="subpage">
     <section id="heading" class="inner_l">
         <h2 class="head_ttl" data-en="MEMBER'S PAGE">マイページ</h2>
@@ -408,26 +509,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item09 req">
-                                        <p class="list_label">支払方法</p>
-                                        <div class="list_field f_txt radio-group">
-                                            <?php foreach ($payment_select_list as $key => $value) { ?>
-                                                <input class="radio_input" id="payment_<?= $key ?>" style="vertical-align: middle;" type="radio" name="payment_method" value="<?= $key ?>"
-                                                    <?php
-                                                    // デフォルトの選択
-                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
-                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
-                                                    ) {
-                                                        echo 'checked';
-                                                    }
-                                                    ?> />
-                                                <label for="payment_<?= $key ?>" class="radio_label"><?= $value ?></label>
-                                            <?php } ?>
-                                            <?php if (!empty($errors['payment_method'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
                                     <li class="list_item10">
                                         <p class="list_label">備考</p>
                                         <div class="list_field f_txt">
@@ -441,7 +522,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                         <div class="list_field">
                                             <label class="checkbox_label">
                                                 <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
-                                                <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                                <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
                                             </label>
                                         </div>
                                     </li>
@@ -481,15 +562,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                                             </label>
                                         </div>
                                     </li>
-                                    <li class="list_item16 is_subscription_area">
-                                        <div class="area plan">
-                                            <label class="checkbox_label" for="">
-                                                <input type="hidden" name="is_subscription" value="0">
-                                                <input class="checkbox_input" id="is_subscription_checkbox" type="checkbox" name="is_subscription" value="1" <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration['is_subscription']) == '1' ? 'checked' : ''; ?>>
-                                                <label class="checkbox_label" for="is_subscription_checkbox">定額課金プランを利用する</label>
-                                            </label>
-                                        </div>
-                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -502,43 +574,75 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             </div>
         <?php endif; ?>
 
+
+
         <?php if ($tekijuku_commemoration !== false): ?>
             <div id="tekijuku_payment_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">
-                        2025年度 適塾記念会決済情報
-                        <span class="payment-status unpaid">未決済</span>
+                        適塾記念会 決済情報
+                        <!-- var_dump($paymentStatus) -->
+                        <?php if ($paymentStatus):  ?>
+                            <span class="payment-status <?php echo $paymentStatus['status']; ?>">
+                                <?php echo htmlspecialchars($paymentStatus['label']); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                            <div class="inactive-text">（退会済み）</div>
+                        <?php endif; ?>
                     </h3>
 
                     <!-- 決済状態データ (JavaScript用) -->
-                    <div id="payment-status-data" style="display: none;"></div>
+                    <div id="payment-status-data"
+                        data-has-paid-date="<?php echo !empty($tekijuku_commemoration['paid_date']) ? '1' : '0'; ?>"
+                        data-is-deposit="<?php echo (isset($deposit_column) && array_key_exists($deposit_column, $tekijuku_commemoration) && $tekijuku_commemoration[$deposit_column] == '1') ? '1' : '0'; ?>"
+                        data-has-paid-status="<?php echo $tekijuku_commemoration['paid_status'] ?>"
+                        style="display: none;"></div>
 
-                    <form id="tekijuku_payment_edit_form">
-                        <input type="hidden" name="tekijuku_commemoration_id">
-                        <div class="whitebox form_cont">
+                    <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_payment_edit_form">
+                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
+                        <input type="hidden" name="price" value=<?php echo htmlspecialchars($tekijuku_commemoration['price']) ?>>
+                        <div class="whitebox form_cont <?php echo $disabledAttr ? 'disabled' : ''; ?>">
                             <div class="inner_m">
+                                <?php if (!empty($payment_error)) { ?><p class="error"> <?= htmlspecialchars($payment_error) ?></p><?php } ?>
+                                <?php if (!empty($payment_success)) { ?><p id="payment_success_message"> <?= htmlspecialchars($payment_success) ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01 req">
                                         <p class="list_label">支払方法</p>
-                                        <div class="list_field f_txt radio-group dummy-radio-group">
-                                            <input class="radio_input" id="payment_method_1" style="vertical-align: middle;" type="radio" name="dummy_payment_method" checked="" value="1" data-gtm-form-interact-field-id="1">
-                                            <label for="payment_method_1" class="radio_label">コンビニ決済</label>
-                                            <input class="radio_input" id="payment_method_2" style="vertical-align: middle;" type="radio" name="dummy_payment_method" value="2" data-gtm-form-interact-field-id="2">
-                                            <label for="payment_method_2" class="radio_label">クレジット</label>
-                                            <input class="radio_input" id="payment_method_3" style="vertical-align: middle;" type="radio" name="dummy_payment_method" value="3">
-                                            <label for="payment_method_3" class="radio_label">銀行振込</label>
+                                        <div class="list_field f_txt radio-group">
+                                            <?php foreach ($payment_select_list as $key => $value) { ?>
+                                                <input class="radio_input" id="payment_method_<?= $key ?>"
+                                                    style="vertical-align: middle;"
+                                                    type="radio"
+                                                    name="payment_method"
+                                                    value="<?= $key ?>"
+                                                    <?= $disabledAttr ?>
+                                                    <?php
+                                                    // デフォルトの選択
+                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
+                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
+                                                    ) {
+                                                        echo 'checked';
+                                                    }
+                                                    ?> />
+                                                <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
+                                            <?php } ?>
+                                            <?php if (!empty($errors['payment_method'])): ?>
+                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
+                                            <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item02  dummy_subsc_area" style="display: none;">
+                                    <li class="list_item02 is_subscription_area" style="display: none;">
                                         <div class="area plan">
                                             <label class="checkbox_label" for="">
                                                 <input type="hidden" name="is_subscription" value="0">
                                                 <input class="checkbox_input"
                                                     id="payment_is_subscription_checkbox"
                                                     type="checkbox"
-                                                    name="dummy_is_subscription"
+                                                    name="is_subscription"
                                                     value="1"
-                                                    <?= $disabledAttr ?>>
+                                                    <?= $disabledAttr ?>
+                                                    <?php echo ($old_input['is_subscription'] ?? $tekijuku_commemoration['is_subscription']) == '1' ? 'checked' : ''; ?>>
                                                 <label class="checkbox_label" for="payment_is_subscription_checkbox">定額課金プランを利用する</label>
                                             </label>
                                         </div>
@@ -547,12 +651,12 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             </div>
                         </div>
                         <div class="form_btn">
-                            <input type="hidden" name="post_kbn" value="update_payment">
+                            <input type="hidden" name="post_kbn" value="update_payment_method">
                             <a class="btn btn_red box_bottom_btn submit_btn <?php echo $disabledAttr ? 'disabled' : ''; ?>"
                                 href="javascript:void(0);"
                                 id="tekijuku_payment_button"
                                 <?php echo $disabledAttr ? 'disabled' : ''; ?>>
-                                決済へ進む
+                                決済情報を更新する
                             </a>
                         </div>
                     </form>
@@ -565,7 +669,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             <?php $allCourseDateNull = true; ?>
             <?php if (!empty($event_applications['data'])): ?>
                 <?php foreach ($event_applications['data'] as $application): ?>
-
                     <?php
                     if (is_null($application->course_date)) {
                         continue;
@@ -731,8 +834,6 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
-    const key_token = <?php echo json_encode($temp_key_token); ?>;
-
     $(".info_wrap_qr").on("click", function(e) {
         e.preventDefault();
         if ($(this).parents('div').hasClass('js_pay')) {
@@ -795,7 +896,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                 $('.is_subscription_area').css('display', 'block');
             } else {
                 $('.is_subscription_area').css('display', 'none');
-                $('#is_subscription_checkbox').prop('checked', false);
+                $('#is_subscription_checkbox, #payment_is_subscription_checkbox').prop('checked', false);
             }
         }
     });
@@ -926,14 +1027,22 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             showModal('適塾記念会 会員情報 ', '変更を確定してもよろしいですか？');
         });
 
+        // 決済情報更新ボタンクリック時の処理を追加
+        $('#tekijuku_payment_button').on('click', function() {
+            exec = 'payment';
+            showModal('適塾記念会 決済情報', '決済情報を更新してもよろしいですか？');
+        });
+
         $(document).on('click', '.edit', function() {
             switch (exec) {
                 case "user":
                     $('#user_edit_form').submit();
                     break
                 case "tekijuku":
-
                     $('#tekijuku_edit_form').submit();
+                    break
+                case "payment":
+                    $('#tekijuku_payment_edit_form').submit();
                     break
                 default:
                     break
@@ -944,17 +1053,17 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
     // モーダル表示
     function showModal(title, message) {
         var modalHtml = `
-            <div id="confirmation-modal">
-                <div class="modal_cont">
-                    <h2>${title}</h2>
-                    <p>${message}</p>
-                    <div class="modal-buttons">
-                        <button class="modal-withdrawal edit">確定する</button>
-                        <button class="modal-close">いいえ</button>
-                    </div>
+        <div id="confirmation-modal">
+            <div class="modal_cont">
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <div class="modal-buttons">
+                    <button class="modal-withdrawal edit">確定する</button>
+                    <button class="modal-close">いいえ</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
         $('body').append(modalHtml);
         $('#confirmation-modal').show();
     }
@@ -1009,13 +1118,184 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
         // チェック状態が変更されたら切り替え
         checkbox.addEventListener("change", toggleFields);
     });
-    // 2025年度適塾記念会決済情報入力フォーム　ダミーなので本実装後消す！！
-    $('input[name = "dummy_payment_method"]').on('click', function() {
-        const val = $(this).val();
-        if (val == 2) {
-            $('.dummy_subsc_area').css('display', 'block');
-        } else {
-            $('.dummy_subsc_area').css('display', 'none');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        /**
+         * 適塾記念会 決済情報の制御処理
+         */
+        function initPaymentFormControl() {
+            // 決済状況の判定
+            const statusData = document.getElementById('payment-status-data');
+            if (!statusData) return;
+
+            console.log(statusData);
+
+            const status = {
+                hasPaidDate: statusData.dataset.hasPaidDate === '1',
+                isDeposit: statusData.dataset.isDeposit === '1',
+                hasPaidStatus: statusData.dataset.hasPaidStatus
+            };
+
+            console.log(status);
+
+            const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+            const subscriptionCheckbox = document.getElementById('payment_is_subscription_checkbox');
+            const updateButton = document.getElementById('tekijuku_payment_button');
+
+            // 決済状況に応じた制御
+            if (status.isDeposit || status.hasPaidDate) {
+                // 決済済み: 基本非活性
+                disableFormElements(paymentMethodRadios, subscriptionCheckbox, updateButton);
+            } else if (!status.hasPaidDate && !status.isDeposit && status.hasPaidStatus == 2) {
+                // 決済中: 全て非活性
+                disableFormElements(paymentMethodRadios, subscriptionCheckbox, updateButton);
+            } else if (!status.hasPaidDate && !status.isDeposit && status.hasPaidStatus == 1) {
+                // 未決済: 支払い方法選択で活性化
+                enablePaymentMethodSelection(paymentMethodRadios, subscriptionCheckbox, updateButton);
+            }
+
+            // 初期表示時のサブスク選択表示制御
+            updateSubscriptionVisibility(paymentMethodRadios);
         }
+
+        // フォーム要素を無効化
+        function disableFormElements(radios, checkbox, button) {
+            if (radios) {
+                radios.forEach(radio => {
+                    radio.disabled = true;
+                });
+            }
+
+            if (checkbox) {
+                checkbox.disabled = true;
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.classList.add('disabled');
+            }
+        }
+
+        // サブスク選択の表示/非表示を更新
+        function updateSubscriptionVisibility(radios) {
+            const subscriptionArea = document.querySelector('.is_subscription_area');
+            if (!subscriptionArea) return;
+
+            let isCreditCard = false;
+            radios.forEach(radio => {
+                if (radio.checked && radio.value === "2") {
+                    isCreditCard = true;
+                }
+            });
+
+            subscriptionArea.style.display = isCreditCard ? 'block' : 'none';
+        }
+
+        // 未決済時の支払い方法選択制御
+        function enablePaymentMethodSelection(radios, checkbox, button) {
+            // 支払い方法ラジオボタンを有効化
+            if (radios) {
+                radios.forEach(radio => {
+                    radio.disabled = false;
+
+                    // 支払い方法変更イベント
+                    radio.addEventListener('change', function() {
+                        if (button) {
+                            button.disabled = false;
+                            button.classList.remove('disabled');
+                        }
+
+                        // サブスク選択の表示/非表示を更新
+                        updateSubscriptionVisibility(radios);
+
+                        // 支払い方法がクレジットカード(value="2")の場合、サブスク選択を有効化
+                        if (checkbox) {
+                            if (this.value === "2") {
+                                checkbox.disabled = false;
+                            } else {
+                                checkbox.disabled = true;
+                                checkbox.checked = false;
+                            }
+                        }
+                    });
+                });
+            }
+
+            // 最初はボタン無効
+            if (button) {
+                button.disabled = true;
+                button.classList.add('disabled');
+            }
+
+            // 支払い方法が選択されているか確認
+            const isPaymentMethodSelected = radios && Array.from(radios).some(radio => radio.checked);
+
+            // 支払い方法選択でボタン活性化
+            if (isPaymentMethodSelected && button) {
+                button.disabled = false;
+                button.classList.remove('disabled');
+            }
+
+            // サブスク選択の初期状態設定
+            if (checkbox) {
+                const isCreditCardSelected = radios && Array.from(radios).some(radio => radio.checked && radio.value === "2");
+                checkbox.disabled = !isCreditCardSelected;
+                if (!isCreditCardSelected) {
+                    checkbox.checked = false;
+                }
+            }
+        }
+
+        // サブミット前の検証
+        function validatePaymentForm() {
+            const form = document.getElementById('tekijuku_payment_edit_form');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                const statusData = document.getElementById('payment-status-data');
+                if (!statusData) return;
+
+                const status = {
+                    hasPaidDate: statusData.dataset.hasPaidDate === '1',
+                    isDeposit: statusData.dataset.isDeposit === '1',
+                    hasPaidStatus: statusData.dataset.hasPaidStatus
+                };
+
+                // 決済済みまたは決済中の場合は送信をキャンセル
+                if (status.isDeposit || (status.hasPaidDate && status.hasPaidStatus == 2) ||
+                    (!status.hasPaidDate && !status.isDeposit && status.hasPaidStatus == 3)) {
+                    e.preventDefault();
+                    alert('現在の決済状態では変更できません。');
+                    return false;
+                }
+
+                // 支払い方法が選択されているか確認
+                const paymentMethodSelected = Array.from(document.querySelectorAll('input[name="payment_method"]'))
+                    .some(radio => radio.checked);
+
+                if (!paymentMethodSelected) {
+                    e.preventDefault();
+                    alert('支払い方法を選択してください。');
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        // 初期化
+        initPaymentFormControl();
+        validatePaymentForm();
+
+        // 決済方法による表示切替を既存コードから置き換え
+        $('input[name="payment_method"]').on('change', function() {
+            const value = $(this).val();
+            if (value === "2") {
+                $('.is_subscription_area').css('display', 'block');
+            } else {
+                $('.is_subscription_area').css('display', 'none');
+                $('#payment_is_subscription_checkbox').prop('checked', false);
+            }
+        });
     });
 </script>

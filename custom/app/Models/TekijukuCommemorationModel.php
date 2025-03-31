@@ -81,7 +81,6 @@ class TekijukuCommemorationModel extends BaseModel
             echo 'データの取得に失敗しました: ' . $e->getMessage();
         }
     }
-    
     // 適塾の支払いが完了している情報を取得
     public function getTekijukuUserByPaid($fk_user_id)
     {
@@ -97,28 +96,43 @@ class TekijukuCommemorationModel extends BaseModel
                     $fiscal_year = date('Y');
                 }
 
-                // 年度の開始日
-                $current_fiscal_start = $fiscal_year . '-' . $paid_deadline;
-
-                // 年度の終了日（支払期限日の前日を求める）
-                $next_fiscal_start = ($fiscal_year + 1) . '-' . $paid_deadline;
-                $current_fiscal_end = date('Y-m-d', strtotime("$next_fiscal_start -1 day"));
-
-                $year_short = $fiscal_year - 2000; // 西暦 → 和暦（2025年なら25）
-
-                // SQLをPHPで構築（is_deposit_xx を動的に設定）
-                $sql = "SELECT * FROM mdl_tekijuku_commemoration
-                        WHERE fk_user_id = :fk_user_id
-                        AND (
-                            (paid_date BETWEEN :current_fiscal_start AND :current_fiscal_end)
-                            OR " . ($fiscal_year <= 2030 ? "is_deposit_$fiscal_year = 1" : "1") . "
-                        )";
+                // SQLをPHPで構築（paid_dateの条件を除外）
+                $sql = "SELECT 
+                    tc.id, 
+                    tc.number, 
+                    tc.type_code, 
+                    tc.name, 
+                    tc.kana, 
+                    tc.post_code, 
+                    tc.address, 
+                    tc.tell_number, 
+                    tc.email, 
+                    tc.payment_method, 
+                    latest_payment.latest_paid_date AS paid_date, 
+                    tc.note, 
+                    tc.is_published, 
+                    tc.is_subscription, 
+                    tc.is_delete, 
+                    tc.department, 
+                    tc.major, 
+                    tc.official, 
+                    tc.paid_status,
+                    tc.is_university_member, 
+                    tc.price,
+                    tc.is_dummy_email
+                FROM mdl_tekijuku_commemoration tc
+                LEFT JOIN (
+                    SELECT 
+                        fk_tekijuku_commemoration_id, 
+                        MAX(paid_date) AS latest_paid_date
+                    FROM mdl_tekijuku_commemoration_history
+                    GROUP BY fk_tekijuku_commemoration_id
+                ) AS latest_payment ON latest_payment.fk_tekijuku_commemoration_id = tc.id
+                WHERE tc.fk_user_id = :fk_user_id";
 
                 // PDO でバインドする場合
                 $params = [
-                    ':fk_user_id' => $fk_user_id,
-                    ':current_fiscal_start' => $current_fiscal_start,
-                    ':current_fiscal_end' => $current_fiscal_end
+                    ':fk_user_id' => $fk_user_id
                 ];
 
                 // SQLを実行
