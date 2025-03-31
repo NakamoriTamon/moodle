@@ -20,6 +20,12 @@ if (isset($SESSION->formdata)) {
 $eventApplicationController = new EventApplicationController();
 $responce = $eventApplicationController->getEvenApplication($eventId, $courseInfoId, $formdata);
 $event = $responce['event'];
+
+if (empty($event) || empty($event['select_course'])) {
+    redirect(new moodle_url('/custom/app/Views/404.php'));
+    exit;
+}
+
 $event_kbn = $event['event_kbn'];
 if ($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId)) {
     foreach ($event['select_course'] as $no => $course) {
@@ -99,7 +105,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         exit();
     }
 
-    if ($tekijuku) {
+    if($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
         if ($tekijuku_discount > 0) {

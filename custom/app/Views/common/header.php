@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/tekijuku/tekijuku_index_controller.php');

@@ -52,6 +52,10 @@ class EventCustomFieldCategoryModel extends BaseModel
                 $stmt->execute();
                 $custom_field_categorys = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+                if(empty($custom_field_categorys)) {
+                    return $custom_field_categorys;
+                }
+
                 // 各イベントの詳細を追加
                 foreach ($custom_field_categorys as &$custom_field_category) $custom_field_category['detail']
                     = $this->getEventCustomField($custom_field_category['id']);

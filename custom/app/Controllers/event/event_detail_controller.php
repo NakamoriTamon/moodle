@@ -20,6 +20,11 @@ $id = $_GET['id'] ?? null;
 
 $event = $eventModel->getEventById($id);
 
+if (empty($event)) {
+    redirect(new moodle_url('/custom/app/Views/404.php'));
+    exit;
+}
+
 $select_lecture_formats = [];
 $select_categorys = [];
 $select_courses = [];
