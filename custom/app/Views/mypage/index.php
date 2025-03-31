@@ -638,6 +638,10 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
+                                    <li class="list_item06">
+                                        <p class="list_label"></p>
+                                        <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
+                                    </li>
                                     <li class="list_item02 is_subscription_area" style="display: none;">
                                         <div class="area plan">
                                             <label class="checkbox_label" for="">

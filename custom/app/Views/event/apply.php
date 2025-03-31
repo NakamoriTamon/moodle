@@ -354,6 +354,10 @@ if (!empty($old_input)) {
                                         <?php endforeach; ?>
                                     </div>
                                 </li>
+                                <li class="list_item06">
+                                    <p class="list_label"></p>
+                                    <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
+                                </li>
                             <?php endif; ?>
                             <span class="error-msg" id="notification_kbn-error">
                                 <?php if (!empty($errors['notification_kbn'])): ?>
