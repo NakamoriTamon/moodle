@@ -306,6 +306,7 @@ class MypageUpdateController
     public function updatePaymentMethod()
     {
         global $DB;
+        global $USER;
         global $CFG;
 
         $user_id = $_SESSION['USER']->id;
@@ -351,10 +352,8 @@ class MypageUpdateController
 
                 $DB->update_record_raw('tekijuku_commemoration', $data);
 
-
-
                 $amount = $_POST['price'];
-                if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED'] && $paid_status == PAID_STATUS['UNPAID']) {
+                if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
                     // サブスクリプションの場合はcustomer_paymentモードを使用
                     $data = [
                         'payment_types' => [PAYMENT_METHOD_LIST[$payment_method]], // 利用可能な決済手段
@@ -369,6 +368,7 @@ class MypageUpdateController
                             'paid_status' => (string)$paid_status,
                         ],
                         'mode' => 'customer_payment', // customerモードを指定
+                        'email' => $USER->email,
                     ];
                 } else {
                     // 通常の支払いの場合は従来のpaymentモード

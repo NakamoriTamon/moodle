@@ -338,23 +338,23 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
  */
 function handleCustomerCreated($data)
 {
+    global $DB;
     $external_payment_reference = $data['id'] ?? null;
-    $tekijuku_id = $data['metadata']['tekujuku_id'] ?? null;
-    $paid_status = $data['metadata']['paid_status'] ?? PAID_STATUS['UNPAID'];
+    $email = $data['email'] ?? null;
 
-    if (!$external_payment_reference || !$tekijuku_id) {
+    if (!$external_payment_reference || !$email) {
         error_log('顧客IDまたは適塾IDがありません');
         return;
     }
+
+    $user = $DB->get_record('tekijuku_commemoration', ['email' => $email, 'is_delete' => 0]);
+    $id = $user->id;
 
     $baseModel = new BaseModel();
     $pdo = $baseModel->getPdo();
 
     try {
         $pdo->beginTransaction();
-        if ($paid_status == PAID_STATUS['UNPAID']) {
-            processTekijukuPayment($data, $pdo);
-        }
 
         // ユーザーテーブルを顧客IDで更新
         $stmt = $pdo->prepare("
@@ -365,10 +365,10 @@ function handleCustomerCreated($data)
 
         $stmt->execute([
             ':external_payment_reference' => $external_payment_reference,
-            ':id' => $tekijuku_id
+            ':id' => $id
         ]);
         $pdo->commit();
-        error_log('顧客ID保存成功: ' . $tekijuku_id . ' -> ' . $external_payment_reference);
+        error_log('顧客ID保存成功: ' . $id . ' -> ' . $external_payment_reference);
     } catch (Exception $e) {
         $pdo->rollBack();
         error_log('顧客ID保存エラー: ' . $e->getMessage());
@@ -383,7 +383,7 @@ function handleCustomerCreated($data)
 function handleCustomerUpdated($data)
 {
     $external_payment_reference = $data['id'] ?? null;
-    // $email = $data['email'] ?? null;
+    $email = $data['email'] ?? null;
     $source = $data['source'] ?? null;
 
     if (!$external_payment_reference || !$email) {
