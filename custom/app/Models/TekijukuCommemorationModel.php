@@ -1,4 +1,6 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
+
 class TekijukuCommemorationModel extends BaseModel
 {
     // 全管理者を取得
@@ -78,5 +80,75 @@ class TekijukuCommemorationModel extends BaseModel
         } catch (\PDOException $e) {
             echo 'データの取得に失敗しました: ' . $e->getMessage();
         }
+    }
+
+    // 適塾の支払いが完了している情報を取得
+    public function getTekijukuUserByPaid($fk_user_id)
+    {
+        if ($this->pdo) {
+            try {
+                $paid_deadline = TEKIJUKU_PAID_DEADLINE; // "mm-dd" 形式（例："04-01"）
+                $current_date = date('Y-m-d');
+
+                // 年度の判定（支払期限日より前なら前年）
+                if ($current_date < date('Y') . '-' . $paid_deadline) {
+                    $fiscal_year = date('Y') - 1;
+                } else {
+                    $fiscal_year = date('Y');
+                }
+
+                // SQLをPHPで構築（paid_dateの条件を除外）
+                $sql = "SELECT 
+                    tc.id, 
+                    tc.number, 
+                    tc.type_code, 
+                    tc.name, 
+                    tc.kana, 
+                    tc.post_code, 
+                    tc.address, 
+                    tc.tell_number, 
+                    tc.email, 
+                    tc.payment_method, 
+                    latest_payment.latest_paid_date AS paid_date, 
+                    tc.note, 
+                    tc.is_published, 
+                    tc.is_subscription, 
+                    tc.is_delete, 
+                    tc.department, 
+                    tc.major, 
+                    tc.official, 
+                    tc.paid_status,
+                    tc.is_university_member, 
+                    tc.price,
+                    tc.is_dummy_email
+                FROM mdl_tekijuku_commemoration tc
+                LEFT JOIN (
+                    SELECT 
+                        fk_tekijuku_commemoration_id, 
+                        MAX(paid_date) AS latest_paid_date
+                    FROM mdl_tekijuku_commemoration_history
+                    GROUP BY fk_tekijuku_commemoration_id
+                ) AS latest_payment ON latest_payment.fk_tekijuku_commemoration_id = tc.id
+                WHERE tc.fk_user_id = :fk_user_id";
+
+                // PDO でバインドする場合
+                $params = [
+                    ':fk_user_id' => $fk_user_id
+                ];
+
+                // SQLを実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $tekijuku = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $tekijuku;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
     }
 }

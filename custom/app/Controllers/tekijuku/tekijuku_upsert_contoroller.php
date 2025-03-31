@@ -52,7 +52,6 @@ try {
     $tekijuku_commemoration->note = $note;
     $tekijuku_commemoration->is_published = $is_published;
     $tekijuku_commemoration->is_subscription = $is_subscription;
-    $tekijuku_commemoration->paid_date = null;
     $tekijuku_commemoration->fk_user_id = $fk_user_id;
 
     $tekijuku_commemoration->department = $department;
@@ -61,6 +60,9 @@ try {
     $tekijuku_commemoration->unit = $unit;
     $tekijuku_commemoration->price = $price;
     $tekijuku_commemoration->is_university_member = $is_university_member;
+    $tekijuku_commemoration->paid_status = PAID_STATUS['PROCESSING']; // 決済中
+    $tekijuku_commemoration->payment_start_date = date('Y-m-d H:i:s'); // 決済開始時刻
+
     $id = $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration, true);
     $amount = $type_code === 1 ? 2000 : 10000;
     // 決済データ（サンプル）

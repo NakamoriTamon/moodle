@@ -101,6 +101,7 @@ $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
 $type_code_list = [1 => '普通会員', 2 => '賛助会員'];
 define('TYPE_CODE_LIST', $type_code_list);
+define('TEKIJUKU_PAID_DEADLINE', '04-01'); // 適塾支払期限(年度切替日：mm-dd形式)
 define('TEKIJUKU_COMMEMORATION_IS_DELETE', [ //　適塾記念会　退会状況
   'ACTIVE' => 0,   // 未退会
   'INACTIVE' => 1,  // 退会
@@ -136,9 +137,15 @@ define('EVENT_APPLICATION_PACKAGE_TYPE', [ // パッケージ種別
   'BUNDLE' => 2, // 一括申し込み 
 ]);
 // 適塾記念会テーブル
-define('IS_SUBSCRIPTION', [
-  'SUBSCRIPTION_DISABLED' => 0,
-  'SUBSCRIPTION_ENABLED' => 1
+define('IS_SUBSCRIPTION', [ // サブスクリプション
+  'SUBSCRIPTION_DISABLED' => 0, // 解約
+  'SUBSCRIPTION_ENABLED' => 1 // 契約
+]);
+define('PAID_STATUS', [ // 決済状況
+  'UNPAID'                  => 1, // 未決済
+  'PROCESSING'              => 2, // 決済中
+  'COMPLETED'               => 3, // 決済済み
+  'SUBSCRIPTION_PROCESSING' => 4  // 決済中（サブスクリプション）
 ]);
 
 $lecture_format_on_site = 1; //現地開催
@@ -209,8 +216,11 @@ define('DEFAULT_THUMBNAIL_2', $default_thumbnail_2);
 
 // 決済情報
 $komoju_api_key = 'sk_test_6nhd2x41v77mupxnbjl9nwlk'; // テスト用秘密鍵
+define('KOMOJU_API_KEY', $komoju_api_key);
 $komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // テスト環境エンドポイント
+define('KOMOJU_ENDPOINT', $komoju_endpoint);
 $payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
+define('PAYMENT_METHOD_LIST', $payment_method_list);
 $komoju_webhook_secret_key = 'secret_key_y7scduh5di2edddcfah6e58c6'; // テスト用秘密鍵
 
 $deadline_selects = [
