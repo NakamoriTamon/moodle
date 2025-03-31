@@ -7,7 +7,8 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 
 use core\context\system as context_system;
 use Dotenv\Dotenv;
-use PHPMailer\PHPMailer\PHPMailer;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
 $dotenv->load();
@@ -90,20 +91,17 @@ if ($name_error || $department_error || $email_error || $password_error) {
                 throw new Exception("Error Processing Request", 1);
             }
 
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host        = $_ENV['MAIL_HOST'];
-            $mail->SMTPAuth    = true;
-            $mail->Username    = $_ENV['MAIL_USERNAME'];
-            $mail->Password    = $_ENV['MAIL_PASSWORD'];
-            $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->CharSet     = PHPMailer::CHARSET_UTF8;
-            $mail->Port        = $_ENV['MAIL_PORT'];
+            // SESのクライアント設定
+            $SesClient = new SesClient([
+                'version' => 'latest',
+                'region'  => 'ap-northeast-1', // 東京リージョン
+                'credentials' => [
+                    'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                    'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+                ]
+            ]);
 
-            $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-            $mail->addAddress($email, 'Recipient Name');
-            $mail->addReplyTo('no-reply@example.com', 'No Reply');
-            $mail->isHTML(true);
+            $recipients = [$email];
 
             $encrypt_user_id = encrypt_id($user_id, $url_secret_key);
             $expiration_time = encrypt_id(time() + (24 * 60 * 60), $url_secret_key);
@@ -129,18 +127,32 @@ if ($name_error || $department_error || $email_error || $password_error) {
                     </p>
                 </div>
                 ";
-            $mail->Subject = '【大阪大学】管理者仮登録完了のお知らせ';
-            $mail->Body = $htmlBody;
-
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true
-                )
-            );
-
-            $mail->send();
+            $subject = '【大阪大学】管理者仮登録完了のお知らせ';
+            try {
+                $result = $SesClient->sendEmail([
+                    'Destination' => [
+                        'ToAddresses' => $recipients,
+                    ],
+                    'ReplyToAddresses' => ['no-reply@example.com'],
+                    'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                    'Message' => [
+                        'Subject' => [
+                            'Data' => $subject,
+                            'Charset' => 'UTF-8'
+                        ],
+                        'Body' => [
+                            'Html' => [
+                                'Data' => $htmlBody,
+                                'Charset' => 'UTF-8'
+                            ]
+                        ]
+                    ]
+                ]);
+            } catch (AwsException $e) {
+                $_SESSION['message_error'] = '送信に失敗しました';
+                redirect('/custom/app/Views/user/pass_mail.php');
+                exit;
+            }
             $pdo->commit();
 
             $_SESSION['result_message'] = '仮登録メールを入力されたアドレス宛てに送信しました。';

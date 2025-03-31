@@ -7,8 +7,8 @@ require '/var/www/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use core\context\system;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 /**
  * 適塾画面の初期描写及び「入会する」ボタン押下処理
@@ -141,20 +141,18 @@ class TekijukuIndexController {
                     throw new Exception('メールアドレスが見つかりませんでした。');
                 }
                 // メール送信処理
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host        = $_ENV['MAIL_HOST'];
-                $mail->SMTPAuth    = true;
-                $mail->Username    = $_ENV['MAIL_USERNAME'];
-                $mail->Password    = $_ENV['MAIL_PASSWORD'];
-                $mail->SMTPSecure  = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->CharSet     = PHPMailer::CHARSET_UTF8;
-                $mail->Port        = $_ENV['MAIL_PORT'];
+                // SESのクライアント設定
+                $SesClient = new SesClient([
+                    'version' => 'latest',
+                    'region'  => 'ap-northeast-1', // 東京リージョン
+                    'credentials' => [
+                        'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                        'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+                    ]
+                ]);
 
-                $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-                $mail->addAddress($email, 'Recipient Name');
-                $mail->addReplyTo('no-reply@example.com', 'No Reply');
-                $mail->isHTML(true);
+                $recipients = [$email];
+
                 // メール本文（確認URLを表示）
                 $currentDate = new DateTime();
                 $fiscalYear = null;
@@ -182,17 +180,35 @@ class TekijukuIndexController {
                     </p>
                 </div>
                 ";
-                $mail->Subject = '【適塾記念会】退会案内のお知らせ';
-                $mail->Body = $htmlBody;
 
-                $mail->SMTPOptions = array(
-                    'ssl' => array(
-                        'verify_peer'       => false,
-                        'verify_peer_name'  => false,
-                        'allow_self_signed' => true
-                    )
-                );
-                $mail->send();
+                $subject = '【適塾記念会】退会案内のお知らせ';
+
+                try {
+                    $result = $SesClient->sendEmail([
+                        'Destination' => [
+                            'ToAddresses' => $recipients,
+                        ],
+                        'ReplyToAddresses' => ['no-reply@example.com'],
+                        'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                        'Message' => [
+                            'Subject' => [
+                                'Data' => $subject,
+                                'Charset' => 'UTF-8'
+                            ],
+                            'Body' => [
+                                'Html' => [
+                                    'Data' => $htmlBody,
+                                    'Charset' => 'UTF-8'
+                                ]
+                            ]
+                        ]
+                    ]);
+                } catch (AwsException $e) {
+                    $_SESSION['message_error'] = '送信に失敗しました';
+                    redirect('/custom/app/Views/user/pass_mail.php');
+                    exit;
+                }
+                
                 // コミット
                 $transaction->allow_commit();
                 exit;

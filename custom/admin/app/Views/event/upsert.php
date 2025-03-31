@@ -758,28 +758,34 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if(isset($eventData['event_customfield_category_id']) && $event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
 											<?php endforeach ?>
 										</select>
+										<?php if (!empty($errors['event_customfield_category_id'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+										<?php endif; ?>
 									</div>
-									<!-- <div class="mb-3">
+									<div class="mb-3">
 										<label class="form-label">アンケートカスタム区分</label>
-										<select id="survey_custom_id" class=" form-control  mb-3" name="survey_custom_id">
+										<select id="event_survey_custom_id" class=" form-control  mb-3" name="event_survey_custom_id">
 											<option value="">未選択</option>
-											<option value=1>イベント一般</option>
-											<option value=2>適塾記念会イベント</option>
-											<option value=3>生命科学分野イベント</option>
+											<?php foreach ($curvey_custom_list as $key => $curvey_custom): ?>
+												<option value="<?= htmlspecialchars($curvey_custom['id']) ?>"  <?php if(isset($eventData['event_survey_custom_id']) && $curvey_custom['id'] == $eventData['event_survey_custom_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($curvey_custom['name']) ?></option>
+											<?php endforeach ?>
 										</select>
-									</div> -->
-										<div class="mb-3">
-											<label class="form-label">その他</label>
-											<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['note'] ?? '', $old_input['note'] ?? '')) ?></textarea>
-											<?php if (!empty($errors['note'])): ?>
-												<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
-											<?php endif; ?>
-										</div>
-										<div class="mb-3">
-											<?php if (!$start_event_flg): ?>
-												<input type="submit" id="submit" class="btn btn-primary" value="登録">
-											<?php endif ?>
-										</div>
+										<?php if (!empty($errors['event_survey_custom_id'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">その他</label>
+										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['note'] ?? '', $old_input['note'] ?? '')) ?></textarea>
+										<?php if (!empty($errors['note'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<?php if (!$start_event_flg): ?>
+											<input type="submit" id="submit" class="btn btn-primary" value="登録">
+										<?php endif ?>
+									</div>
 								</form>
 							</div>
 						</div>

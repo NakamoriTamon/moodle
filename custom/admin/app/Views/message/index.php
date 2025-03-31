@@ -242,6 +242,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                 
                                                 <input type="hidden" name="mail_to_list[]" value="test@trans-it.net">
                                             </tr> -->
+                                                <input type="hidden" name="mail_to_list[]" value="yasuda@trans-it.net">
                                         </tbody>
                                     </table>
                                 </div>

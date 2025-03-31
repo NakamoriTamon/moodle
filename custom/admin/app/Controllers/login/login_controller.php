@@ -7,8 +7,8 @@ require_once($CFG->libdir . '/authlib.php');
 use Dotenv\Dotenv;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 class LoginController
 {
@@ -114,27 +114,17 @@ class LoginController
     private function sendOTPEmail($email, $userid, $otp) {
         global $CFG;
         
-        // Moodleのメール送信関数を利用
-        // email_to_user((object)['email' => $email], (object)['email' => $CFG->supportemail], $subject, $message);
-        
-        $reset_url = $CFG->wwwroot . '/custom/admin/app/Views/login/otp.php?userid=' . $userid;
-        $mail = new PHPMailer(true);
+        // SESのクライアント設定
+        $SesClient = new SesClient([
+            'version' => 'latest',
+            'region'  => 'ap-northeast-1', // 東京リージョン
+            'credentials' => [
+                'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+            ]
+        ]);
 
-        $mail->isSMTP();
-        $test = getenv('MAIL_HOST');
-        $mail->Host = $_ENV['MAIL_HOST'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $_ENV['MAIL_USERNAME'];
-        $mail->Password = $_ENV['MAIL_PASSWORD'];
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->CharSet = PHPMailer::CHARSET_UTF8;
-        $mail->Port = $_ENV['MAIL_PORT'];
-
-        $mail->setFrom($_ENV['MAIL_FROM_ADRESS'], 'Sender Name');
-        $mail->addAddress($email);
-
-        $mail->addReplyTo('no-reply@example.com', 'No Reply');
-        $mail->isHTML(true);
+        $recipients = [$email];
 
         $htmlBody = "
             <div style=\"text-align: center; font-family: Arial, sans-serif;\">
@@ -146,18 +136,33 @@ class LoginController
             </div>
         ";
 
-        $mail->Subject = '大阪大学 知の広場 ワンタイムパスワードの発行';
-        $mail->Body = $htmlBody;
-
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $mail->send();
+        $subject = '大阪大学 知の広場 ワンタイムパスワードの発行';
+        
+        try {
+            $result = $SesClient->sendEmail([
+                'Destination' => [
+                    'ToAddresses' => $recipients,
+                ],
+                'ReplyToAddresses' => ['no-reply@example.com'],
+                'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                'Message' => [
+                    'Subject' => [
+                        'Data' => $subject,
+                        'Charset' => 'UTF-8'
+                    ],
+                    'Body' => [
+                        'Html' => [
+                            'Data' => $htmlBody,
+                            'Charset' => 'UTF-8'
+                        ]
+                    ]
+                ]
+            ]);
+        } catch (AwsException $e) {
+            $_SESSION['message_error'] = '送信に失敗しました';
+            redirect('/custom/app/Views/user/pass_mail.php');
+            exit;
+        }
     }
 }
 
