@@ -80,6 +80,7 @@ $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
+$message_membership_success = $_SESSION['message_membership_success'];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
@@ -129,7 +130,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
         return [
             'status' => 'completed',
             'label' => '決済済',
-            'can_edit' => false
+            'can_edit' => true
         ];
     } elseif (!$hasPaidDate && !$isDeposit && $tekijuku_commemoration['paid_status'] == PAID_STATUS['PROCESSING']) {
         return [
@@ -159,7 +160,14 @@ $paymentStatus = determinePaymentStatus($tekijuku_commemoration, $current_fiscal
 // フォーム要素を無効化する属性文字列を生成
 $disabledAttr = ($paymentStatus && !$paymentStatus['can_edit']) ? 'disabled' : '';
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
-unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_success'], $_SESSION['message_'], $_SESSION['message_membership_error']);
+unset(
+    $_SESSION['old_input'],
+    $_SESSION['message_success'],
+    $_SESSION['tekijuku_success'],
+    $_SESSION['message_'],
+    $_SESSION['message_membership_error'],
+    $_SESSION['message_membership_success']
+);
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/mypage.css" />
@@ -603,7 +611,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
                             <div class="inner_m">
                                 <?php if (!empty($payment_error)) { ?><p class="error"> <?= htmlspecialchars($payment_error) ?></p><?php } ?>
                                 <?php if (!empty($message_membership_error)) { ?><p class="error"> <?= htmlspecialchars($message_membership_error) ?></p><?php } ?>
-                                <?php if (!empty($payment_success)) { ?><p id="payment_success_message"> <?= htmlspecialchars($payment_success) ?></p><?php } ?>
+                                <?php if (!empty($message_membership_success)) { ?><p id="main_success_message"> <?= htmlspecialchars($message_membership_success) ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01 req">
                                         <p class="list_label">支払方法</p>
@@ -1126,15 +1134,11 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             const statusData = document.getElementById('payment-status-data');
             if (!statusData) return;
 
-            console.log(statusData);
-
             const status = {
                 hasPaidDate: statusData.dataset.hasPaidDate === '1',
                 isDeposit: statusData.dataset.isDeposit === '1',
                 hasPaidStatus: statusData.dataset.hasPaidStatus
             };
-
-            console.log(status);
 
             const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
             const subscriptionCheckbox = document.getElementById('payment_is_subscription_checkbox');
@@ -1143,7 +1147,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             // 決済状況に応じた制御
             if (status.isDeposit || status.hasPaidDate) {
                 // 決済済: 基本非活性
-                disableFormElements(paymentMethodRadios, subscriptionCheckbox, updateButton);
+                disableFormElements(paymentMethodRadios, null, null);
             } else if (!status.hasPaidDate && !status.isDeposit && status.hasPaidStatus == 2) {
                 // 決済中: 全て非活性
                 disableFormElements(paymentMethodRadios, subscriptionCheckbox, updateButton);

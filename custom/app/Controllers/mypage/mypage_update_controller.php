@@ -314,7 +314,12 @@ class MypageUpdateController
 
         $payment_method = htmlspecialchars($_POST['payment_method']);
         if (empty($payment_method)) {
-            $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
+            $user = $DB->get_record('tekijuku_commemoration', ['fk_user_id' => $user_id, 'is_delete' => 0]);
+            if (!empty($user->payment_method)) {
+                $payment_method = $user->payment_method;
+            } else {
+                $_SESSION['errors']['payment_method'] = '支払方法は必須です。';
+            }
         }
 
         $paid_status = $_POST['paid_status'];
@@ -336,6 +341,128 @@ class MypageUpdateController
             exit;
         }
 
+        $amount = $_POST['price'];
+        $payment_mode = "customer_payment";
+        $payment_status = PAID_STATUS['PROCESSING'];
+
+        // 決済済みの場合はここを通る
+        if ($paid_status == PAID_STATUS['COMPLETED'] || $paid_status == PAID_STATUS['SUBSCRIPTION_PROCESSING']) {
+            $amount = 0;
+            $payment_mode = "customer";
+            $payment_status = PAID_STATUS['SUBSCRIPTION_PROCESSING'];
+
+            // 定額課金解除時はここを通る
+            if ($is_subscription != IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
+                try {
+                    if (isloggedin() && isset($_SESSION['USER'])) {
+                        // 接続情報取得
+                        $baseModel = new BaseModel();
+                        $pdo = $baseModel->getPdo();
+                        $pdo->beginTransaction();
+
+                        $data = new stdClass();
+                        $data->id = (int)$id;
+                        $data->paid_status = PAID_STATUS['COMPLETED'];
+                        $data->is_subscription = $is_subscription;
+
+                        $DB->update_record_raw('tekijuku_commemoration', $data);
+                        $pdo->commit();
+
+                        $_SESSION['message_membership_success'] = '支払方法を更新しました';
+                        header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                        exit;
+                    }
+                } catch (PDOException $e) {
+                    $pdo->rollBack();
+                    $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました';
+                    header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                    exit;
+                }
+            }
+            // 定額課金時はここを通る
+            if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
+                try {
+                    if (isloggedin() && isset($_SESSION['USER'])) {
+                        // 接続情報取得
+                        $baseModel = new BaseModel();
+                        $pdo = $baseModel->getPdo();
+                        $pdo->beginTransaction();
+
+                        $data = new stdClass();
+                        $data->id = (int)$id;
+                        $data->payment_method = PAYMENT_CREDIT;
+                        $data->paid_status = PAID_STATUS['SUBSCRIPTION_PROCESSING'];
+                        $data->is_subscription = $is_subscription;
+
+                        $DB->update_record_raw('tekijuku_commemoration', $data);
+
+                        // サブスクリプションの場合はcustomer_paymentモードを使用
+                        $data = [
+                            'payment_types' => [PAYMENT_METHOD_LIST[$payment_method]], // 利用可能な決済手段
+                            'amount' => $amount,
+                            'currency' => 'JPY',
+                            'external_order_num' => uniqid(),
+                            'return_url' => $CFG->wwwroot . '/custom/app/Views/mypage/index.php', // 決済成功後のリダイレクトURL
+                            'cancel_url' => $CFG->wwwroot . '/custom/app/Views/mypage/index.php', // キャンセル時のリダイレクトURL
+                            'metadata' => [
+                                'tekujuku_id' => (string)$id,
+                                'payment_method_type' => (string)$payment_method,
+                                'paid_status' => (string)$paid_status,
+                            ],
+                            'mode' => $payment_mode, // customerモードを指定
+                            'email' => $USER->email,
+                        ];
+
+                        $_SESSION['payment_method_type'] = $payment_method;
+
+                        // ヘッダーの設定
+                        $headers = [
+                            'Authorization: Basic ' . base64_encode(KOMOJU_API_KEY),
+                            'Content-Type: application/json',
+                        ];
+
+                        // cURLオプションの設定
+                        $ch = curl_init(KOMOJU_ENDPOINT);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // レスポンスを文字列で返す
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // ヘッダーを設定
+                        curl_setopt($ch, CURLOPT_POST, true); // POSTメソッド
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // POSTデータ
+
+                        // 結果を取得
+                        $response = curl_exec($ch);
+
+                        // ステータスコードの取得
+                        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+
+                        if ($response) {
+                            $result = json_decode($response, true);
+                        }
+
+                        // セッションURLが取得できたらリダイレクト
+                        if (isset($result['session_url'])) {
+                            $_SESSION['message_membership_success'] = '支払方法を更新しました';
+                            header("Location: " . $result['session_url']);
+                            $pdo->commit();
+                            unset($_SESSION['old_input']);
+                            exit;
+                        } else {
+                            $_SESSION['message_error'] = "決済ページ取得に失敗しました";
+                            header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                            exit;
+                        }
+                        $_SESSION['payment_success'] = '支払方法の更新が完了しました';
+                        header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                    }
+                } catch (PDOException $e) {
+                    $pdo->rollBack();
+                    $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました: ' . $e->getMessage();
+                    header('Location: /custom/app/Views/mypage/index.php#payment_form');
+                }
+            }
+        }
+
+        // 未決済の場合下記を通る
         try {
             if (isloggedin() && isset($_SESSION['USER'])) {
                 // 接続情報取得
@@ -346,13 +473,13 @@ class MypageUpdateController
                 $data = new stdClass();
                 $data->id = (int)$id;
                 $data->payment_method = $payment_method;
-                $data->paid_status = PAID_STATUS['PROCESSING'];
+                $data->paid_status = $payment_status;
                 $data->payment_start_date = date('Y-m-d H:i:s');
                 $data->is_subscription = $is_subscription;
 
                 $DB->update_record_raw('tekijuku_commemoration', $data);
 
-                $amount = $_POST['price'];
+
                 if ($is_subscription == IS_SUBSCRIPTION['SUBSCRIPTION_ENABLED']) {
                     // サブスクリプションの場合はcustomer_paymentモードを使用
                     $data = [
@@ -367,7 +494,7 @@ class MypageUpdateController
                             'payment_method_type' => (string)$payment_method,
                             'paid_status' => (string)$paid_status,
                         ],
-                        'mode' => 'customer_payment', // customerモードを指定
+                        'mode' => $payment_mode, // customerモードを指定
                         'email' => $USER->email,
                     ];
                 } else {
@@ -414,6 +541,7 @@ class MypageUpdateController
 
                 // セッションURLが取得できたらリダイレクト
                 if (isset($result['session_url'])) {
+                    $_SESSION['message_membership_success'] = '支払方法を更新しました';
                     header("Location: " . $result['session_url']);
                     $pdo->commit();
                     unset($_SESSION['old_input']);
@@ -428,7 +556,7 @@ class MypageUpdateController
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
-            $_SESSION['message_error'] = '支払方法の更新に失敗しました: ' . $e->getMessage();
+            $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました';
             header('Location: /custom/app/Views/mypage/index.php#payment_form');
         }
     }

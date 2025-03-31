@@ -362,6 +362,8 @@ $sex_list = [
   3 => 'その他'
 ];
 define('SEX_LIST', $sex_list);
+$payment_credit = 2; // 決済方法クレジット
+define('PAYMENT_CREDIT', $payment_credit);
 
 													
 // There is no php closing tag in this file,
