@@ -21,11 +21,11 @@ $eventApplicationController = new EventApplicationController();
 $responce = $eventApplicationController->getEvenApplication($eventId, $courseInfoId, $formdata);
 $event = $responce['event'];
 $event_kbn = $event['event_kbn'];
-if($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId)) {
+if ($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId)) {
     foreach ($event['select_course'] as $no => $course) {
         $courseInfoId = $course['id'];
     }
-} elseif($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId) && count($event['select_course']) == 1) {
+} elseif ($event_kbn == EVERY_DAY_EVENT && is_null($courseInfoId) && count($event['select_course']) == 1) {
     foreach ($event['select_course'] as $no => $course) {
         $courseInfoId = $course['id'];
     }
@@ -42,14 +42,14 @@ $guardian_email = "";
 $guardian_phone = "";
 $capacity = $event['capacity'];
 
-if($responce['event']['capacity'] == 0) {
+if ($responce['event']['capacity'] == 0) {
     $aki_ticket = 50;
 } else {
     $aki_ticket = $responce['aki_ticket'];
 }
 
 $event_customfield_category_id = $event['event_customfield_category_id'];
-if($event_kbn === PLURAL_EVENT && !is_null($courseInfoId)) {
+if ($event_kbn === PLURAL_EVENT && !is_null($courseInfoId)) {
     $participation_fee = $event['single_participation_fee'];
 } else {
     $participation_fee = $event['participation_fee'];
@@ -65,7 +65,7 @@ $note = "";
 $triggersArray = [];
 $mailsArray = [];
 // 値をDateTimeオブジェクトに変換
-if(is_null($courseInfoId)) {
+if (is_null($courseInfoId)) {
     $deadline = $event['deadline'];
 } else {
     foreach ($event['select_course'] as $no => $course) {
@@ -81,11 +81,16 @@ $tekijuku_discount = 0;
 $tekijuku_text = "";
 if (isloggedin() && isset($_SESSION['USER'])) {
     global $DB, $USER;
-    
+
     $mypage_controller = new MypageController;
     $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
     $tekijukuCommemorationModel = new TekijukuCommemorationModel();
     $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id);
+    // 決済前と決済中のユーザーは適塾割を適応させない
+    if ($tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING']) {
+        $tekijuku = false;
+    }
+
     $is_general_user = $mypage_controller->isGeneralUser($user->id);
     if (!$is_general_user && $user) {
         echo '<script type="text/javascript">
@@ -94,10 +99,10 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         exit();
     }
 
-    if($tekijuku) {
+    if ($tekijuku) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
-        if($tekijuku_discount > 0) {
+        if ($tekijuku_discount > 0) {
             $price = $participation_fee - $tekijuku_discount;
             $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
         }
@@ -111,7 +116,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
-    if($age <= ADULT_AGE) {
+    if ($age <= ADULT_AGE) {
         $guardian_name = $user->guardian_name ?? "";
         $guardian_kbn = $user->guardian_kbn ?? "";
         $guardian_email = $user->guardian_email ?? "";
@@ -202,7 +207,7 @@ if (!empty($old_input)) {
     <?php else: ?>
         <div class="inner_l">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
-            
+
             <section id="form" class="event entry">
                 <ul id="flow">
                     <li class="active">入力</li>
@@ -266,17 +271,17 @@ if (!empty($old_input)) {
                                     <button type="button" class="num_min">ー</button>
                                     <input type="number" min="1" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
                                     <button type="button" class="num_plus">＋</button>
-                                    <?php if($event_kbn == EVERY_DAY_EVENT): ?>
+                                    <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
                                         (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
-                                    <?php else: ?> 
+                                    <?php else: ?>
                                         (空き枠：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
                                     <?php endif; ?>
                                 </div>
                             </li>
-                            
+
                             <li class="list_item05">
                                 <p class="list_label">金額</p>
-                                <?php if($price < 1): ?>
+                                <?php if ($price < 1): ?>
                                     <p class="list_field" id="show_price">無料<?= $tekijuku_text ?></p>
                                 <?php else: ?>
                                     <p class="list_field" id="show_price"><?= htmlspecialchars(number_format($price)); ?>円</p>
@@ -288,7 +293,7 @@ if (!empty($old_input)) {
                                 <?php endif; ?>
                             </span>
                             <li class="list_item07 long_item">
-                                <p class="list_label" id="other_mails_tag" <?php if (empty($mailsArray)): ?>style="display: none;"<?php endif; ?>>複数チケット申し込みの場合お連れ様のメールアドレス</p>
+                                <p class="list_label" id="other_mails_tag" <?php if (empty($mailsArray)): ?>style="display: none;" <?php endif; ?>>複数チケット申し込みの場合お連れ様のメールアドレス</p>
                                 <div class="list_field f_txt list_col" id="input_emails">
                                     <?php if (!empty($mailsArray)): ?>
                                         <?php foreach ($mailsArray as $key => $mail): ?>
@@ -335,7 +340,7 @@ if (!empty($old_input)) {
                                     <?= htmlspecialchars($errors['pay_method']); ?>
                                 <?php endif; ?>
                             </span>
-                            <?php if($participation_fee < 1): ?>
+                            <?php if ($participation_fee < 1): ?>
                                 <input type="hidden" name="pay_method" value="<?= FREE_EVENT ?>">
                             <?php else: ?>
                                 <li class="list_item06 req">
@@ -358,15 +363,15 @@ if (!empty($old_input)) {
                             <?php if ("1" == $now_notification): ?>
                                 <input type="hidden" name="notification_kbn" value="1">
                             <?php else: ?>
-                            <li class="list_item08 req">
-                                <p class="list_label">
-                                    今後大阪大学からのメールによるイベントのご案内を希望されますか？
-                                </p>
-                                <div class="list_field list_row">
-                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="1" <?php if ("1" == $notification_kbn): ?>checked<?php endif; ?> />希望する</label>
-                                    <label class="f_radio"><input type="radio" name="notification_kbn" value="2" <?php if ("2" == $notification_kbn): ?>checked<?php endif; ?> />希望しない</label>
-                                </div>
-                            </li>
+                                <li class="list_item08 req">
+                                    <p class="list_label">
+                                        今後大阪大学からのメールによるイベントのご案内を希望されますか？
+                                    </p>
+                                    <div class="list_field list_row">
+                                        <label class="f_radio"><input type="radio" name="notification_kbn" value="1" <?php if ("1" == $notification_kbn): ?>checked<?php endif; ?> />希望する</label>
+                                        <label class="f_radio"><input type="radio" name="notification_kbn" value="2" <?php if ("2" == $notification_kbn): ?>checked<?php endif; ?> />希望しない</label>
+                                    </div>
+                                </li>
                             <?php endif; ?>
                             <span class="error-msg" id="note-error">
                                 <?php if (!empty($errors['note'])): ?>
@@ -481,7 +486,7 @@ if (!empty($old_input)) {
     // ブラウザバック対応
     $('input[name="ticket"]').on('change', function() {
         const price = participation_fee * $(this).val() - tekijuku_discount;
-        if(price == 0) {
+        if (price == 0) {
             $('#show_price').text("無料" + tekijuku_text);
         } else {
             $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
@@ -544,12 +549,12 @@ if (!empty($old_input)) {
             $input.each(function(val) {
                 total_numner = $(this).val();
                 const price = participation_fee * $(this).val() - tekijuku_discount;
-                if(price == 0) {
+                if (price == 0) {
                     $('#show_price').text("無料" + tekijuku_text);
                 } else {
                     $('#show_price').text(price.toLocaleString() + "円" + tekijuku_text);
                 }
-                
+
                 $('#price').val(price);
             });
             createInputMail();

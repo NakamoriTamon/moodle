@@ -584,7 +584,7 @@ unset(
             <div id="tekijuku_payment_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">
-                        適塾記念会 決済情報
+                        2025年度 適塾記念会 決済情報
                         <!-- var_dump($paymentStatus) -->
                         <?php if ($paymentStatus):  ?>
                             <span class="payment-status <?php echo $paymentStatus['status']; ?>">
