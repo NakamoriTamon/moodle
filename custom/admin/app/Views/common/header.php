@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/login/roleController.php');
 
 // CSRF動的トークン生成

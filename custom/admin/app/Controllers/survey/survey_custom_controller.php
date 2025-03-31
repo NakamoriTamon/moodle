@@ -22,6 +22,17 @@ class SurveyCustomController
 
     public function edit($id = null)
     {
-        return $id ? $this->surveyCustomFieldCategoryModel->findSurveyCustomFieldCategory($id) : [];
+        if(empty($id)) {
+            return [];
+        } else {
+            $surveyCustomFields = $this->surveyCustomFieldCategoryModel->findSurveyCustomFieldCategory($id);
+        }
+        
+        if (empty($surveyCustomFields)) {
+            $_SESSION['message_error'] = '選択したカスタムフィールドは存在しません ';
+            redirect(new moodle_url('/custom/admin/app/Views/survey/custom_index.php'));
+            exit;
+        }
+        return $surveyCustomFields;
     }
 }

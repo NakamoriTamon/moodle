@@ -125,7 +125,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
 
     // var_dump($hasPaidDate);
     // var_dump($isDeposit);
-    var_dump($tekijuku_commemoration['paid_status']);
+    // var_dump($tekijuku_commemoration['paid_status']);
 
     // 決済状態の判定
     if (($isDeposit || $hasPaidDate)) {
@@ -418,7 +418,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['tekijuku_
             </div>
         </div>
 
-        <?php if ($tekijuku_commemoration !== false && (!is_null($tekijuku_commemoration['paid_date']) || (int)$tekijuku_commemoration[$deposit_column] === 1)): ?>
+        <?php if ($tekijuku_commemoration !== false && ((int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">適塾記念会 会員情報

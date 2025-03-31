@@ -20,6 +20,18 @@ class CustomController
     }
     public function edit($id = null)
     {
-        return $id ? $this->customFieldModel->findCustomFieldCategory($id) : [];
+        if(empty($id)) {
+            return [];
+        } else {
+            $customFields = $this->customFieldModel->findCustomFieldCategory($id);
+        }
+        
+        if (empty($customFields)) {
+            $_SESSION['message_error'] = '選択したカスタムフィールドは存在しません ';
+            redirect(new moodle_url('/custom/admin/app/Views/event/custom_index.php'));
+            exit;
+        }
+
+        return $customFields;
     }
 }

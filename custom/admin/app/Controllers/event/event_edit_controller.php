@@ -45,6 +45,13 @@ class EventEditController {
         }
 
         $events = $this->eventModel->getEventById($id);
+        
+        if (!is_null($id) && empty($events)) {
+            $_SESSION['message_error'] = '選択したイベントは存在しません ';
+            redirect(new moodle_url('/custom/admin/app/Views/event/index.php'));
+            exit;
+        }
+        
         $select_lecture_formats = [];
         $select_categorys = [];
         $select_courses = [];

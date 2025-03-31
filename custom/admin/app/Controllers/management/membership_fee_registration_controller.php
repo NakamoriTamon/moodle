@@ -21,7 +21,7 @@ class MembershipFeeRegistrationController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'];
+        $current_page = $_GET['page'] ?? 1;
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
