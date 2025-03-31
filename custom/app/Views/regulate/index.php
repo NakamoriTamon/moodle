@@ -17,7 +17,7 @@
           </li>
           <li>
             <p class="label">責任者</p>
-            <p class="sent">総長　西尾 章治郎　（令和7年4月1日より、熊ノ郷 淳）</p>
+            <p class="sent">総長　熊ノ郷 淳</p>
           </li>
           <li>
             <p class="label">住所</p>
@@ -26,7 +26,7 @@
           <li>
             <p class="label">責任者（担当部局）</p>
             <p class="sent">
-              大阪大学共創推進部 社会連携課　課長　川添　勝仁
+              大阪大学共創推進部 社会連携課　課長　北 和弘
             </p>
           </li>
           <li>

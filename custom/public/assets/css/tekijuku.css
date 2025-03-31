@@ -33,6 +33,11 @@
   color: #81bfda;
   text-decoration: underline;
 }
+.tekijuku-page-a{
+  display: inline;
+  color: #81bfda;
+  text-decoration: underline !important;
+}
 #juku .juku_about02 {
   margin: 60px 0 80px;
   padding: 60px 0;
