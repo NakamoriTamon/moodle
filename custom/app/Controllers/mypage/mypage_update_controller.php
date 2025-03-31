@@ -338,6 +338,7 @@ class MypageUpdateController
                 $data->id = (int)$id;
                 $data->payment_method = $payment_method;
                 $data->paid_status = PAID_STATUS['PROCESSING'];
+                $data->payment_start_date = date('Y-m-d H:i:s');
                 $data->is_subscription = $is_subscription;
 
                 $DB->update_record_raw('tekijuku_commemoration', $data);
