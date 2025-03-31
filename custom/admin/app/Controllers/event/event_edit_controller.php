@@ -1,18 +1,20 @@
 <?php
-require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventApplicationModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/CategoryModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/LectureFormatModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/TutorModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.php');
-require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/TargetModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldCategoryModel.php');
 
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $tutorModel = new TutorModel();
 $customFieldCategoryModel = new EventCustomFieldCategoryModel();
 $targetModel = new TargetModel();
+$curveyCustomFieldCategoryModel = new EventSurveyCustomFieldCategoryModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -22,6 +24,8 @@ foreach($tutors as $tutor) {
     $tutor_options .= "<option value=" . $tutor['id'] . ">" . $tutor['name'] . "</option>";
 }
 $event_category_list = $customFieldCategoryModel->getCustomFieldCategory();
+// アンケートカスタム区分
+$curvey_custom_list = $curveyCustomFieldCategoryModel->getSurveyCustomFieldCategory();
 $targets = $targetModel->getTargets();
 
 class EventEditController {
