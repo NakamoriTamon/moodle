@@ -369,7 +369,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<?php if($no == 1): ?>
 												<?php foreach ($details as $key => $detail): ?>
 													<?php if($key == 0): ?>
-														<input type="hidden" id="course_info_id" name="course_info_id" value="<?= $detail['course_info_id'] ?? '' ?>">
+														<input type="hidden" id="course_info_id" name="course_info_id" value="<?= htmlspecialchars($eventData['select_course'][1]['id'] ?? '') ?>">
 														<div class="mb-3">
 															<div class="form-label d-flex align-items-center">
 																<label class="me-2">アーカイブ公開日</label>

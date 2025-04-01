@@ -115,15 +115,59 @@ class EventRegisterController
 
             // トータル件数を取得するためのクエリ
             $count_sql = "
-            SELECT COUNT(eaci.id) as count
-            FROM 
-                {event_application_course_info} eaci
-            JOIN 
-                {event_application} ea ON ea.id = eaci.event_application_id
-            WHERE 
-                (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
-                AND ea.user_id = :user_id
-                AND eaci.ticket_type = :self_ticket_type
+            WITH cmt_data AS (
+            SELECT 
+                cm.course_info_id, 
+                GROUP_CONCAT(cm.file_name ORDER BY cm.file_name) AS materials
+            FROM {course_material} cm
+            GROUP BY cm.course_info_id
+        ),
+        cmv_data AS (
+            SELECT 
+                cmv.course_info_id, 
+                GROUP_CONCAT(cmv.file_name ORDER BY cmv.file_name) AS movies
+            FROM {course_movie} cmv
+            GROUP BY cmv.course_info_id
+        )
+        SELECT 
+            COUNT(eaci.id) as count
+        FROM 
+            {event_application_course_info} eaci
+        JOIN 
+            {event_application} ea ON ea.id = eaci.event_application_id
+        JOIN 
+            {event} e ON e.id = ea.event_id
+        JOIN 
+            {course_info} ci ON ci.id = eaci.course_info_id
+        LEFT JOIN 
+            cmt_data ON cmt_data.course_info_id = ci.id
+        LEFT JOIN 
+            cmv_data ON cmv_data.course_info_id = ci.id
+        WHERE 
+            (ea.payment_date IS NOT NULL OR ea.pay_method = 4)
+            AND ea.user_id = :user_id
+            AND eaci.ticket_type = :self_ticket_type
+            AND (
+                -- リリース日がNULLの場合: 開催日+23:59:59 を公開終了とする
+                (ci.release_date IS NULL AND ci.course_date >= '$now_time')
+
+                -- リリース日がある場合: `release_date + archive_streaming_period` で公開終了を計算
+                OR (
+                    (ci.release_date IS NOT NULL OR ci.material_release_date IS NOT NULL)
+                    AND GREATEST(
+                        CASE 
+                            WHEN ci.release_date IS NOT NULL THEN DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY)
+                            ELSE '1970-01-01'
+                        END,
+                        CASE
+                            WHEN ci.material_release_date IS NOT NULL THEN DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY)
+                            ELSE '1970-01-01'
+                        END
+                    ) >= '$now_time'
+                )
+            )
+        ORDER BY 
+            ci.course_date ASC
         ";
 
             // 総件数取得
