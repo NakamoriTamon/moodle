@@ -7,15 +7,15 @@ include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
 $material_controller = new MaterialController();
 $result_list = $material_controller->index();
 
-$errors    = $_SESSION['errors'] ?? [];
+$errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 
-$category_list = $result_list['category_list'] ?? [];
-$event_list    = $result_list['event_list'] ?? [];
-$material_list = $result_list['material'] ?? [];
-$course_number = $result_list['course_number'] ?? [];
-$course_id = $result_list['course_info'] ?? [];
+$category_list  = $result_list['category_list'] ?? [];
+$event_list     = $result_list['event_list'] ?? [];
+$material_list  = $result_list['material'] ?? [];
+$course_number  = $result_list['course_number'] ?? [];
+$course_id      = $result_list['course_info'] ?? [];
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -50,22 +50,24 @@ $course_id = $result_list['course_info'] ?? [];
 									<form id="form" method="POST" action="/custom/admin/app/Views/event/material.php" class="w-100">
 										<div class="sp-block d-flex justify-content-between">
 											<div class="mb-3 w-100">
-												<label class="form-label" for="notyf-message">カテゴリー</label>
+												<label class="form-label" for="category_id">カテゴリー</label>
 												<select name="category_id" class="form-control">
 													<option value="">すべて</option>
 													<?php foreach ($category_list as $category) { ?>
-														<option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
+														<option value="<?= $category['id'] ?>"
+															<?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
 															<?= htmlspecialchars($category['name']) ?>
 														</option>
 													<?php } ?>
 												</select>
 											</div>
 											<div class="sp-ms-0 ms-3 mb-3 w-100">
-												<label class="form-label" for="notyf-message">開催ステータス</label>
+												<label class="form-label" for="event_status_id">開催ステータス</label>
 												<select name="event_status_id" class="form-control">
 													<option value="">すべて</option>
 													<?php foreach ($display_status_list as $key => $event_status) { ?>
-														<option value="<?= $key ?>" <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+														<option value="<?= $key ?>"
+															<?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
 															<?= htmlspecialchars($event_status) ?>
 														</option>
 													<?php } ?>
@@ -74,7 +76,7 @@ $course_id = $result_list['course_info'] ?? [];
 										</div>
 										<div class="sp-block d-flex justify-content-between">
 											<div class="mb-3 w-100">
-												<label class="form-label" for="notyf-message">イベント名</label>
+												<label class="form-label" for="event_id">イベント名</label>
 												<select name="event_id" class="form-control">
 													<option value="" selected>未選択</option>
 													<?php foreach ($event_list as $event): ?>
@@ -90,12 +92,14 @@ $course_id = $result_list['course_info'] ?? [];
 												<div class="d-flex align-items-center">
 													<select id="course_no_select" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 														<?php foreach ($course_number as $course_no) { ?>
-															<option value="<?= $course_no ?>" <?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+															<option value="<?= $course_no ?>"
+																<?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 																<?= "第" . htmlspecialchars($course_no) . "回" ?>
 															</option>
 														<?php } ?>
 													</select>
-													<input type="hidden" id="course_no" name="course_no" value="<?= htmlspecialchars($old_input['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+													<input type="hidden" id="course_no" name="course_no"
+														value="<?= htmlspecialchars($old_input['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 												</div>
 											</div>
 										</div>
@@ -109,7 +113,6 @@ $course_id = $result_list['course_info'] ?? [];
 					</div>
 				</div>
 
-
 				<div id="ajax-error-message-global" style="display:none;"></div>
 
 				<?php if ($result_list['is_display']): ?>
@@ -120,6 +123,7 @@ $course_id = $result_list['course_info'] ?? [];
 									<div class="d-flex justify-content-end">
 										<button type="button" id="upload_button" class="btn btn-primary mb-4">アップロード</button>
 									</div>
+
 									<input type="hidden" name="category_id" value="<?= htmlspecialchars($old_input['category_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="event_status_id" value="<?= htmlspecialchars($old_input['event_status_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="event_id" value="<?= htmlspecialchars($old_input['event_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
@@ -127,38 +131,36 @@ $course_id = $result_list['course_info'] ?? [];
 									<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info'] ?? $old_input['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="material_id" value="<?= htmlspecialchars($_GET['material_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+
 									<?php if (!empty($material_list)): ?>
 										<?php foreach ($material_list as $material): ?>
-											<div class="material-container mb-4" data-material-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>">
-												<input type="hidden" name="ids[<?= $material->id ?>]" value="<?= (int)$material->id ?>">
+											<div class="material-container mb-4" data-material-id="<?= (int)$material->id ?>">
+												<input type="hidden" name="ids[<?= (int)$material->id ?>]" value="<?= (int)$material->id ?>">
 												<div class="fields-container">
 													<div class="uploadRow">
 														<div class="add_field mb-3 d-flex align-items-center">
-															<input type="hidden" class="hiddenField" name="course_info_id" value="<?= $material->course_info_id ?>">
-															<input type="hidden" class="hiddenFileField" name="files[<?= $material->id ?>]" value="">
-															<input type="file" class="form-control fileUpload" name="files[<?= $material->id ?>]" multiple accept="application/pdf">
+															<input type="hidden" class="hiddenFileField" name="files[<?= (int)$material->id ?>]" value="">
+															<input type="file" class="form-control fileUpload" name="files[<?= (int)$material->id ?>]" multiple accept="application/pdf">
 															<td class="text-center ps-4 pe-4 text-nowrap">
-																<a type="button" class="trash ms-2 btn btn-sm delete-link"
-																	data-id="<?= htmlspecialchars($material->id, ENT_QUOTES, 'UTF-8') ?>"
-																	data-name="<?= htmlspecialchars($material->file_name, ENT_QUOTES, 'UTF-8') ?>"
-																	data-has-file="<?= !empty($material->file_name) ? '1' : '0' ?>">
+																<a type="button" class="trash ms-2 btn btn-sm delete-link">
 																	<i data-feather="trash"></i>
 																</a>
 															</td>
 														</div>
 														<div class="fileInfo mt-2 d-none"></div>
+														<div class="fileError mt-2 d-none"></div>
 													</div>
 												</div>
 											</div>
 										<?php endforeach; ?>
 									<?php else: ?>
-										<div class="material-container mb-4">
+										<div class="material-container mb-4" data-material-id="0">
 											<input type="hidden" name="ids[0]" value="0">
 											<div class="fields-container">
 												<div class="uploadRow">
 													<div class="add_field mb-3 d-flex align-items-center">
-														<input type="hidden" class="hiddenFileField" name="files[<?= $material->id ?? 0 ?>]" value="">
-														<input type="file" class="form-control fileUpload" name="files[<?= $material->id ?? 0 ?>]" multiple accept="application/pdf">
+														<input type="hidden" class="hiddenFileField" name="files[0]" value="">
+														<input type="file" class="form-control fileUpload" name="files[0]" multiple accept="application/pdf">
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a type="button" class="trash ms-2 btn btn-sm delete-link">
 																<i data-feather="trash"></i>
@@ -166,10 +168,12 @@ $course_id = $result_list['course_info'] ?? [];
 														</td>
 													</div>
 													<div class="fileInfo mt-2 d-none"></div>
+													<div class="fileError mt-2 d-none"></div>
 												</div>
 											</div>
 										</div>
 									<?php endif; ?>
+
 									<div class="d-flex justify-content-end">
 										<button class="btn btn-primary" id="add-btn">項目追加</button>
 									</div>
@@ -193,12 +197,28 @@ $course_id = $result_list['course_info'] ?? [];
 					</button>
 				</div>
 				<div class="fileInfo mt-2 d-none"></div>
+				<div class="fileError mt-2 d-none"></div>
 			</div>
 		</div>
 	</template>
 
 	<script src="/custom/admin/public/js/app.js"></script>
 	<script>
+		const existingMaterials = <?= json_encode($material_list, JSON_UNESCAPED_UNICODE) ?>;
+		let existingMaterialMap = {};
+		let occupiedFileNames = new Set();
+		for (const key in existingMaterials) {
+			if (Object.hasOwnProperty.call(existingMaterials, key)) {
+				const mat = existingMaterials[key];
+				let fileName = mat.file_name ? mat.file_name.trim() : "";
+				if (fileName) {
+					existingMaterialMap[mat.id] = fileName;
+					occupiedFileNames.add(fileName);
+					console.log(occupiedFileNames);
+				}
+			}
+		}
+
 		$(document).ready(function() {
 			$('select[name="category_id"], select[name="event_status_id"], select[name="event_id"]').change(function() {
 				$("#form").submit();
@@ -210,62 +230,121 @@ $course_id = $result_list['course_info'] ?? [];
 				$('#course_no').val($('#course_no_select').val());
 			});
 
-			$(document).on('click', '.delete-link', function(event) {
-				event.preventDefault();
-				var $container = $(this).closest('.material-container');
-				// まず、現在のコンテナ内に複数の .uploadRow があるか判定
-				if ($container.find('.uploadRow').length > 1) {
-					// 複数あるなら、クリックされた行だけ削除する
-					$(this).closest('.uploadRow').remove();
-				} else {
-					// コンテナ内が1行のみの場合
-					// さらに、ページ全体で複数の material-container が存在するか判定
-					if ($('.material-container').length > 1) {
-						// 複数存在すれば、このコンテナ自体を削除する
-						$container.remove();
-					} else {
-						// 唯一の場合は、行は残して値のみクリアする
-						var $uploadRow = $(this).closest('.uploadRow');
-						$uploadRow.find('input[type="file"]').val('');
-						$uploadRow.find('.hiddenFileField').val('delete');
-						$uploadRow.find('.fileInfo').html('').addClass('d-none');
-					}
-				}
-			});
-
 			$(document).on('change', '.fileUpload', function(e) {
 				var file = this.files[0];
 				if (!file) return;
+				let $fileError = $(this).closest('.uploadRow').find('.fileError');
+				$fileError.text('').removeClass('duplicate-error').addClass('d-none');
 				var fileName = file.name;
 				var fileURL = URL.createObjectURL(file);
-				// hiddenフィールドから course_no を取得（なければデフォルト '1' を使用）
-				var courseNo = $('#course_no').val() || '1';
-				// 3つの引数を渡す
-				var linkElem = create_file_link(fileURL, courseNo, fileName);
+				var linkElem = createFileLink(fileURL, fileName);
 				$(this).closest('.uploadRow').find('.fileInfo').html(linkElem).removeClass('d-none');
 				feather.replace();
 			});
 
+			$(document).on('click', '.delete-link', function(event) {
+				event.preventDefault();
+				var $row = $(this).closest('.uploadRow');
+				var $container = $(this).closest('.material-container');
+				let materialId = $container.data('material-id');
+				if (materialId && existingMaterialMap.hasOwnProperty(materialId)) {
+					let oldFileName = existingMaterialMap[materialId];
+					if (oldFileName && occupiedFileNames.has(oldFileName)) {
+						occupiedFileNames.delete(oldFileName);
+					}
+				}
+				if ($row.find('.fileError').hasClass('duplicate-error')) {
+					if ($container.find('.uploadRow').length > 1) {
+						$row.remove();
+					} else {
+						$container.find('input[name^="ids"]').remove();
+						$row.find('input[type="file"]').val('');
+						$row.find('.hiddenFileField').val('delete');
+						$row.find('.fileInfo').html('').addClass('d-none');
+						$row.find('.fileError').html('').addClass('d-none');
+					}
+					return;
+				}
+				if ($container.find('.uploadRow').length > 1) {
+					$container.find('input[name^="ids"]').remove();
+					$row.remove();
+				} else {
+					if ($('.material-container').length > 1) {
+						$container.remove();
+					} else {
+						$container.find('input[name^="ids"]').remove();
+						$row.find('input[type="file"]').val('');
+						$row.find('.hiddenFileField').val('delete');
+						$row.find('.fileInfo').html('').addClass('d-none');
+						$row.find('.fileError').html('').addClass('d-none');
+					}
+				}
+			});
+
 			$('#upload_button').on('click', function(e) {
 				e.preventDefault();
+				let newFileNames = [];
+				let fileInfoObjects = [];
 				let filesToUpload = [];
-				$('.fileUpload').each(function() {
-					let fileInput = this;
-					if (fileInput.files && fileInput.files.length > 0) {
-						let container = $(this).closest('.material-container');
-						let hiddenId = container.find('input[name^="ids"]').val() || '';
-						for (let i = 0; i < fileInput.files.length; i++) {
-							filesToUpload.push({
-								file: fileInput.files[i],
-								id: hiddenId,
-								container: container
+				let usedFileNamesThisTime = new Set(occupiedFileNames);
+				$('.material-container').each(function() {
+					let $container = $(this);
+					let materialId = $container.data('material-id') || 0;
+					let uploadRows = $container.find('.fileUpload');
+					let hasNewFile = false;
+					uploadRows.each(function() {
+						let rowElm = $(this).closest('.uploadRow');
+						let files = this.files;
+						if (files && files.length > 0) {
+							hasNewFile = true;
+							for (let i = 0; i < files.length; i++) {
+								let f = files[i];
+								newFileNames.push(f.name);
+								fileInfoObjects.push({
+									name: f.name,
+									row: rowElm
+								});
+								filesToUpload.push({
+									file: f,
+									id: materialId
+								});
+							}
+						}
+					});
+					if (hasNewFile && existingMaterialMap.hasOwnProperty(materialId)) {
+						const oldName = existingMaterialMap[materialId];
+						if (oldName && usedFileNamesThisTime.has(oldName)) {
+							let uploadingDifferentName = false;
+							uploadRows.each(function() {
+								const files = this.files;
+								for (let i = 0; i < files.length; i++) {
+									if (files[i].name !== oldName) {
+										uploadingDifferentName = true;
+										break;
+									}
+								}
 							});
+							if (uploadingDifferentName) {
+								usedFileNamesThisTime.delete(oldName);
+							}
 						}
 					}
 				});
-
+				let duplicates = findDuplicates(Array.from(usedFileNamesThisTime), newFileNames);
+				$('.fileError').text('').addClass('d-none');
+				if (duplicates.length > 0) {
+					fileInfoObjects.forEach(function(info) {
+						if (duplicates.includes(info.name)) {
+							info.row.find('.fileError')
+								.removeClass('d-none')
+								.addClass('duplicate-error')
+								.html('<div class="error-message text-danger">同じファイル名が存在します: ' + info.name + '</div>');
+						}
+					});
+					return;
+				}
 				if (filesToUpload.length === 0) {
-					var form_data = new FormData($('#upsert_form')[0]);
+					let form_data = new FormData($('#upsert_form')[0]);
 					$.ajax({
 						url: '/custom/admin/app/Controllers/material/material_upsert_controller.php',
 						type: 'POST',
@@ -276,40 +355,28 @@ $course_id = $result_list['course_info'] ?? [];
 						success: function(response) {
 							location.href = "/custom/admin/app/Views/event/material.php";
 						},
-						error: function(jqXHR, textStatus, errorThrown) {
+						error: function() {
 							location.href = "/custom/admin/app/Views/event/material.php";
 						}
 					});
 					return;
 				}
+				const CHUNK_SIZE = 10 * 1024 * 1024;
 
 				function uploadFile(fileObj, callback) {
 					let file = fileObj.file;
-					const chunk_size = 10 * 1024 * 1024;
-					const total_chunks = Math.ceil(file.size / chunk_size);
-
-					if (total_chunks === 1) {
-						const form_data = new FormData();
-						form_data.append('id', fileObj.id);
-						form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
-						form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
-						form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
-						form_data.append('event_id', $('#upsert_form').find('[name="event_id"]').val());
-						form_data.append('category_id', $('#upsert_form').find('[name="category_id"]').val());
-						form_data.append('material_id', $('#upsert_form').find('[name="material_id"]').val());
+					let fileId = fileObj.id;
+					const totalSize = file.size;
+					const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+					if (totalChunks <= 1) {
+						let form_data = new FormData();
+						form_data.append('id', fileId);
 						form_data.append('file', file);
 						form_data.append('file_name', file.name);
-						form_data.append('total_file_size', file.size);
+						form_data.append('total_file_size', totalSize);
 						form_data.append('chunk_index', 0);
 						form_data.append('total_chunks', 1);
-						$('#upsert_form').find('input[name^="ids"]').each(function() {
-							form_data.append($(this).attr('name'), $(this).val());
-						});
-						$('#upsert_form').find('input[name^="files"]').each(function() {
-							form_data.append($(this).attr('name'), $(this).val());
-						});
-
-
+						appendCommonFormData(form_data);
 						$.ajax({
 							url: '/custom/admin/app/Controllers/material/material_upsert_controller.php',
 							type: 'POST',
@@ -317,72 +384,51 @@ $course_id = $result_list['course_info'] ?? [];
 							processData: false,
 							contentType: false,
 							dataType: 'json',
-							success: function(response) {
+							success: function() {
 								callback();
 							},
-							error: function(jqXHR, textStatus, errorThrown) {
+							error: function() {
 								callback();
 							}
 						});
 					} else {
-						let current_chunk = 0;
+						let currentChunk = 0;
 
-						function upload_chunk() {
-							if (current_chunk >= total_chunks) {
+						function uploadChunk() {
+							if (currentChunk >= totalChunks) {
 								$.ajax({
 									url: '/custom/admin/app/Controllers/material/material_upsert_controller.php',
 									type: 'POST',
 									data: {
+										finalize: true,
 										file_name: file.name,
+										id: fileId,
 										csrf_token: $('#upsert_form').find('[name="csrf_token"]').val(),
-										id: fileObj.id,
 										course_no: $('#upsert_form').find('[name="course_no"]').val()
 									},
 									dataType: 'json',
-									success: function(response) {
+									success: function() {
 										callback();
 									},
-									error: function(jqXHR, textStatus, errorThrown) {
-										var response;
-										try {
-											response = JSON.parse(jqXHR.responseText);
-										} catch (e) {
-											response = {
-												error: jqXHR.responseText
-											};
-										}
-										var errText = (typeof response.error === 'object') ? (response.error.message || JSON.stringify(response.error)) : response.error;
-										$("#ajax-error-message-global").html('<div class="text-danger">' + (errText || 'アップロードに失敗しました') + '</div>').show();
+									error: function() {
+										$("#ajax-error-message-global")
+											.html('<div class="text-danger">アップロード統合処理に失敗しました</div>')
+											.show();
 									}
 								});
 								return;
 							}
-
-							const start = current_chunk * chunk_size;
-							const end = Math.min(start + chunk_size, file.size);
-							const chunk = file.slice(start, end);
-							const form_data = new FormData();
-							form_data.append('id', fileObj.id);
-							form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
-							form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
-							form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
-							form_data.append('event_id', $('#upsert_form').find('[name="event_id"]').val());
-							form_data.append('category_id', $('#upsert_form').find('[name="category_id"]').val());
-							form_data.append('material_id', $('#upsert_form').find('[name="material_id"]').val());
-							form_data.append('file', chunk);
-							form_data.append('chunk_index', current_chunk);
-							form_data.append('total_chunks', total_chunks);
+							const start = currentChunk * CHUNK_SIZE;
+							const end = Math.min(start + CHUNK_SIZE, totalSize);
+							const chunkBlob = file.slice(start, end);
+							let form_data = new FormData();
+							form_data.append('id', fileId);
+							form_data.append('file', chunkBlob);
 							form_data.append('file_name', file.name);
-							form_data.append('total_file_size', file.size);
-
-							$('#upsert_form').find('input[name^="ids"]').each(function() {
-								form_data.append($(this).attr('name'), $(this).val());
-							});
-							$('#upsert_form').find('input[name^="files"]').each(function() {
-								form_data.append($(this).attr('name'), $(this).val());
-							});
-
-
+							form_data.append('total_file_size', totalSize);
+							form_data.append('chunk_index', currentChunk);
+							form_data.append('total_chunks', totalChunks);
+							appendCommonFormData(form_data);
 							$.ajax({
 								url: '/custom/admin/app/Controllers/material/material_upsert_controller.php',
 								type: 'POST',
@@ -392,99 +438,83 @@ $course_id = $result_list['course_info'] ?? [];
 								dataType: 'json',
 								success: function(response) {
 									if (response.status === 'error') {
-										callback();
+										$("#ajax-error-message-global")
+											.html('<div class="text-danger">' + response.error + '</div>')
+											.show();
 										return;
 									}
-									const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
-									$('#percent').text(`${percentage}%`);
-									current_chunk++;
-									setTimeout(upload_chunk, 1000);
+									currentChunk++;
+									uploadChunk();
 								},
-								error: function(jqXHR, textStatus, errorThrown) {
-									var response;
-									try {
-										response = JSON.parse(jqXHR.responseText);
-									} catch (e) {
-										response = {
-											error: jqXHR.responseText
-										};
-									}
-									var errText = (typeof response.error === 'object') ? (response.error.message || JSON.stringify(response.error)) : response.error;
-									$("#ajax-error-message-global").html('<div class="text-danger">' + (errText || 'アップロードに失敗しました') + '</div>').show();
+								error: function() {
+									$("#ajax-error-message-global")
+										.html('<div class="text-danger">アップロードに失敗しました</div>')
+										.show();
 								}
-
 							});
 						}
-						upload_chunk();
+						uploadChunk();
 					}
 				}
 
-				function uploadNextFile(index) {
-					if (index < filesToUpload.length) {
-						uploadFile(filesToUpload[index], function() {
-							uploadNextFile(index + 1);
+				function appendCommonFormData(fd) {
+					fd.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
+					fd.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
+					fd.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
+					fd.append('event_id', $('#upsert_form').find('[name="event_id"]').val());
+					fd.append('category_id', $('#upsert_form').find('[name="category_id"]').val());
+					fd.append('material_id', $('#upsert_form').find('[name="material_id"]').val());
+					$('#upsert_form').find('input[name^="ids"]').each(function() {
+						fd.append($(this).attr('name'), $(this).val());
+					});
+					$('#upsert_form').find('input[name^="files"]').each(function() {
+						fd.append($(this).attr('name'), $(this).val());
+					});
+				}
+				let currentIndex = 0;
+
+				function uploadNextFile() {
+					if (currentIndex < filesToUpload.length) {
+						uploadFile(filesToUpload[currentIndex], function() {
+							currentIndex++;
+							uploadNextFile();
 						});
 					} else {
 						location.href = "/custom/admin/app/Views/event/material.php";
 					}
 				}
-				uploadNextFile(0);
+				uploadNextFile();
 			});
 
-			function create_file_link(courseInfo, courseNo, file_name) {
-				const file_link_container = document.createElement('div');
-				file_link_container.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
-
-				const link = document.createElement('a');
-				link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none', 'open-pdf');
-				link.setAttribute('data-course_info', courseInfo);
-				link.setAttribute('data-course_no', courseNo);
-				link.setAttribute('data-file_name', file_name);
-
-				const icon = document.createElement('i');
-				icon.setAttribute('data-feather', 'file-text');
-				icon.classList.add('me-2');
-				link.appendChild(icon);
-
-				const span = document.createElement('span');
-				span.classList.add('fileName', 'text-primary');
-				span.textContent = file_name;
-				link.appendChild(span);
-
-				file_link_container.appendChild(link);
-				return file_link_container;
-			}
-
-
 			(function init_existing_files() {
-				const existing_materials = <?= json_encode($material_list, JSON_UNESCAPED_UNICODE) ?>;
-				for (const key in existing_materials) {
-					if (existing_materials.hasOwnProperty(key)) {
-						const material = existing_materials[key];
-						const material_id = material.id;
-						const file_name = material.file_name;
-						if (file_name !== "") {
-							const container = document.querySelector(`.material-container[data-material-id="${material_id}"]`);
-							if (!container) continue;
-							const row = container.querySelector('.uploadRow');
-							if (!row) continue;
-							const file_info = row.querySelector('.fileInfo');
-							if (!file_info) continue;
-							// hiddenフィールドから course_no を取得（なければデフォルト '1' を使用）
-							var courseNo = $('#course_no').val() || '1';
-							// course_info には既存の material オブジェクトから course_info_id を使用する
-							const link_elem = create_file_link(material.course_info_id, courseNo, file_name);
-							file_info.appendChild(link_elem);
-							file_info.classList.remove('d-none');
-						}
+				for (const key in existingMaterials) {
+					if (!Object.hasOwnProperty.call(existingMaterials, key)) continue;
+					const material = existingMaterials[key];
+					const material_id = material.id;
+					const file_name = material.file_name;
+					if (file_name !== "") {
+						const container = document.querySelector(`.material-container[data-material-id="${material_id}"]`);
+						if (!container) continue;
+						const row = container.querySelector('.uploadRow');
+						if (!row) continue;
+						const file_info = row.querySelector('.fileInfo');
+						if (!file_info) continue;
+						var courseNo = $('#course_no').val() || '1';
+						const link_elem = create_pdf_link(material.course_info_id, courseNo, file_name);
+						file_info.appendChild(link_elem);
+						file_info.classList.remove('d-none');
 					}
 				}
 				feather.replace();
 			})();
 
-
 			$(document).on("click", ".open-pdf", function(e) {
 				e.preventDefault();
+				let fileUrl = $(this).data("file_url");
+				if (fileUrl) {
+					window.open(fileUrl, "_blank");
+					return;
+				}
 				var materialCourseNo = $(this).data("course_no");
 				var materialCourseId = $(this).data("course_info");
 				var materialFileName = $(this).data("file_name");
@@ -493,48 +523,98 @@ $course_id = $result_list['course_info'] ?? [];
 			});
 
 
-
-
 			$('#add-btn').on('click', function(e) {
 				e.preventDefault();
 				const template = document.getElementById('uploadRowTemplate');
-				if (!template) {
-					return;
-				}
-				let materialContainer = $('.material-container').last();
-				if (materialContainer.length === 0) {
-					materialContainer = $('<div class="material-container mb-4"></div>');
+				if (!template) return;
+				let $materialContainer = $('.material-container').last();
+				if ($materialContainer.length === 0) {
+					$materialContainer = $('<div class="material-container mb-4" data-material-id="0"></div>');
 					const fieldsContainer = $('<div class="fields-container"></div>');
-					materialContainer.append(fieldsContainer);
-					$('#add-btn').closest('.d-flex').before(materialContainer);
+					$materialContainer.append(fieldsContainer);
+					$('#add-btn').closest('.d-flex').before($materialContainer);
 				}
-				let fieldsContainer = materialContainer.find('.fields-container').first();
-				if (!fieldsContainer.length) {
-					fieldsContainer = $('<div class="fields-container"></div>');
-					materialContainer.append(fieldsContainer);
+				let $fieldsContainer = $materialContainer.find('.fields-container').first();
+				if (!$fieldsContainer.length) {
+					$fieldsContainer = $('<div class="fields-container"></div>');
+					$materialContainer.append($fieldsContainer);
 				}
 				let indices = [];
-				fieldsContainer.find('.fileUpload').each(function() {
+				$fieldsContainer.find('.fileUpload').each(function() {
 					const nameAttr = $(this).attr('name');
 					const match = nameAttr.match(/^files\[(\d+)\]$/);
 					if (match) {
 						indices.push(parseInt(match[1], 10));
 					}
 				});
-				let index = 0;
-				if (indices.length > 0) {
-					index = Math.max(...indices) + 1;
-				}
+				let index = (indices.length > 0) ? Math.max(...indices) + 1 : 0;
 				const clone = document.importNode(template.content, true);
 				let $newRow = $(clone).find('.uploadRow');
 				$newRow.find('.fileUpload').attr('name', 'files[' + index + ']');
-				$newRow.find('.hiddenField').attr('name', 'files[' + index + ']');
-				fieldsContainer.append($newRow);
+				$newRow.find('.hiddenFileField').attr('name', 'files[' + index + ']');
+				$fieldsContainer.append($newRow);
 				feather.replace();
 			});
+
+			function findDuplicates(occupiedArrOrSet, newList) {
+				let occupiedSet = (occupiedArrOrSet instanceof Set) ? occupiedArrOrSet : new Set(occupiedArrOrSet);
+				let conflict = [];
+				for (let name of newList) {
+					if (occupiedSet.has(name)) {
+						conflict.push(name);
+					}
+				}
+				let newSet = new Set();
+				for (let name of newList) {
+					if (newSet.has(name) && !conflict.includes(name)) {
+						conflict.push(name);
+					}
+					newSet.add(name);
+				}
+				return conflict;
+			}
+
+			function createFileLink(fileURL, fileName) {
+				const container = document.createElement('div');
+				container.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
+				const link = document.createElement('a');
+				link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none', 'open-pdf');
+				link.setAttribute('href', fileURL);
+				link.setAttribute('data-file_url', fileURL);
+				link.setAttribute('data-file_name', fileName);
+				const icon = document.createElement('i');
+				icon.setAttribute('data-feather', 'file-text');
+				icon.classList.add('me-2');
+				link.appendChild(icon);
+				const span = document.createElement('span');
+				span.classList.add('fileName', 'text-primary');
+				span.textContent = fileName;
+				link.appendChild(span);
+				container.appendChild(link);
+				return container;
+			}
+
+			function create_pdf_link(courseInfo, courseNo, file_name) {
+				const file_link_container = document.createElement('div');
+				file_link_container.classList.add('fileInfoItem', 'd-flex', 'align-items-center', 'mb-2');
+				const link = document.createElement('a');
+				link.classList.add('fileLink', 'd-flex', 'align-items-center', 'text-decoration-none', 'open-pdf');
+				link.setAttribute('data-course_info', courseInfo);
+				link.setAttribute('data-course_no', courseNo);
+				link.setAttribute('data-file_name', file_name);
+				const icon = document.createElement('i');
+				icon.setAttribute('data-feather', 'file-text');
+				icon.classList.add('me-2');
+				link.appendChild(icon);
+				const span = document.createElement('span');
+				span.classList.add('fileName', 'text-primary');
+				span.textContent = file_name;
+				link.appendChild(span);
+				file_link_container.appendChild(link);
+				return file_link_container;
+			}
 		});
 	</script>
-
 </body>
 
 </html>
