@@ -264,6 +264,13 @@
   font-size: 1.4rem;
   line-height: 1.8;
 }
+#form.user .form_cont .agree_note {
+  padding: 8px 20px 0;
+  margin-left: 320px;
+}
+#form.user .form_cont .agree_note .note {
+  font-size: 12px;
+}
 #parents_input_area,
 #parents_check_area{
   display: none;
@@ -605,6 +612,9 @@ reserve
   }
   #form.user .form_cont .agree .agree_txt {
     font-size: 12px;
+  }
+  #form.user .form_cont .agree_note {
+    margin-left: 0px;
   }
 
   /*-------------------------------------
