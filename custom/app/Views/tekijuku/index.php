@@ -24,7 +24,7 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                     その成果は会誌『適塾』や、適塾特別展示、適塾講座などの形で一般に公開しています。 適塾記念会に入会いただくと、適塾の参観料が無料となる等、
                     下記の特典があります。適塾記念会の活動に賛同いただける方は、ぜひご入会ください。
                     なお、適塾記念会の沿革や活動等の詳細については、
-                    <a target="_blank">適塾記念センターのホームページ</a> をご覧ください。
+                    <a href="https://www.tekijuku.osaka-u.ac.jp/ja" target="_blank">適塾記念センターのホームページ</a> をご覧ください。
                 </p>
                 <!-- <img src="/custom/public/assets/common/img/img_juku.png" alt="" /> -->
             </div>
