@@ -126,7 +126,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                                     <?php foreach ($events as $event): ?>
                                         <option value="<?= $event['id'] ?>" <?php if ($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= htmlspecialchars($event['name']) ?>】について</option>
                                     <?php endforeach; ?>
-                                    <option value="other">その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
+                                    <option value="other" <?php if (empty($event_id)): ?>selected<?php endif; ?>>その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>
                                 <?php if (!empty($errors['event_id'])): ?>
                                     <div class="error-msg mt-2">

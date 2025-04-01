@@ -1,7 +1,6 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
-require_once($CFG->dirroot . '/custom/app/Controllers/event/event_detail_controller.php');
 include($CFG->dirroot . '/custom/app/Views/common/header.php');
 
 // コントローラーのインスタンスを作成

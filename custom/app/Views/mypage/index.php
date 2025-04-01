@@ -75,12 +75,12 @@ if ($tekijuku_commemoration !== false) {
 $event_applications = $mypage_controller->getEventApplications($event_application_offset, $perPage, $event_application_page); // 予約情報を引っ張ってくる
 $event_histories = $mypage_controller->getEventApplications($event_history_offset, $perPage, $event_history_page, 'histories'); // イベント履歴を引っ張ってくる
 $user_id = sprintf('%08d', $user->id); // IDのゼロ埋め
-$birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
+$birthday = substr($user->birthday ?? "", 0, 10); // 生年月日を文字列化
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
-$message_membership_success = $_SESSION['message_membership_success'];
+$message_membership_success = $_SESSION['message_membership_success'] ?? [];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
@@ -154,11 +154,13 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
     ];
 }
 
-// 決済状態を取得
-$paymentStatus = determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year);
+if ($tekijuku_commemoration !== false) {
+    // 決済状態を取得
+    $paymentStatus = determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year);
 
-// フォーム要素を無効化する属性文字列を生成
-$disabledAttr = ($paymentStatus && !$paymentStatus['can_edit']) ? 'disabled' : '';
+    // フォーム要素を無効化する属性文字列を生成
+    $disabledAttr = ($paymentStatus && !$paymentStatus['can_edit']) ? 'disabled' : '';
+}
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 unset(
     $_SESSION['old_input'],
@@ -343,13 +345,16 @@ unset(
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
                                         <?php
-                                        $birthday_raw = $old_input['birthday'] ?? $birthday;
-                                        $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
-                                        $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : '未設定';
+                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : null;
                                         ?>
-
-                                        <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
-                                        <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
+                                        <?php if(is_null($birthday_formatted)): ?>
+                                            <input type="date" name="birthday" value="<?= htmlspecialchars($birthday_date) ?>" />
+                                        <?php else: ?>
+                                            <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
+                                            <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
+                                        <?php endif ?>
                                         <?php if (!empty($errors['birthday'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
                                         <?php endif; ?>
