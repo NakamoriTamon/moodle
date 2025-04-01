@@ -805,6 +805,7 @@ unset(
                         <?php endif; ?>
                     </div>
             </div>
+        </div>
         <?php endif; ?>
         </div>
         <?php if ($allHistoryCourseDateNull): ?>
@@ -1305,3 +1306,6 @@ unset(
         });
     });
 </script>
+
+</body>
+</html>

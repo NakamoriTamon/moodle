@@ -70,3 +70,5 @@ $pass_reset_result = $pass_reset_controller->index($_GET['token']);
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+</body>
+</html>

@@ -116,3 +116,5 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+</body>
+</html>

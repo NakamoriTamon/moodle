@@ -185,3 +185,7 @@ unset($SESSION->formdata);
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script src="/custom/public/assets/js/search_input_reset.js"></script>
+
+
+</body>
+</html>

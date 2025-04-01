@@ -326,3 +326,5 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
         checkbox.addEventListener("change", toggleFields);
     });
 </script>
+</body>
+</html>
