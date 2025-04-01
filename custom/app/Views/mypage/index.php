@@ -58,6 +58,7 @@ if ($tekijuku_commemoration !== false) {
 
     // is_deposit_フラグの確認（paid_dateの有無に関わらず確認）
     // 対象年度のカラムが存在し、かつ2031年度未満であるか確認
+
     if ($current_fiscal_year >= 2024 && $current_fiscal_year <= 2030) {
         // 該当年度のデポジットフラグを確認
         $deposit_column = "is_deposit_{$current_fiscal_year}";
@@ -345,11 +346,11 @@ unset(
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
                                         <?php
-                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
-                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
-                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : null;
+                                        $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                        $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                        $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : null;
                                         ?>
-                                        <?php if(is_null($birthday_formatted)): ?>
+                                        <?php if (is_null($birthday_formatted)): ?>
                                             <input type="date" name="birthday" value="<?= htmlspecialchars($birthday_date) ?>" />
                                         <?php else: ?>
                                             <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
