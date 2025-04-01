@@ -762,7 +762,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
 									</div>
-									<!-- <div class="mb-3">
+									<div class="mb-3">
 										<label class="form-label">アンケートカスタム区分</label>
 										<select id="event_survey_custom_id" class=" form-control  mb-3" name="event_survey_custom_id">
 											<option value="">未選択</option>
@@ -773,7 +773,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<?php if (!empty($errors['event_survey_custom_id'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
 										<?php endif; ?>
-									</div> -->
+									</div>
 									<div class="mb-3">
 										<label class="form-label">その他</label>
 										<textarea name="note" class="form-control" rows="5"><?= htmlspecialchars(isSetValue($eventData['note'] ?? '', $old_input['note'] ?? '')) ?></textarea>

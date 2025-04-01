@@ -57,7 +57,7 @@
 					</a>
 					<ul id="survey-side" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/index.php">アンケート集計</a></li>
-						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/custom_index.php">カスタムフィールド</p></a></li> -->
+						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/survey/custom_index.php">カスタムフィールド</p></a></li>
 					</ul>
 				</li>
 				<li class="sidebar-item pc-none">

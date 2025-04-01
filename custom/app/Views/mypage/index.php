@@ -80,7 +80,7 @@ $birthday = substr($user->birthday, 0, 10); // 生年月日を文字列化
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
-$message_membership_success = $_SESSION['message_membership_success'];
+$message_membership_success = $_SESSION['message_membership_success'] ?? [];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
