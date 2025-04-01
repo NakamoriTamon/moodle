@@ -119,7 +119,13 @@ class TekijukuCommemorationModel extends BaseModel
                     tc.paid_status,
                     tc.is_university_member, 
                     tc.price,
-                    tc.is_dummy_email
+                    tc.is_dummy_email,
+                    tc.is_deposit_2025,
+                    tc.is_deposit_2026,
+                    tc.is_deposit_2027,
+                    tc.is_deposit_2028,
+                    tc.is_deposit_2029,
+                    tc.is_deposit_2030
                 FROM mdl_tekijuku_commemoration tc
                 LEFT JOIN (
                     SELECT 
