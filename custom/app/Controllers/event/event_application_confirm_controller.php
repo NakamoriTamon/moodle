@@ -62,7 +62,7 @@ $tekijukuCommemorationModel = new TekijukuCommemorationModel();
 $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user_id);
 
 $tekijuku_discount = 0;
-if($tekijuku) {
+if($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
     $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
 }
 

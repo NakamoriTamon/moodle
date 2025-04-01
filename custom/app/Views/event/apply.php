@@ -93,7 +93,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $tekijukuCommemorationModel = new TekijukuCommemorationModel();
     $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id);
     // 決済前と決済中のユーザーは適塾割を適応させない
-    if ($tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING']) {
+    if (empty($tekijuku) || $tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING']) {
         $tekijuku = false;
     }
 
