@@ -24,12 +24,36 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
 
 <head>
     <meta charset="utf-8" />
-    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="description" content="" />
     <meta name="keywords" content="" />
-    <title></title>
+    <meta name="description" content=
+        "<?php
+            $path = $_SERVER['REQUEST_URI'];
+            if(strpos($path, 'contact')) {echo 'お問い合わせはこちらから。';}
+            elseif(strpos($path, 'event')) {echo '開催イベントを閲覧できます。';}
+            elseif(strpos($path, 'guide')) {echo '受講について詳しく説明しています。';}
+            elseif(strpos($path, 'faq')) {echo 'よくあるご質問をまとめました。';}
+            elseif(strpos($path, 'user')) {echo '新規ユーザー登録をしていただけます。';}
+            elseif(strpos($path, 'login')) {echo 'ユーザー様のログインページです。';}
+            elseif(strpos($path, 'mypage')) {echo 'ユーザー様のマイページです。予約情報もこちらからご確認いただけます。';}
+            elseif(strpos($path, 'tekijuku')) {echo '適塾記念会のページです。';}
+            else{echo '大阪大学【知の広場】阪大市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。';}
+        ?>" />
+    <title>
+        <?php
+            $path = $_SERVER['REQUEST_URI'];
+            if(strpos($path, 'contact')) {echo 'お問い合わせ';}
+            elseif(strpos($path, 'event')) {echo 'イベント';}
+            elseif(strpos($path, 'guide')) {echo '受講ガイド';}
+            elseif(strpos($path, 'faq')) {echo 'よくある質問';}
+            elseif(strpos($path, 'user')) {echo 'ユーザー登録';}
+            elseif(strpos($path, 'login')) {echo 'ログイン';}
+            elseif(strpos($path, 'mypage')) {echo 'マイページ';}
+            elseif(strpos($path, 'tekijuku')) {echo '適塾記念会';}
+            else{echo '大阪大学【知の広場 】阪大市民講座  | 大阪大学が拓く学びの世界へ';}
+        ?>
+    </title>
     <link rel="shortcut icon" href="/common/img/favicon.ico" />
 
     <!-- Google tag (gtag.js) -->

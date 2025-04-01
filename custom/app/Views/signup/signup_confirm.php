@@ -47,3 +47,6 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
+</body>
+</html>

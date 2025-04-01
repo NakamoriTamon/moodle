@@ -53,3 +53,6 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
+</body>
+</html>

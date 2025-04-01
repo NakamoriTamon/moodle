@@ -205,6 +205,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     <?php if (isset($course['close_date'])): ?>
                                         <span style="color: red;">(申込終了)</span>
                                     <?php endif; ?>
+                                </h4>
                             </div>
                             <?php foreach ($course['details'] as $key => $detail): ?>
                                 <p class="sent">

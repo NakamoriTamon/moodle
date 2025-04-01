@@ -39,3 +39,5 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+</body>
+</html>

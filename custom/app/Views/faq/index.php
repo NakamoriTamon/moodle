@@ -120,6 +120,7 @@
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
+</body>
 <script>
     // スムーススクロール
     $(function() {
@@ -144,3 +145,4 @@
         });
     });
 </script>
+</html>

@@ -41,3 +41,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['payment_method_typ
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
+</body>
+</html>

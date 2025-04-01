@@ -34,4 +34,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['payment_method_typ
     <li>仮申し込み完了</li>
 </ul>
 
+
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+</body>
+</html>

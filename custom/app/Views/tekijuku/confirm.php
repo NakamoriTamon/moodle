@@ -158,8 +158,9 @@ global $old_input;
     <li><a href="/custom/app/Views/tekijuku/registrate.php">会員登録</a></li>
     <li>会員登録確認</li>
 </ul>
-
+</body>
 </html>
 
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
+
