@@ -1020,8 +1020,19 @@ select {
     height: 40px;
   }
   #header .header_tool .search button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 10px;
     width: 18px;
     height: 18px;
+  }
+  #header .header_tool .search button::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
   #header .header_hbg {
     position: relative;

@@ -148,7 +148,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         </li>
                     </ul>
                     <div class="agree">
-                        <p class="agree_txt">個人情報の取扱いについて</p>
+                        <a href="https://www.osaka-u.ac.jp/ja/guide/disclosure/kojinjoho">個人情報の取扱いについて</a>
                         <label for="agree"><input type="checkbox" id="agree" />同意する</label>
                     </div>
                     <div class="form_btn">
