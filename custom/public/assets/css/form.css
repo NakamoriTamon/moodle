@@ -185,7 +185,6 @@
 #form .form_cont .agree a {
   display: inline;
   text-decoration: underline;
-  color: #002880;
 }
 #form .form_cont .agree .agree_txt {
   flex: 1;
