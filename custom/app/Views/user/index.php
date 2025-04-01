@@ -212,6 +212,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                             <input type="checkbox" name="agree" id="agree" value="1" <?= !empty($old_input['agree']) ? "checked" : ''; ?> disabled />同意する
                         </label>
                     </div>
+                    <div class="agree_note">
+                        <p class="note">※プライバシーポリシーを確認後、「同意する」チェックボックスが有効になります。</p>
+                    </div>
                     <div class="form_btn">
                         <input id="submit" type="submit" disabled class="btn btn_red" value="この内容で仮登録する" />
                     </div>
