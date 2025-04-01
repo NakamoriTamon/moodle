@@ -263,7 +263,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
     </div>
 </div>
 
-<ul id="pankuzu" class="inner_l">
+<ul id="pankuzu" class="inner_l scrollable-breadcrumb">
     <li><a href="/custom/app/Views/index.php">トップページ</a></li>
     <li><a href="/custom/app/Views/event/index.php">イベント一覧</a></li>
     <li><?= htmlspecialchars($event['name']); ?></li>
