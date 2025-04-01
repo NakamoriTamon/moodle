@@ -106,7 +106,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                         <p>ログイン</p>
                     </a>
                 <?php else: ?>
-                    <a href="/custom/app/Views/mypage/index.php" class="btn_h btn_login">
+                    <a href="/custom/app/Views/mypage/index.php" class="btn_full btn_login">
                         <p>マイページ</p>
                     </a>
                 <?php endif; ?>
@@ -128,12 +128,18 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
             <span class="txt">MENU</span>
         </div>
         <div class="header_bottom nopc">
-            <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
-                <p>ユーザー登録</p>
-            </a>
-            <a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?> class="btn_h btn_login">
-                <p>ログイン<span>（マイページ）</span></p>
-            </a>
+            <?php if (empty($login_id)): ?>
+                <a href="/custom/app/Views/user/index.php" class="btn_h btn_user">
+                    <p>ユーザー登録</p>
+                </a>
+                <a href="/custom/app/Views/login/index.php" class="btn_h btn_login">
+                    <p>ログイン</p>
+                </a>
+            <?php else: ?>
+                <a href="/custom/app/Views/mypage/index.php" class="btn_full btn_login">
+                    <p>マイページ</p>
+                </a>
+            <?php endif; ?>
         </div>
     </header>
     <!-- header -->

@@ -326,6 +326,45 @@ select {
   font-size: 10px;
   font-size: 1rem;
 }
+.btn_full {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.btn_full.btn_full::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  width: 15px;
+  height: 15px;
+}
+.btn_full.btn_user {
+  background: #ef7454;
+}
+.btn_full.btn_user::before {
+  background: url(../../common/img/icon_user.svg) no-repeat center / contain;
+}
+.btn_full.btn_login {
+  background: #002880;
+}
+.btn_full.btn_login::before {
+  background: url(../../common/img/icon_login.svg) no-repeat center / contain;
+}
+.btn_full p {
+  text-align: center;
+}
+.btn_full span {
+  display: block;
+  font-size: 10px;
+  font-size: 1rem;
+}
 .box_bottom_btn {
   margin: 80px auto 0;
 }
@@ -445,6 +484,11 @@ select {
 #header .header_tool .btn_h {
   position: relative;
   width: calc(50% - 5px);
+  height: 40px;
+}
+#header .header_tool .btn_full {
+  position: relative;
+  width: calc(100% - 5px);
   height: 40px;
 }
 #header .header_tool .search {
@@ -956,6 +1000,14 @@ select {
   #header .header_tool .btn_h::before {
     position: initial;
   }
+  #header .header_tool .btn_full {
+    flex-direction: row;
+    gap: 10px;
+    width: calc(100% - 2.5%);
+  }
+  #header .header_tool .btn_full::before {
+    position: initial;
+  }
   #header .header_tool .btn_user {
     order: 2;
   }
@@ -1034,6 +1086,13 @@ select {
     height: 50px;
   }
   #header .header_bottom .btn_h::before {
+    left: 20px;
+  }
+  #header .header_bottom .btn_full {
+    width: 100%;
+    height: 50px;
+  }
+  #header .header_bottom .btn_full::before {
     left: 20px;
   }
 }
@@ -1129,6 +1188,10 @@ select {
     height: 10px;
   }
   .btn_h {
+    border-radius: 0;
+    line-height: 1.3;
+  }
+  .btn_full {
     border-radius: 0;
     line-height: 1.3;
   }
