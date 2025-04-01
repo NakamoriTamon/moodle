@@ -264,6 +264,11 @@
   height: 20px;
   background: url(../common/img/icon_mail.svg) no-repeat center / contain;
 }
+#detail .detail_page_a{
+  display: inline;
+  color: #81bfda;
+  text-decoration: underline !important;
+}
 
 /*-------------------------------------
  EVENT MOVIE #movie 
@@ -477,7 +482,11 @@
     width: 20px;
     height: 15px;
   }
-
+  #detail .detail_page_a{
+    display: inline;
+    color: #81bfda;
+    text-decoration: underline !important;
+  }
   /*REGISTERED modal
  -------------------------------------*/
   #modal.modal_pdf .modal_cont {
