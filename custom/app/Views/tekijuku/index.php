@@ -23,10 +23,6 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                     適塾記念会では、設立以来現在に至るまで、
                     市民の皆様とともに適塾と緒方洪庵の事績を研究・顕彰し、その成果を会誌『適塾』や、適塾特別展示、適塾講座などの形で一般に公開し
                     ています。適塾記念会に入会いただくと適塾に何度でも参観できたり、会員のみが参加できるイベントに参加できたり等の特典があります。
-                    なお、適塾記念会の沿革や活動などの詳細については、<a
-                        href="https://www.tekijuku.osaka-u.ac.jp/ja"
-                        target="_blank">適塾記念センターのホームページ</a>
-                    をご覧ください。
                 </p>
                 <!-- <img src="/custom/public/assets/common/img/img_juku.png" alt="" /> -->
             </div>
