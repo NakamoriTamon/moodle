@@ -20,9 +20,11 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
         <section id="juku">
             <div class="juku_about01">
                 <p class="desc sent">
-                    適塾記念会では、昭和27年(1952)の設立以来、現在に至るまで、適塾に関する研究・顕彰活動を、市民の皆様とともに進めて来ました。その成果は会誌『適塾』や、適塾特別展示、適塾講座などの形で一般に公開しています。 適塾記念会に入会いただくと、適塾の参観料が無料となる等、下記の特典があります。適塾記念会の活動に賛同いただける方は、ぜひご入会ください。 <br>
-                    なお、適塾記念会の沿革や活動等の詳細については、<a class="tekijuku-page-a" href=" https://www.tekijuku.osaka-u.ac.jp/ja"
-                        target="_blank">適塾記念センターのホームページ</a> をご覧ください。
+                    適塾記念会では、昭和27年(1952)の設立以来、現在に至るまで、適塾に関する研究・顕彰活動を、市民の皆様とともに進めて来ました。
+                    その成果は会誌『適塾』や、適塾特別展示、適塾講座などの形で一般に公開しています。 適塾記念会に入会いただくと、適塾の参観料が無料となる等、
+                    下記の特典があります。適塾記念会の活動に賛同いただける方は、ぜひご入会ください。
+                    なお、適塾記念会の沿革や活動等の詳細については、
+                    <a href="https://www.tekijuku.osaka-u.ac.jp/ja" target="_blank">適塾記念センターのホームページ</a> をご覧ください。
                 </p>
                 <!-- <img src="/custom/public/assets/common/img/img_juku.png" alt="" /> -->
             </div>
@@ -31,8 +33,8 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                     <div class="juku_about-txt">
                         <h2 class="juku_about-txt__ttl">適塾について</h2>
                         <p class="sent">
-                            大阪市中央区北浜のオフィス街に建つ適塾は、国の重要文化財に指定されている歴史的建造物です。現存唯一の蘭学塾遺構であり、大阪の町家として最古級に属す点で貴重です。<br>
-                            適塾は天保9年(1838)、 幕末の蘭医学研究所の第一人者とされる緒方洪庵(1810～1863)により開設されました。洪庵は西洋医学研究や感染症対策に尽力し、医学史上に多くの業績を残しました。教育では福沢諭吉・大村益次郎・橋本左内・長与専斎等、日本の近代化に貢献する幾多の人物を育成しました。<br>
+                            大阪市中央区北浜のオフィス街に建つ適塾は、国の重要文化財に指定されている歴史的建造物です。現存唯一の蘭学塾遺構であり、大阪の町家として最古級に属す点で貴重です。
+                            適塾は天保9年(1838)、 幕末の蘭医学研究所の第一人者とされる緒方洪庵(1810～1863)により開設されました。洪庵は西洋医学研究や感染症対策に尽力し、医学史上に多くの業績を残しました。教育では福沢諭吉・大村益次郎・橋本左内・長与専斎等、日本の近代化に貢献する幾多の人物を育成しました。
                             適塾建物は昭和17年(1942)、緒方家より国に寄付されて以来、大阪大学が管理しています。
                         </p>
                     </div>
@@ -116,4 +118,5 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 </body>
+
 </html>
