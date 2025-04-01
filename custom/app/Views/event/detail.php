@@ -184,7 +184,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                     </ul>
                                     <?php if (!empty($event['inquiry_mail']) && $event['event_status'] != EVENT_END): ?>
                                         <ul class="inquiry inner_s sent" style="display: flex;">
-                                            <li>【お問い合わせ窓口】<a href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>"><?= htmlspecialchars($event['inquiry_mail']) ?></a></li>
+                                            <li>【お問い合わせ窓口】<a class="detail_page_a" href="/custom/app/Views/contact/index.php?event_id=<?= $event['id'] ?>"><?= htmlspecialchars($event['inquiry_mail']) ?></a></li>
                                         </ul>
                                     <?php endif; ?>
                                 </div>
