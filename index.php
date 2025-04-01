@@ -1,146 +1,237 @@
-<?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php');
+$now = new DateTime();
+$now = $now->format('Ymd');
+?>
+<link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
+<main>
+    <section id="mv">
+        <img
+            src="/custom/public/assets/img/home/mv.png"
+            alt="大阪大学 社会と未来、学びをつなぐ"
+            class="mv_img nosp" />
+        <img
+            src="/custom/public/assets/img/home/mv-sp.png"
+            alt="大阪大学 社会と未来、学びをつなぐ"
+            class="mv_img nopc" />
+        <p class="mv_scroll nosp">SCROLL</p>
+    </section>
+    <!-- mv -->
 
-/**
- * Moodle frontpage.
- *
- * @package    core
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+    <section id="about">
+        <div class="about_cont inner_l">
+            <h2 class="ttl_home">
+                <span class="en">ABOUT</span>
+                大阪大学<br />「知の広場」とは？
+            </h2>
+            <p class="sent">
+                緒方洪庵が江戸末期の大坂に開いた蘭学塾「適塾」には、福沢諭吉をはじめ全国から多くの塾生が集い、ともに切磋琢磨しながら学びました。<br />
+                大阪大学「知の広場」は、大阪大学の精神的源流である適塾のように、大阪大学が主催する市民向け講座や子ども向けイベントなど、多様な学びに触れることのできる開かれた広場です。<br />
+                地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。<br />
+                あなたも、大阪大学が拓く学びの世界へ。
+            </p>
+        </div>
+        <div class="swiper about_swiper01">
+            <ul class="swiper-wrapper">
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide01.jpg" alt="" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide02.jpg" alt="" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide03.jpg" alt="" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide04.jpg" alt="" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide05.jpg" alt="" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/about_slide06.jpg" alt="" /></li>
+            </ul>
+        </div>
+        <div class="swiper about_swiper02">
+            <ul class="swiper-wrapper">
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
+                <li class="swiper-slide"><img src="/custom/public/assets/img/home/deco_text.svg" alt="UOsaka" /></li>
+            </ul>
+        </div>
+    </section>
+    <!-- about -->
 
-if (!file_exists('./config.php')) {
-    header('Location: install.php');
-    die;
-}
+    <section id="new">
+        <div class="new_head inner_l">
+            <h2 class="ttl_home">
+                <span class="en">NEW ARRIVAL</span>
+                新着イベント
+            </h2>
+            <a href="/custom/app/Views/event/index.php" class="btn btn_blue arrow nosp">全てのイベントを見る</a>
+        </div>
+        <div class="swiper new_swiper">
+            <ul class="swiper-wrapper" id="event">
+                <?php if (isset($events) && !empty($events)): ?>
+                    <?php foreach ($events as $row): ?>
+                        <li class="swiper-slide event_item">
+                            <a href="event/detail.php?id=<?= htmlspecialchars($row['id']) ?>">
+                                <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
+                                <div class="event_info">
+                                    <ul class="event_status">
+                                        <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                                            <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                                                <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
+                                                <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                            <?php endif ?>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
+                                    <div class="event_sched">
+                                        <p class="term">開催日</p>
+                                        <div class="date">
+                                            <?php if ($row['event_kbn'] != EVERY_DAY_EVENT): ?>
+                                                <?php foreach ($row['select_course'] as $no => $course): ?>
+                                                    <?php $course_date = (new DateTime($course['course_date']))->format('Ymd'); ?>
+                                                    <?php if ($course_date >= $now): ?>
+                                                        <p class="dt0<?= $no ?>"><?php if (count($row['select_course']) > 1): ?><?= $no ?>回目：<?php endif ?><?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?></p>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <?= (new DateTime($row['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($row['end_event_date']))->format('Y年m月d日'); ?>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </ul>
+            <div class="new_btns">
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </div>
+        <a href="/custom/app/Views/event/index.php" class="btn btn_blue arrow nopc">全てのイベントを見る</a>
+    </section>
+    <!-- new -->
 
-require_once('config.php');
-require_once($CFG->dirroot .'/course/lib.php');
-require_once($CFG->libdir .'/filelib.php');
+    <section id="search" class="inner_l">
+        <h2 class="ttl_home">
+            <span class="en">SEARCH</span>
+            イベント検索
+        </h2>
+        <!-- とりあえずイベント一覧へ飛ばします！！ -->
+        <form method="" action="/custom/app/Controllers/event/event_controller.php" id="search_cont" class="whitebox">
+            <input type="hidden" name="action" value="index">
+            <div class="inner_s">
+                <ul class="search_list">
+                    <li>
+                        <p class="term">開催ステータス</p>
+                        <div class="field f_check">
+                            <?php foreach (DISPLAY_EVENT_STATUS_LIST as $key => $name): ?>
+                                <label><input type="checkbox" id="event_status" name="event_status[]" value="<?= $key ?>" <?php if (isset($old_input['event_status'])) echo in_array($key, $old_input['event_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">
+                            申し込み<br />
+                            ステータス
+                        </p>
+                        <div class="field f_check">
+                            <?php foreach (DISPLAY_DEADLINE_LIST as $key => $name): ?>
+                                <label><input type="checkbox" id="deadline_status" name="deadline_status[]" value="<?= $key ?>" <?php if (isset($old_input['deadline_status'])) echo in_array($key, $old_input['deadline_status']) ? 'checked' : ''; ?> /><?= $name ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">イベント形式</p>
+                        <div class="field f_check">
+                            <?php foreach ($lectureFormats as $lectureFormat): ?>
+                                <label><input type="checkbox" id="lecture_format_id" name="lecture_format_id[]" value="<?= htmlspecialchars($lectureFormat['id']) ?>" <?php if (isset($old_input['lecture_format_id'])) echo in_array($lectureFormat['id'], $old_input['lecture_format_id']) ? 'checked' : ''; ?> /><?= htmlspecialchars($lectureFormat['name']) ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">対象</p>
+                        <div class="field f_select select">
+                            <select name="target">
+                                <option value="">選択してください</option>
+                                <?php foreach ($targets as $target): ?>
+                                    <option value="<?= htmlspecialchars($target['id']) ?>"
+                                        <?= isSelected($target['id'], $eventData['target'] ?? null, $old_input['target'] ?? null) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($target['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">キーワード</p>
+                        <div class="field f_txt">
+                            <input type="text" name="keyword" value="<?php if (isset($old_input['keyword'])) echo $old_input['keyword']; ?>" placeholder="検索するキーワードを入力" />
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">開催日時</p>
+                        <div class="field f_date">
+                            <p>
+                                <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
+                            </p>
+                            <span>～</span>
+                            <p>
+                                <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="term">カテゴリー</p>
+                        <div class="field" id="category">
+                            <?php foreach ($categorys as $row): ?>
+                                <div class="cat_item category0<?= htmlspecialchars($row['id']) ?>">
+                                    <input type="checkbox" id="cat0<?= htmlspecialchars($row['id']) ?>" name="category[]" value="<?= htmlspecialchars($row['id']) ?>" <?php if (isset($old_input['category'])) echo in_array($row['id'], $old_input['category']) ? 'checked' : ''; ?> />
+                                    <label for="cat0<?= htmlspecialchars($row['id']) ?>" class="cat_btn <?= empty($row['path']) ? 'justify_center' : ''; ?>">
+                                        <?php if (!empty($row['path'])) { ?>
+                                            <object
+                                                type="image/svg+xml"
+                                                data="<?= htmlspecialchars($row['path']) ?>"
+                                                class="obj"></object>
+                                        <?php } ?>
+                                        <p class="txt"><?= htmlspecialchars($row['name']) ?></p>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </li>
+                </ul>
+                <div class="search_btn">
+                    <button type="button" class="btn btn_clear" id="clear_button">クリア</button>
+                    <button type="submit" class="btn btn_red">検索する</button>
+                </div>
+            </div>
+        </form>
+    </section>
+    <!-- search -->
 
-redirect_if_major_upgrade_required();
+    <section id="juku">
+        <div class="juku_cont inner_l">
+            <div class="img"><img src="/custom/public/assets/img/home/juku.png" alt="" /></div>
+            <div class="desc">
+                <h2 class="ttl_home">
+                    <span class="en">ABOUT TEKIJUKU</span>
+                    適塾記念会について
+                </h2>
+                <p class="sent">
+                    適塾記念センターでは、一般の方もご参加いただけるイベントを開催しております。<br />
+                    適塾に何度でも参観できたり、会員のみが参加できるイベントに参加できたり等の特典があります。
+                </p>
+                <a href="tekijuku/index.php" class="btn btn_blue arrow">詳しくはこちら</a>
+            </div>
+        </div>
+    </section>
+    <!-- juku -->
+</main>
 
-// Redirect logged-in users to homepage if required.
-$redirect = optional_param('redirect', 1, PARAM_BOOL);
+<?php if (empty($login_id)): ?>
+    <a href="/custom/app/Views/user/index.php" id="mascot"><img src="/custom/public/assets/img/home/mascot.png" alt="" /></a>
+<?php endif; ?>
 
-$urlparams = array();
-if (!empty($CFG->defaulthomepage) &&
-        ($CFG->defaulthomepage == HOMEPAGE_MY || $CFG->defaulthomepage == HOMEPAGE_MYCOURSES) &&
-        $redirect === 0
-) {
-    $urlparams['redirect'] = 0;
-}
-$PAGE->set_url('/', $urlparams);
-$PAGE->set_pagelayout('frontpage');
-$PAGE->add_body_class('limitedwidth');
-$PAGE->set_other_editing_capability('moodle/course:update');
-$PAGE->set_other_editing_capability('moodle/course:manageactivities');
-$PAGE->set_other_editing_capability('moodle/course:activityvisibility');
+<?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
+<script src="/custom/public/assets/js/home.js"></script>
+<script src="/custom/public/assets/js/search_input_reset.js"></script>
+</body>
 
-// Prevent caching of this page to stop confusion when changing page after making AJAX changes.
-$PAGE->set_cacheable(false);
-
-require_course_login($SITE);
-
-$hasmaintenanceaccess = has_capability('moodle/site:maintenanceaccess', context_system::instance());
-
-// If the site is currently under maintenance, then print a message.
-if (!empty($CFG->maintenance_enabled) and !$hasmaintenanceaccess) {
-    print_maintenance_message();
-}
-
-$hassiteconfig = has_capability('moodle/site:config', context_system::instance());
-
-if ($hassiteconfig && moodle_needs_upgrading()) {
-    redirect($CFG->wwwroot .'/'. $CFG->admin .'/index.php');
-}
-
-// If site registration needs updating, redirect.
-\core\hub\registration::registration_reminder('/index.php');
-
-$homepage = get_home_page();
-if ($homepage != HOMEPAGE_SITE) {
-    if (optional_param('setdefaulthome', false, PARAM_BOOL)) {
-        set_user_preference('user_home_page_preference', HOMEPAGE_SITE);
-    } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_MY) && $redirect === 1) {
-        // At this point, dashboard is enabled so we don't need to check for it (otherwise, get_home_page() won't return it).
-        redirect($CFG->wwwroot .'/my/');
-    } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_MYCOURSES) && $redirect === 1) {
-        redirect($CFG->wwwroot .'/my/courses.php');
-    } else if ($homepage == HOMEPAGE_URL) {
-        redirect(get_default_home_page_url());
-    } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_USER)) {
-        $frontpagenode = $PAGE->settingsnav->find('frontpage', null);
-        if ($frontpagenode) {
-            $frontpagenode->add(
-                get_string('makethismyhome'),
-                new moodle_url('/', array('setdefaulthome' => true)),
-                navigation_node::TYPE_SETTING);
-        } else {
-            $frontpagenode = $PAGE->settingsnav->add(get_string('frontpagesettings'), null, navigation_node::TYPE_SETTING, null);
-            $frontpagenode->force_open();
-            $frontpagenode->add(get_string('makethismyhome'),
-                new moodle_url('/', array('setdefaulthome' => true)),
-                navigation_node::TYPE_SETTING);
-        }
-    }
-}
-
-// Trigger event.
-course_view(context_course::instance(SITEID));
-
-$PAGE->set_pagetype('site-index');
-$PAGE->set_docs_path('');
-$editing = $PAGE->user_is_editing();
-$PAGE->set_title(get_string('home'));
-$PAGE->set_heading($SITE->fullname);
-$PAGE->set_secondary_active_tab('coursehome');
-
-$courserenderer = $PAGE->get_renderer('core', 'course');
-
-if ($hassiteconfig) {
-    $editurl = new moodle_url('/course/view.php', ['id' => SITEID, 'sesskey' => sesskey()]);
-    $editbutton = $OUTPUT->edit_button($editurl);
-    $PAGE->set_button($editbutton);
-}
-
-echo $OUTPUT->header();
-
-$siteformatoptions = course_get_format($SITE)->get_format_options();
-$modinfo = get_fast_modinfo($SITE);
-$modnamesused = $modinfo->get_used_module_names();
-
-// Print Section or custom info.
-if (!empty($CFG->customfrontpageinclude)) {
-    // Pre-fill some variables that custom front page might use.
-    $modnames = get_module_types_names();
-    $modnamesplural = get_module_types_names(true);
-    $mods = $modinfo->get_cms();
-
-    include($CFG->customfrontpageinclude);
-
-} else if ($siteformatoptions['numsections'] > 0) {
-    echo $courserenderer->frontpage_section1();
-}
-// Include course AJAX.
-include_course_ajax($SITE, $modnamesused);
-
-echo $courserenderer->frontpage();
-
-if ($editing && has_capability('moodle/course:create', context_system::instance())) {
-    echo $courserenderer->add_new_course_button();
-}
-echo $OUTPUT->footer();
+</html>
