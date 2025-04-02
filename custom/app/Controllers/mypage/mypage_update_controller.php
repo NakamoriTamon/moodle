@@ -210,6 +210,9 @@ class MypageUpdateController
         $name = htmlspecialchars(required_param('tekijuku_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['tekijuku_name'] = validate_text($name, 'お名前', $name_size, true);
         $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        if (!empty($kana)) {
+            $kana = preg_replace('/[\x{3000}\s]/u', '', $kana);
+        }
         $_SESSION['errors']['kana'] = validate_kana($kana, $name_size);
 
         $post_code = htmlspecialchars(required_param('post_code', PARAM_TEXT), ENT_QUOTES, 'UTF-8');

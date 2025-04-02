@@ -430,7 +430,11 @@ unset(
             </div>
         </div>
 
-        <?php if ($tekijuku_commemoration !== false && ((int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])): ?>
+        <?php
+        if (
+            $tekijuku_commemoration !== false &&
+            ((int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'] || $tekijuku_commemoration['is_deposit_' . $current_fiscal_year] == 1)
+        ): ?>
             <div id="tekijuku_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">適塾記念会 会員情報
