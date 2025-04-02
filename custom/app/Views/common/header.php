@@ -60,7 +60,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                                         } elseif (strpos($path, 'user')) {
                                             echo '新規ユーザー登録をしていただけます。';
                                         } else {
-                                            echo '大阪大学【知の広場】阪大市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。';
+                                            echo '大阪大学【知の広場】ハンダイ市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。';
                                         }
                                         ?>" />
     <title>
@@ -123,14 +123,14 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
     </title>
 
     <meta property="og:title" content="大阪大学【知の広場】ハンダイ市民講座｜社会と未来、学びをつなぐ・・">
-    <meta property="og:description" content="大阪大学【知の広場】阪大市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、
+    <meta property="og:description" content="大阪大学【知の広場】ハンダイ市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、
     多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。">
     <meta property="og:image" content="https://open-univ.osaka-u.ac.jp/custom/public/assets/img/home/ogp.jpg">
     <meta property="og:url" content="https://open-univ.osaka-u.ac.jp/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="大阪大学【知の広場】ハンダイ市民講座｜社会と未来、学びをつなぐ・・">
-    <meta name="twitter:description" content="大阪大学【知の広場】阪大市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、
+    <meta name="twitter:description" content="大阪大学【知の広場】ハンダイ市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、
     多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。">
     <meta name="twitter:image" content="https://open-univ.osaka-u.ac.jp/custom/public/assets/img/home/ogp.jpg">
 
