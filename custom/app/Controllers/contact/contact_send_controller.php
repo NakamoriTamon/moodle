@@ -31,9 +31,9 @@ try {
     if (is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
-        $inquiry_mail = empty($event["inquiry_mail"]) ? $_ENV['MAIL_FROM_ADRESS'] : $event["inquiry_mail"];
+        $inquiry_mail = empty($event["inquiry_mail"]) ? $_ENV['CONTACT_MAIL_FROM_ADDRESS'] : $event["inquiry_mail"];
     } else {
-        $inquiry_mail = $_ENV['MAIL_FROM_ADRESS'];
+        $inquiry_mail = $_ENV['CONTACT_MAIL_FROM_ADDRESS'];
     }
 
     $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
