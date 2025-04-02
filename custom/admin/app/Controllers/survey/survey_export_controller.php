@@ -3,11 +3,18 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationCustomfieldModel.php');
 // 必要なモデルのrequire文
 
 try {
+    $delimiter = "|"; // 区切り文字
     $surveyApplicationModel = new SurveyApplicationModel();
+    $eventModel = new EventModel();
+    $eventSurveyCustomFieldModel = new EventSurveyCustomFieldModel();
+    $surveyApplicationCustomfieldModel = new SurveyApplicationCustomfieldModel();
 
     $course_info_id = $_POST['course_info_id'];
     $event_id = $_POST['event_id'];
@@ -28,13 +35,6 @@ try {
         } else {
             $path_name = $survey['event']['name'];
         }
-    }
-
-    // アンケート時間集計
-    foreach ($survey_list as $survey) {
-        $start = strtotime($survey['event']["start_hour"]);
-        $end = strtotime($survey['event']["end_hour"]);
-        $survey_period = ($end - $start) / 60;
     }
 
     // CSVヘッダー
@@ -61,12 +61,44 @@ try {
         'お住いの地域を教えてください（〇〇県△△市のようにご回答ください'
     ];
 
+    // アンケート時間集計
+    foreach ($survey_list as &$survey) {
+        $start = strtotime($survey['event']["start_hour"]);
+        $end = strtotime($survey['event']["end_hour"]);
+        $survey_period = ($end - $start) / 60;
+
+        $event = $eventModel->getEventById($event_id);
+        // アンケートカスタムフィールドの名称を取得
+        $survey_field_list = $eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($event['event_survey_customfield_category_id']);
+        foreach($survey_field_list as $field) {
+            $csv_list[0][] = $field['name'];
+        }
+        // アンケートカスタムフィールドの入力値を取得
+        $list = $surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
+
+        $survey['customfiel'] = $list;
+    }
+
     // データの書き込み
     $count = 1;
     foreach ($survey_list as $survey) {
         $attend = DECISION_LIST[$survey['attend']]; // 参加経験
-        $found_method = FOUND_METHOD_LIST[$survey['found_method']]; // プログラムを知った方法
-        $reason = REASON_LIST[$survey['reason']]; // 受講理由
+        $found_num_list = array_map('trim', explode(",", $survey['found_method']));
+        $found_method = "";
+        foreach($found_num_list as $index =>$row) {
+            if($index != 0) {
+                $found_method .= $delimiter;
+            }
+            $found_method .= FOUND_METHOD_LIST[$row]; // プログラムを知った方法
+        }
+        $reason_num_list = array_map('trim', explode(",", $survey['reason']));
+        $reason = "";
+        foreach($reason_num_list as $index =>$row) {
+            if($index != 0) {
+                $reason .= $delimiter;
+            }
+            $reason .= REASON_LIST[$row]; // プログラムを知った方法
+        }
         $satisfaction = SATISFACTION_LIST[$survey['satisfaction']]; // 満足度
         $understanding = UNDERSTANDING_LIST[$survey['understanding']];  // 理解度
         $good_point = GOOD_POINT_LIST[$survey['good_point']];  // 良かった点
@@ -90,13 +122,21 @@ try {
             $survey['other_good_point'],
             $time,
             $holding_environment,
-            $survey['no_good_enviroment_reason'],
+            $survey['no_good_environment_reason'],
             $survey['lecture_suggestions'],
             $survey['speaker_suggestions'],
             $work,
             $sex,
             $survey['prefectures'] . $survey['address']
         ];
+        foreach($survey['customfiel'] as $customfiel) {
+            $key = array_search("checkbox", $customfield_type_list, true);
+            if($customfiel['field_type'] == $key) {
+                $csv_array[] = str_replace(',', '|', $customfiel['input_data']);
+            } else {
+                $csv_array[] = $customfiel['input_data'];
+            }
+        }
         $csv_list[$count] = $csv_array;
         $count++;
     }

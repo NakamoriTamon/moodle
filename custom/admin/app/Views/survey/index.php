@@ -17,6 +17,7 @@ $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $survey_list = $result_list['survey_list'];
 $survey_period = $result_list['survey_period'];
+$survey_field_list = $result_list['survey_field_list'] ?? [];
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -162,6 +163,9 @@ $page = $result_list['page'];
 											<th class="w-25 p-4">ご職業等を教えてください</th>
 											<th class="w-25 p-4">性別をご回答ください</th>
 											<th class="w-25 p-4">お住いの地域を教えてください（〇〇県△△市のようにご回答ください</th>
+											<?php foreach($survey_field_list as $survey_field): ?>
+												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
+											<?php endforeach; ?>
 										</tr>
 									</thead>
 									<tbody>
@@ -172,11 +176,11 @@ $page = $result_list['page'];
 											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction']));
 											?>
 											<tr>
-												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at']))) ?></td>
-												<td class="p-4"><?= htmlspecialchars('第' . $survey['course_info']['no'] . '回') ?></td>
-												<td class="p-4"><?= htmlspecialchars($survey['thoughts']) ?></td>
+												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at'] ?? ''))) ?></td>
+												<td class="p-4"><?= htmlspecialchars('第' . $survey['course_info']['no'] ?? '' . '回') ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['thoughts'] ?? '') ?></td>
 												<td class="p-4">
-													<?= htmlspecialchars(DECISION_LIST[$survey['attend']]) ?>
+													<?= htmlspecialchars(DECISION_LIST[$survey['attend']] ?? '') ?>
 												</td>
 												<td class="p-4">
 													<?php
@@ -187,39 +191,42 @@ $page = $result_list['page'];
 													<?php } ?>
 												</td>
 												<td class="p-4">
-													<?= htmlspecialchars($survey['other_found_method']) ?>
+													<?= htmlspecialchars($survey['other_found_method'] ?? '') ?>
 												</td>
 												<td class="p-4">
 													<?php
 													$last_key = count($reason_num_list) - 1;
 													foreach ($reason_num_list as $key => $reason_num) { ?>
-														<?= htmlspecialchars(REASON_LIST[$reason_num]) ?>
+														<?= htmlspecialchars(REASON_LIST[$reason_num] ?? '') ?>
 														<?= $key !== $last_key ? ',' : ''; ?>
 													<?php } ?>
 												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['other_reason']) ?></td>
 												<td class="p-4">
-													<?= htmlspecialchars(SATISFACTION_LIST[$survey['satisfaction']]) ?>
+													<?= htmlspecialchars(SATISFACTION_LIST[$survey['satisfaction']] ?? '') ?>
 												</td>
 												<td class="p-4">
-													<?= htmlspecialchars(UNDERSTANDING_LIST[$survey['understanding']]) ?>
+													<?= htmlspecialchars(UNDERSTANDING_LIST[$survey['understanding']] ?? '') ?>
 												</td>
 												<td class="p-4">
-													<?= htmlspecialchars(GOOD_POINT_LIST[$survey['good_point']]) ?>
+													<?= htmlspecialchars(GOOD_POINT_LIST[$survey['good_point']] ?? '') ?>
 												</td>
-												<td class="p-4"><?= htmlspecialchars($survey['other_good_point']) ?></td>
-												<td class="p-4"><?= htmlspecialchars(TIME_LIST[$survey['time']]) ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['other_good_point'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars(TIME_LIST[$survey['time']] ?? '') ?></td>
 												<td class="p-4">
-													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]) ?>
+													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] ?? '') ?>
 												</td>
-												<td class="p-4"><?= htmlspecialchars($survey['no_good_enviroment_reason']) ?></td>
-												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions']) ?></td>
-												<td class="p-4"><?= htmlspecialchars($survey['speaker_suggestions']) ?></td>
-												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']]) ?></td>
-												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']]) ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['no_good_enviroment_reason'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['speaker_suggestions'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']] ?? '') ?></td>
 												<td class="p-4">
-													<?= htmlspecialchars($survey['prefectures'] . $survey['address']) ?>
+													<?= htmlspecialchars($survey['prefectures'] ?? '' . $survey['address'] ?? '') ?>
 												</td>
+												<?php foreach($survey['customfiel'] as $customfiel): ?>
+													<td class="p-4"><?= htmlspecialchars($customfiel['input_data'] ?? '') ?></td>
+												<?php endforeach; ?>
 											</tr>
 										<?php endforeach; ?>
 									</tbody>

@@ -18,8 +18,8 @@ $sql = "SELECT r.id, r.shortname
 $params = ['userid' => $userid];
 
 $roles = $DB->get_records_sql($sql, $params);
-foreach ($roles as $role) {
-    $shortname = $role->shortname;
+foreach ($roles as $row) {
+    $shortname = $row->shortname;
 }
 
 $eventModel = new EventModel();

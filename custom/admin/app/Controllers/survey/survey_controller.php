@@ -4,6 +4,9 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/SurveyApplicationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventSurveyCustomFieldModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/SurveyApplicationCustomfieldModel.php');
+
 global $DB;
 class SurveyController
 {
@@ -11,12 +14,16 @@ class SurveyController
     private $categoryModel;
     private $eventModel;
     private $surveyApplicationModel;
+    private $eventSurveyCustomFieldModel;
+    private $surveyApplicationCustomfieldModel;
 
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
         $this->eventModel = new EventModel();
         $this->surveyApplicationModel = new SurveyApplicationModel();
+        $this->eventSurveyCustomFieldModel = new EventSurveyCustomFieldModel();
+        $this->surveyApplicationCustomfieldModel = new SurveyApplicationCustomfieldModel();
     }
 
     public function index()
@@ -80,6 +87,7 @@ class SurveyController
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
+        $event_survey_customfield_category_id = null;
 
         // 部門管理者ログイン時は自身が作成したイベントのみを取得する
         if ($role->roleid == ROLE['COURSECREATOR']) {
@@ -98,6 +106,7 @@ class SurveyController
         // イベント情報を特定する
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
+                $event_survey_customfield_category_id = $event['event_survey_customfield_category_id'];
                 // 単発イベントの場合
                 if ($event['event_kbn'] == 1) {
                     foreach ($event['course_infos'] as $course_info) {
@@ -121,11 +130,19 @@ class SurveyController
         }
 
         $survey_list = [];
+        $survey_field_list = [];
         $total_count = 0;
         $survey_period = null;
         if (!empty($course_info_id) || !empty($event_id)) {
             $survey_list = $this->surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, $current_page);
             $total_count = $this->surveyApplicationModel->getCountSurveyApplications($course_info_id, $event_id);
+            if(!empty($event_survey_customfield_category_id)) {
+                $survey_field_list = $this->eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($event_survey_customfield_category_id);
+                foreach($survey_list as &$survey) {
+                    $list = $this->surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
+                    $survey['customfiel'] = $list;
+                }
+            }
         }
 
         // アンケート時間集計
@@ -156,6 +173,7 @@ class SurveyController
             'current_page' => $current_page,
             'page' => $current_page,
             'survey_period' => $survey_period,
+            'survey_field_list' => $survey_field_list,
         ];
 
         return $data;
