@@ -342,7 +342,7 @@ unset(
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item08">
+                                <li class="list_item08 <?= $birthday == ''  ? 'req' : '' ?>">
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
                                         <?php
@@ -350,14 +350,15 @@ unset(
                                         $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
                                         $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : null;
                                         ?>
-                                        <?php if (is_null($birthday_formatted)): ?>
+                                        <?php if ($birthday == ''): ?>
+                                            <?php $birthday_date = $birthday_date ? $birthday_date->format('Y-m-d') : ''; ?>
                                             <input type="date" name="birthday" value="<?= htmlspecialchars($birthday_date) ?>" />
                                         <?php else: ?>
                                             <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
                                             <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
                                         <?php endif ?>
                                         <?php if (!empty($errors['birthday'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
+                                            <div class="error-msg mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
                                         <?php endif; ?>
                                     </div>
                                 </li>
@@ -812,23 +813,23 @@ unset(
                     </div>
             </div>
         </div>
-        <?php endif; ?>
-        </div>
-        <?php if ($allHistoryCourseDateNull): ?>
-            <div>現在までにお申込みされたイベントはございません。</div>
-        <?php endif; ?>
-        <div class="mypage_cont setting">
-            <h3 class="mypage_head">お知らせメール設定</h3>
-            <p class="sent">
-                ご登録いただいたアドレス宛にイベントの最新情報やメールマガジンをお送りいたします。<br />
-                こちらで受信の設定が可能です。不要な方はチェックを外してください。
-            </p>
-            <label class="set_check">
-                <input type="checkbox" id="email-notifications" <?php echo ($user->notification_kbn == 1) ? 'checked' : ''; ?> /> 受け取る
-            </label>
-            <div id="notification-message" style="display:none;"></div>
-            <a href="/custom/app/Views/logout/index.php" class="btn btn_red box_bottom_btn arrow">ログアウト</a>
-        </div>
+    <?php endif; ?>
+    </div>
+    <?php if ($allHistoryCourseDateNull): ?>
+        <div>現在までにお申込みされたイベントはございません。</div>
+    <?php endif; ?>
+    <div class="mypage_cont setting">
+        <h3 class="mypage_head">お知らせメール設定</h3>
+        <p class="sent">
+            ご登録いただいたアドレス宛にイベントの最新情報やメールマガジンをお送りいたします。<br />
+            こちらで受信の設定が可能です。不要な方はチェックを外してください。
+        </p>
+        <label class="set_check">
+            <input type="checkbox" id="email-notifications" <?php echo ($user->notification_kbn == 1) ? 'checked' : ''; ?> /> 受け取る
+        </label>
+        <div id="notification-message" style="display:none;"></div>
+        <a href="/custom/app/Views/logout/index.php" class="btn btn_red box_bottom_btn arrow">ログアウト</a>
+    </div>
     </section>
 </main>
 
@@ -1314,4 +1315,5 @@ unset(
 </script>
 
 </body>
+
 </html>
