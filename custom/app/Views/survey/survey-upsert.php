@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $eventSurveyCustomFieldModel = new EventSurveyCustomFieldModel();
         $fieldList = $eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($eventSurveyCustomfieldCategoryId);
         foreach ($fieldList as $fields) {
-            $input_value = null;
+            $input_value = "";
             $tag_name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
             if ($fields['field_type'] == 3) {
                 $input_data = sanitize_post($tag_name);
@@ -128,9 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $params[$tag_name] = $input_value;
             }
 
-            if (!empty($input_value)) {
-                $fieldInputDataList[] = ['event_survey_customfield_id' => $fields['id'], 'field_type' => $fields['field_type'], 'input_data' => $input_value];
-            }
+            $fieldInputDataList[] = ['event_survey_customfield_id' => $fields['id'], 'field_type' => $fields['field_type'], 'input_data' => $input_value];
         }
     }
 
@@ -208,19 +206,18 @@ try {
     $record->address = $address;
     $record->prefectures = $prefectures;
 
-    $DB->insert_record_raw('survey_application', $record);
+    $surveyApplicationId = $DB->insert_record_raw('survey_application', $record, true);
 
     
     // アンケートカスタムフィールドがある場合
     if (!empty($eventSurveyCustomfieldCategoryId)) {
         foreach ($fieldInputDataList as $fieldInputData) {
             $record = new stdClass();
-            $record->event_application_id = $eventApplicationId;
-            $record->course_info_id = $courseInfoId;
+            $record->survey_application_id = $surveyApplicationId;
             $record->event_survey_customfield_id = $fieldInputData['event_survey_customfield_id'];
             $record->field_type = $fieldInputData['field_type'];
             $record->input_data = $fieldInputData['input_data'];
-            $DB->insert_record_raw('event_application_survey_customfield', $record);
+            $DB->insert_record_raw('survey_application_customfield', $record);
         }
     }
 
