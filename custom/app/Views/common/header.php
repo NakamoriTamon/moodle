@@ -43,15 +43,28 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
     <title>
         <?php
             $path = $_SERVER['REQUEST_URI'];
-            if(strpos($path, 'contact')) {echo 'お問い合わせ';}
-            elseif(strpos($path, 'event')) {echo 'イベント';}
-            elseif(strpos($path, 'guide')) {echo '受講ガイド';}
-            elseif(strpos($path, 'faq')) {echo 'よくある質問';}
-            elseif(strpos($path, 'user')) {echo 'ユーザー登録';}
-            elseif(strpos($path, 'login')) {echo 'ログイン';}
-            elseif(strpos($path, 'mypage')) {echo 'マイページ';}
-            elseif(strpos($path, 'tekijuku')) {echo '適塾記念会';}
-            else{echo '大阪大学【知の広場 】阪大市民講座  | 大阪大学が拓く学びの世界へ';}
+            $baseTitle = '大阪大学【知の広場 】阪大市民講座  | 大阪大学が拓く学びの世界へ';
+            $pageTitle = '';
+
+            if (strpos($path, 'contact')) {
+                $pageTitle = 'お問い合わせ';
+            } elseif (strpos($path, 'event')) {
+                $pageTitle = 'イベント';
+            } elseif (strpos($path, 'guide')) {
+                $pageTitle = '受講ガイド';
+            } elseif (strpos($path, 'faq')) {
+                $pageTitle = 'よくある質問';
+            } elseif (strpos($path, 'user')) {
+                $pageTitle = 'ユーザー登録';
+            } elseif (strpos($path, 'login')) {
+                $pageTitle = 'ログイン';
+            } elseif (strpos($path, 'mypage')) {
+                $pageTitle = 'マイページ';
+            } elseif (strpos($path, 'tekijuku')) {
+                $pageTitle = '適塾記念会';
+            }
+
+            echo $pageTitle ? "$pageTitle - $baseTitle" : $baseTitle;
         ?>
     </title>
     <link rel="shortcut icon" href="/common/img/favicon.ico" />
