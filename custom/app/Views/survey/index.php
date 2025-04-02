@@ -10,15 +10,21 @@ global $USER;
 // $old_input を既に取得しているので、ここで使用できる
 if (isset($_GET['course_info_id'])) {
     $course_info_id = $_GET['course_info_id'];
+    $event_application_id = $_GET['event_application_id'];
 } elseif (isset($_SESSION['course_info_id'])) {
     $course_info_id = $_SESSION['course_info_id'];
+    $courseevent_application_id_info_id = $_SESSION['event_application_id'];
 } elseif (isset($old_input['course_info_id'])) {
     $course_info_id = $old_input['course_info_id'];
+    $event_application_id = $old_input['event_application_id'];
 }
 
+$formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
 $surveyApplicationController = new SurveyApplicationController();
-$surveys = $surveyApplicationController->surveys($course_info_id);
+$surveys = $surveyApplicationController->surveys($course_info_id, $formdata);
 $event = $surveys['data'];
+$passage = $surveys['passage'];
+$event_survey_customfield_category_id = $surveys['event_survey_customfield_category_id'];
 
 $prefectures = PREFECTURES;
 
@@ -50,7 +56,9 @@ if ($surveys['exist']) {
         <form method="POST" action="/custom/app/Views/survey/survey-upsert.php" class="whitebox quest_form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="event_id" value="<?php echo $event->event_id ?>">
+            <input type="hidden" name="event_application_id" value="<?php echo $event_application_id ?>">
             <input type="hidden" name="course_info_id" value="<?php echo $event->id ?>">
+            <input type="hidden" name="event_survey_customfield_category_id" value="<?php echo $event_survey_customfield_category_id ?>">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <div class="inner_s">
                 <div class="form_block form01">
@@ -556,6 +564,14 @@ if ($surveys['exist']) {
                                 </div>
                             </div>
                         </li>
+                        <?php if (!empty($errors['passage'])): ?>
+                            <?php foreach ($errors['passage'] as $key => $message): ?>
+                                <?php if (!empty($message)): ?>
+                                    <div class="error-msg"><?= htmlspecialchars($message); ?></div><br>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <?php echo $passage ?>
                     </ul>
                 </div>
             </div>

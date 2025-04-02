@@ -2,6 +2,8 @@
 require_once('/var/www/html/moodle/config.php');
 require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/local/commonlib/lib.php');
+require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventSurveyCustomFieldModel.php');
 
 // 接続情報取得
 global $DB;
@@ -61,6 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $courseInfoId = (int) sanitize_post('course_info_id');
     $eventId = (int) sanitize_post('event_id');
+    $eventApplicationId = (int) sanitize_post('event_application_id');
+    $eventSurveyCustomfieldCategoryId = (int) sanitize_post('event_survey_customfield_category_id');
     $impression = sanitize_post('impression');
     $participation = sanitize_post('participation');
     $foundMethod = sanitize_post_array('found_method');
@@ -82,6 +86,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $work                = sanitize_post('work');
     $address             = sanitize_post('address');
     $prefectures         = sanitize_post('prefecture');
+
+    $fieldInputDataList = [];
+    $params = [];
+    if (!empty($eventSurveyCustomfieldCategoryId)) {
+        $eventSurveyCustomFieldModel = new EventSurveyCustomFieldModel();
+        $fieldList = $eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($eventSurveyCustomfieldCategoryId);
+        foreach ($fieldList as $fields) {
+            $input_value = null;
+            $tag_name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
+            if ($fields['field_type'] == 3) {
+                $input_data = sanitize_post($tag_name);
+                $input_data = explode(",", $input_data);
+                $params[$tag_name] = $input_data;
+                $options = explode(",", $fields['selection']);
+
+                foreach ($options as $i => $option) {
+                    if (in_array($option, $input_data)) {
+                        if ($i == 0) {
+                            $input_value = $option;
+                            continue;
+                        }
+                        $input_value .= ',' . $option;
+                    }
+                }
+            } elseif ($fields['field_type'] == 4) {
+                $input_value = sanitize_post($tag_name);
+                $options = explode(",", $fields['selection']);
+                foreach ($options as $i => $option) {
+                    if ($option == $input_value) {
+                        $input_value = $option;
+                        $params[$tag_name] = $input_value;
+                        break;
+                    }
+                }
+                if (!isset($params[$tag_name])) {
+                    $params[$tag_name] = "";
+                }
+            } else {
+                $input_value = optional_param($tag_name, '', PARAM_TEXT);
+                $params[$tag_name] = $input_value;
+            }
+
+            if (!empty($input_value)) {
+                $fieldInputDataList[] = ['event_survey_customfield_id' => $fields['id'], 'field_type' => $fields['field_type'], 'input_data' => $input_value];
+            }
+        }
+    }
 
     if ($participation == '2') {
         $found_method_error              = validate_other_input($foundMethod, $otherFoundMethod);
@@ -112,14 +163,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'speaker_suggestions'       => $speaker_suggestions_error,
             ];
             $_SESSION['old_input'] = $_POST;
+            $_SESSION['old_input'] = $params;
             $_SESSION['message_error'] = '登録に失敗しました';
             $_SESSION['course_info_id'] = $courseInfoId;
+            $_SESSION['event_application_id'] = $eventApplicationId;
             header("Location: /custom/app/Views/survey/index.php");
             exit;
         }
     } elseif (empty($participation)) {
         $_SESSION['old_input'] = $_POST;
         $_SESSION['course_info_id'] = $courseInfoId;
+        $_SESSION['event_application_id'] = $eventApplicationId;
         $_SESSION['message_error'] = '登録に失敗しました';
         $_SESSION['errors'] = ['participation' => '選択をお願いします。'];
         header("Location: /custom/app/Views/survey/index.php");
@@ -155,6 +209,20 @@ try {
     $record->prefectures = $prefectures;
 
     $DB->insert_record_raw('survey_application', $record);
+
+    
+    // アンケートカスタムフィールドがある場合
+    if (!empty($eventSurveyCustomfieldCategoryId)) {
+        foreach ($fieldInputDataList as $fieldInputData) {
+            $record = new stdClass();
+            $record->event_application_id = $eventApplicationId;
+            $record->course_info_id = $courseInfoId;
+            $record->event_survey_customfield_id = $fieldInputData['event_survey_customfield_id'];
+            $record->field_type = $fieldInputData['field_type'];
+            $record->input_data = $fieldInputData['input_data'];
+            $DB->insert_record_raw('event_application_survey_customfield', $record);
+        }
+    }
 
     // コミット
     $transaction->allow_commit();
