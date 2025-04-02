@@ -290,3 +290,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
         $(window).scrollTop(srlpos);
     });
 </script>
+
+</body>
+</html>

@@ -183,3 +183,5 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
         });
     });
 </script>
+</body>
+</html>
