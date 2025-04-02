@@ -119,14 +119,15 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                                 <?php endif; ?>
                             </div>
                         </li>
-                        <li class="list_item04">
+                        <li class="list_item04 req">
                             <p class="list_label">お問い合わせの項目</p>
                             <div class="list_field f_select select">
                                 <select name="event_id">
+                                    <option value="" selected>選択してください</option>
                                     <?php foreach ($events as $event): ?>
                                         <option value="<?= $event['id'] ?>" <?php if ($event_id == $event['id']): ?>selected<?php endif; ?>>【<?= htmlspecialchars($event['name']) ?>】について</option>
                                     <?php endforeach; ?>
-                                    <option value="other" <?php if (empty($event_id)): ?>selected<?php endif; ?>>その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
+                                    <option value="other" <?php if ($event_id === "other"): ?>selected<?php endif; ?>>その他「『阪大知の広場』に関しての一般的なお問い合わせ</option>
                                 </select>
                                 <?php if (!empty($errors['event_id'])): ?>
                                     <div class="error-msg mt-2">
@@ -148,7 +149,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         </li>
                     </ul>
                     <div class="agree">
-                        <a href="https://www.osaka-u.ac.jp/ja/guide/disclosure/kojinjoho">個人情報の取扱いについて</a>
+                        <a href="https://www.osaka-u.ac.jp/ja/guide/disclosure/kojinjoho" target="_blank" rel="noopener noreferrer">個人情報の取扱いについて</a>
                         <label for="agree"><input type="checkbox" id="agree" />同意する</label>
                     </div>
                     <div class="form_btn">
