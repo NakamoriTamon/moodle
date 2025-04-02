@@ -30,27 +30,41 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
     <meta name="description" content=
         "<?php
             $path = $_SERVER['REQUEST_URI'];
-            if(strpos($path, 'contact')) {echo 'お問い合わせはこちらから。';}
+            if(strpos($path, 'event/register')) {echo '申し込みイベントを確認できます。';}
+            elseif(strpos($path, 'user/pass')) {echo 'パスワードの再設定を行います。';}
+            elseif(strpos($path, 'contact')) {echo 'お問い合わせはこちらから。';}
             elseif(strpos($path, 'event')) {echo '開催イベントを閲覧できます。';}
-            elseif(strpos($path, 'guide')) {echo '受講について詳しく説明しています。';}
             elseif(strpos($path, 'faq')) {echo 'よくあるご質問をまとめました。';}
-            elseif(strpos($path, 'user')) {echo '新規ユーザー登録をしていただけます。';}
+            elseif(strpos($path, 'front')) {echo '開催イベントを閲覧できます。';}
+            elseif(strpos($path, 'guide')) {echo '受講について詳しく説明しています。';}
             elseif(strpos($path, 'login')) {echo 'ユーザー様のログインページです。';}
+            elseif(strpos($path, 'logout')) {echo 'ログアウトしました。';}
             elseif(strpos($path, 'mypage')) {echo 'ユーザー様のマイページです。予約情報もこちらからご確認いただけます。';}
+            elseif(strpos($path, 'regulate')) {echo '特定商取引法に基づく表記';}
+            elseif(strpos($path, 'signup')) {echo '本登録が完了しました';}
+            elseif(strpos($path, 'survey')) {echo 'アンケートのご協力ありがとうございます。';}
             elseif(strpos($path, 'tekijuku')) {echo '適塾記念会のページです。';}
+            elseif(strpos($path, 'user')) {echo '新規ユーザー登録をしていただけます。';}
             else{echo '大阪大学【知の広場】阪大市民講座は大阪大学が主催する市民向け講座や子ども向けイベントなど、多様な学びに触れることのできる開かれた広場です。地域・社会と大学、そして研究者と市民をつなぐことで、社会との共創を目指します。';}
         ?>" />
     <title>
         <?php
             $path = $_SERVER['REQUEST_URI'];
-            if(strpos($path, 'contact')) {echo 'お問い合わせ';}
+            if(strpos($path, 'event/register')) {echo '申し込みイベント';}
+            elseif(strpos($path, 'user/pass')) {echo 'パスワード再設定';}
+            elseif(strpos($path, 'contact')) {echo 'お問い合わせ';}
             elseif(strpos($path, 'event')) {echo 'イベント';}
-            elseif(strpos($path, 'guide')) {echo '受講ガイド';}
             elseif(strpos($path, 'faq')) {echo 'よくある質問';}
-            elseif(strpos($path, 'user')) {echo 'ユーザー登録';}
+            elseif(strpos($path, 'front')) {echo 'イベント';}
+            elseif(strpos($path, 'guide')) {echo '受講ガイド';}
             elseif(strpos($path, 'login')) {echo 'ログイン';}
+            elseif(strpos($path, 'logout')) {echo 'ログアウト';}
             elseif(strpos($path, 'mypage')) {echo 'マイページ';}
+            elseif(strpos($path, 'regulate')) {echo '特定商取引法に基づく表記';}
+            elseif(strpos($path, 'signup')) {echo '本登録';}
+            elseif(strpos($path, 'survey')) {echo 'アンケート';}
             elseif(strpos($path, 'tekijuku')) {echo '適塾記念会';}
+            elseif(strpos($path, 'user')) {echo 'ユーザー登録';}
             else{echo '大阪大学【知の広場 】阪大市民講座  | 大阪大学が拓く学びの世界へ';}
         ?>
     </title>
