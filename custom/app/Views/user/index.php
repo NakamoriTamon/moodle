@@ -158,6 +158,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                                 <?php endif; ?>
                             </div>
                         </li>
+                        <li class="list_item13">
+                            <p class="list_label">お知らせメール</p>
+                            <label for="email_notification" class="list_field set_check" style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" value="1" checked="checked" name="notification_kbn" id="email_notification">
+                                受け取る
+                            </label>
+                        </li>
                         <div id="parents_input_area">
                             <li class="list_item11 req">
                                 <p class="list_label">保護者の氏名</p>
