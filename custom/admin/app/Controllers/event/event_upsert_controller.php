@@ -152,8 +152,8 @@ $is_double_speed = isset($_POST['is_double_speed']) ? 1 : 0; // 動画倍速機�
 $is_apply_btn = isset($_POST['is_apply_btn']) ? 1 : 0; // 申込みボタンを表示する
 $event_customfield_category_id = empty($_POST['event_customfield_category_id']) ? 0 : $_POST['event_customfield_category_id']; // イベントカスタム区分
 $_SESSION['errors']['event_customfield_category_id'] = validate_select($event_customfield_category_id, 'イベントカスタム区分', false); // バリデーションチェック
-$event_survey_custom_id = empty($_POST['event_survey_custom_id']) ? 0 : $_POST['event_survey_custom_id']; // アンケートカスタム区分
-$_SESSION['errors']['event_survey_custom_id'] = validate_select($event_survey_custom_id, 'アンケートカスタム区分', false); // バリデーションチェック
+$event_survey_customfield_category_id = empty($_POST['event_survey_customfield_category_id']) ? 0 : $_POST['event_survey_customfield_category_id']; // アンケートカスタム区分
+$_SESSION['errors']['event_survey_customfield_category_id'] = validate_select($event_survey_customfield_category_id, 'アンケートカスタム区分', false); // バリデーションチェック
 $note = $_POST['note'] ?? null; // その他
 $_SESSION['errors']['note'] = validate_textarea($note, 'その他', false); // バリデーションチェック
 
@@ -507,7 +507,7 @@ if (
     || $_SESSION['errors']['real_time_distribution_url']
     || $_SESSION['errors']['archive_streaming_period']
     || $_SESSION['errors']['event_customfield_category_id']
-    || $_SESSION['errors']['event_survey_custom_id']
+    || $_SESSION['errors']['event_survey_customfield_category_id']
     || $_SESSION['errors']['note']
     || $_SESSION['errors']['start_event_date']
     || $_SESSION['errors']['end_event_date']
@@ -572,7 +572,7 @@ try {
                 note = :note,
                 event_kbn = :event_kbn,
                 event_customfield_category_id = :event_customfield_category_id,
-                event_survey_custom_id = :event_survey_custom_id,
+                event_survey_customfield_category_id = :event_survey_customfield_category_id,
                 is_apply_btn = :is_apply_btn,
                 start_event_date = :start_event_date,
                 end_event_date = :end_event_date,
@@ -611,7 +611,7 @@ try {
             ':note' => $note,
             ':event_kbn' => $event_kbn,
             ':event_customfield_category_id' => $event_customfield_category_id,
-            ':event_survey_custom_id' => $event_survey_custom_id,
+            ':event_survey_customfield_category_id' => $event_survey_customfield_category_id,
             ':is_apply_btn' => $is_apply_btn,
             ':start_event_date' => $start_event_date,
             ':end_event_date' => $end_event_date,
@@ -630,7 +630,7 @@ try {
                 , event_date, start_hour, end_hour, target, venue_name, access
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
-                , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_custom_id, is_apply_btn, start_event_date, end_event_date
+                , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_customfield_category_id, is_apply_btn, start_event_date, end_event_date
                 , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail
             ) 
             VALUES (
@@ -638,7 +638,7 @@ try {
                 , :event_date, :start_hour, :end_hour, :target, :venue_name, :access
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
-                , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_custom_id, :is_apply_btn, :start_event_date, :end_event_date
+                , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_customfield_category_id, :is_apply_btn, :start_event_date, :end_event_date
                 , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail
             )
         ");
@@ -672,7 +672,7 @@ try {
             ':thumbnail_img' => "",
             ':event_kbn' => $event_kbn,
             ':event_customfield_category_id' => $event_customfield_category_id,
-            ':event_survey_custom_id' => $event_survey_custom_id,
+            ':event_survey_customfield_category_id' => $event_survey_customfield_category_id,
             ':is_apply_btn' => $is_apply_btn,
             ':start_event_date' => $start_event_date,
             ':end_event_date' => $end_event_date,

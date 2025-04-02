@@ -30,6 +30,7 @@ class EventRegisterController
             
             $now = new DateTime();
             $now_time = $now->format('Y-m-d H:i:s');
+            $day_end_time = $now->format('Y-m-d 23:59:59');
             $sql = "WITH cmt_data AS (
             SELECT 
                 cm.course_info_id, 
@@ -86,7 +87,7 @@ class EventRegisterController
             AND eaci.ticket_type = :self_ticket_type
             AND (
                 -- リリース日がNULLの場合: 開催日+23:59:59 を公開終了とする
-                (ci.release_date IS NULL AND ci.course_date >= '$now_time')
+                (ci.release_date IS NULL AND ci.course_date >= '$day_end_time')
 
                 -- リリース日がある場合: `release_date + archive_streaming_period` で公開終了を計算
                 OR (
