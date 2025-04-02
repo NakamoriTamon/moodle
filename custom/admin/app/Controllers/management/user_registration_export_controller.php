@@ -17,8 +17,12 @@ try {
     foreach ($user_count_list as $key => $user) {
         $formatted_id = sprintf('%08d', $user['id']);
         $user_id = substr_replace($formatted_id, ' ', 4, 0);
-        $date = new DateTime($user['birthday']);
-        $birthday = $date->format('Y年n月j日');
+        if (empty($user['birthday'])) {
+            $birthday = '';
+        } else {
+            $date = new DateTime($user['birthday']);
+            $birthday = $date->format('Y年n月j日');
+        }
 
         // 年度が設定できるようになればここも動的に変えること
         $month = date('n');
