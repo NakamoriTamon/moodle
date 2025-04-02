@@ -30,6 +30,7 @@ $guardian_email = $_POST['guardian_email'] ?? null;
 $guardian_phone = $_POST['guardian_phone'] ?? null;
 $child_name =  $_POST['child_name'] ?? null;
 $description = $_POST['discription'] ?? null;
+$notification_kbn = $_POST['notification_kbn'][0] ?? 0;
 
 $_SESSION['old_input'] = $_POST;
 
@@ -170,6 +171,7 @@ try {
     $record->guardian_phone = $guardian_phone;
     $record->child_name = $child_name;
     $record->description = $description;
+    $record->notification_kbn = $notification_kbn;
 
     $id = $DB->insert_record_raw('user', $record, true);
 
