@@ -18,6 +18,23 @@ $now = $now->format('Ymd');
   </section>
   <!-- mv -->
 
+  <!-- 一時的に検索フォームを非表示にします -->
+  <style>
+    #search {
+      display: none;
+    }
+
+    #juku {
+      margin-top: 170px !important;
+    }
+
+    @media (max-width: 992px) {
+      #juku {
+        margin-top: 130px !important;
+      }
+    }
+  </style>
+
   <section id="about">
     <div class="about_cont inner_l">
       <h2 class="ttl_home">

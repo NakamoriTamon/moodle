@@ -4,6 +4,23 @@ $now = new DateTime();
 $now = $now->format('Ymd');
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
+
+<!-- 一時的に検索フォームを非表示にします -->
+<style>
+    #search {
+        display: none;
+    }
+
+    #juku {
+        margin-top: 170px !important;
+    }
+
+    @media (max-width: 992px) {
+        #juku {
+            margin-top: 130px !important;
+        }
+    }
+</style>
 <main>
     <section id="mv">
         <img

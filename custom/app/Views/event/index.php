@@ -13,6 +13,13 @@ unset($SESSION->formdata);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
+<!-- 一時的に検索フォームを非表示にします -->
+<style>
+    #search {
+        display: none;
+    }
+</style>
+
 <main id="subpage">
     <section id="heading" class="inner_l">
         <h2 class="head_ttl" data-en="EVENT LIST">イベント一覧</h2>
@@ -188,4 +195,5 @@ unset($SESSION->formdata);
 
 
 </body>
+
 </html>
