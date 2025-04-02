@@ -21,7 +21,7 @@ class UserRegistrationController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'] ?? 1;
+        $current_page = $_GET['page'];
 
         if ($current_page < 0) {
             $current_page = 1;
@@ -43,9 +43,14 @@ class UserRegistrationController
             $date = new DateTime($user['birthday']);
             $birthday = $date->format('Y年n月j日');
 
+            // 年度が設定できるようになればここも動的に変えること
+            $month = date('n');
+            $year = date('Y');
+            $fiscal_year = ($month >= 4) ? $year : $year - 1;
             $payment_method = '';
             $is_tekijuku = '未入会';
-            if (!empty($user['tekijuku'])) {
+            if (!empty($user['tekijuku']) && ($user['tekijuku']['paid_status'] == PAID_STATUS['COMPLETED'] ||
+                $user['tekijuku']['paid_status'] == PAID_STATUS['SUBSCRIPTION_PROCESSING'] || $user['tekijuku']['is_deposit_' . $fiscal_year]) == 1) {
                 $is_tekijuku = '入会済';
                 $payment_method = PAYMENT_SELECT_LIST[$user['tekijuku']['payment_method']];
             }

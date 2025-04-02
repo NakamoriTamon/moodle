@@ -13,16 +13,21 @@ try {
     // ユーザーデータの全件取得（ページネーションを無視して全データを取得）
     $user_count_list = $userModel->getUserCount();
     $user_list = [];
-    
+
     foreach ($user_count_list as $key => $user) {
-        $formatted_id = sprintf('%08d', $user['id']);        
+        $formatted_id = sprintf('%08d', $user['id']);
         $user_id = substr_replace($formatted_id, ' ', 4, 0);
         $date = new DateTime($user['birthday']);
         $birthday = $date->format('Y年n月j日');
-        
+
+        // 年度が設定できるようになればここも動的に変えること
+        $month = date('n');
+        $year = date('Y');
+        $fiscal_year = ($month >= 4) ? $year : $year - 1;
         $payment_method = '';
         $is_tekijuku = '未入会';
-        if (!empty($user['tekijuku'])) {
+        if (!empty($user['tekijuku']) && ($user['tekijuku']['paid_status'] == PAID_STATUS['COMPLETED'] ||
+            $user['tekijuku']['paid_status'] == PAID_STATUS['SUBSCRIPTION_PROCESSING'] || $user['tekijuku']['is_deposit_' . $fiscal_year]) == 1) {
             $is_tekijuku = '入会済';
             $payment_method = PAYMENT_SELECT_LIST[$user['tekijuku']['payment_method']];
         }
@@ -69,23 +74,23 @@ try {
 
         // 電話番号などの先頭の0が消えないように
         if (!empty($user['phone'])) {
-            $phone = "'" . $user['phone'];  
+            $phone = "'" . $user['phone'];
         }
         if (!empty($user['gurdian_phone'])) {
             $gurdian_phone = "'" . $user['gurdian_phone'];
         }
 
         $csv_array = [
-            $user_id,
+            $user['user_id'],
             $user['name'],
             $user['kana'],
-            $birthday,
+            $user['birthday'],
             $user['city'],
             $user['email'],
-            $phone,
+            '="' . $user['phone'] . '"',
             $user['gurdian_name'],
             $user['gurdian_email'],
-            $gurdian_phone,
+            '="' . $user['gurdian_phone'] . '"',
             $user['is_tekijuku'],
             $user['pay_method'],
             $is_apply
@@ -145,4 +150,4 @@ try {
         redirect('/custom/admin/app/Views/management/user_registration.php');
         exit;
     }
-} 
+}
