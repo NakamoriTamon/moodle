@@ -10,9 +10,11 @@ class EventVideosModel extends BaseModel
                 $stmt->execute([$eventId]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント動画取得エラー: ' . $e->getMessage() . ' EventID: ' . $eventId);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

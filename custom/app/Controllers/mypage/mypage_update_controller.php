@@ -191,7 +191,8 @@ class MypageUpdateController
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
-            $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+            error_log('マイページ情報更新エラー: ' . $e->getMessage());
+            $_SESSION['message_error'] = '登録に失敗しました';
             header('Location: /custom/app/Views/mypage/index.php#user_form');
         }
     }
@@ -298,7 +299,8 @@ class MypageUpdateController
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
-            $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+            error_log('適塾情報更新エラー: ' . $e->getMessage());
+            $_SESSION['message_error'] = '登録に失敗しました';
             header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
         }
     }
@@ -460,7 +462,8 @@ class MypageUpdateController
                     }
                 } catch (PDOException $e) {
                     $pdo->rollBack();
-                    $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました: ' . $e->getMessage();
+                    error_log('適塾情報更新エラー: ' . $e->getMessage());
+                    $_SESSION['message_membership_error'] = '支払方法の更新に失敗しました';
                     header('Location: /custom/app/Views/mypage/index.php#payment_form');
                 }
             }

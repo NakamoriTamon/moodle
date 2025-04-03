@@ -10,9 +10,11 @@ class EventApplicationCustomfieldModel extends BaseModel
                 $stmt->execute([$event_application_id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント申込カスタムフィールド取得エラー: ' . $e->getMessage() . ' EventApplicationID: ' . $event_application_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

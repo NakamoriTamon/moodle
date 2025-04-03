@@ -12,9 +12,11 @@ class EventApplicationCompanionModel extends BaseModel
 
                 return $list;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント申込同伴者取得エラー: ' . $e->getMessage() . ' EventApplicationID: ' . $eventApplicationId);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

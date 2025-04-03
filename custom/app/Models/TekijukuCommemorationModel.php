@@ -43,9 +43,11 @@ class TekijukuCommemorationModel extends BaseModel
 
                 return $tekijuku_list;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('適塾記念会ユーザー一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -78,7 +80,8 @@ class TekijukuCommemorationModel extends BaseModel
 
             return $count;
         } catch (\PDOException $e) {
-            echo 'データの取得に失敗しました: ' . $e->getMessage();
+            error_log('適塾記念会ユーザー件数取得エラー: ' . $e->getMessage());
+            echo 'データの取得に失敗しました';
         }
     }
     // 適塾の支払いが完了している情報を取得
@@ -148,9 +151,11 @@ class TekijukuCommemorationModel extends BaseModel
 
                 return $tekijuku;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('支払済適塾記念会ユーザー取得エラー: ' . $e->getMessage() . ' UserID: ' . $fk_user_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

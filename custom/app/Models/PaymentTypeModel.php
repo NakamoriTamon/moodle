@@ -12,7 +12,8 @@ class PaymentTypeModel extends BaseModel
 
                 return $paymentTypes;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('支払いタイプ一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         }
 
@@ -30,9 +31,11 @@ class PaymentTypeModel extends BaseModel
                 $paymentTypes = $stmt->fetch(PDO::FETCH_ASSOC);
                 return $paymentTypes;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('支払いタイプ取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

@@ -233,7 +233,7 @@ class MypageController
                     'per_page' => $perPage,
                     'total_count' => 0
                 ],
-                'error' => $e->getMessage()
+                'error' => 'イベント情報の取得に失敗しました'
             ];
         }
     }
@@ -326,6 +326,7 @@ class MypageController
                         ]
                     ]);
                 } catch (AwsException $e) {
+                    error_log('退会メール送信エラー: ' . $e->getMessage() . ' UserID: ' . $id);
                     $_SESSION['message_error'] = '送信に失敗しました';
                     redirect('/custom/app/Views/user/pass_mail.php');
                     exit;
@@ -342,6 +343,7 @@ class MypageController
                 exit;
             }
         } catch (Exception $e) {
+            error_log('ユーザー退会処理エラー: ' . $e->getMessage() . ' UserID: ' . $id);
             $transaction->rollback($e);
             header('Content-Type: application/json');
             http_response_code(500); // Internal Server Error

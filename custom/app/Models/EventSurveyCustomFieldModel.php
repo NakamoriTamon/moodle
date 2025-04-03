@@ -10,9 +10,11 @@ class EventSurveyCustomFieldModel extends BaseModel
                 $stmt->execute([$id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベントアンケートカスタムフィールド取得エラー: ' . $e->getMessage() . ' カテゴリID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
         return [];
@@ -28,9 +30,11 @@ class EventSurveyCustomFieldModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベントアンケートカスタムフィールド内部取得エラー: ' . $e->getMessage() . ' カテゴリID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

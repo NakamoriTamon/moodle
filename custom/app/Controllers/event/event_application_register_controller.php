@@ -213,7 +213,6 @@ class EventRegisterController
             return $paginate_data;
         } catch (Exception $e) {
             error_log('events Error: ' . $e->getMessage());
-            var_dump($e);
             // エラー時は空の結果を返す
             return [
                 'data' => [],
@@ -223,7 +222,7 @@ class EventRegisterController
                     'per_page' => $perPage,
                     'total_count' => 0
                 ],
-                'error' => $e->getMessage()
+                'error' => 'イベント情報の取得に失敗しました'
             ];
         }
     }

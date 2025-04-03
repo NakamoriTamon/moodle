@@ -15,9 +15,11 @@ class MaterialModel extends BaseModel
 
                 return $materials;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('資料一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -34,9 +36,11 @@ class MaterialModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('資料詳細取得エラー: ' . $e->getMessage() . ' MaterialID: ' . $materialID);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -52,9 +56,11 @@ class MaterialModel extends BaseModel
                 $material = $stmt->fetch(PDO::FETCH_ASSOC);
                 return  $material;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('コース情報別資料取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $course_info_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -71,9 +77,11 @@ class MaterialModel extends BaseModel
                 $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 return $totalCount;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('資料総件数取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -103,9 +111,11 @@ class MaterialModel extends BaseModel
 
                 return $materials;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('資料ページネーション取得エラー: ' . $e->getMessage() . ' Limit: ' . $limit . ' Offset: ' . $offset);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
     }

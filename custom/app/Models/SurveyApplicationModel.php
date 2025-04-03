@@ -40,10 +40,12 @@ class SurveyApplicationModel extends BaseModel
                 }
                 return $result_list;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('アンケート回答一覧取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $course_info_id . ' EventID: ' . $event_id);
+                echo 'データの取得に失敗しました';
             }
             return [];
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -62,9 +64,11 @@ class SurveyApplicationModel extends BaseModel
 
                 return $user_result_list;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('コース情報取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -82,9 +86,11 @@ class SurveyApplicationModel extends BaseModel
 
                 return $event_list;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント時間情報取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -121,11 +127,13 @@ class SurveyApplicationModel extends BaseModel
 
                 return $count;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('アンケート回答件数取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $course_info_id . ' EventID: ' . $event_id);
+                echo 'データの取得に失敗しました';
             }
 
             return 0;
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
     }

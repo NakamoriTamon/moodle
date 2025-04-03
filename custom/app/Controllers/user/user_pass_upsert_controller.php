@@ -63,9 +63,11 @@ try {
     redirect('/custom/app/Views/user/pass_reset_complete.php');
     exit;
 } catch (Throwable $e) {
+    error_log('パスワード更新エラー: ' . $e->getMessage() . ' UserID: ' . $user_password_reset->userid);
     try {
         $transaction->rollback($e);
     } catch (Throwable $e) {
+        error_log('パスワード更新ロールバックエラー: ' . $e->getMessage());
         $_SESSION['message_error'] = '再設定に失敗しました';
         header('Location: /custom/app/Views/user/pass_reset.php?token=' . $token);
         exit;

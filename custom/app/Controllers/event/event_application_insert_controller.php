@@ -477,7 +477,8 @@ if ($result) {
                             'Destinations' => $recipients
                         ]);
                     } catch (AwsException $e) {
-                        $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getMessage();
+                        error_log('イベント申込確認メール送信エラー: ' . $e->getMessage());
+                        $_SESSION['message_error'] = '送信に失敗しました';
                         redirect('/custom/app/Views/user/pass_mail.php');
                         exit;
                     }
@@ -576,7 +577,8 @@ if ($result) {
         }
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        error_log('イベント申込登録エラー: ' . $e->getMessage());
+        $_SESSION['message_error'] = '登録に失敗しました';
         if (!is_null($courseInfoId)) {
             header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
             $event = $eventModel->getEventByIdAndCourseInfoId($eventId, $courseInfoId);
