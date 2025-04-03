@@ -247,9 +247,6 @@ class MypageUpdateController
         $tell_number = str_replace('ー', '-', $tell_number);
         $_SESSION['errors']['tell_number'] = validate_tel_number($tell_number);
 
-        $note = htmlspecialchars(required_param('note', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
-        $_SESSION['errors']['note'] = validate_max_text($note, '備考', $size, false);
-
         $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
 
         $is_university_member = optional_param('is_university_member', 0, PARAM_INT);
@@ -284,7 +281,6 @@ class MypageUpdateController
                 $data->address = $address;
                 $data->tell_number = $tell_number;
                 $data->email = $email;
-                $data->note = $note;
                 $data->is_published = $is_published;
                 $data->department = $department;
                 $data->major = $major;
