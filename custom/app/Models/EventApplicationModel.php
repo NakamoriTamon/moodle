@@ -14,9 +14,11 @@ class EventApplicationModel extends BaseModel
 
                 return $eventApplication;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント申込詳細取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -66,9 +68,11 @@ class EventApplicationModel extends BaseModel
 
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベントチケット数取得エラー: ' . $e->getMessage() . ' EventID: ' . $event_id . ' CourseInfoID: ' . $course_info_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -90,9 +94,11 @@ class EventApplicationModel extends BaseModel
                 $stmt->execute([$userId, $now_time]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('ユーザー別イベント申込取得エラー: ' . $e->getMessage() . ' UserID: ' . $userId);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -114,9 +120,11 @@ class EventApplicationModel extends BaseModel
                 $stmt->execute([$userId, $now_time]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('過去イベント申込取得エラー: ' . $e->getMessage() . ' UserID: ' . $userId);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -133,9 +141,11 @@ class EventApplicationModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                return 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('未決済イベント申込取得エラー: ' . $e->getMessage());
+                return 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             return "データの取得に失敗しました";
         }
 
@@ -155,9 +165,11 @@ class EventApplicationModel extends BaseModel
 
                 return $course_infos;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント申込コース情報取得エラー: ' . $e->getMessage() . ' EventApplicationID: ' . $eventApplicationID);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

@@ -91,6 +91,7 @@ try {
             ]
         ]);
     } catch (AwsException $e) {
+        error_log('問い合わせ確認メール送信エラー (管理者宛): ' . $e->getMessage());
         $_SESSION['message_error'] = 'メールの送信に失敗しました';
         header('Location: /custom/app/Views/contact/index.php');
         exit;
@@ -141,6 +142,7 @@ try {
             ]
         ]);
     } catch (AwsException $e) {
+        error_log('問い合わせ確認メール送信エラー (ユーザー宛): ' . $e->getMessage());
         $_SESSION['message_error'] = 'メールの送信に失敗しました';
         header('Location: /custom/app/Views/contact/index.php');
         exit;
@@ -150,6 +152,7 @@ try {
     header('Location: /custom/app/Views/contact/complete.php');
     exit;
 } catch (Exception $e) {
+    error_log('問い合わせ処理エラー: ' . $e->getMessage());
     $_SESSION['message_error'] = 'メール送信に失敗しました。お手数ですが、再度ご入力をお願い致します。';
     header('Location: /custom/app/Views/contact/index.php');
     exit;

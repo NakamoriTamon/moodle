@@ -135,9 +135,11 @@ try {
     }
     exit;
 } catch (Exception $e) {
+    error_log('適塾登録エラー: ' . $e->getMessage());
     try {
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
+        error_log('適塾登録ロールバックエラー: ' . $rollbackException->getMessage());
         $_SESSION['message_error'] = '登録に失敗しました';
         redirect('/custom/app/Views/tekijuku/registrate.php');
         exit;

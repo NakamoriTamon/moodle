@@ -54,9 +54,11 @@ class UserModel extends BaseModel
 
                 return $admins;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('管理者ユーザー取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -73,9 +75,11 @@ class UserModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('ユーザー詳細取得エラー: ' . $e->getMessage() . ' userID: ' . $userID);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -108,10 +112,12 @@ class UserModel extends BaseModel
 
                 return  $user;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('ユーザー単体取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -158,10 +164,12 @@ class UserModel extends BaseModel
 
                 return $users;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('ユーザー一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
     }
 
@@ -199,10 +207,12 @@ class UserModel extends BaseModel
 
                 return $users;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('ユーザー数取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
     }
 
@@ -215,10 +225,12 @@ class UserModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('適塾情報取得エラー: ' . $e->getMessage() . ' user_id: ' . $user_id);
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];

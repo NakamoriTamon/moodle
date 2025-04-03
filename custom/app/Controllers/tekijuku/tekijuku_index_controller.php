@@ -204,6 +204,7 @@ class TekijukuIndexController {
                         ]
                     ]);
                 } catch (AwsException $e) {
+                    error_log('適塾退会メール送信エラー: ' . $e->getMessage() . ' UserID: ' . $this->USER->id);
                     $_SESSION['message_error'] = '送信に失敗しました';
                     redirect('/custom/app/Views/user/pass_mail.php');
                     exit;
@@ -220,6 +221,7 @@ class TekijukuIndexController {
                 exit;
             }
         } catch (Exception $e) {
+            error_log('適塾退会処理エラー: ' . $e->getMessage() . ' UserID: ' . $this->USER->id);
             $transaction->rollback($e);
             header('Content-Type: application/json');
             http_response_code(500); // Internal Server Error

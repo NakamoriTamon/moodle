@@ -12,9 +12,11 @@ class CategoryModel extends BaseModel
 
                 return $categories;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('カテゴリ一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -31,9 +33,11 @@ class CategoryModel extends BaseModel
                 $category = $stmt->fetch(PDO::FETCH_ASSOC);
                 return  $category;
             } catch (\PDOException $e) {
+                error_log('カテゴリ単体取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
                 echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
         return [];
@@ -49,9 +53,11 @@ class CategoryModel extends BaseModel
                 $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 return $totalCount;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('カテゴリ総数取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

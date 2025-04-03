@@ -291,9 +291,11 @@ class EventModel extends BaseModel
 
                 return $events;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -555,10 +557,12 @@ class EventModel extends BaseModel
 
                 return $totalCount;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -575,10 +579,12 @@ class EventModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -595,10 +601,12 @@ class EventModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -620,10 +628,12 @@ class EventModel extends BaseModel
 
                 return $course_infos;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -644,10 +654,12 @@ class EventModel extends BaseModel
 
                 return $course_infos;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -665,10 +677,12 @@ class EventModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -797,10 +811,12 @@ class EventModel extends BaseModel
 
                 return $event;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -925,10 +941,12 @@ class EventModel extends BaseModel
 
                 return  $event;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -944,10 +962,12 @@ class EventModel extends BaseModel
                 $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 return $totalCount;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
 
         return [];
@@ -971,10 +991,12 @@ class EventModel extends BaseModel
 
                 return $events;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
             }
         } else {
-            echo "データの取得に失敗しました";
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
         }
     }
 }

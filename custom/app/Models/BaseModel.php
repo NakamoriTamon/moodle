@@ -28,6 +28,7 @@ class BaseModel
             $this->pdo = new \PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
             $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
+            error_log('データベース接続エラー: ' . $e->getMessage());
             echo '接続に失敗しました。管理者にお問い合わせください。';
             exit();
         }

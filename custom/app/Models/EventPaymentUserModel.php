@@ -11,9 +11,11 @@ class EventPaymentUserModel extends BaseModel
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 return (int) $result['SUM(count)'];
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('イベント支払いユーザー定員合計取得エラー: ' . $e->getMessage() . ' EventID: ' . $eventId);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

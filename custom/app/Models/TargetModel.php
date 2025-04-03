@@ -12,9 +12,11 @@ class TargetModel extends BaseModel
 
                 return $targets;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('対象一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -31,9 +33,11 @@ class TargetModel extends BaseModel
                 $stmt->execute();
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('対象詳細取得エラー: ' . $e->getMessage() . ' TargetID: ' . $targetID);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 
@@ -50,9 +54,11 @@ class TargetModel extends BaseModel
                 $totalCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
                 return $totalCount;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('対象総件数取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

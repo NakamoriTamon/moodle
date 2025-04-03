@@ -10,9 +10,11 @@ class EventCustomFieldModel extends BaseModel
                 $stmt->execute([$id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('カスタムフィールド取得エラー: ' . $e->getMessage() . ' カテゴリID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
         return [];
@@ -27,9 +29,11 @@ class EventCustomFieldModel extends BaseModel
                 $stmt->execute([$id, $event_customfield_id]);
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('対象外カスタムフィールド取得エラー: ' . $e->getMessage() . ' カテゴリID: ' . $id . ' 除外ID: ' . $event_customfield_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
         return [];

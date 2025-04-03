@@ -12,8 +12,12 @@ class TutorModel extends BaseModel
 
                 return $tutors;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('チューター一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
         }
 
         return [];
@@ -21,7 +25,6 @@ class TutorModel extends BaseModel
 
     public function getTutorsById($id)
     {
-        
         if ($this->pdo) {
             try {
                 $stmt = $this->pdo->prepare("SELECT * FROM mdl_tutor WHERE is_delete = 0 AND id = :id");
@@ -31,8 +34,12 @@ class TutorModel extends BaseModel
 
                 return $tutors;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('チューター取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
             }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
         }
 
         return [];

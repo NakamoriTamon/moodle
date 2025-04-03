@@ -135,9 +135,11 @@ try {
     redirect('/custom/app/Views/user/pass_mail_complete.php');
     exit;
 } catch (Throwable $e) {
+    error_log('パスワードリセット処理エラー: ' . $e->getMessage());
     try {
         $transaction->rollback($e);
     } catch (Throwable $e) {
+        error_log('パスワードリセットロールバックエラー: ' . $e->getMessage());
         $_SESSION['message_error'] = '送信に失敗しました';
         redirect('/custom/app/Views/user/pass_mail.php');
         exit;

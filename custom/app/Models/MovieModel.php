@@ -11,9 +11,11 @@ class MovieModel extends BaseModel
 
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('講義動画取得エラー: ' . $e->getMessage() . ' course_info_id: ' . $course_info_id);
+                echo 'データの取得に失敗しました';
             }
         } else {
+            error_log('データベース接続が確立されていません');
             echo "データの取得に失敗しました";
         }
 

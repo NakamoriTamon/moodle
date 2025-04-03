@@ -12,8 +12,12 @@ class LectureFormatModel extends BaseModel
 
                 return $lectureFormats;
             } catch (\PDOException $e) {
-                echo 'データの取得に失敗しました: ' . $e->getMessage();
+                error_log('講義形式一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
             }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
         }
 
         return [];
