@@ -525,15 +525,6 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item10">
-                                        <p class="list_label">備考</p>
-                                        <div class="list_field f_txt">
-                                            <textarea name="note" rows="5"><?= htmlspecialchars($old_input['note'] ?? $tekijuku_commemoration['note'], ENT_QUOTES, 'UTF-8'); ?></textarea>
-                                            <?php if (!empty($errors['note'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
                                     <li class="list_item11">
                                         <div class="list_field">
                                             <label class="checkbox_label">
