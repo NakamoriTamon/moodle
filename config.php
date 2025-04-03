@@ -381,6 +381,12 @@ $kbn_id_list = [
   5 => '全体'
 ];
 define('KBN_ID_LIST', $kbn_id_list);
+$payment_kbn_list = [
+  0 => '払込待ち',
+  1 => '払い済み',
+  2 => '未払い(期限切れ)'
+];
+define('PAYMENT_KBN_LIST', $payment_kbn_list);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

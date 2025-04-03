@@ -168,8 +168,12 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                     <?php if($kbn_id == 2): ?>
                                                     <td class="ps-4 pe-4">普通会員</td>
                                                     <?php endif; ?>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['pay_method']) ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['payment_kbn']) ?></td>
+                                                    <?php if($user['pay_method'] == FREE_EVENT): ?>
+                                                        <td class="ps-4 pe-4">無料イベント</td>
+                                                    <?php else: ?>
+                                                        <td class="ps-4 pe-4"><?= htmlspecialchars(PAYMENT_SELECT_LIST[$user['pay_method'] ?? '']) ?></td>
+                                                    <?php endif; ?> 
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars(PAYMENT_KBN_LIST[$user['payment_kbn'] ?? '']) ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($user['payment_date'] ?? '') ?></td>
                                                     <td class="ps-4 pe-4"><?= htmlspecialchars($user['application_date']) ?></td>
                                                 </tr>
