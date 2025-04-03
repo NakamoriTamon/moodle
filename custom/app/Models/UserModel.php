@@ -206,6 +206,73 @@ class UserModel extends BaseModel
         }
     }
 
+    public function getEventEntryUser($filters = [], int $page = 1, int $perPage = 8)
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+                $sql = "SELECT 
+                    u.id,
+                    u.name,
+                    ea.pay_method,
+                    ea.payment_kbn,
+                    ea.payment_date,
+                    ea.application_date,
+                    eaci.participant_mail
+                FROM mdl_user u
+                LEFT OUTER JOIN mdl_event_application ea ON u.id = ea.user_id
+                LEFT OUTER JOIN mdl_event_application_course_info eaci ON ea.id = eaci.event_application_id";
+
+                $where = " WHERE u.deleted = 0
+                         AND ea.payment_kbn != 2";
+                // 動的に検索条件を追加
+                $params = [];
+                // 追加条件
+                if (!empty($filters['event_id'])) {
+                    $where .= ' AND ea.event_id = :event_id';
+                    $params[':event_id'] = $filters['event_id'];
+                }
+                
+                if (!empty($filters['keyword'])) {
+                    //仕様：スペース区切りに対応している
+                    //全角半角スペースを全て半角スペースに揃える
+                    $keyword = str_replace('　', ' ', $filters['keyword']);
+
+                    //配列に入れる
+                    $keyword_array = explode(' ', $keyword);
+
+                    // キーワード検索対象カラム（名前、メールアドレス）
+                    $searchColumns = ['u.name', 'u.email'];
+                
+                    // AND検索の条件を組み立てる
+                    foreach ($keyword_array as $index => $key) {
+                        $keyParam = ":keyword" . $index; // プレースホルダ名をユニークにする
+                        $where .= " AND (" . implode(" LIKE $keyParam OR ", $searchColumns) . " LIKE $keyParam)";
+                        $params[$keyParam] = "%$key%"; // 部分一致検索
+                    }
+                }
+                $sql .= $where;
+                $groupBy = " GROUP BY u.id, u.username, u.email, 
+                            ea.pay_method, ea.payment_kbn, ea.payment_date, ea.application_date,
+                            eaci.participant_mail
+                            ORDER BY u.id";
+                $sql .= $groupBy;
+                
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $users;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+        return [];
+    }
+
     private function getTekijukuByUserId($user_id)
     {
         if ($this->pdo) {

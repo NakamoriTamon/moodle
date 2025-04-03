@@ -1,6 +1,17 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
 include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+require_once('/var/www/html/moodle/custom/admin/app/Controllers/message/message_select_controller.php');
+
+$message_select_controller = new MessageSelectController();
+$result_list = $message_select_controller->index();
+
+$kbn_id = $result_list['kbn_id'] ?? '';
+// 情報取得
+$category_list = $result_list['category_list'] ?? [];
+$event_list = $result_list['event_list']  ?? [];
+$user_list = $result_list['user_list']  ?? [];
 
 // 入力値の保持とエラーメッセージの取得
 $mail_title = "";
@@ -49,80 +60,78 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                 <div class="col-12 col-lg-12">
                     <div class="card">
                         <div class="card-body p-055">
-                            <div class="mb-3">
-                                <label class="form-label" for="notyf-message">対象区分</label>
-                                <select id="kbn_id" name="kbn_id" class="form-control">
-                                    <option value=1>全体</option>
-                                    <option value=2>イベント</option>
-                                    <option value=3>適塾記念会</option>
-                                    <option value=4>名誉教授会</option>
-                                    <option value=5>同窓会</option>
-                                </select>
-                            </div>
-                            <div id="even-form" class="d-none">
-                                <div class="d-flex sp-block justify-content-between">
-                                    <div class="mb-3 w-100">
-                                        <label class="form-label" for="notyf-message">カテゴリー</label>
-                                        <select name="category_id" class="form-control">
-                                            <option value=1>未選択</option>
-                                            <option value=2>医療・健康</option>
-                                            <option value=3>科学・技術</option>
-                                            <option value=4>生活・福祉</option>
-                                            <option value=5>文化・芸術</option>
-                                            <option value=6>社会・経済</option>
-                                            <option value=7>自然・環境</option>
-                                            <option value=8>子ども・教育</option>
-                                            <option value=9>国際・言語</option>
-                                            <option value=10>その他</option>
-                                        </select>
+                            <form id="form" method="POST" action="/custom/admin/app/Views/message/index.php" class="w-100">
+                                <div class="mb-3">
+                                    <label class="form-label" for="notyf-message">対象区分</label>
+                                    <span class="badge bg-danger">必須</span>
+                                    <select id="kbn_id" name="kbn_id" class="form-control">
+                                        <option value=''>未選択</option>
+                                        <?php foreach ($kbn_id_list as $key => $kbn) { ?>
+                                            <option value=<?= $key ?> <?= isSelected($key, $old_input['kbn_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($kbn) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div id="even-form" class="d-none">
+                                    <div class="d-flex sp-block justify-content-between">
+                                        <div class="mb-3 w-100">
+                                            <label class="form-label" for="notyf-message">カテゴリー</label>
+                                            <select name="category_id" class="form-control">
+                                            <option value="">すべて</option>
+                                                <?php foreach ($category_list as $category) { ?>
+                                                    <option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($category['name']) ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="sp-ms-0 ms-3 mb-3 w-100">
+                                            <label class="form-label" for="notyf-message">開催ステータス</label>
+                                            <select name="event_status_id" class="form-control">
+                                                <option value="">すべて</option>
+                                                <?php foreach ($display_status_list as $key => $event_status) { ?>
+                                                    <option value=<?= $key ?> <?= isSelected($key, $old_input['event_status_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($event_status) ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="sp-ms-0 ms-3 mb-3 w-100">
-                                        <label class="form-label" for="notyf-message">開催ステータス</label>
-                                        <select name="category_id" class="form-control">
-                                            <option value=1>未選択</option>
-                                            <option value=1>開催前</option>
-                                            <option value=2>開催中</option>
-                                            <option value=3>開催終了</option>
-                                        </select>
+                                    <div class="d-flex sp-block justify-content-between">
+                                        <div class="mb-3 w-100">
+                                            <label class="form-label" for="notyf-message">イベント名</label>
+                                            <select name="event_id" class="form-control">
+                                                <option value=''>未選択</option>
+                                                <?php foreach ($event_list as $event): ?>
+                                                    <option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                                        <?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8') ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="sp-ms-0 mb-3 ms-3 w-100">
+                                            <label class="form-label" for="notyf-message">回数</label>
+                                            <select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+                                                <option value="">未選択</option>
+                                                <?php for ($i = 1; $i < 10; $i++) { ?>
+                                                    <option value=<?= $i ?>
+                                                        <?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= "第" . $i . "回" ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="d-flex sp-block justify-content-between">
-                                    <div class="mb-3 w-100">
-                                        <label class="form-label" for="notyf-message">イベント名</label>
-                                        <select name="category_id" class="form-control">
-                                            <option value=''>未選択</option>
-                                            <option value=1>イベントA</option>
-                                            <option value=2>イベントB</option>
-                                            <option value=3>イベントC</option>
-                                            <option value=4>イベントD</option>
-                                            <option value=5>イベントE</option>
-                                        </select>
-                                    </div>
-                                    <div class="sp-ms-0 mb-3 ms-3 w-100">
-                                        <label class="form-label" for="notyf-message">回数</label>
-                                        <select name="category_id" class="form-control w-100">
-                                            <option value=1>すべて</option>
-                                            <option value=1>第1回</option>
-                                            <option value=2>第2回</option>
-                                            <option value=3>第3回</option>
-                                            <option value=4>第4回</option>
-                                            <option value=5>第5回</option>
-                                            <option value=2>第6回</option>
-                                            <option value=3>第7回</option>
-                                            <option value=4>第8回</option>
-                                            <option value=5>第9回</option>
-                                        </select>
-                                    </div>
+                                <div class="mb-4">
+                                    <label class="form-label" for="notyf-message">フリーワード</label>
+                                    <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
                                 </div>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label" for="notyf-message">フリーワード</label>
-                                <input id="notyf-message" name="notyf-message" type="text" class="form-control" placeholder="田中 翔太">
-                            </div>
-                            <!-- <hr> -->
-                            <div class="d-flex w-100">
-                                <button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
-                            </div>
+                                <!-- <hr> -->
+                                <div class="d-flex w-100">
+                                    <button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <form method="POST" action="/custom/admin/app/Controllers/message/message_controller.php">
@@ -141,7 +150,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                 <th class="ps-4 pe-4">会員番号</th>
                                                 <th class="ps-4 pe-4">ユーザー名</th>
                                                 <th class="ps-4 pe-4">メールアドレス</th>
+                                                <?php if($kbn_id == 2): ?>
                                                 <th class="ps-4 pe-4">メニュー</th>
+                                                <?php endif; ?>
                                                 <th class="ps-4 pe-4">決済方法</th>
                                                 <th class="ps-4 pe-4">決済状況</th>
                                                 <th class="ps-4 pe-4">支払日</th>
@@ -149,100 +160,21 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td class="ps-4 pe-4 text-nowrap">0000 0091</td>
-                                                <td class="ps-4 pe-4">田中 翔太</td>
-                                                <td class="ps-4 pe-4">tanaka@gmail.com</td>
-                                                <td class="ps-4 pe-4">普通会員</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2023/12/20</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4 text-nowrap">0090 8989</td>
-                                                <td class="ps-4 pe-4">山田 健太</td>
-                                                <td class="ps-4 pe-4">yamada@gmail.com</td>
-                                                <td class="ps-4 pe-4">賛助会員</td>
-                                                <td class="ps-4 pe-4">口座振替</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/5</td>
-                                                <td class="ps-4 pe-4">2023/10/15</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1100 7767</td>
-                                                <td class="ps-4 pe-4">中村 優衣</td>
-                                                <td class="ps-4 pe-4">nakamura@gmail.com</td>
-                                                <td class="ps-4 pe-4">賛助会員</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4  text-danger">未決済</td>
-                                                <td class="ps-4 pe-4">2023/4/7</td>
-                                                <td class="ps-4 pe-4">2023/4/7</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1101 4334</td>
-                                                <td class="ps-4 pe-4">佐藤 夢</td>
-                                                <td class="ps-4 pe-4">sato@gmail.com</td>
-                                                <td class="ps-4 pe-4">普通会員</td>
-                                                <td class="ps-4 pe-4">口座振替</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2020/1/20</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1105 5545</td>
-                                                <td class="ps-4 pe-4">高橋 美咲</td>
-                                                <td class="ps-4 pe-4">takahashi@gmail.com</td>
-                                                <td class="ps-4 pe-4">普通会員</td>
-                                                <td class="ps-4 pe-4">口座振替</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2023/7/20</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1120 7768</td>
-                                                <td class="ps-4 pe-4">伊藤 大輔</td>
-                                                <td class="ps-4 pe-4">ito@gmail.com</td>
-                                                <td class="ps-4 pe-4">普通会員</td>
-                                                <td class="ps-4 pe-4">コンビニ決済</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1125 5454</td>
-                                                <td class="ps-4 pe-4">清水 由佳</td>
-                                                <td class="ps-4 pe-4">shimizu@gmail.com</td>
-                                                <td class="ps-4 pe-4">賛助会員</td>
-                                                <td class="ps-4 pe-4">コンビニ決済</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="ps-4 pe-4">1135 6654</td>
-                                                <td class="ps-4 pe-4">加藤 拓也</td>
-                                                <td class="ps-4 pe-4">kato@gmail.com</td>
-                                                <td class="ps-4 pe-4">賛助会員</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/3/20</td>
-                                            </tr>
-                                            <!-- hiddenでメールアドレスを保持 -->
-                                            <!-- <tr>
-                                                <td class="ps-4 pe-4">0000 0000</td>
-                                                <td class="ps-4 pe-4">テスト 太郎0</td>
-                                                <td class="ps-4 pe-4">k.kawai@trans-it.net</td>
-                                                <td class="ps-4 pe-4">賛助会員</td>
-                                                <td class="ps-4 pe-4">クレジット</td>
-                                                <td class="ps-4 pe-4">決済済</td>
-                                                <td class="ps-4 pe-4">2024/4/1</td>
-                                                <td class="ps-4 pe-4">2024/3/20</td>
-                                                
-                                                <input type="hidden" name="mail_to_list[]" value="test@trans-it.net">
-                                            </tr> -->
-                                                <input type="hidden" name="mail_to_list[]" value="yasuda@trans-it.net">
+                                            <?php foreach($user_list as $user): ?>
+                                                <tr>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= $user['id'] ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['name']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['participant_mail']) ?></td>
+                                                    <?php if($kbn_id == 2): ?>
+                                                    <td class="ps-4 pe-4">普通会員</td>
+                                                    <?php endif; ?>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['pay_method']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['payment_kbn']) ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['payment_date'] ?? '') ?></td>
+                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['application_date']) ?></td>
+                                                </tr>
+                                                <input type="hidden" name="mail_to_list[]" value="<?= $user['participant_mail'] ?>">
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -328,12 +260,42 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
 
 <script>
     $(document).ready(function() {
+        let kbn_id = $('select[name="kbn_id"]').val();
+        if (kbn_id == 1) {
+            $('#even-form').removeClass('d-none');
+        } else {
+            $('#even-form').addClass('d-none');
+        }
+
         $('select[name="kbn_id"]').on('change', function(event) {
-            if ($(this).val() == 2) {
+            if ($(this).val() == 1) {
                 $('#even-form').removeClass('d-none');
             } else {
                 $('#even-form').addClass('d-none');
             }
+        });
+        // 検索フォームから検索時URLを動的に変更
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = $('input[name="page"]').val();
+        params.set('page', currentPage);
+        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+
+        // 検索
+        $('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+            $("#form").submit();
+        });
+        $('#search-button').on('click', function(event) {
+            $('input[name="page"]').val(1);
+        });
+        // ページネーション押下時
+        $(document).on("click", ".paginate_button a", function(e) {
+            e.preventDefault();
+            const nextPage = $(this).data("page");
+            $('input[name="page"]').val(nextPage);
+            $('#form').submit();
+        });
+        $('#csv_button').on('click', function(event) {
+            $('#csvExportForm').submit();
         });
     });
 </script>

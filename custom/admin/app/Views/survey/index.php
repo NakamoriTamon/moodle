@@ -82,7 +82,7 @@ $page = $result_list['page'];
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">イベント名</label>
 									<select name="event_id" class="form-control">
-										<option value="" selected disabled>未選択</option>
+										<option value="" selected>未選択</option>
 										<?php foreach ($event_list as $event): ?>
 											<option value="<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>"
 												<?= isSelected($event['id'], $old_input['event_id'] ?? null, null) ? 'selected' : '' ?>>
@@ -171,9 +171,9 @@ $page = $result_list['page'];
 									<tbody>
 										<?php foreach ($survey_list as $key => $survey): ?>
 											<?php
-											$found_num_list = array_map('trim', explode(",", $survey['found_method']));
-											$reason_num_list = array_map('trim', explode(",", $survey['reason']));
-											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction']));
+											$found_num_list = array_map('trim', explode(",", $survey['found_method'] ?? ""));
+											$reason_num_list = array_map('trim', explode(",", $survey['reason'] ?? ""));
+											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction'] ?? ""));
 											?>
 											<tr>
 												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at'] ?? ''))) ?></td>
@@ -186,7 +186,7 @@ $page = $result_list['page'];
 													<?php
 													$last_key = count($found_num_list) - 1;
 													foreach ($found_num_list as $key => $found_num) { ?>
-														<?= htmlspecialchars(FOUND_METHOD_LIST[$found_num]) ?>
+														<?= htmlspecialchars(FOUND_METHOD_LIST[$found_num] ?? '') ?>
 														<?= $key !== $last_key ? ',' : ''; ?>
 													<?php } ?>
 												</td>

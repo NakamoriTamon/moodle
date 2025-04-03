@@ -372,7 +372,15 @@ $sex_list = [
 define('SEX_LIST', $sex_list);
 $payment_credit = 2; // 決済方法クレジット
 define('PAYMENT_CREDIT', $payment_credit);
-
+// 対象区分
+$kbn_id_list = [
+  1 => 'イベント',
+  2 => '適塾記念会',
+  // 3 => '名誉教授会',
+  // 4 => '同窓会',
+  5 => '全体'
+];
+define('KBN_ID_LIST', $kbn_id_list);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

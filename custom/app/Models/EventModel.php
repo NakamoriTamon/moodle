@@ -1,6 +1,17 @@
 <?php
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
+
 class EventModel extends BaseModel
 {
+    private $roleAssignmentsModel;
+    
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->roleAssignmentsModel = new RoleAssignmentsModel();
+    }
+
     // イベントを全件取得
     public function getEvents($filters = [], int $page = 1, int $perPage = 10)
     {
@@ -781,6 +792,152 @@ class EventModel extends BaseModel
                     ':now_time' => $now_time,
                     ':current_timestamp' => $currentTimestamp
                 ];
+
+                // クエリ実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $event = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!empty($event)) {
+                    // 各イベントの詳細を追加
+                    $event['lecture_formats'] = $this->getEventLectureFormats($event['id']);
+                    $event['categorys'] = $this->getEventCategorys($event['id']);
+                    $event['course_infos'] = $this->getEventCourseInfos($event['id']);
+                    $event_status = $event['event_status'];
+                }
+
+                return $event;
+            } catch (\PDOException $e) {
+                echo 'データの取得に失敗しました: ' . $e->getMessage();
+            }
+        } else {
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    // イベント単件取得
+    public function getAdminEventById($id = null)
+    {
+        if ($this->pdo) {
+            try {
+                global $USER;
+                // ユーザーID(会員番号)を取得
+                $userid = $USER->id;
+                $role = $this->roleAssignmentsModel->getShortname($userid);
+                $shortname = $role['shortname'];
+                $now = new DateTime();
+                $currentTimestamp = $now->format('Y-m-d H:i:s');
+                $now_time = time(); // 現在のタイムスタンプ（秒）
+                // ベースのSQLクエリ - COUNT追加
+                $sql = 'WITH closest_dates AS (
+                        SELECT 
+                            e.id AS event_id,
+                            c.course_date,
+                            c.deadline_date,
+                            ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
+                        FROM mdl_event e
+                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                    ),
+                    event_dates AS (
+                        SELECT 
+                            e.id AS event_id,
+                            MIN(c.course_date) AS min_course_date,
+                            MAX(c.course_date) AS max_course_date,
+                            COUNT(c.id) AS total_courses
+                        FROM mdl_event e
+                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                        GROUP BY e.id
+                    )
+                    SELECT 
+                        e.*,
+                        COALESCE(ed.total_courses, 0) AS total_courses,
+                        CASE
+                            WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                            WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                            AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                            WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
+                        END AS set_event_deadline_status,
+                        (SELECT cd.course_date 
+                        FROM closest_dates cd 
+                        WHERE cd.event_id = e.id 
+                        ORDER BY cd.time_diff ASC 
+                        LIMIT 1) AS closest_course_date,
+                        CASE
+                            WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
+                            WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
+                            WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
+                        ELSE 0
+                        END AS event_status,
+                        CASE
+                            WHEN :current_timestamp <= (
+                                COALESCE(
+                                    (SELECT cd.deadline_date FROM closest_dates cd 
+                                    WHERE cd.event_id = e.id 
+                                    AND cd.deadline_date >= :current_timestamp 
+                                    ORDER BY cd.time_diff ASC LIMIT 1),
+                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                ) - INTERVAL 5 DAY
+                            ) THEN 1 -- 受付中
+
+                            WHEN :current_timestamp > (
+                                COALESCE(
+                                    (SELECT cd.deadline_date FROM closest_dates cd 
+                                    WHERE cd.event_id = e.id 
+                                    AND cd.deadline_date >= :current_timestamp 
+                                    ORDER BY cd.time_diff ASC LIMIT 1),
+                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                ) - INTERVAL 5 DAY
+                            ) 
+                            AND :current_timestamp <= (
+                                COALESCE(
+                                    (SELECT cd.deadline_date FROM closest_dates cd 
+                                    WHERE cd.event_id = e.id 
+                                    AND cd.deadline_date >= :current_timestamp 
+                                    ORDER BY cd.time_diff ASC LIMIT 1),
+                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                )
+                            ) THEN 2 -- もうすぐ締め切り
+
+                            WHEN :current_timestamp > (
+                                COALESCE(
+                                    (SELECT cd.deadline_date FROM closest_dates cd 
+                                    WHERE cd.event_id = e.id 
+                                    AND cd.deadline_date >= :current_timestamp 
+                                    ORDER BY cd.time_diff ASC LIMIT 1),
+                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                )
+                            ) THEN 3 -- 受付終了
+
+                            ELSE 0
+                        END AS deadline_status
+                    FROM mdl_event e
+                    LEFT JOIN event_dates ed ON e.id = ed.event_id
+                LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
+                LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
+                LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
+                WHERE e.visible = 1 AND e.id = :id';
+
+                // パラメータ設定
+                $params = [
+                    ':id' => $id,
+                    ':now_time' => $now_time,
+                    ':current_timestamp' => $currentTimestamp
+                ];
+
+                $where = "";
+                if ($shortname != ROLE_ADMIN) {
+                    $where = ' AND e.userid = :userid';
+                    $params[':userid'] = $userid;
+                }
+
+                $sql .= $where;
+
+                $sql .= ' GROUP BY e.id
+                ORDER BY MIN(ci.course_date) ASC';
 
                 // クエリ実行
                 $stmt = $this->pdo->prepare($sql);

@@ -95,7 +95,7 @@ if ($price > 0) {
                 <li>完了</li>
             </ul>
             <!-- 一旦申し込んだイベントリストへ飛ばす -->
-            <form action="/custom/app/Controllers/event/event_application_insert_controller.php" method="post" enctype="multipart/form-data" class="whitebox form_cont">
+            <form id="applicationForm" action="/custom/app/Controllers/event/event_application_insert_controller.php" method="post" enctype="multipart/form-data" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="hidden" id="event_id" name="event_id" value="<?= htmlspecialchars($eventId) ?>">
                 <input type="hidden" name="course_info_id" value="<?= htmlspecialchars($courseInfoId ?? "") ?>">
@@ -241,3 +241,12 @@ if ($price > 0) {
     <li><a href="../index.php">トップページ</a></li>
     <li>申し込み内容確認</li>
 </ul>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#applicationForm').on('submit', function() {
+        $(this).find('input[type="submit"]').prop('disabled', true);
+    });
+});
+</script>
