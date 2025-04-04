@@ -521,11 +521,11 @@ if ($surveys['exist']) {
                             <div class="list_field f_radio">
                                 <label>
                                     <input type="radio" name="sex" value="1" <?php if (isset($old_input['sex']) && $old_input['sex'] === '1') echo 'checked'; ?>>
-                                    女性
+                                    男性
                                 </label>
                                 <label>
                                     <input type="radio" name="sex" value="2" <?php if (isset($old_input['sex']) && $old_input['sex'] === '2') echo 'checked'; ?>>
-                                    男性
+                                    女性
                                 </label>
                                 <label>
                                     <input type="radio" name="sex" value="3" <?php if (isset($old_input['sex']) && $old_input['sex'] === '3') echo 'checked'; ?>>
