@@ -7,38 +7,50 @@ require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationCustomfieldModel.php');
-// 必要なモデルのrequire文
 
 try {
-    $delimiter = "|"; // 区切り文字
+    $delimiter = "|";
     $surveyApplicationModel = new SurveyApplicationModel();
     $eventModel = new EventModel();
     $eventSurveyCustomFieldModel = new EventSurveyCustomFieldModel();
     $surveyApplicationCustomfieldModel = new SurveyApplicationCustomfieldModel();
 
-    $course_info_id = $_POST['course_info_id'];
-    $event_id = $_POST['event_id'];
+    $course_info_id = $_POST['course_info_id'] ?? null;
+    $event_id = $_POST['event_id'] ?? null;
     $_SESSION['old_input'] = $_POST;
 
-    // アンケートデータの取得
     $survey_period = 0;
-    $survey_list = [];
-    $path_name = '';
+    $survey_list   = [];
+    $path_name     = '';
+
     if (!empty($course_info_id) || !empty($event_id)) {
         $survey_list = $surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, 1, 100000);
-        $survey = reset($survey_list);
-        if (!empty($course_info_id)) {
+        if (!empty($survey_list)) {
             $survey = reset($survey_list);
-            $name = $survey['event']['name'];
-            $no = $survey['course_info']['no'];
-            $path_name = '第' . $no . '回_' . $name;
-        } else {
-            $path_name = $survey['event']['name'];
+            if (!empty($course_info_id)) {
+                $name      = $survey['event']['name'];
+                $no        = $survey['course_info']['no'];
+                $path_name = '第' . $no . '回_' . $name;
+            } else {
+                $path_name = $survey['event']['name'];
+            }
         }
     }
 
-    // CSVヘッダー
-    $csv_list[0] = [
+    $event = null;
+    if (!empty($event_id)) {
+        $event = $eventModel->getEventById($event_id);
+    }
+
+    $survey_field_list = [];
+    if (!empty($event) && !empty($event['event_survey_customfield_category_id'])) {
+        $survey_field_list = $eventSurveyCustomFieldModel->getEventSurveyCustomFieldById(
+            $event['event_survey_customfield_category_id']
+        );
+    }
+
+    $csv_list   = [];
+    $csv_list[] = [
         '回答時間',
         '回数',
         '本日の講義内容について、ご意見・ご感想をお書きください',
@@ -61,112 +73,118 @@ try {
         'お住いの地域を教えてください（〇〇県△△市のようにご回答ください'
     ];
 
-    // アンケート時間集計
-    foreach ($survey_list as &$survey) {
-        $start = strtotime($survey['event']["start_hour"]);
-        $end = strtotime($survey['event']["end_hour"]);
-        $survey_period = ($end - $start) / 60;
-
-        $event = $eventModel->getEventById($event_id);
-        // アンケートカスタムフィールドの名称を取得
-        $survey_field_list = $eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($event['event_survey_customfield_category_id']);
-        foreach($survey_field_list as $field) {
-            $csv_list[0][] = $field['name'];
-        }
-        // アンケートカスタムフィールドの入力値を取得
-        $list = $surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
-
-        $survey['customfiel'] = $list;
+    foreach ($survey_field_list as $field) {
+        $csv_list[0][] = $field['name'];
     }
 
-    // データの書き込み
     $count = 1;
+
     foreach ($survey_list as $survey) {
-        $attend = DECISION_LIST[$survey['attend']]; // 参加経験
-        $found_num_list = array_map('trim', explode(",", $survey['found_method']));
-        $found_method = "";
-        foreach($found_num_list as $index =>$row) {
-            if($index != 0) {
-                $found_method .= $delimiter;
+        $start         = strtotime($survey['event']["start_hour"]);
+        $end           = strtotime($survey['event']["end_hour"]);
+        $survey_period = ($end - $start) / 60;
+
+        $attend       = !empty(DECISION_LIST[$survey['attend']]) ? DECISION_LIST[$survey['attend']] : '';
+        $found_method = '';
+        if (!empty($survey['found_method'])) {
+            $found_num_list = array_map('trim', explode(",", $survey['found_method']));
+            foreach ($found_num_list as $index => $row) {
+                $found_method .= ($index > 0 ? $delimiter : '') . FOUND_METHOD_LIST[$row];
             }
-            $found_method .= FOUND_METHOD_LIST[$row]; // プログラムを知った方法
         }
-        $reason_num_list = array_map('trim', explode(",", $survey['reason']));
-        $reason = "";
-        foreach($reason_num_list as $index =>$row) {
-            if($index != 0) {
-                $reason .= $delimiter;
+        $reason = '';
+        if (!empty($survey['reason'])) {
+            $reason_num_list = array_map('trim', explode(",", $survey['reason']));
+            foreach ($reason_num_list as $index => $row) {
+                $reason .= ($index > 0 ? $delimiter : '') . REASON_LIST[$row];
             }
-            $reason .= REASON_LIST[$row]; // プログラムを知った方法
         }
-        $satisfaction = SATISFACTION_LIST[$survey['satisfaction']]; // 満足度
-        $understanding = UNDERSTANDING_LIST[$survey['understanding']];  // 理解度
-        $good_point = GOOD_POINT_LIST[$survey['good_point']];  // 良かった点
-        $time = TIME_LIST[$survey['time']]; // 開催時間
-        $holding_environment = HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]; // 開催環境
-        $work = WORK_LIST[$survey['work']]; // 職業
-        $sex = SEX_LIST[$survey['sex']];   // 性別
+
+        $satisfaction           = !empty(SATISFACTION_LIST[$survey['satisfaction']]) ? SATISFACTION_LIST[$survey['satisfaction']] : '';
+        $understanding          = !empty(UNDERSTANDING_LIST[$survey['understanding']]) ? UNDERSTANDING_LIST[$survey['understanding']] : '';
+        $good_point             = !empty(GOOD_POINT_LIST[$survey['good_point']]) ? GOOD_POINT_LIST[$survey['good_point']] : '';
+        $time                   = !empty(TIME_LIST[$survey['time']]) ? TIME_LIST[$survey['time']] : '';
+        $holding_environment    = !empty(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]) ? HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] : '';
+        $work                   = !empty(WORK_LIST[$survey['work']]) ? WORK_LIST[$survey['work']] : '';
+        $sex                    = !empty(SEX_LIST[$survey['sex']]) ? SEX_LIST[$survey['sex']] : '';
+        $address_combined       = ($survey['prefectures'] ?? '') . ($survey['address'] ?? '');
+
+        $list = $surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
+
+        $customValueMap = [];
+        if (!empty($list)) {
+            foreach ($list as $cf) {
+                $customValueMap[$cf['survey_customfield_id']] = [
+                    'field_type' => $cf['field_type'],
+                    'input_data' => $cf['input_data']
+                ];
+            }
+        }
 
         $csv_array = [
             $survey['created_at'],
-            $survey['course_info']['no'],
-            $survey['thoughts'],
+            $survey['course_info']['no'] ?? '',
+            $survey['thoughts'] ?? '',
             $attend,
             $found_method,
-            $survey['other_found_method'],
+            $survey['other_found_method'] ?? '',
             $reason,
-            $survey['other_reason'],
+            $survey['other_reason'] ?? '',
             $satisfaction,
             $understanding,
             $good_point,
-            $survey['other_good_point'],
+            $survey['other_good_point'] ?? '',
             $time,
             $holding_environment,
-            $survey['no_good_environment_reason'],
-            $survey['lecture_suggestions'],
-            $survey['speaker_suggestions'],
+            $survey['no_good_environment_reason'] ?? '',
+            $survey['lecture_suggestions'] ?? '',
+            $survey['speaker_suggestions'] ?? '',
             $work,
             $sex,
-            $survey['prefectures'] . $survey['address']
+            $address_combined
         ];
-        foreach($survey['customfiel'] as $customfiel) {
-            $key = array_search("checkbox", $customfield_type_list, true);
-            if($customfiel['field_type'] == $key) {
-                $csv_array[] = str_replace(',', '|', $customfiel['input_data']);
-            } else {
-                $csv_array[] = $customfiel['input_data'];
+
+        foreach ($survey_field_list as $field) {
+            $fieldId   = $field['survey_customfield_id'];
+            $fieldData = '';
+
+            if (isset($customValueMap[$fieldId])) {
+                $fieldType = $customValueMap[$fieldId]['field_type'];
+                $inputData = $customValueMap[$fieldId]['input_data'];
+
+                if ($fieldType == 'checkbox') {
+                    $fieldData = str_replace(',', '|', $inputData);
+                } else {
+                    $fieldData = $inputData;
+                }
             }
+
+            $csv_array[] = $fieldData;
         }
+
         $csv_list[$count] = $csv_array;
         $count++;
     }
 
-    // 保存先のファイルパス
-    $temp_dir = make_temp_directory('survey_export');
+    $temp_dir  = make_temp_directory('survey_export');
     $save_path = $temp_dir . "/survey_output.csv";
 
     if (!is_writable(dirname($save_path))) {
         die("ディレクトリに書き込み権限がありません: " . dirname($save_path));
     }
-
-    // ディレクトリがない場合は作成
     if (!is_dir(dirname($save_path))) {
         mkdir(dirname($save_path), 0777, true);
     }
 
-    // ファイルを開く
     $fp = fopen($save_path, "w");
     if ($fp === false) {
         die("ファイルを開けませんでした");
     }
 
-    // UTF-8 BOMを追加
     fwrite($fp, "\xEF\xBB\xBF");
 
-    // データをCSVとして書き込み（カンマ区切り）
     foreach ($csv_list as $row) {
         $row = array_map(function ($val) {
-            // 文字列がUTF-8でない場合にUTF-8に変換
             if (!mb_detect_encoding($val, "UTF-8", true)) {
                 $val = mb_convert_encoding($val, "UTF-8");
             }
@@ -177,19 +195,15 @@ try {
 
     fclose($fp);
 
-    // ファイルのダウンロード
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $path_name . '_' . date('YmdHi') . '.csv"');
     header('Content-Transfer-Encoding: binary');
     header('Content-Length: ' . filesize($save_path));
 
     readfile($save_path);
-    unlink($save_path); // ファイルを削除
+    unlink($save_path);
 } catch (Exception $e) {
-    try {
-    } catch (Exception $rollbackException) {
-        $_SESSION['message_error'] = 'CSVファイルの出力に失敗しました';
-        redirect('/custom/admin/app/Views/survey/index.php');
-        exit;
-    }
+    $_SESSION['message_error'] = 'CSVファイルの出力に失敗しました';
+    redirect('/custom/admin/app/Views/survey/index.php');
+    exit;
 }
