@@ -8,10 +8,20 @@ $message_select_controller = new MessageSelectController();
 $result_list = $message_select_controller->index();
 
 $kbn_id = $result_list['kbn_id'] ?? '';
+
 // 情報取得
 $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $user_list = $result_list['user_list']  ?? [];
+$header_list = $result_list['header_list'] ?? [];
+$application_list = $result_list['application_list'] ?? [];
+$tekijuku_commemoration_list = $result_list['tekijuku_commemoration_list'] ?? [];
+
+// ページネーション
+$total_count = $result_list['total_count'] ?? 0;
+$per_page = $result_list['per_page'] ?? 1;
+$current_page = $result_list['current_page'];
+$page = $result_list['page'];
 
 // 入力値の保持とエラーメッセージの取得
 $mail_title = "";
@@ -61,9 +71,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                     <div class="card">
                         <div class="card-body p-055">
                             <form id="form" method="POST" action="/custom/admin/app/Views/message/index.php" class="w-100">
+                                <input type="hidden" name="page" value="<?= $page ?>">
                                 <div class="mb-3">
                                     <label class="form-label" for="notyf-message">対象区分</label>
-                                    <span class="badge bg-danger">必須</span>
                                     <select id="kbn_id" name="kbn_id" class="form-control">
                                         <option value=''>未選択</option>
                                         <?php foreach ($kbn_id_list as $key => $kbn) { ?>
@@ -77,7 +87,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                         <div class="mb-3 w-100">
                                             <label class="form-label" for="notyf-message">カテゴリー</label>
                                             <select name="category_id" class="form-control">
-                                            <option value="">すべて</option>
+                                                <option value="">すべて</option>
                                                 <?php foreach ($category_list as $category) { ?>
                                                     <option value="<?= $category['id'] ?>" <?= isSelected($category['id'], $old_input['category_id'] ?? null, null) ? 'selected' : '' ?>>
                                                         <?= htmlspecialchars($category['name']) ?>
@@ -123,7 +133,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-4">
+                                <div id="keyword_div" class="mb-4 w-100">
                                     <label class="form-label" for="notyf-message">フリーワード</label>
                                     <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
                                 </div>
@@ -134,125 +144,193 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                             </form>
                         </div>
                     </div>
-                    <form method="POST" action="/custom/admin/app/Controllers/message/message_controller.php">
-                        <div class="card min-70vh">
-                            <div class="card-body p-0">
-                                <div class="d-flex w-100 align-items-center justify-content-end mt-3">
-                                    <div class="mt-4"></div>
-                                    <!-- <button class="btn btn-primary mt-3 mb-3 d-flex justify-content-center align-items-center">
-                                        <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
-                                    </button> -->
-                                </div>
-                                <div class="card m-auto mb-5 w-95">
-                                    <table class="table table-responsive table-striped table_list" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th class="ps-4 pe-4">会員番号</th>
-                                                <th class="ps-4 pe-4">ユーザー名</th>
-                                                <th class="ps-4 pe-4">メールアドレス</th>
-                                                <?php if($kbn_id == 2): ?>
-                                                <th class="ps-4 pe-4">メニュー</th>
-                                                <?php endif; ?>
-                                                <th class="ps-4 pe-4">決済方法</th>
-                                                <th class="ps-4 pe-4">決済状況</th>
-                                                <th class="ps-4 pe-4">支払日</th>
-                                                <th class="ps-4 pe-4">申込日</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach($user_list as $user): ?>
-                                                <tr>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= $user['id'] ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['name']) ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['participant_mail']) ?></td>
-                                                    <?php if($kbn_id == 2): ?>
-                                                    <td class="ps-4 pe-4">普通会員</td>
-                                                    <?php endif; ?>
-                                                    <?php if($user['pay_method'] == FREE_EVENT): ?>
-                                                        <td class="ps-4 pe-4">無料イベント</td>
-                                                    <?php else: ?>
-                                                        <td class="ps-4 pe-4"><?= htmlspecialchars(PAYMENT_SELECT_LIST[$user['pay_method'] ?? '']) ?></td>
-                                                    <?php endif; ?> 
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars(PAYMENT_KBN_LIST[$user['payment_kbn'] ?? '']) ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['payment_date'] ?? '') ?></td>
-                                                    <td class="ps-4 pe-4"><?= htmlspecialchars($user['application_date']) ?></td>
-                                                </tr>
-                                                <input type="hidden" name="mail_to_list[]" value="<?= $user['participant_mail'] ?>">
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="d-flex pc-pagenation">
-                                <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
-                                    <ul class="pagination">
-                                        <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
-                                        <li class="paginate_button page-item active"><a href="#" aria-controls="datatables-buttons" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="2" tabindex="0" class="page-link">2</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="3" tabindex="0" class="page-link">3</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="4" tabindex="0" class="page-link">4</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="5" tabindex="0" class="page-link">5</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="6" tabindex="0" class="page-link">6</a></li>
-                                        <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="7" tabindex="0" class="page-link">Next</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="d-flex sp-pagenation">
-                                <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
-                                    <ul class="pagination">
-                                        <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="#" aria-controls="datatables-buttons" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>
-                                        <li class="paginate_button page-item active"><a href="#" aria-controls="datatables-buttons" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="2" tabindex="0" class="page-link">2</a></li>
-                                        <li class="paginate_button page-item "><a href="#" aria-controls="datatables-buttons" data-dt-idx="3" tabindex="0" class="page-link">3</a></li>
-                                        <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="#" aria-controls="datatables-buttons" data-dt-idx="4" tabindex="0" class="page-link">Next</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0 mt-3">メール送信内容</h5>
-                            </div>
-                            <div class="card-body">
-                                <?php if (!empty($message_error)): ?>
-                                    <div class="alert alert-danger">
-                                        <?= htmlspecialchars($message_error); ?>
+                    <?php if (!empty($user_list) || !empty($application_list) || !empty($tekijuku_commemoration_list)) { ?>
+                        <form method="POST" action="/custom/admin/app/Controllers/message/message_controller.php">
+                            <div class="card min-70vh">
+                                <div class="card-body p-0">
+                                    <div class="d-flex w-100 align-items-center justify-content-end mt-3">
+                                        <div class="mt-4"></div>
                                     </div>
-                                <?php endif; ?>
-                                <div class="mb-3">
-                                    <label class="form-label">メールタイトル</label>
-                                    <span class="badge bg-danger">必須</span>
-                                    <div class="align-items-center">
-                                        <textarea name="mail_title" class="form-control w-100"  required><?= htmlspecialchars($mail_title) ?></textarea>
-                                        <?php if (!empty($errors['mail_title'])): ?>
-                                            <div class="text-danger mt-2">
-                                                <?= htmlspecialchars($errors['mail_title']); ?>
-                                            </div>
-                                        <?php endif; ?>
+                                    <div class="card m-auto mb-5 w-95">
+                                        <?php if ($old_input['kbn_id'] == DM_SEND_KBN_EVENT) { ?>
+                                            <table class="table table-responsive table-striped table_list" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <?php foreach ($header_list as $header) { ?>
+                                                            <th class="ps-4 pe-4 text-nowrap"><?= $header ?></th>
+                                                        <?php } ?>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($application_list as $application): ?>
+                                                        <tr>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= $application['id'] ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['event_name']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['no']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['user_id']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['name']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['email']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['payment_type']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['is_paid']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['payment_date'] ?? '') ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['application_date']) ?>/td>
+                                                        </tr>
+                                                        <input type="hidden" name="mail_to_list[]" value="<?= $application['email'] ?>">
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        <?php } else if ($old_input['kbn_id'] == DM_SEND_KBN_TEKIJUKU) { ?>
+                                            <table class="table table-responsive table-striped table_list" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <?php foreach ($header_list as $header) { ?>
+                                                            <th class="ps-4 pe-4 text-nowrap"><?= $header ?></th>
+                                                        <?php } ?>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($tekijuku_commemoration_list as $tekijuku_commemoration): ?>
+                                                        <?php
+                                                        $number = str_pad($tekijuku_commemoration['number'], 8, '0', STR_PAD_LEFT);
+                                                        $number = substr($number, 0, 4) . ' ' . substr($number, 4);
+                                                        $menu = $tekijuku_commemoration['type_code'] === 1 ? '普通会員' : '賛助会員';
+                                                        $created_date = new DateTime($tekijuku_commemoration['created_at']);
+                                                        $paid_date = null;
+                                                        if (!empty($tekijuku_commemoration['paid_date'])) {
+                                                            $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
+                                                            $paid_date = $paid_date->format("Y年n月j日");
+                                                        }
+                                                        ?>
+                                                        <tr>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($number) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['name']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['email']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($menu) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['unit']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['department']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['major']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['official']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['display_depo']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($payment_select_list[$tekijuku_commemoration['payment_method']]) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($paid_date) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['old_number']) ?></td>
+                                                        </tr>
+                                                        <input type="hidden" name="mail_to_list[]" value="<?= $tekijuku_commemoration['email'] ?>">
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        <?php } else if ($old_input['kbn_id'] == DM_SEND_KBN_ALL) { ?>
+                                            <table class="table table-responsive table-striped table_list" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <?php foreach ($header_list as $header) { ?>
+                                                            <th class="ps-4 pe-4 text-nowrap"><?= $header ?></th>
+                                                        <?php } ?>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($user_list as $user): ?>
+                                                        <tr>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= $user['user_id'] ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['name']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['kana']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['birthday']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['city']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['email']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['phone']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_name']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_email']) ?></td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_phone']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['is_tekijuku']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['pay_method']) ?></td>
+                                                        </tr>
+                                                        <input type="hidden" name="mail_to_list[]" value="<?= $user['email'] ?>">
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        <?php } ?>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <div class="form-label d-flex align-items-center">
-                                        <label class="me-2">メール本文</label>
+                                <div class="d-flex">
+                                    <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                        <ul class="pagination">
+                                            <?php
+                                            $total_pages = ceil($total_count / $per_page);
+                                            $start_page = max(1, $current_page - 1); // 最小1
+                                            $end_page = min($total_pages, $start_page + 2); // 最大3つ
+
+                                            // 前のページボタン
+                                            if ($current_page > 1): ?>
+                                                <li class="paginate_button page-item previous">
+                                                    <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+                                                </li>
+                                            <?php endif; ?>
+
+                                            <?php
+                                            // ページ番号の表示
+                                            for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                                <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+                                                    <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+                                                </li>
+                                            <?php endfor; ?>
+
+                                            <?php
+                                            // 次のページボタン
+                                            if ($current_page < $total_pages): ?>
+                                                <li class="paginate_button page-item next">
+                                                    <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0 mt-3">メール送信内容</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (!empty($message_error)): ?>
+                                        <div class="alert alert-danger">
+                                            <?= htmlspecialchars($message_error); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="mb-3">
+                                        <label class="form-label">メールタイトル</label>
                                         <span class="badge bg-danger">必須</span>
+                                        <div class="align-items-center">
+                                            <textarea name="mail_title" class="form-control w-100" required><?= htmlspecialchars($mail_title) ?></textarea>
+                                            <?php if (!empty($errors['mail_title'])): ?>
+                                                <div class="text-danger mt-2">
+                                                    <?= htmlspecialchars($errors['mail_title']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                    <div class="align-items-center">
-                                        <textarea name="mail_body" class="form-control w-100" rows=5 required><?= htmlspecialchars($mail_body) ?></textarea>
-                                        <?php if (!empty($errors['mail_body'])): ?>
-                                            <div class="text-danger mt-2">
-                                                <?= htmlspecialchars($errors['mail_body']); ?>
-                                            </div>
-                                        <?php endif; ?>
+                                    <div class="mb-3">
+                                        <div class="form-label d-flex align-items-center">
+                                            <label class="me-2">メール本文</label>
+                                            <span class="badge bg-danger">必須</span>
+                                        </div>
+                                        <div class="align-items-center">
+                                            <textarea name="mail_body" class="form-control w-100" rows=5 required><?= htmlspecialchars($mail_body) ?></textarea>
+                                            <?php if (!empty($errors['mail_body'])): ?>
+                                                <div class="text-danger mt-2">
+                                                    <?= htmlspecialchars($errors['mail_body']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="d-flex w-100 align-items-center justify-content-end">
-                                    <button type="submit" class="btn btn-primary mt-3 mb-3 me-0 d-flex justify-content-center align-items-center">
-                                        <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
-                                    </button>
+                                    <div class="d-flex w-100 align-items-center justify-content-end">
+                                        <button type="submit" class="btn btn-primary mt-3 mb-3 me-0 d-flex justify-content-center align-items-center">
+                                            <i class="align-middle me-1 mt-01" data-feather="send"></i>送信
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    <?php } ?>
                 </div>
             </main>
         </div>
@@ -285,7 +363,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
         history.replaceState(null, '', window.location.pathname + '?' + params.toString());
 
         // 検索
-        $('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+        $('select[name="kbn_id"], select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
             $("#form").submit();
         });
         $('#search-button').on('click', function(event) {

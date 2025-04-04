@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email_addresses = array_filter($mail_to_list, function ($email) {
             return !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
         });
-
         $email_addresses = array_values(array_unique($email_addresses));
 
         if (empty($email_addresses)) {
@@ -118,7 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['message_success'] = $success_count . '件のメールを送信しました。';
         header('Location: /custom/admin/app/Views/message/index.php');
         exit;
-
     } catch (Exception $e) {
         $_SESSION['old_input'] = $_POST;
         $_SESSION['message_error'] = 'メール送信に失敗しました: ' . $e->getMessage();

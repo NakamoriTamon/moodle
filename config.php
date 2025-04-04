@@ -376,9 +376,7 @@ define('PAYMENT_CREDIT', $payment_credit);
 $kbn_id_list = [
   1 => 'イベント',
   2 => '適塾記念会',
-  // 3 => '名誉教授会',
-  // 4 => '同窓会',
-  5 => '全体'
+  3 => '全体'
 ];
 define('KBN_ID_LIST', $kbn_id_list);
 $payment_kbn_list = [
@@ -387,6 +385,14 @@ $payment_kbn_list = [
   2 => '未払い(期限切れ)'
 ];
 define('PAYMENT_KBN_LIST', $payment_kbn_list);
+
+// DM送信対象区分
+$dm_send_kbn_event = 1; // イベント単位で送信
+define('DM_SEND_KBN_EVENT', $dm_send_kbn_event);
+$dm_send_kbn_tekijuku = 2; // 適塾単位で送信
+define('DM_SEND_KBN_TEKIJUKU', $dm_send_kbn_tekijuku);
+$dm_send_kbn_all = 3; // 全体単位で送信
+define('DM_SEND_KBN_ALL', $dm_send_kbn_all);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
