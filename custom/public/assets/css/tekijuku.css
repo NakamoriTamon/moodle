@@ -89,7 +89,7 @@
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
   #subpage {
-    font-size: 2rem;
+    font-size: 1.3rem;
   }
   /*-------------------------------------
  juku 
@@ -125,6 +125,25 @@
   #juku .juku_about02 .juku_about-cont img {
     margin: 20px auto 0;
     width: 200px;
+  }
+  #juku .juku_block .memb_list {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+}
+@media only screen and (max-width: 700px) {
+  #subpage {
+    font-size: 1.5rem;
+  }
+  #juku .juku_block .memb_list {
+    margin-bottom: 20px;
+    font-size: 1.9rem;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  #subpage {
+    font-size: 2rem;
   }
   #juku .juku_block .memb_list {
     margin-bottom: 20px;

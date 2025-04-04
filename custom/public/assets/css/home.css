@@ -47,6 +47,7 @@
 #mv .mv_img {
   margin: 110px 0 0 auto;
   width: 80%;
+  height: auto;
 }
 #mv .mv_scroll {
   position: absolute;
@@ -257,6 +258,8 @@
   #mv .mv_img {
     margin: 50px 0 0 auto;
     width: 80%;
+    height: auto;
+    
   }
   #mv .mv_scroll {
     bottom: 0;
@@ -307,6 +310,7 @@
   #mv .mv_img {
     max-width: 95%;
     width: 100%;
+    height: auto;
   }
 
   /*-------------------------------------
@@ -397,7 +401,7 @@
   mascot
   -------------------------------------*/
   #mascot {
-    bottom: 8%;
+    bottom: 55px;
     right: 2%;
     width: 70px;
   }
