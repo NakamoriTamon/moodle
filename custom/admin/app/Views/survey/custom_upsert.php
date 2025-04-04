@@ -47,9 +47,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 								<form id="form" method="POST" action="/custom/admin/app/Controllers/survey/survey_custom_upsert_controller.php">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 									<input type="hidden" name="id" value="<?= htmlspecialchars($id ?? '') ?>">
-									<?php for ($i = 0; $i < $count; $i++) { ?>
 										<div class="field-container">
-											<input type="hidden" name="event_survey_customfield_id[]" value="">
 											<div class="mb-4">
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">カテゴリ区分名</label>
@@ -61,6 +59,8 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 													<div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
 												<?php endif; ?>
 											</div>
+											<?php for ($i = 0; $i < $count; $i++) { ?>
+											<input type="hidden" name="event_survey_customfield_id[]" value="">
 											<div class="mb-3">
 												<div class="form-label d-flex align-items-center">
 													<label class="me-2">項目名</label>
@@ -105,8 +105,8 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 												</div>
 											</div>
 											<hr>
+											<?php } ?>
 										</div>
-									<?php } ?>
 									<div class="d-flex">
 										<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
 									</div>

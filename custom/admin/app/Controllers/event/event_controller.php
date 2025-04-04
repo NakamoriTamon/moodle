@@ -3,28 +3,20 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 
 global $USER, $DB, $COURSE;
 
 // ユーザーID(会員番号)を取得
 $userid = $USER->id;
 
-// ユーザーのロールを取得
-$sql = "SELECT r.id, r.shortname 
-        FROM {role_assignments} ra
-        JOIN {role} r ON ra.roleid = r.id
-        WHERE ra.userid = :userid";
-
-$params = ['userid' => $userid];
-
-$roles = $DB->get_records_sql($sql, $params);
-foreach ($roles as $row) {
-    $shortname = $row->shortname;
-}
-
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
+$roleAssignmentsModel = new RoleAssignmentsModel();
+
+$role = $roleAssignmentsModel->getShortname($userid);
+$shortname = $role['shortname'];
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -51,6 +43,9 @@ $totalCount = $eventModel->getEventTotal([
     'userid' => $userid,
     'shortname' => $shortname
 ]);
+if(empty($totalCount)) {
+    $totalCount = 0;
+}
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 

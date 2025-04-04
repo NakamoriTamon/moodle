@@ -8,6 +8,7 @@ require_once($CFG->dirroot . '/custom/app/Models/TutorModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/TargetModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldCategoryModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/RoleAssignmentsModel.php');
 
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
@@ -15,6 +16,7 @@ $tutorModel = new TutorModel();
 $customFieldCategoryModel = new EventCustomFieldCategoryModel();
 $targetModel = new TargetModel();
 $curveyCustomFieldCategoryModel = new EventSurveyCustomFieldCategoryModel();
+$roleAssignmentsModel = new RoleAssignmentsModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();

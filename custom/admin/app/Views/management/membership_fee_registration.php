@@ -49,8 +49,6 @@ unset($_SESSION['old_input']);
                                         <label class="form-label" for="notyf-message">会名</label>
                                         <select name="category_id" class="form-control">
                                             <option value=1>適塾記念会</option>
-                                            <!-- <option value=2>名誉教授会</option>
-                                        <option value=3>同窓会</option> -->
                                         </select>
                                     </div>
                                     <div class="ms-3 sp-ms-0 mb-3 w-100">
@@ -266,15 +264,18 @@ unset($_SESSION['old_input']);
             let action = $(this).attr('id');
             sendEmail(action, $(this));
         });
+
         function sendEmail(action, button) {
             button.prop('disabled', true);
             let originalText = button.text();
             button.text('送信中...');
             $.ajax({
                 url: '/custom/admin/app/Views/management/send_mail.php',
-                method: 'POST', 
+                method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ action: action }),
+                data: JSON.stringify({
+                    action: action
+                }),
                 success: function(response) {
                     alert('メールが送信されました: ' + action);
                 },
