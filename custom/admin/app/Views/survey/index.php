@@ -216,13 +216,13 @@ $page = $result_list['page'];
 												<td class="p-4">
 													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] ?? '') ?>
 												</td>
-												<td class="p-4"><?= htmlspecialchars($survey['no_good_enviroment_reason'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars($survey['no_good_environment_reason'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['speaker_suggestions'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']] ?? '') ?></td>
 												<td class="p-4">
-													<?= htmlspecialchars($survey['prefectures'] ?? '' . $survey['address'] ?? '') ?>
+													<?= htmlspecialchars(($survey['prefectures'] ?? '') . ($survey['address'] ?? '')) ?>
 												</td>
 												<?php foreach($survey['customfiel'] as $customfiel): ?>
 													<td class="p-4"><?= htmlspecialchars($customfiel['input_data'] ?? '') ?></td>
