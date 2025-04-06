@@ -45,10 +45,11 @@ $SesClient = new SesClient([
     ]
 ]);
 
-$recipients = ['s.kamei@trans-it.net'];
+$recipients = ['cyujo.nakamori@gmail.com', 'chinohiroba-ml@21c-kaitokudo.osaka-u.ac.jp', 'planning@cyujo.com'];
 
 // メール本文
 $subject = $emailTemplates[$action];
+$htmlBody = $bodies[$action];
 
 try {
     $result = $SesClient->sendEmail([
@@ -79,4 +80,3 @@ try {
 // 成功レスポンスを返す
 http_response_code(200);
 echo json_encode(['message' => 'Email sent successfully']);
-?>
