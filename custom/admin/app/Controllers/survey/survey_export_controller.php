@@ -114,7 +114,7 @@ try {
         $customValueMap = [];
         if (!empty($list)) {
             foreach ($list as $cf) {
-                $customValueMap[$cf['survey_customfield_id']] = [
+                $customValueMap[$cf['event_survey_customfield_id']] = [
                     'field_type' => $cf['field_type'],
                     'input_data' => $cf['input_data']
                 ];
@@ -145,7 +145,7 @@ try {
         ];
 
         foreach ($survey_field_list as $field) {
-            $fieldId   = $field['survey_customfield_id'];
+            $fieldId   = $field['id'];
             $fieldData = '';
 
             if (isset($customValueMap[$fieldId])) {
