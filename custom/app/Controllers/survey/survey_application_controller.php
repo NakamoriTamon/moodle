@@ -61,8 +61,8 @@ class SurveyApplicationController
             $checked = '';
             $customfield_type_list = CUSTOMFIELD_TYPE_LIST;
             $params = null;
-            if (!is_null($formdata) && isset($formdata['params'])) {
-                $params = $formdata['params'];
+            if (!is_null($formdata) && isset($formdata)) {
+                $params = $formdata;
             }
             foreach ($surveyFieldList as $fields) {
                 $passage .= '<li><h4 class="sub_ttl">' . $fields['name'];
@@ -73,7 +73,7 @@ class SurveyApplicationController
                     foreach ($options as $i => $option) {
                         $name = "";
                         $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
-                        $checked_param = is_null($params) ? [] : $params[$name];
+                        $checked_param = is_null($params) || !isset($params[$name]) ? [] : $params[$name];
                         $checked = isChoicesSelected($option, $checked_param, null) ? 'checked' : '';
                         $name .= '[]';
                         $passage .= '<div class="check_item"><label><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label></div>';
@@ -103,14 +103,14 @@ class SurveyApplicationController
                 if ($fields['field_type'] == 2) {
                     $passage .= '</h4>';
                     $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
-                    $value = is_null($params) ? "" : $params[$name];
+                    $value = is_null($params) || !isset($params[$name]) ? "" : $params[$name];
                     $passage .= '<div class="list_field f_txtarea"><textarea name="' . $name . '" rows="4" cols="50">' . $value . '</textarea></div>';
                     continue;
                 }
                 if ($fields['field_type'] == 1 || $fields['field_type'] == 5) {
                     $passage .= '</h4>';
                     $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
-                    $value = is_null($params) ? "" : $params[$name];
+                    $value = is_null($params) || !isset($params[$name]) ? "" : $params[$name];
                     $passage .= '<div><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $value . '"></div>';
                     continue;
                 }

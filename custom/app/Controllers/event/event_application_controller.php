@@ -134,7 +134,7 @@ class EventApplicationController
                 foreach ($options as $i => $option) {
                     $name = "";
                     $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
-                    $checked_param = is_null($params) ? [] : $params[$name];
+                    $checked_param = is_null($params) || !isset($params[$name]) ? [] : $params[$name];
                     $checked = isChoicesSelected($option, $checked_param, null) ? 'checked' : '';
                     $name .= '[]';
                     $passage .= '<p class="f_check"><label><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label></p>';

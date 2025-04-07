@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tag_name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
             if ($fields['field_type'] == 3) {
                 $input_data = sanitize_post($tag_name);
-                $input_data = explode(",", $input_data);
+                $input_data = explode(", ", $input_data);
                 $params[$tag_name] = $input_data;
                 $options = explode(",", $fields['selection']);
 
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'speaker_suggestions'       => $speaker_suggestions_error,
             ];
             $_SESSION['old_input'] = $_POST;
-            $_SESSION['old_input'] = $params;
+            $_SESSION['old_input']['survey_params'] = $params;
             $_SESSION['message_error'] = '登録に失敗しました';
             $_SESSION['course_info_id'] = $courseInfoId;
             $_SESSION['event_application_id'] = $eventApplicationId;
@@ -170,6 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (empty($participation)) {
         $_SESSION['old_input'] = $_POST;
+        $_SESSION['old_input']['survey_params'] = $params;
         $_SESSION['course_info_id'] = $courseInfoId;
         $_SESSION['event_application_id'] = $eventApplicationId;
         $_SESSION['message_error'] = '登録に失敗しました';

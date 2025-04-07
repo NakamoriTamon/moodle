@@ -8,6 +8,7 @@ global $USER;
 
 
 // $old_input を既に取得しているので、ここで使用できる
+$event_application_id = "";
 if (isset($_GET['course_info_id'])) {
     $course_info_id = $_GET['course_info_id'];
     $event_application_id = $_GET['event_application_id'];
@@ -19,7 +20,7 @@ if (isset($_GET['course_info_id'])) {
     $event_application_id = $old_input['event_application_id'];
 }
 
-$formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
+$formdata = isset($old_input['survey_params']) ? $old_input['survey_params'] : null;
 $surveyApplicationController = new SurveyApplicationController();
 $surveys = $surveyApplicationController->surveys($course_info_id, $formdata);
 $event = $surveys['data'];
