@@ -17,11 +17,20 @@ class MembershipFeeRegistrationController
 
     public function index()
     {
-        $year = $_POST['year'] ?? null;
-        $keyword = $_POST['keyword'] ?? null;
-        $page = $_POST['page'] ?? 1;
+        $old_input = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : [];
         $_SESSION['old_input'] = $_POST;
-        $email_send_setting_id = "";
+        $year = $_POST['year'] ?? null;
+        if(is_null($year) && isset($old_input['select_year'])) {
+            $year = $old_input['select_year'];
+            $_SESSION['old_input']['year'] = $year;
+        }
+        $keyword = $_POST['keyword'] ?? null;
+        if(is_null($keyword) && isset($old_input['select_keyword'])) {
+            $keyword = $old_input['select_keyword'];
+            $_SESSION['old_input']['keyword'] = $keyword;
+        }
+        $page = $_POST['page'] ?? 1;
+        $email_send_setting = [];
 
         // ページネーション
         $per_page = 15;
@@ -41,7 +50,7 @@ class MembershipFeeRegistrationController
                 'per_page' => $per_page,
                 'current_page' => $current_page,
                 'page' => $current_page,
-                'email_send_setting_id' => $email_send_setting_id
+                'email_send_setting' => $email_send_setting
             ];
 
             return $data;
@@ -57,8 +66,12 @@ class MembershipFeeRegistrationController
         $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
         $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
 
-        $email_send_setting = $this->EmailSendSettingModel->getTekijukuUser($filters);
-        $email_send_setting_id = "";
+        $filters = [];
+        if (!empty($keyword)) {
+            $filters['keyword'] = $keyword;
+        }
+        $filters['year'] = $year;
+        $email_send_setting = $this->EmailSendSettingModel->getEmailSendSetting($filters);
 
         // 決済状況を組み込む
         foreach ($tekijuku_commemoration_list as $key => $tekijuku_commemoration) {
@@ -88,7 +101,7 @@ class MembershipFeeRegistrationController
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
-            'email_send_setting_id' => $email_send_setting_id
+            'email_send_setting' => $email_send_setting
         ];
         return $data;
     }

@@ -10,11 +10,12 @@ $total_count = $result_list['total_count'];
 $per_page = $result_list['per_page'];
 $current_page = $result_list['current_page'];
 $page = $result_list['page'];
-$email_send_setting_id = $result_list['email_send_setting_id'];
+$email_send_setting = $result_list['email_send_setting'];
 $subject_ids = "";
 
+$errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
-unset($_SESSION['old_input']);
+unset($_SESSION['old_input'], $_SESSION['errors']);
 ?>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -195,8 +196,8 @@ unset($_SESSION['old_input']);
                         <div class="card-header ml-025">
                             <h5 class="card-title mb-0 mt-3">メール送信設定</h5>
                         </div>
-                        <form method="POST" id="search-form" action="/custom/admin/app/Views/management/membership_fee_upsert_controller.php">
-                            <input type="hidden" id="email_send_setting_id" name="email_send_setting_id" value="<?= htmlspecialchars($email_send_setting_id) ?>" >
+                        <form method="POST" id="search-form" action="/custom/admin/app/Controllers/management/membership_fee_upsert_controller.php">
+                            <input type="hidden" id="email_send_setting_id" name="email_send_setting_id" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['id']) ?>" >
                             <input type="hidden" id="subject_ids" name="subject_ids" value="<?= htmlspecialchars($subject_ids) ?>" >
                             <input type="hidden" name="select_category_id" value="<?= isset($old_input['category_id']) ? $old_input['category_id'] : '' ?>" >
                             <input type="hidden" name="select_year" value="<?= isset($old_input['year']) ? $old_input['year'] : '' ?>" >
@@ -205,30 +206,54 @@ unset($_SESSION['old_input']);
                                 <div class="mb-3">
                                     <label class="form-label">請求メール送信日時</label>
                                     <div class="d-flex align-items-center">
-                                        <input type="number" name="requert_month" class="form-control sp-w-35 w-25" value=3><span class="ps-2 pe-2">月</span>
-                                        <input type="number" name="requert_day" class="form-control sp-w-35 w-25" value=25><span class="ps-2 pe-2">日</span>
+                                        <input type="number" name="requert_month" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['requert_month']) ?>"><span class="ps-2 pe-2">月</span>
+                                        <input type="number" name="requert_day" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['requert_month']) ?>"><span class="ps-2 pe-2">日</span>
                                     </div>
+                                    <?php if (!empty($errors['requert_month'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['requert_month']); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($errors['requert_day'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['requert_day']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">督促メール送信日時( 1回目 )</label>
                                     <div class="d-flex align-items-center">
-                                        <input type="number" name="first_reminder_month" class="form-control sp-w-35 w-25" value=4><span class="ps-2 pe-2">月</span>
-                                        <input type="number" name="first_reminder_day" class="form-control sp-w-35 w-25" value=2><span class="ps-2 pe-2">日</span>
+                                        <input type="number" name="first_reminder_month" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['first_reminder_month']) ?>"><span class="ps-2 pe-2">月</span>
+                                        <input type="number" name="first_reminder_day" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['first_reminder_day']) ?>"><span class="ps-2 pe-2">日</span>
                                     </div>
+                                    <?php if (!empty($errors['first_reminder_month'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['first_reminder_month']); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($errors['first_reminder_day'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['first_reminder_day']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">督促メール送信日時( 2回目 )</label>
                                     <div class="d-flex align-items-center">
-                                        <input type="number" name="second_reminder_month" class="form-control sp-w-35 w-25" value=4><span class="ps-2 pe-2">月</span>
-                                        <input type="number" name="second_reminder_month" class="form-control sp-w-35 w-25" value=16><span class="ps-2 pe-2">日</span>
+                                        <input type="number" name="second_reminder_month" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['second_reminder_month']) ?>"><span class="ps-2 pe-2">月</span>
+                                        <input type="number" name="second_reminder_day" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['second_reminder_day']) ?>"><span class="ps-2 pe-2">日</span>
                                     </div>
+                                    <?php if (!empty($errors['second_reminder_month'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['second_reminder_month']); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($errors['second_reminder_day'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['second_reminder_day']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">除名期日</label>
                                     <div class="d-flex align-items-center">
-                                        <input type="number" name="expulsion_month" class="form-control sp-w-35 w-25" value=4><span class="ps-2 pe-2">月</span>
-                                        <input type="number" name="expulsion_day" class="form-control sp-w-35 w-25" value=16><span class="ps-2 pe-2">日</span>
+                                        <input type="number" name="expulsion_month" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['expulsion_month']) ?>"><span class="ps-2 pe-2">月</span>
+                                        <input type="number" name="expulsion_day" class="form-control sp-w-35 w-25" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['expulsion_day']) ?>"><span class="ps-2 pe-2">日</span>
                                     </div>
+                                    <?php if (!empty($errors['expulsion_month'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['expulsion_month']); ?></div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($errors['expulsion_day'])): ?>
+                                        <div class="text-danger mt-2"><?= htmlspecialchars($errors['expulsion_day']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="d-flex w-100 align-items-center justify-content-end">
                                     <button id="submit" class="btn btn-primary mt-3 mb-3 ms-auto">更新</button>
