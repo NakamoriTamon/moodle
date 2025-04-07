@@ -2,14 +2,17 @@
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/TekijukuCommemorationModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EmailSendSettingModel.php');
 
 class MembershipFeeRegistrationController
 {
     private $TekijukuCommemorationModel;
+    private $EmailSendSettingModel;
 
     public function __construct()
     {
         $this->TekijukuCommemorationModel = new TekijukuCommemorationModel();
+        $this->EmailSendSettingModel = new EmailSendSettingModel();
     }
 
     public function index()
@@ -53,6 +56,9 @@ class MembershipFeeRegistrationController
 
         $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
         $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
+
+        $email_send_setting = $this->EmailSendSettingModel->getTekijukuUser($filters);
+        $email_send_setting_id = "";
 
         // 決済状況を組み込む
         foreach ($tekijuku_commemoration_list as $key => $tekijuku_commemoration) {
