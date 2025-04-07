@@ -152,7 +152,7 @@ try {
                 $fieldType = $customValueMap[$fieldId]['field_type'];
                 $inputData = $customValueMap[$fieldId]['input_data'];
 
-                if ($fieldType == 'checkbox') {
+                if ($fieldType == 3) {
                     $fieldData = str_replace(',', '|', $inputData);
                 } else {
                     $fieldData = $inputData;
