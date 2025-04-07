@@ -16,12 +16,13 @@ class MembershipFeeRegistrationController
     {
         $year = $_POST['year'] ?? null;
         $keyword = $_POST['keyword'] ?? null;
-        $page = $_POST['page'] ?? null;
+        $page = $_POST['page'] ?? 1;
         $_SESSION['old_input'] = $_POST;
+        $email_send_setting_id = "";
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'];
+        $current_page = $page;
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
@@ -37,6 +38,7 @@ class MembershipFeeRegistrationController
                 'per_page' => $per_page,
                 'current_page' => $current_page,
                 'page' => $current_page,
+                'email_send_setting_id' => $email_send_setting_id
             ];
 
             return $data;
@@ -80,6 +82,7 @@ class MembershipFeeRegistrationController
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
+            'email_send_setting_id' => $email_send_setting_id
         ];
         return $data;
     }
