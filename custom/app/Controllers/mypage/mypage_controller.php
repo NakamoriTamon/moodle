@@ -89,7 +89,7 @@ class MypageController
             // 指定の年度のis_deposit_YYYYカラムを追加
             $columns .= ", is_deposit_{$fiscal_year}";
             $next_year = $fiscal_year + 1;
-            if($next_year <= 2030) {
+            if ($next_year <= 2030) {
                 $columns .= ", is_deposit_{$next_year}";
             }
         }
@@ -129,55 +129,60 @@ class MypageController
             // コースごとのデータを取得するためのクエリ
             // イベント申し込みコース情報を中心に据えた設計
             $course_sql = "
-        SELECT 
-            eaci.id AS event_application_course_info_id,
-            ea.id AS event_application_id,
-            ea.event_id,
-            ea.user_id,
-            ea.price,
-            ea.ticket_count,
-            ea.payment_date,
-            ea.event_application_package_types,
-            e.name AS event_name,
-            e.venue_name AS venue_name,
-            ci.id AS course_id,
-            ci.no,
-            ci.course_date,
-            eaci.participation_kbn,
-            eaci.ticket_type,
-            elf.lecture_format_id
-        FROM 
-            {event_application_course_info} eaci
-        JOIN 
-            {event_application} ea ON ea.id = eaci.event_application_id
-        JOIN 
-            {event} e ON e.id = ea.event_id
-        JOIN 
-            {course_info} ci ON ci.id = eaci.course_info_id
-        JOIN 
-            {event_lecture_format} elf ON elf.event_id = e.id
-        WHERE 
-            ea.user_id = :user_id 
-            AND ci.course_date $comparison_operator :current_date
-            AND eaci.ticket_type = :self_ticket_type
-        ORDER BY 
-            ci.course_date ASC
-        ";
+                WITH elf AS (
+                    SELECT *
+                    FROM {event_lecture_format}
+                    WHERE lecture_format_id = 1
+                )
+                SELECT DISTINCT
+                    eaci.id AS event_application_course_info_id,
+                    ea.id AS event_application_id,
+                    ea.event_id,
+                    ea.user_id,
+                    ea.price,
+                    ea.ticket_count,
+                    ea.payment_date,
+                    ea.event_application_package_types,
+                    e.name AS event_name,
+                    e.venue_name AS venue_name,
+                    ci.id AS course_id,
+                    ci.no,
+                    ci.course_date,
+                    eaci.participation_kbn,
+                    eaci.ticket_type,
+                    elf.lecture_format_id
+                FROM 
+                    {event_application_course_info} eaci
+                JOIN 
+                    {course_info} ci ON ci.id = eaci.course_info_id
+                JOIN 
+                    {event_application} ea ON ea.id = eaci.event_application_id
+                JOIN 
+                    {event} e ON e.id = ea.event_id
+                JOIN 
+                    elf ON elf.event_id = e.id
+                WHERE 
+                    ea.user_id = :user_id 
+                    AND ci.course_date $comparison_operator :current_date
+                    AND eaci.ticket_type = :self_ticket_type
+                ORDER BY 
+                    ci.course_date ASC
+                ";
 
             // カウント用クエリ
             $count_sql = "
-        SELECT COUNT(eaci.id) as count
-        FROM 
-            {event_application_course_info} eaci
-        JOIN 
-            {event_application} ea ON ea.id = eaci.event_application_id
-        JOIN 
-            {course_info} ci ON ci.id = eaci.course_info_id
-        WHERE 
-            ea.user_id = :user_id 
-            AND ci.course_date $comparison_operator :current_date
-            AND eaci.ticket_type = :self_ticket_type
-        ";
+                SELECT COUNT(eaci.id) as count
+                    FROM 
+                    {event_application_course_info} eaci
+                JOIN 
+                    {event_application} ea ON ea.id = eaci.event_application_id
+                JOIN 
+                    {course_info} ci ON ci.id = eaci.course_info_id
+                WHERE 
+                    ea.user_id = :user_id 
+                    AND ci.course_date $comparison_operator :current_date
+                    AND eaci.ticket_type = :self_ticket_type
+                ";
 
             $params = [
                 'user_id' => $this->USER->id,
