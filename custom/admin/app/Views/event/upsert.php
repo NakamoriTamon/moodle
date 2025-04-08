@@ -21,6 +21,11 @@ if (isset($eventData) && $eventData['event_status'] == EVENT_END) {
 	$start_event_flg = true;
 }
 
+$every_event_flg = false;
+if (isset($eventData) && $eventData['event_kbn'] == EVERY_DAY_EVENT) {
+	$every_event_flg = true;
+}
+
 // セッションからエラーメッセージを取得
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
@@ -267,10 +272,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<div style="display: flex;">
 												<input type="date" name="start_event_date" class="form-control"
 													value="<?= htmlspecialchars(isSetDate($eventData['start_event_date'] ?? '', $old_input['start_event_date'] ?? '')) ?>"
-													<?php if ($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> /> <span class="ps-2 pe-2">～</span>
+													<?php if ($start_event_flg || $every_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> /> <span class="ps-2 pe-2">～</span>
 												<input type="date" name="end_event_date" class="form-control"
 													value="<?= htmlspecialchars(isSetDate($eventData['end_event_date'] ?? '', $old_input['end_event_date'] ?? '')) ?>"
-													<?php if ($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
+													<?php if ($start_event_flg || $every_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 											</div>
 											<?php if (!empty($errors['start_event_date'])): ?>
 												<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_event_date']); ?></div>
@@ -286,19 +291,26 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<label class="me-2">開催期間( 開始日 )</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="date" name="event_date" class="form-control w-100"
-												value="<?= htmlspecialchars(isSetDate($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>"
-												<?php if ($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
+											<div class="form-label d-flex align-items-center"><label>　※一度登録すると変更できません。間違えた場合はイベントを削除してください。</label></div>
+											<input type="date" name="start_event_date" class="form-control w-100"
+												value="<?= htmlspecialchars(isSetDate($eventData['start_event_date'] ?? '', $old_input['start_event_date'] ?? '')) ?>"
+												<?php if ($start_event_flg || $every_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										</div>
 										<div class="mb-3 term_area pc-none">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">開催期間( 終了日 )</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input type="date" name="event_date" class="form-control w-100"
-												value="<?= htmlspecialchars(isSetDate($eventData['event_date'] ?? '', $old_input['event_date'] ?? '')) ?>"
-												<?php if ($start_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
+											<input type="date" name="end_event_date" class="form-control w-100"
+												value="<?= htmlspecialchars(isSetDate($eventData['end_event_date'] ?? '', $old_input['end_event_date'] ?? '')) ?>"
+												<?php if ($start_event_flg || $every_event_flg): ?>style="background-color: #e6e6e6;" readonly<?php endif ?> />
 										</div>
+										<?php if (!empty($errors['start_event_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['start_event_date']); ?></div>
+										<?php endif; ?>
+										<?php if (!empty($errors['end_event_date'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['end_event_date']); ?></div>
+										<?php endif; ?>
 									<?php endif; ?>
 									<?php if (!is_mobile_device()): ?>
 										<div class=" mb-3 sp-none">
@@ -324,14 +336,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<label class="me-2">時間( 開始時間 )</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input name="start_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>">
+											<input name="start_hour" class="timepicker w-100" type="text" placeholder="" value="<?= htmlspecialchars(isSetValue($eventData['start_hour'] ?? '', ($old_input['start_hour'] ?? ''))) ?>">
 										</div>
 										<div class="mb-3 pc-none">
 											<div class="form-label d-flex align-items-center">
 												<label class="me-2">時間( 終了時間 )</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input name="end_hour" class="timepicker w-100" type="text" placeholder="12:00" value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>"">
+											<input name="end_hour" class="timepicker w-100" type="text" placeholder="" value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>"">
 										</div>
 									<?php endif; ?>
 									<div class=" mb-3">
@@ -405,7 +417,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 															<?php endforeach; ?>
 														</optgroup>
 													</select>
-													<div id="tutor_name_area_<?= $key ?>" class="mb-3" <?php if(!is_null($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+													<div id="tutor_name_area_<?= $key ?>" class="mb-3" <?php if(!empty($detail['tutor_id'] ?? null)): ?>style="display: none;"<?php endif; ?>>
 														<div class="form-label d-flex align-items-center">
 															<label class="me-2">講師名</label>
 														</div>
