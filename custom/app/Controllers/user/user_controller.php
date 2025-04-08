@@ -41,7 +41,7 @@ if (!empty($kana)) {
 // バリデーション
 $name_size = 50;
 $name_error = validate_max_text($name, 'お名前', $name_size, true);
-$kana_error = validate_max_text($kana, 'フリガナ', $name_size, true);
+$kana_error = validate_kana($kana, $name_size);
 $city_error = validate_select($city, 'お住まいの都道府県', true);
 $email_error = validate_custom_email($email);
 $password_error = validate_password($password);
@@ -94,12 +94,8 @@ if (empty($birthday_error)) {
     $birthday_obj = new DateTime($birthday);
     $age = $current_date->diff($birthday_obj)->y;
     if ($age < 13) {
-        if (empty($guardian_name)) {
-            $guardian_name_error = '保護者の氏名は必須です。';
-        }
-        if (empty($guardian_email)) {
-            $guardian_email_error = '保護者メールアドレスは必須です。';
-        }
+        $guardian_name_error = validate_max_text($guardian_name, '保護者の氏名', $name_size, true);
+        $guardian_email_error = validate_custom_email($guardian_email, '保護者');
         if (empty($guardian_phone)) {
             $guardian_phone_error = '保護者電話番号は必須です。';
         } else {
