@@ -132,7 +132,8 @@ class MypageController
                 WITH elf AS (
                     SELECT *
                     FROM {event_lecture_format}
-                    WHERE lecture_format_id = 1
+
+                    WHERE lecture_format_id = " . FACE_TO_FACE . " OR lecture_format_id = " . LIVE . "
                 )
                 SELECT DISTINCT
                     eaci.id AS event_application_course_info_id,
@@ -163,11 +164,22 @@ class MypageController
                     elf ON elf.event_id = e.id
                 WHERE 
                     ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
+                    AND DATE_ADD(
+                ci.course_date,
+                INTERVAL CAST(
+                    COALESCE(
+                        REPLACE(e.material_release_period, ' days', ''),
+                        '0'
+                    ) AS SIGNED
+                ) DAY
+            ) "
+                . $comparison_operator .
+                " :current_date
                     AND eaci.ticket_type = :self_ticket_type
                 ORDER BY 
                     ci.course_date ASC
                 ";
+
 
             // カウント用クエリ
             $count_sql = "
@@ -178,9 +190,21 @@ class MypageController
                     {event_application} ea ON ea.id = eaci.event_application_id
                 JOIN 
                     {course_info} ci ON ci.id = eaci.course_info_id
+                JOIN 
+                    {event} e ON e.id = ea.event_id
                 WHERE 
                     ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
+                   AND DATE_ADD(
+                ci.course_date,
+                INTERVAL CAST(
+                    COALESCE(
+                        REPLACE(e.material_release_period, ' days', ''),
+                        '0'
+                    ) AS SIGNED
+                ) DAY
+            ) "
+                . $comparison_operator .
+                " :current_date
                     AND eaci.ticket_type = :self_ticket_type
                 ";
 
