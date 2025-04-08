@@ -396,12 +396,23 @@ unset(
                                         </div>
                                     </li>
                                     <li class="list_item12 req">
-                                        <p class="list_label">保護者連絡先</p>
+                                        <p class="list_label">保護者メールアドレス</p>
                                         <div class="list_field f_txt">
                                             <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? $user->guardian_email) ?>" />
                                             <?php if (!empty($errors['guardian_email'])): ?>
                                                 <div class="error-msg mt-2">
                                                     <?= htmlspecialchars($errors['guardian_email']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item13 req">
+                                        <p class="list_label">保護者電話番号 <br class="responsive_br">（ハイフンなし）</p>
+                                        <div class="list_field f_txt">
+                                            <input type="tel" name="guardian_phone" value="<?= htmlspecialchars($old_input['guardian_phone'] ?? $user->guardian_phone) ?>" />
+                                            <?php if (!empty($errors['guardian_phone'])): ?>
+                                                <div class="error-msg mt-2">
+                                                    <?= htmlspecialchars($errors['guardian_phone']); ?>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
