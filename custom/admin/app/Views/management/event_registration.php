@@ -171,6 +171,7 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['application_date']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap">
                                                                 <select name="participation_kbn[<?= htmlspecialchars($application['id']) ?>]" class="form-control min-100">
+                                                                    <option value=""></option>
                                                                     <?php foreach ($is_participation_list as $key => $is_participation) { ?>
                                                                         <option value=<?= $key ?>
                                                                             <?= $key == $application['participation_kbn'] ? 'selected' : '' ?>>

@@ -37,7 +37,7 @@ class EventRegistrationController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'];
+        $current_page = $page;
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
@@ -101,7 +101,7 @@ class EventRegistrationController
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
                 // 単発イベントの場合
-                if ($event['event_kbn'] == 1) {
+                if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
                         $course_no = 1;
@@ -111,12 +111,21 @@ class EventRegistrationController
                     }
                 }
                 // 複数回イベントの場合
-                if ($event['event_kbn'] == 2 && !empty($course_no)) {
+                elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
                     foreach ($event['course_infos'] as $course_info) {
                         if ($course_info['no'] == $course_no) {
                             $course_info_id = $course_info['id'];
                             $is_display = true;
                         }
+                    }
+                }
+                elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        $course_info_id = "";
+                        $course_no = "";
+                        $_SESSION['old_input']['course_no'] = "";
+                        $is_single = true;
+                        $is_display = true;
                     }
                 }
             }

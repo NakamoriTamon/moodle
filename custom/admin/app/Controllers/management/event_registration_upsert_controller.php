@@ -14,6 +14,9 @@ $_SESSION['old_input'] = $_POST;
 try {
     $transaction = $DB->start_delegated_transaction();
     foreach ($participation_kbn_list as $key => $participation_kbn) {
+        if(empty($participation_kbn)) {
+            continue;
+        }
         $event_application_course_info = new stdClass();
         $event_application_course_info->id = $key;
         $event_application_course_info->participation_kbn = $participation_kbn;
