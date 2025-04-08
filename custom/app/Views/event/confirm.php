@@ -1,5 +1,9 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $_SESSION['formdata'] = $_POST;
+}
 $eventId = null;
 $courseInfoId = null;
 $name = "";
@@ -250,9 +254,9 @@ if ($price > 0) {
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
-$(document).ready(function() {
-    $('#applicationForm').on('submit', function() {
-        $(this).find('input[type="submit"]').prop('disabled', true);
+    $(document).ready(function() {
+        $('#applicationForm').on('submit', function() {
+            $(this).find('input[type="submit"]').prop('disabled', true);
+        });
     });
-});
 </script>
