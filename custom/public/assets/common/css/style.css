@@ -1099,6 +1099,14 @@ select {
     left: 0;
     width: 100%;
     display: flex !important;
+
+    /* モバイルとSafari対策 */
+    z-index: 9999;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+    pointer-events: auto;
+    touch-action: manipulation;
   }
   #header .header_bottom .btn_h {
     width: 50%;
