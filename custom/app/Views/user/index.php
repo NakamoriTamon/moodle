@@ -274,7 +274,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                 const age = calculateAge(birthdate);
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
-                } else if (age < 19) {
+                } else if (age < 18) {
                     $('#parents_check_area').css('display', 'block');
                 }
             }
