@@ -2,12 +2,19 @@
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/UserModel.php');
 
+global $DB;
+global $USER;
+
 $userModel = new UserModel();
 
-$currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
-$perPage = 10; // 1ページあたりの件数
+// 検索項目取得
+$keyword     = $_POST['keyword'] ?? null;
 
-$admins = $userModel->getAdminUsers([], $currentPage, $perPage);
+$filters = array_filter([
+    'keyword' => $keyword
+]);
+
+$admins = $userModel->getAdminUsers($filters, 1, 100000);
 // 総件数
 $totalCount = count($admins);
 // フォーム送信（POST）でコントローラーを呼び出す処理
@@ -17,5 +24,3 @@ if ($action === 'index') {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     include '/var/www/html/moodle/custom/admin/app/Views/management/index.php';
 }
-
-?>

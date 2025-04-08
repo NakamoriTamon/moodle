@@ -1,6 +1,10 @@
 <?php
-include('/var/www/html/moodle/custom/admin/app/Views/common/header.php');
-require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/ManagementController.php');
+
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
+include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/ManagementController.php');
+
 ?>
 
 <body id="management" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -27,9 +31,30 @@ require_once('/var/www/html/moodle/custom/admin/app/Controllers/management/Manag
                 </div>
             </nav>
 
+
             <main class="content">
                 <div class="col-12 col-lg-12">
-                    <div class="card min-70vh">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="card">
+                                <div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
+                                    <form id="form" method="POST" action="/custom/admin/app/Views/management/index.php" class="w-100">
+                                        <div id="keyword_div" class="mb-4 w-100">
+                                            <label class="form-label" for="notyf-message">フリーワード</label>
+                                            <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
+                                        </div>
+                                        <div class="d-flex justify-content-end ms-auto">
+                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card min-70vh">
+                    <div class="col-12 col-lg-12">
                         <div class="card-body p-0">
                             <form method="POST" action="/custom/admin/app/Controllers/management/RoleUpdateController.php" onsubmit="return confirmUpdate()">
                                 <div class="d-flex w-100 mt-3"><button id="submit" class=" btn btn-primary mt-3 mb-3 ms-auto">更新</button></div>
