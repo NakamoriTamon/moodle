@@ -42,8 +42,15 @@ class EventReserveController
         $realtime_path = $common_application['event']['real_time_distribution_url'];
         $event_name =  $no . $common_application['event']['name'];
         $price = $common_application['price'] != 0 ? number_format($common_application['price']) . '円' : '無料';
-        $pay_method = PAYMENT_SELECT_LIST[$common_application['pay_method']];
-        $is_payment = empty($common_application['payment_date']) ? '未決済' : '決済済';
+
+        if($common_application['price'] != 0) {
+            $pay_method = PAYMENT_SELECT_LIST[$common_application['pay_method']];
+            $is_payment = empty($common_application['payment_date']) ? '未決済' : '決済済';
+        } else {
+            $pay_method = "";
+            $is_payment = "";
+        }
+        
         $child_name = $common_application['companion_name'] ?? $common_application['user']['child_name'];
 
         $companion_array = [];
