@@ -22,11 +22,10 @@ class UserModel extends BaseModel
 
                 // 動的に検索条件を追加
                 $params = [];
-                // if (!empty($filters['category_id'])) {
-                //     $sql .= ' LEFT JOIN mdl_event_category ec ON ec.event_id = e.id';
-                //     $where .= ' AND ec.category_id = :category_id';
-                //     $params[':category_id'] = $filters['category_id'];
-                // }
+                if (!empty($filters['keyword'])) {
+                    $where .= ' AND u.name LIKE :keyword';
+                    $params[':keyword'] = '%' . $filters['keyword'] . '%';
+                }
                 // if (!empty($filters['event_status'])) {
                 //     $having = ' HAVING event_status = :event_status';
                 //     $params[':event_status'] = $filters['event_status'];
@@ -242,7 +241,7 @@ class UserModel extends BaseModel
                     $where .= ' AND ea.event_id = :event_id';
                     $params[':event_id'] = $filters['event_id'];
                 }
-                
+
                 if (!empty($filters['keyword'])) {
                     //仕様：スペース区切りに対応している
                     //全角半角スペースを全て半角スペースに揃える
@@ -253,7 +252,7 @@ class UserModel extends BaseModel
 
                     // キーワード検索対象カラム（名前、メールアドレス）
                     $searchColumns = ['u.name', 'u.email'];
-                
+
                     // AND検索の条件を組み立てる
                     foreach ($keyword_array as $index => $key) {
                         $keyParam = ":keyword" . $index; // プレースホルダ名をユニークにする
@@ -267,7 +266,7 @@ class UserModel extends BaseModel
                             eaci.participant_mail
                             ORDER BY u.id";
                 $sql .= $groupBy;
-                
+
                 // クエリの実行
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
