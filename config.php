@@ -393,6 +393,15 @@ $dm_send_kbn_tekijuku = 2; // 適塾単位で送信
 define('DM_SEND_KBN_TEKIJUKU', $dm_send_kbn_tekijuku);
 $dm_send_kbn_all = 3; // 全体単位で送信
 define('DM_SEND_KBN_ALL', $dm_send_kbn_all);
+
+
+// 講義形式
+$face_to_face = 1; // 会場(対面)
+define('FACE_TO_FACE', $face_to_face);
+$on_demand = 2; // オンデマンド配信
+define('ON_DEMAND', $on_demand);
+$live = 3; // ライブ配信
+define('LIVE', $live);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
