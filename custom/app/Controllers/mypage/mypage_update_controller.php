@@ -110,7 +110,7 @@ class MypageUpdateController
         }
 
         $description = htmlspecialchars(required_param('description', PARAM_TEXT), ENT_QUOTES, 'UTF-8'); // その他
-        $_SESSION['errors']['description'] = validate_textarea($description, '備考', false);
+        $_SESSION['errors']['description'] = validate_textarea($description, '備考', false, 200);
 
         $current_date = new DateTime();
         $birthday_obj = new DateTime($birthday);
@@ -119,11 +119,23 @@ class MypageUpdateController
         // 保護者情報
         $guardian_name = "";
         $guardian_email = "";
+        $guardian_phone = "";
         if ($age < 13) {
             $guardian_name = htmlspecialchars(required_param('guardian_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
             $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の氏名', $name_size, true);
-            $guardian_email = required_param('guardian_email', PARAM_EMAIL); // メールアドレス
+            $guardian_email = htmlspecialchars(required_param('guardian_email', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
             $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
+            $guardian_phone = htmlspecialchars(required_param('guardian_phone', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+            if (empty($guardian_phone)) {
+                $_SESSION['errors']['guardian_phone'] = '保護者電話番号は必須です。';
+            } else {
+                if (strlen($guardian_phone) > 15) {
+                    $_SESSION['errors']['guardian_phone'] = '無効な電話番号です。';
+                }
+                if (!preg_match('/^\d+$/', $guardian_phone)) {
+                    $_SESSION['errors']['guardian_phone'] = '無効な電話番号です。';
+                }
+            }
         }
 
         // $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_TEXT));
@@ -147,6 +159,7 @@ class MypageUpdateController
             if (
                 $_SESSION['errors']['guardian_name']
                 || $_SESSION['errors']['guardian_email']
+                || $_SESSION['errors']['guardian_phone']
             ) {
                 $result = true;
             }
@@ -177,6 +190,7 @@ class MypageUpdateController
                 $data->description = $description;
                 $data->guardian_name = $guardian_name;
                 $data->guardian_email = $guardian_email;
+                $data->guardian_phone = $guardian_phone;
                 $data->child_name = $child_name;
 
                 if (!empty($password)) {
