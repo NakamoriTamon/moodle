@@ -410,9 +410,14 @@ if ($result) {
                         $recipients = array_merge($recipients, explode(',', $_POST['other_mail_adress']));
                     }
 
-                    $day = new DateTime($course["course_date"]);
-                    $course_date = $day->format('Ymd');
-                    $ymd = $day->format('Y/m/d');
+                    $ymd = "";
+                    if($event_kbn == EVERY_DAY_EVENT) {
+                        $ymd = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
+                    } else {
+                        $day = new DateTime($course["course_date"]);
+                        $course_date = $day->format('Ymd');
+                        $ymd = $day->format('Y/m/d');
+                    }
                     $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
                     $start_hour = $dateTime->format('H:i'); // "00:00"
                     $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);

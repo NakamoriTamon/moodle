@@ -74,6 +74,7 @@ $lectureFormats = $lectureFormatModel->getLectureFormats();
 $select_lecture_formats = [];
 $select_categorys = [];
 $select_courses = [];
+$event_date = "";
 if (!empty($event)) {
 
     foreach ($event['lecture_formats'] as $lecture_format) {
@@ -98,8 +99,12 @@ if (!empty($event)) {
         }
     }
 
-    foreach ($event['course_infos'] as $select_course) {
-        $select_courses[$select_course['no']] = $select_course;
+    if($event_kbn == EVERY_DAY_EVENT) {
+        $event_date = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
+    } else {
+        foreach ($event['course_infos'] as $select_course) {
+            $select_courses[$select_course['no']] = $select_course;
+        }
     }
 }
 
@@ -347,7 +352,8 @@ if (
         'passages' => $passages,
         'hiddens' => $hiddens,
         'params' => $params,
-        'tekijuku_discount' => $tekijuku_discount
+        'tekijuku_discount' => $tekijuku_discount,
+        'event_date' => $event_date
     ];
     redirect(new moodle_url('/custom/app/Views/event/confirm.php'));
     exit;

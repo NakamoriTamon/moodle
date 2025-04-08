@@ -48,7 +48,7 @@ $guardian_email = "";
 $guardian_phone = "";
 $capacity = $event['capacity'];
 
-if ($responce['event']['capacity'] == 0) {
+if ($event['capacity'] == 0) {
     $aki_ticket = 50;
 } else {
     $aki_ticket = $responce['aki_ticket'];
@@ -259,11 +259,17 @@ if (!empty($old_input)) {
                             <li class="long_item">
                                 <p class="list_label">開催日</p>
                                 <div class="list_field f_txt list_col">
-                                    <?php foreach ($event['select_course'] as $no => $course): ?>
+                                    <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
                                         <p class="f_check">
-                                            <?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?>
+                                            <?= (new DateTime($event['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($event['end_event_date']))->format('Y年m月d日'); ?> 
                                         </p>
-                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php foreach ($event['select_course'] as $no => $course): ?>
+                                            <p class="f_check">
+                                                <?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?>
+                                            </p>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <span class="error-msg" id="ticket-error">

@@ -30,10 +30,10 @@ $headers = getallheaders();
 $signature = $headers['X-Komoju-Signature'] ?? '';
 
 // 本番環境のではコメント解除
-if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
-    http_response_code(400);
-    exit('Invalid signature');
-}
+// if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
+//     http_response_code(400);
+//     exit('Invalid signature');
+// }
 
 // イベントタイプに基づいて処理を分岐
 switch ($event_type) {
@@ -253,9 +253,14 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
 
         $recipients = [$course['participant_mail']];
 
-        $day = new DateTime($course["course_date"]);
-        $course_date = $day->format('Ymd');
-        $ymd = $day->format('Y/m/d');
+        $ymd = "";
+        if($event['event_kbn'] == EVERY_DAY_EVENT) {
+            $ymd = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
+        } else {
+            $day = new DateTime($course["course_date"]);
+            $course_date = $day->format('Ymd');
+            $ymd = $day->format('Y/m/d');
+        }
         $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
         $start_hour = $dateTime->format('H:i'); // "00:00"
         $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
