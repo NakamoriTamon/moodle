@@ -1,0 +1,91 @@
+<?php
+require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/UserModel.php');
+
+class UserRegistrationController
+{
+
+    private $userModel;
+
+    public function __construct()
+    {
+        $this->userModel = new UserModel();
+    }
+
+    public function index()
+    {
+
+        // 検索項目取得
+        $page = $_POST['page'] ?? null;
+        $_SESSION['old_input'] = $_POST;
+
+        // ページネーション
+        $per_page = 15;
+        $current_page = $_GET['page'];
+
+        if ($current_page < 0) {
+            $current_page = 1;
+        }
+        if (empty($current_page) && !empty($page)) {
+            $current_page  = $page;
+        }
+        if (empty($current_page) && empty($page)) {
+            $current_page  = 1;
+        }
+
+        $user_list = $this->userModel->getUser($current_page, $per_page);
+        $user_count_list = $this->userModel->getUserCount();
+
+        $data_list = [];
+        foreach ($user_list as $Key => $user) {
+            $formatted_id = sprintf('%08d', $user['id']);
+            $user_id = substr_replace($formatted_id, ' ', 4, 0);
+            if (empty($user['birthday'])) {
+                $birthday = '';
+            } else {
+                $date = new DateTime($user['birthday']);
+                $birthday = $date->format('Y年n月j日');
+            }
+
+            // 年度が設定できるようになればここも動的に変えること
+            $month = date('n');
+            $year = date('Y');
+            $fiscal_year = ($month >= 4) ? $year : $year - 1;
+            $payment_method = '';
+            $is_tekijuku = '未入会';
+            if (!empty($user['tekijuku']) && ($user['tekijuku']['paid_status'] == PAID_STATUS['COMPLETED'] ||
+                $user['tekijuku']['paid_status'] == PAID_STATUS['SUBSCRIPTION_PROCESSING'] || $user['tekijuku']['is_deposit_' . $fiscal_year]) == 1) {
+                $is_tekijuku = '入会済';
+                $payment_method = PAYMENT_SELECT_LIST[$user['tekijuku']['payment_method']];
+            }
+
+            $data_list[$Key] = [
+                'id' => $user['id'],
+                'user_id' => $user_id,
+                'name' => $user['name'],
+                'kana' => $user['name_kana'],
+                'birthday' => $birthday,
+                'city' => $user['city'],
+                'email' => $user['email'],
+                'phone' => $user['phone1'],
+                'gurdian_name' =>  $user['guardian_name'],
+                'gurdian_email' =>  $user['guardian_email'],
+                'gurdian_phone' =>  $user['guardian_phone'],
+                'is_tekijuku' => $is_tekijuku,
+                'pay_method' => $payment_method,
+                'is_apply' => $user['is_apply']
+            ];
+        }
+
+        $total_count = count($user_count_list);
+        $data = [
+            'data_list' => $data_list,
+            'total_count' => $total_count,
+            'per_page' => $per_page,
+            'current_page' => $current_page,
+            'page' => $current_page,
+        ];
+
+        return $data;
+    }
+}

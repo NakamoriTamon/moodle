@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="42" height="42" viewBox="0 0 42 42">
+  <style  type="text/css">
+    #icon_path.active path {
+      fill: #81BFDA;
+    }
+  </style>
+  <g id="icon_cat" data-name="category01" transform="translate(-457 -3707)">
+    <rect data-name="" width="42" height="42" rx="21" transform="translate(457 3707)" fill="#fff"/>
+      <g id="icon_path"  data-name="グループ 5486" clip-path="url(#clip-path)"  transform="translate(464 3715)">
+        <path id="パス_809" data-name="パス 809" d="M93.467,130.406a.545.545,0,0,1-.183.123.563.563,0,0,1-.318.03.545.545,0,0,1-.288-.153l-4.121-4.121a.548.548,0,0,1-.123-.184.563.563,0,0,1-.03-.318.549.549,0,0,1,.153-.287l8.516-8.516L95.8,115.708l-8.515,8.515a2.356,2.356,0,0,0,0,3.335l4.121,4.121a2.335,2.335,0,0,0,.78.518,2.356,2.356,0,0,0,2.555-.518l8.516-8.515-1.274-1.273Z" transform="translate(-81.935 -109.483)" fill="#b2d8e9"/>
+        <path id="パス_810" data-name="パス 810" d="M84.506,370.585a.66.66,0,0,0-.124.905l.735.735a.659.659,0,0,0,.905-.124l1.379-1.379-1.515-1.516Z" transform="translate(-79.718 -349.343)" fill="#b2d8e9"/>
+        <path id="パス_811" data-name="パス 811" d="M0,425.378l1.363.272,3.515-3.515-.818-.818Z" transform="translate(0 -398.65)" fill="#b2d8e9"/>
+        <path id="パス_812" data-name="パス 812" d="M263.256,44.612a1.607,1.607,0,1,0-2.273,2.273l7.94,7.94a1.607,1.607,0,0,0,2.273-2.273Z" transform="translate(-246.497 -41.766)" fill="#b2d8e9"/>
+        <path id="パス_813" data-name="パス 813" d="M374.6,4.674l-4.2-4.2a1.607,1.607,0,0,0-2.272,2.273l.435.435-1.273,1.274,1.273,1.273,1.273-1.273.789.788-1.274,1.273,1.274,1.273,1.272-1.273.435.435A1.608,1.608,0,0,0,374.6,4.674" transform="translate(-347.522 0)" fill="#b2d8e9"/>
+        <rect id="長方形_563" data-name="長方形 563" width="0.772" height="2.152" transform="translate(15.13 12.715) rotate(-45)" fill="#b2d8e9"/>
+        <rect id="長方形_564" data-name="長方形 564" width="0.772" height="2.152" transform="matrix(0.707, -0.707, 0.707, 0.707, 12.89, 14.955)" fill="#b2d8e9"/>
+        <rect id="長方形_565" data-name="長方形 565" width="0.772" height="2.153" transform="translate(10.742 17.103) rotate(-45)" fill="#b2d8e9"/>
+      </g>
+  </g>
+</svg>

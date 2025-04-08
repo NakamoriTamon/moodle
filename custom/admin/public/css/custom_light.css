@@ -1,0 +1,14 @@
+[data-simplebar] {
+    width: 264px !important;
+}
+#sidebar {
+   width: 265px !important
+}
+@media (max-width: 991.98px) {
+    body:not([data-sidebar-position=right]) .sidebar {
+        margin-left: -265px;
+    }
+}
+.wrapper, body[data-theme=dark] .wrapper {
+    background: initial;
+}

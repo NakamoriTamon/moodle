@@ -1,0 +1,640 @@
+@charset "utf-8";
+/*  form.css
+---------------------------------------------- */
+
+/*  pc
+---------------------------------------------- */
+
+/*-------------------------------------
+ flow
+ -------------------------------------*/
+#flow {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto 80px;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  counter-reset: number;
+}
+#flow::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #ccc;
+}
+#flow li {
+  counter-increment: number;
+  color: #cccccc;
+  text-align: center;
+}
+#flow li::before {
+  content: counter(number, decimal-leading-zero);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  font-weight: 700;
+  border: 1px solid #cccccc;
+  border-radius: 50%;
+}
+#flow li.active {
+  color: #373737;
+}
+#flow li.active::before {
+  color: #fff;
+  background: #81bfda;
+  border: none;
+}
+
+/*-------------------------------------
+ form
+ -------------------------------------*/
+#form .form_cont {
+  padding: 80px 0;
+}
+#form .form_cont .list li {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+  line-height: 1.6;
+}
+#form .form_cont .list li:not(:last-child) {
+  margin-bottom: 40px;
+}
+#form .form_cont .list li.long_item {
+  align-items: flex-start;
+}
+#form .form_cont .list li .list_label {
+  width: 260px;
+  font-weight: 700;
+}
+#form .form_cont .list li .list_label span {
+  display: block;
+  margin-top: 10px;
+  font-weight: 400;
+}
+#form .form_cont .list li.req .list_label::after {
+  content: "必須";
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 8px;
+  background: #cc0000;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+#form .form_cont .list li .list_field {
+  width: calc(95% - 260px);
+}
+#form .form_cont .list li .list_field .note {
+  padding-left: 1em;
+  font-size: 1.4rem;
+  color: #a1a1a1;
+  line-height: 1.8;
+  text-indent: -1em;
+}
+#form .form_cont .list li .list_field .note:first-of-type {
+  margin-top: 15px;
+}
+#form .form_cont .list li .list_field .note::before {
+  content: "※";
+}
+#form .form_cont .list li .list_item05 .list_field.f_txt {
+  display: flex;
+  flex-direction: column; /* 入力欄とエラーメッセージを縦並びに */
+}
+
+#form .form_cont .list li .list_field.f_txt .post_code {
+  display: flex;
+  align-items: center; /* 入力欄とボタンを横並び */
+  gap: 10px; /* 入力欄とボタンの間にスペース */
+}
+
+#form .form_cont .list li .list_field.f_txt input {
+  flex-grow: 1; /* 入力欄が横幅を埋める */
+  padding: 8px;
+  font-size: 1.6rem;
+}
+
+#form .form_cont .list li .list_field.f_txt button {
+  padding: 8px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: #949494;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+}
+
+#form .form_cont .list li .list_field.f_txt button:hover {
+  background-color: rgb(82, 82, 82);
+}
+#form .form_cont .list li .text-danger {
+  margin-top: 5px; /* エラーメッセージを入力欄の下に表示 */
+  color: red;
+}
+#form .form_cont .list li .select {
+  max-width: 470px;
+}
+#form .form_cont .list li .list_row {
+  display: flex;
+  gap: 30px;
+}
+#form .form_cont .list li .list_row .f_radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form .form_cont .list li .list_col .f_check {
+  margin-bottom: 30px;
+}
+#form .form_cont .list li .list_col .f_check label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+#form .form_cont .list li .list_col .f_check .comment {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.4rem;
+}
+#form .form_cont .list li .list_col .f_other {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+#form .form_cont .agree {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  width: fit-content;
+  margin: 60px auto 0;
+  padding: 20px;
+  background: #f5f5f5;
+}
+#form .form_cont .agree a {
+  display: inline;
+  text-decoration: underline;
+}
+#form .form_cont .agree .agree_txt {
+  flex: 1;
+}
+#form .form_cont .agree .agree_txt a {
+  display: inline;
+  text-decoration: underline;
+}
+#form .form_cont .agree .agree_txt a:hover {
+  text-decoration: none;
+}
+#form .form_cont .agree label {
+  flex: 0 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+}
+#form .form_cont .cancel {
+  margin: 40px auto 0;
+  padding: 10px 0;
+  width: 50%;
+  color: #cc0000;
+  border: 1px solid #cccccc;
+  text-align: center;
+}
+#form .form_cont .form_btn {
+  margin: 60px auto 0;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+#form .form_cont .form_btn .btn {
+  width: 300px;
+  height: 60px;
+}
+.font-14{
+  font-size: 14px;
+}
+
+/*-------------------------------------
+ confirm
+ -------------------------------------*/
+#form.confirm .form_cont .list li:not(:last-child) {
+  margin-bottom: 50px;
+}
+#form.confirm .form_cont .list li.long_item {
+  margin-top: 0;
+}
+
+/*-------------------------------------
+ complete
+ -------------------------------------*/
+#form.complete .form_cont > p {
+  text-align: center;
+}
+#form.complete .form_cont .cpt_txt {
+  margin-bottom: 40px;
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+#form.complete .form_cont .red {
+  margin-top: 10px;
+}
+
+/*-------------------------------------
+ user
+ -------------------------------------*/
+#form.user .form_cont .list .list_item03 .select,
+#form.user .form_cont .list .list_item10 .f_txt {
+  width: 36%;
+  min-width: 270px;
+}
+#form.user .form_cont .agree {
+  gap: 0 40px;
+  max-width: 600px;
+  margin: 40px 0 0 320px;
+  padding: 30px;
+}
+#form.user .form_cont .agree .agree_txt {
+  font-size: 1.4rem;
+  line-height: 1.8;
+}
+#form.user .form_cont .agree_note {
+  padding: 8px 20px 0;
+  margin-left: 320px;
+}
+#form.user .form_cont .agree_note .note {
+  font-size: 12px;
+}
+#parents_input_area,
+#parents_check_area{
+  display: none;
+}
+/* 初期はdisable状態 */
+#form.user #submit:disabled{
+  background: #ccc;
+}
+.submit_btn:disabled{
+  background: #ccc;
+}
+/*-------------------------------------
+ event
+ -------------------------------------*/
+#form.event .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.event .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.event .form_cont .list li .f_num input[type="text"] {
+  width: 90px;
+}
+
+/*-------------------------------------
+ mypage
+ -------------------------------------*/
+#form.mypage_cont .form_cont li {
+  margin-bottom: 30px;
+}
+#form.mypage_cont .box_bottom_btn {
+  margin-top: 60px;
+}
+#form.mypage_cont .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.mypage_cont .form_cont .list li .f_num #unit {
+  width: 20%;
+}
+#form.mypage_cont .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.mypage_cont .hidden {
+  display: none !important;
+}
+
+/*-------------------------------------
+tekijuku
+-------------------------------------*/
+.checkbox_label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#subpage .is_subscription_area{
+  display: none;
+}
+#form.tekijuku .form_cont .list li .f_num {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#form.tekijuku .form_cont .list li .f_num #unit {
+  width: 20%;
+}
+#form.tekijuku .form_cont .list li .f_num button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border-radius: 3px;
+  background: #cccccc;
+  color: #fff;
+}
+#form.tekijuku .hidden {
+  display: none !important;
+}
+
+/*-------------------------------------
+pagination
+-------------------------------------*/
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination a,
+.pagination span {
+  padding: 10px 15px;
+  margin: 0 5px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #333;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination .prev,
+.pagination .next {
+  font-weight: bold;
+}
+
+.pagination .page-info {
+  font-weight: bold;
+  color: #333;
+}
+
+/* 次のページや前のページがクリックできない場合のスタイル */
+.pagination .prev[disabled],
+.pagination .next[disabled] {
+  background-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.flex-wrap{
+  flex-wrap: wrap;
+}
+
+.flex-wrap .ano_f_txt,
+.flex-wrap .ano_list_label{
+  padding-top: 15px;
+}
+
+/*-------------------------------------
+reserve
+-------------------------------------*/
+#main_success_message {
+    margin: auto;
+    background: #81bfda;
+    color: #fff;
+    padding: 8px 5px;
+    border-radius: 4px;
+    margin-bottom: 5rem;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    font-weight: bold;
+}
+#main_success_message {
+    margin: auto;
+    background: #81bfda;
+    color: #fff;
+    padding: 8px 5px;
+    border-radius: 4px;
+    margin-bottom: 5rem;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    font-weight: bold;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+.pagination .page-info {
+  font-weight: bold;
+  color: #333;
+}
+.pagination a, .pagination span {
+  padding: 10px 15px;
+  margin: 0 5px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #333;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+.pagination a:hover{
+  background: #81bfda;
+  color: #fff;
+}
+#realtime_path{
+  text-decoration: underline;
+  color: #81bfda;
+}
+#realtime_path:hover{
+  color: #009adb;
+}
+#tekijuku-registration{
+  width: initial !important;
+}
+#tekijuku-registration input,
+#tekijuku-registration label
+{
+  vertical-align: middle !important;
+}
+
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /*-------------------------------------
+ flow
+ -------------------------------------*/
+  #flow {
+    margin: 0 auto 40px;
+  }
+  #flow li::before {
+    width: 50px;
+    height: 50px;
+  }
+
+  /*-------------------------------------
+ form
+ -------------------------------------*/
+  #form .form_cont {
+    padding: 40px 0;
+  }
+  #form .form_cont .list li {
+    display: block;
+  }
+  #form .form_cont .list li:not(:last-child) {
+    margin-bottom: 20px;
+  }
+  #form .form_cont .list li .list_label {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  #form .form_cont .list li.req .list_label::after {
+    font-size: 12px;
+  }
+  #form .form_cont .list li .list_label span {
+    margin-top: 0;
+  }
+  #form .form_cont .list li .list_field {
+    width: 100%;
+  }
+  #form .form_cont .list li .list_field .note:first-of-type {
+    margin-top: 10px;
+  }
+  #form .form_cont .list li .select {
+    width: 80%;
+  }
+  #form .form_cont .list li .list_row {
+    flex-wrap: wrap;
+    gap: 10px 30px;
+  }
+  #form .form_cont .list li .list_col .f_check {
+    margin-bottom: 10px;
+  }
+  #form .form_cont .list li .list_col .f_check label {
+    gap: 10px;
+  }
+  #form .form_cont .list li .list_col .f_check .comment {
+    margin-top: 5px;
+  }
+  #form .form_cont .list li .list_col .f_other {
+    gap: 10px;
+  }
+  #form .form_cont .cancel {
+    width: 100%;
+  }
+  #form .form_cont .agree {
+    gap: 30px;
+    width: 100%;
+  }
+  #form .form_cont .form_btn {
+    margin: 30px auto 0;
+    gap: 3%;
+  }
+  #form .form_cont .form_btn .btn {
+    height: 50px;
+  }
+  #form .form_cont .agree label {
+    font-size: 12px;
+  }
+  .responsive_br {
+    display: none;
+  }
+
+
+  /*-------------------------------------
+ confirm
+ -------------------------------------*/
+  #form.confirm .form_cont .list li:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  /*-------------------------------------
+ complete
+ -------------------------------------*/
+  #form.complete .form_cont {
+    padding-right: 5%;
+    padding-left: 5%;
+  }
+  #form.complete .form_cont .cpt_txt {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /*-------------------------------------
+ user
+ -------------------------------------*/
+  #form.user .form_cont .list .list_item03 .select {
+    width: 80%;
+    min-width: inherit;
+  }
+  #form.user .form_cont .agree {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: none;
+    margin: 40px 0 0 0;
+    padding: 20px;
+  }
+  #form.user .form_cont .agree .agree_txt {
+    font-size: 12px;
+  }
+  #form.user .form_cont .agree_note {
+    margin-left: 0px;
+  }
+
+  /*-------------------------------------
+ mypage
+ -------------------------------------*/
+  #form.mypage_cont .box_bottom_btn {
+    margin-top: 40px;
+  }
+  
+  /*-------------------------------------
+ history
+ -------------------------------------*/
+  
+ .flex-wrap .ano_f_txt,
+ .flex-wrap .ano_list_label {
+    padding-top: 0px;
+  }
+
+}
