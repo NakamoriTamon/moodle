@@ -548,6 +548,10 @@ reserve
   #form .form_cont .list li .list_col .f_check {
     margin-bottom: 10px;
   }
+  #form .form_cont .list li .list_col .f_check input {
+    min-width: 18px;
+    min-height: 18px;
+  }
   #form .form_cont .list li .list_col .f_check label {
     gap: 10px;
   }
@@ -576,6 +580,27 @@ reserve
   }
   .responsive_br {
     display: none;
+  }
+  #form .form_cont .list li .list_col .f_check .comment {
+    display: block;
+    margin-top: 0px;
+    font-size: 12px;
+  }
+  #form .form_cont .list li .list_field .note {
+    padding-left: 1em;
+    font-size: 12px;
+    color: #a1a1a1;
+    line-height: 1.8;
+    text-indent: -1em;
+  }
+  #form .form_cont .list li .list_field.f_txt input {
+    /* flex-grow: 1; 
+    padding: 8px; */
+    font-size: 1.1em;
+  }
+  #form .form_cont .list li .list_field.f_txt .post_code button {
+    height: 40px;
+    font-size: 1.1em;
   }
 
 
