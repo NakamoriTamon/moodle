@@ -377,7 +377,7 @@ if ($event_kbn == SINGLE_EVENT) {
 
                 if (empty($value)) {
                     $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', false); // バリデーションチェック;
-                    $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, true); // バリデーションチェック;
+                    $_SESSION['errors']["tutor_name_{$lectureNumber}"] = validate_text($_POST["tutor_name_{$lectureNumber}"], '講師名', 225, false); // バリデーションチェック;
                 } else {
                     $_SESSION['errors']["tutor_id_{$lectureNumber}"] = validate_select($value, '講師', true); // バリデーションチェック;
                     $_SESSION['errors']["tutor_name_{$lectureNumber}"] = null;
@@ -389,6 +389,7 @@ if ($event_kbn == SINGLE_EVENT) {
                     !$error_flg
                     && ($_SESSION['errors']["tutor_id_{$lectureNumber}"]
                         || $_SESSION['errors']["lecture_name_{$lectureNumber}"]
+                        || $_SESSION['errors']["tutor_name_{$lectureNumber}"]
                         || $_SESSION['errors']["program_{$lectureNumber}"]
                         || $_SESSION['errors']["release_date"]
                         || $_SESSION['errors']["material_release_date"])
@@ -846,6 +847,21 @@ try {
                     ':course_date' => $lecture["course_date"],
                     ':release_date' => $lecture["release_date"],
                     ':deadline_date' => $lecture["deadline_date"],
+                    ':material_release_date' => $lecture["material_release_date"],
+                    ':id' => $courseInfoId
+                ]);
+            } else {
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_course_info
+                    SET 
+                        release_date = :release_date,
+                        material_release_date = :material_release_date,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':release_date' => $lecture["release_date"],
                     ':material_release_date' => $lecture["material_release_date"],
                     ':id' => $courseInfoId
                 ]);
