@@ -133,7 +133,7 @@ class MypageController
                     SELECT *
                     FROM {event_lecture_format}
 
-                    WHERE lecture_format_id = " . FACE_TO_FACE . " OR lecture_format_id = " . LIVE . "
+                    WHERE lecture_format_id = " . LOCAL . " OR lecture_format_id = " . LIVE . "
                 )
                 SELECT DISTINCT
                     eaci.id AS event_application_course_info_id,
