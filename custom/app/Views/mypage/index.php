@@ -729,11 +729,19 @@ unset(
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($application->event_application_id) ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
-                                    <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?>
+                                    <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->start_event_date))); ?>～<?php echo htmlspecialchars(date('Y/m/d', strtotime($application->end_event_date))); ?>
+                                    <?php else: ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?>
+                                    <?php endif; ?>
                                 </p>
                                 <div class="txt">
                                     <p class="txt_ttl">
-                                        <?php echo htmlspecialchars('【第' . $application->no . '回】' . $application->event_name) ?>
+                                        <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
+                                            <?php echo htmlspecialchars($application->event_name) ?>
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars('【第' . $application->no . '回】' . $application->event_name) ?>
+                                        <?php endif; ?>
                                     </p>
                                     <ul class="txt_other">
                                         <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li>

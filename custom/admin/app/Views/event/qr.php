@@ -49,6 +49,7 @@ $event_list = $result_list['event_list']  ?? [];
 					<div class="card">
 						<div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
 							<form id="form" method="POST" action="/custom/admin/app/Views/event/qr.php" class="w-100">
+								<input type="hidden" id="event_kbn" value="" >
 								<div class="sp-block d-flex justify-content-between">
 									<div class="mb-3 w-100">
 										<label class="form-label" for="notyf-message">カテゴリー</label>
@@ -195,9 +196,11 @@ $event_list = $result_list['event_list']  ?? [];
 			// 2. イベント選択時のイベント
 			$('select[name="event_id"]').change(function() {
 				const eventId = $(this).val();
+				let courseSelect = $('#course_no_select');
 				// 回数選択をリセット
-				$('#course_no_select').html('<option value="" selected>回数を選択</option>');
+				courseSelect.html('<option value="" selected>回数を選択</option>');
 				$("#course_no").val('');
+				$("#event_kbn").val('');
 
 				// QRスキャナーを非表示・停止
 				$("#qr_card").hide();
@@ -216,7 +219,6 @@ $event_list = $result_list['event_list']  ?? [];
 						success: function(response) {
 							if (response.status === 'success' && response.course_numbers.length > 0) {
 								// 回数オプションを追加
-								let courseSelect = $('#course_no_select');
 								$.each(response.course_numbers, function(index, course) {
 									courseSelect.append($('<option>', {
 										value: course,
@@ -225,6 +227,27 @@ $event_list = $result_list['event_list']  ?? [];
 								});
 								// 回数選択を有効化
 								courseSelect.prop('disabled', false);
+								$("#event_kbn").val(response.event_kbn);
+							} else if (response.status === 'success' && response.event_kbn == 3) {
+								// 回数選択をリセット
+								courseSelect.html('<option value="" selected>本日</option>');
+								$("#course_no").val('');
+								// 回数選択を無効化
+								courseSelect.prop('disabled', true);
+								$("#event_kbn").val(response.event_kbn);
+								// QRスキャナーを表示
+								$("#qr_card").show();
+
+								// QrScannerモジュールを先に読み込む
+								loadQrScannerModule().then(() => {
+									// 少し遅延させてからスキャナーを起動（DOMが完全に表示された後）
+									setTimeout(() => {
+										startQrScanner();
+									}, 500);
+								});
+							} else {
+								// QRスキャナーを非表示
+								$("#qr_card").hide();
 							}
 						},
 						error: function() {
@@ -423,6 +446,7 @@ $event_list = $result_list['event_list']  ?? [];
 				const qrData = result.data;
 				const eventId = $('select[name="event_id"]').val();
 				const courseNo = $("#course_no").val();
+				const eventKbn = $("#event_kbn").val();
 
 				// APIを使用して参加登録処理
 				$.ajax({
@@ -432,6 +456,7 @@ $event_list = $result_list['event_list']  ?? [];
 						qr_data: qrData,
 						event_id: eventId,
 						course_no: courseNo,
+						event_kbn: eventKbn,
 						post_kbn: 'process_qr'
 					},
 					dataType: 'json',

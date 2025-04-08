@@ -25,6 +25,7 @@ $guardian_phone = "";
 $event_customfield_category_id = null;
 $cognitions = [];
 $paymentType = null;
+$event_date = "";
 
 
 if (isset($SESSION->formdata)) {
@@ -59,6 +60,7 @@ if (isset($SESSION->formdata)) {
     $passages = $formdata['passages'];
     $hiddens = $formdata['hiddens'];
     $tekijuku_discount = $formdata['tekijuku_discount'];
+    $event_date = $formdata['event_date'];
 }
 
 $tekijuku_text = "";
@@ -139,9 +141,13 @@ if ($price > 0) {
                         <li class="long_item">
                             <p class="list_label">開催日</p>
                             <div class="list_field f_txt list_col">
-                                <?php foreach ($select_courses as $no => $course): ?>
-                                    <p class="list_field"><?= htmlspecialchars($no) ?>回目：<?= htmlspecialchars((new DateTime($course['course_date']))->format('Y年m月d日')); ?></p><br />
-                                <?php endforeach; ?>
+                                <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
+                                    <p class="list_field"><?= htmlspecialchars($event_date) ?> </p><br />
+                                <?php else: ?>
+                                    <?php foreach ($select_courses as $no => $course): ?>
+                                        <p class="list_field"><?= htmlspecialchars($no) ?>回目：<?= htmlspecialchars((new DateTime($course['course_date']))->format('Y年m月d日')); ?></p><br />
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
                         </li>
                         <li class="list_item04 req">

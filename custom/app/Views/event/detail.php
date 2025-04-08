@@ -199,28 +199,53 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                     <?php endif; ?>
                     <div class="detail_item">
                         <h2 class="block_ttl">プログラム</h2>
-                        <?php foreach ($event['select_course'] as $no => $course): ?>
-                            <div class="program">
-                                <h4 class="sub_ttl">【<?php if (count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
-                                    <?php if (isset($course['close_date'])): ?>
-                                        <span style="color: red;">(申込終了)</span>
+                        <?php if ($event['event_kbn'] == 3): ?>
+                            <?php foreach ($event['select_course'] as $no => $course): ?>
+                                <div class="program">
+                                    <h4 class="sub_ttl">【講座】<?= (new DateTime($event['start_event_date']))->format('m月d日'); ?>～<?= (new DateTime($event['end_event_date']))->format('m月d日'); ?> <?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
+                                        <?php if (isset($course['close_date'])): ?>
+                                            <span style="color: red;">(申込終了)</span>
+                                        <?php endif; ?>
+                                    </h4>
+                                </div>
+                                <?php foreach ($course['details'] as $key => $detail): ?>
+                                    <p class="sent">
+                                        <?= htmlspecialchars($detail['name']) ?>
+                                    </p>
+                                    <p class="sent" <?php if (count($course['details']) != $key + 1): ?>style="margin-bottom: 40px;" <?php endif; ?>>
+                                        <?= nl2br(htmlspecialchars($detail['program'], ENT_QUOTES, 'UTF-8')); ?>
+                                    </p>
+                                <?php endforeach; ?>
+                                <div class="program">
+                                    <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
+                                        <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
                                     <?php endif; ?>
-                                </h4>
-                            </div>
-                            <?php foreach ($course['details'] as $key => $detail): ?>
-                                <p class="sent">
-                                    <?= htmlspecialchars($detail['name']) ?>
-                                </p>
-                                <p class="sent" <?php if (count($course['details']) != $key + 1): ?>style="margin-bottom: 40px;" <?php endif; ?>>
-                                    <?= nl2br(htmlspecialchars($detail['program'], ENT_QUOTES, 'UTF-8')); ?>
-                                </p>
+                                </div>
                             <?php endforeach; ?>
-                            <div class="program">
-                                <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                    <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($event['select_course'] as $no => $course): ?>
+                                <div class="program">
+                                    <h4 class="sub_ttl">【<?php if (count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
+                                        <?php if (isset($course['close_date'])): ?>
+                                            <span style="color: red;">(申込終了)</span>
+                                        <?php endif; ?>
+                                    </h4>
+                                </div>
+                                <?php foreach ($course['details'] as $key => $detail): ?>
+                                    <p class="sent">
+                                        <?= htmlspecialchars($detail['name']) ?>
+                                    </p>
+                                    <p class="sent" <?php if (count($course['details']) != $key + 1): ?>style="margin-bottom: 40px;" <?php endif; ?>>
+                                        <?= nl2br(htmlspecialchars($detail['program'], ENT_QUOTES, 'UTF-8')); ?>
+                                    </p>
+                                <?php endforeach; ?>
+                                <div class="program">
+                                    <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
+                                        <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                     <?php if (count($select_tutor) > 0 || count($tutor_names) > 0): ?>
                         <div class="detail_item">
