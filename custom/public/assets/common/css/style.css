@@ -247,7 +247,8 @@ select {
   background: #81bfda;
   color: #fff;
   font-weight: 700;
-  font-size: 2.4rem;
+  /* font-size: 2.4rem; */
+  font-size: clamp(18px, 2.1vw, 2.4rem);
 }
 
 /*-------------------------------------
@@ -559,6 +560,7 @@ select {
   flex-wrap: wrap;
   gap: 20px 0;
   margin-bottom: 85px;
+  font-size: clamp(1rem, 1vw ,1.6rem);
 }
 #footer .footer_top .menu .menu_top li {
   width: calc(100% / 5);
@@ -570,8 +572,10 @@ select {
 }
 #footer .footer_top .menu .menu_top li a::before {
   content: "";
-  width: 14px;
-  height: 14px;
+  width: clamp(10px, 1vw, 14px);
+  height: clamp(10px, 1vw, 14px);
+  /* width: 14px;
+  height: 14px; */
   background: url(../../common/img/icon_arrow.svg) no-repeat center / contain;
 }
 #footer .footer_top .footer_cont .menu .menu_btm {
@@ -959,6 +963,7 @@ select {
   #header nav.open {
     opacity: 1;
     visibility: visible;
+    overflow-y: auto;
   }
   #header .header_menu {
     position: relative;
@@ -984,14 +989,14 @@ select {
     border-bottom: 2px dashed #ccc;
   }
   #header .header_menu li a {
-    padding: 30px 0 20px;
+    padding: clamp(0px, 5vh ,30px) 0 20px;
   }
   #header .header_menu li a img {
     width: 45px;
     margin: 0 auto 10px;
   }
   #header .header_tool {
-    gap: 45px 5%;
+    gap: clamp(10px, 10vw, 45px) 5%;
     width: 100%;
     max-width: none;
   }
@@ -1094,6 +1099,14 @@ select {
     left: 0;
     width: 100%;
     display: flex !important;
+
+    /* モバイルとSafari対策 */
+    z-index: 9999;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+    pointer-events: auto;
+    touch-action: manipulation;
   }
   #header .header_bottom .btn_h {
     width: 50%;
@@ -1262,6 +1275,7 @@ select {
   }
   #footer .footer_top .footer_cont .menu .menu_top {
     margin-bottom: 60px;
+    font-size: 14px;
   }
   #footer .footer_top .menu .menu_top li {
     width: calc(100% / 2);
