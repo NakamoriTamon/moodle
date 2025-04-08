@@ -396,8 +396,8 @@ define('DM_SEND_KBN_ALL', $dm_send_kbn_all);
 
 
 // 講義形式
-$face_to_face = 1; // 会場(対面)
-define('FACE_TO_FACE', $face_to_face);
+$local = 1; // 会場(対面)
+define('LOCAL', $local);
 $on_demand = 2; // オンデマンド配信
 define('ON_DEMAND', $on_demand);
 $live = 3; // ライブ配信
