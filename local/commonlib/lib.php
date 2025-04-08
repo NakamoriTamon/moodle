@@ -128,7 +128,7 @@ function validate_textarea($val, $title, $required, $size = 10000)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(empty($val) && !$required) {
+    } elseif (empty($val) && !$required) {
         return null;
     }
     // 改行を除去
@@ -357,7 +357,7 @@ function validate_kana($val, $size)
     if (empty($val)) {
         return 'フリガナは必須です。';
     }
-    if (strlen($size) > 50) {
+    if (strlen($val) > 50) {
         return 'フリガナは50文字以下である必要があります。';
     }
     if (!preg_match('/^[ァ-ヶーｦ-ﾟ]+$/u', $val)) {
