@@ -167,7 +167,7 @@ class MypageController
                     elf ON elf.event_id = e.id
                 WHERE 
                     ea.user_id = :user_id 
-                    AND eaci.participation_kbn IS NULL
+                    AND (eaci.participation_kbn != 3 OR eaci.participation_kbn IS NULL)
                     AND DATE_ADD(
                 ci.course_date,
                 INTERVAL CAST(
@@ -198,6 +198,7 @@ class MypageController
                     {event} e ON e.id = ea.event_id
                 WHERE 
                     ea.user_id = :user_id 
+                    AND (eaci.participation_kbn != 3 OR eaci.participation_kbn IS NULL)
                    AND DATE_ADD(
                 ci.course_date,
                 INTERVAL CAST(
