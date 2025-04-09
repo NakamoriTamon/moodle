@@ -303,7 +303,7 @@ class UserModel extends BaseModel
                 // 動的に検索条件を追加
                 $params = [];
                 if (!empty($filters['keyword'])) {
-                    $where .= " AND (u.name LIKE :keyword OR u.email LIKE :keyword OR u.name_kana LIKE :keyword)";
+                    $where .= " AND (u.id LIKE :keyword OR u.name LIKE :keyword OR u.email LIKE :keyword OR u.name_kana LIKE :keyword)";
                     $params[':keyword'] = '%' . $filters['keyword'] . '%';
                 }
 

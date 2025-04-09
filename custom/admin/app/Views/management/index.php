@@ -32,8 +32,8 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/Managemen
             </nav>
 
 
-            <main class="content">
-                <div class="col-12 col-lg-12">
+            <!-- 一時的に非表示 -->
+            <!-- <div class="col-12 col-lg-12">
                     <div class="card">
                         <div class="card-body p-0">
                             <div class="card">
@@ -51,8 +51,8 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/Managemen
                             </div>
                         </div>
                     </div>
-                </div>
-
+                </div> -->
+            <main class="content">
                 <div class="card min-70vh">
                     <div class="col-12 col-lg-12">
                         <div class="card-body p-0">
