@@ -44,114 +44,131 @@ $page = $result_list['page'];
                 </div>
             </nav>
 
-            <form id="form" method="POST" action="/custom/admin/app/Views/management/user_registration.php">
-                <input type="hidden" name="page" value="<?= $page ?>">
-            </form>
-
             <main class="content">
                 <div class="col-12 col-lg-12">
-                    <div class="card min-70vh">
-                        <form method="POST" action="/custom/admin/app/Controllers/management/user_registration_upsert_controller.php" class="w-100">
-                            <input type="hidden" name="page" value="<?= $page ?>">
-                            <div class="card-body p-0">
-                                <div class="d-flex w-100 align-items-center justify-content-between mt-3">
-                                    <div></div>
-                                    <div class="d-flex align-items-center button-div mr-025">
-                                        <button type="button" id="csv_button" class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
-                                            <i class="align-middle me-1" data-feather="download"></i>CSV出力
-                                        </button>
-                                        <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
-                                    </div>
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="card">
+                                <div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
+                                    <form id="form" method="POST" action="/custom/admin/app/Views/management/user_registration.php" class="w-100">
+                                        <div id="keyword_div" class="mb-4 w-100">
+                                            <label class="form-label" for="notyf-message">フリーワード</label>
+                                            <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
+                                        </div>
+                                        <div class="d-flex justify-content-end ms-auto">
+                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="card m-auto mb-5 w-95">
-                                    <table class="table table-responsive table-striped table_list">
-                                        <thead>
-                                            <tr>
-                                                <th class="ps-4 pe-4 text-nowrap">会員番号</th>
-                                                <th class="ps-4 pe-4 text-nowrap">氏名</th>
-                                                <th class="ps-4 pe-4 text-nowrap">フリガナ</th>
-                                                <th class="ps-4 pe-4 text-nowrap">生年月日</th>
-                                                <th class="ps-4 pe-4 text-nowrap">住所</th>
-                                                <th class="ps-4 pe-4 text-nowrap">メールアドレス</th>
-                                                <th class="ps-4 pe-4 text-nowrap">電話番号</th>
-                                                <th class="ps-4 pe-4 text-nowrap">保護者氏名</th>
-                                                <th class="ps-4 pe-4 text-nowrap">保護者メールアドレス</th>
-                                                <th class="ps-4 pe-4 text-nowrap">保護者電話番号</th>
-                                                <th class="ps-4 pe-4 text-nowrap">適塾記念会入会状況</th>
-                                                <th class="ps-4 pe-4 text-nowrap">支払方法</th>
-                                                <th class="w-170 ps-4 pe-4 text-nowrap">アカウント承認設定</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($data_list as $key => $data) { ?>
-                                                <tr>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['user_id']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['name']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['kana']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['birthday']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['city']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['email']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['phone']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_name']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_email']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_phone']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['is_tekijuku']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['pay_method']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap">
-                                                        <select name="is_apply[<?= htmlspecialchars($data['id']) ?>]" class="form-control">
-                                                            <?php foreach ($is_apply_list as $key => $is_apply) { ?>
-                                                                <option value=<?= $key ?> <?= $key == $data['is_apply'] ? 'selected' : '' ?>>
-                                                                    <?= htmlspecialchars($is_apply) ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </form>
-                        
-                        <!-- 非表示のform（CSV出力用） -->
-                        <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/user_registration_export_controller.php">
-                        </form>
-                        
-                        <div class="d-flex">
-                            <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
-                                <ul class="pagination">
-                                    <?php
-                                    $total_pages = ceil($total_count / $per_page);
-                                    $start_page = max(1, $current_page - 1); // 最小1
-                                    $end_page = min($total_pages, $start_page + 2); // 最大3つ
-
-                                    // 前のページボタン
-                                    if ($current_page > 1): ?>
-                                        <li class="paginate_button page-item previous">
-                                            <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
-                                        </li>
-                                    <?php endif; ?>
-
-                                    <?php
-                                    // ページ番号の表示
-                                    for ($i = $start_page; $i <= $end_page; $i++): ?>
-                                        <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
-                                            <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
-                                        </li>
-                                    <?php endfor; ?>
-
-                                    <?php
-                                    // 次のページボタン
-                                    if ($current_page < $total_pages): ?>
-                                        <li class="paginate_button page-item next">
-                                            <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="card min-70vh">
+                    <div class="col-12 col-lg-12">
+                        <div class="card-body p-0">
+                            <form method="POST" action="/custom/admin/app/Controllers/management/user_registration_upsert_controller.php" class="w-100">
+                                <input type="hidden" name="page" value="<?= $page ?>">
+                                <div class="card-body p-0">
+                                    <div class="d-flex w-100 align-items-center justify-content-between mt-3">
+                                        <div></div>
+                                        <div class="d-flex align-items-center button-div mr-025">
+                                            <button type="button" id="csv_button" class="btn btn-primary mt-3 mb-3 me-2 d-flex justify-content-center align-items-center">
+                                                <i class="align-middle me-1" data-feather="download"></i>CSV出力
+                                            </button>
+                                            <button id="submit" class="btn btn-primary mt-3 mb-3">更新</button>
+                                        </div>
+                                    </div>
+                                    <div class="card m-auto mb-5 w-95">
+                                        <table class="table table-responsive table-striped table_list">
+                                            <thead>
+                                                <tr>
+                                                    <th class="ps-4 pe-4 text-nowrap">会員番号</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">氏名</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">フリガナ</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">生年月日</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">住所</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">メールアドレス</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">電話番号</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">保護者氏名</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">保護者メールアドレス</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">保護者電話番号</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">適塾記念会入会状況</th>
+                                                    <th class="ps-4 pe-4 text-nowrap">支払方法</th>
+                                                    <th class="w-170 ps-4 pe-4 text-nowrap">アカウント承認設定</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($data_list as $key => $data) { ?>
+                                                    <tr>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['user_id']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['name']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['kana']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['birthday']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['city']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['email']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['phone']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_name']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_email']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['gurdian_phone']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['is_tekijuku']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['pay_method']) ?></td>
+                                                        <td class="ps-4 pe-4 text-nowrap">
+                                                            <select name="is_apply[<?= htmlspecialchars($data['id']) ?>]" class="form-control">
+                                                                <?php foreach ($is_apply_list as $key => $is_apply) { ?>
+                                                                    <option value=<?= $key ?> <?= $key == $data['is_apply'] ? 'selected' : '' ?>>
+                                                                        <?= htmlspecialchars($is_apply) ?></option>
+                                                                <?php } ?>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- 非表示のform（CSV出力用） -->
+                            <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/user_registration_export_controller.php">
+                            </form>
+
+                            <div class="d-flex">
+                                <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
+                                    <ul class="pagination">
+                                        <?php
+                                        $total_pages = ceil($total_count / $per_page);
+                                        $start_page = max(1, $current_page - 1); // 最小1
+                                        $end_page = min($total_pages, $start_page + 2); // 最大3つ
+
+                                        // 前のページボタン
+                                        if ($current_page > 1): ?>
+                                            <li class="paginate_button page-item previous">
+                                                <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+                                            </li>
+                                        <?php endif; ?>
+
+                                        <?php
+                                        // ページ番号の表示
+                                        for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                            <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+                                                <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+
+                                        <?php
+                                        // 次のページボタン
+                                        if ($current_page < $total_pages): ?>
+                                            <li class="paginate_button page-item next">
+                                                <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             </main>
         </div>
     </div>
