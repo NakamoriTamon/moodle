@@ -62,7 +62,7 @@ $tekijukuCommemorationModel = new TekijukuCommemorationModel();
 $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user_id);
 
 $tekijuku_discount = 0;
-if($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
+if ($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
     $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
 }
 
@@ -99,7 +99,7 @@ if (!empty($event)) {
         }
     }
 
-    if($event_kbn == EVERY_DAY_EVENT) {
+    if ($event_kbn == EVERY_DAY_EVENT) {
         $event_date = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
     } else {
         foreach ($event['course_infos'] as $select_course) {
@@ -115,7 +115,13 @@ $email = htmlspecialchars(optional_param('email', '', PARAM_TEXT));
 $age = htmlspecialchars(optional_param('age', '', PARAM_INT));
 // 枚数
 $ticket = htmlspecialchars(optional_param('ticket', '', PARAM_TEXT));
-$_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
+$ticket_error = validate_ticket($ticket); // バリデーションチェック
+if ($ticket_error) {
+    $_SESSION['errors']['ticket'] = $ticket_error;
+    header('Location: /custom/app/Views/event/apply.php?id=' . $eventId);
+    exit;
+}
+
 $price =  htmlspecialchars(optional_param('price', '', PARAM_TEXT));
 $price =  str_replace(',', '', $price);
 if ($price != $ticket * $participation_fee - $tekijuku_discount) {
@@ -137,7 +143,7 @@ if (is_null($_SESSION['errors']['trigger'])) {
     $triggerArray = [];
 }
 $triggerOther = htmlspecialchars(optional_param('trigger_other', '', PARAM_TEXT));
-$_SESSION['errors']['trigger_other'] = validate_textarea($triggerOther, 'その他', false);
+$_SESSION['errors']['trigger_other'] = validate_textarea($triggerOther, 'その他', false, 200);
 $payMethod = htmlspecialchars(optional_param('pay_method', '', PARAM_INT));
 if (FREE_EVENT == $payMethod) {
     $_SESSION['errors']['pay_method'] = null;
@@ -148,12 +154,13 @@ $notificationKbn = htmlspecialchars(optional_param('notification_kbn', '', PARAM
 $now_notification = htmlspecialchars(optional_param('now_notification', '', PARAM_TEXT));
 $_SESSION['errors']['notification_kbn'] = validate_select($notificationKbn, 'お知らせメールの希望', true); // バリデーションチェック
 $note = htmlspecialchars(optional_param('note', '', PARAM_TEXT));
-$_SESSION['errors']['note'] = validate_textarea($note, '備考欄', false);
+$_SESSION['errors']['note'] = validate_textarea($note, '備考欄', false, 500);
 $companionMails = array_map('htmlspecialchars', optional_param_array('companion_mails', [], PARAM_RAW));
 $companionMailsString = implode(',', $companionMails);
 $_SESSION['errors']['companion_mails'] = null;
 foreach ($companionMails as $companion_mail) {
-    $_SESSION['errors']['companion_mails'] = validate_custom_email($companion_mail) ? "受講する人のメールアドレスを入力してください。" : null;
+    $companion_mail_error = validate_custom_email($companion_mail);
+    $_SESSION['errors']['companion_mails'] = $companion_mail_error ? $companion_mail_error : null;
     if (!is_null($_SESSION['errors']['companion_mails'])) {
         break;
     }
