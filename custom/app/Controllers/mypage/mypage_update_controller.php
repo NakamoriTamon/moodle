@@ -192,6 +192,9 @@ class MypageUpdateController
                 $data->guardian_email = $guardian_email;
                 $data->guardian_phone = $guardian_phone;
                 $data->child_name = $child_name;
+                
+                // 「お子様の氏名」が入力されているかどうかでguardian_kbnを設定
+                $data->guardian_kbn = !empty($child_name) ? 1 : 0;
 
                 if (!empty($password)) {
                     $data->password = password_hash($password, PASSWORD_DEFAULT);
