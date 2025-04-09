@@ -858,6 +858,39 @@ select {
   left: 20px;
   background: url(../../common/img/icon_search.svg) no-repeat center / contain;
 }
+#event_start_date select {
+  padding: 0;
+}
+#event_end_date select {
+  padding: 0;
+}
+.ui-datepicker-year {
+  padding: 0;
+}
+.ui-datepicker-month {
+  padding: 0;
+}
+.ui-datepicker {
+  width: auto;
+}
+.ui-datepicker td span, .ui-datepicker td a {
+  text-align: center;
+}
+.ui-state-default {
+  font-size: 1.4em;
+}
+.ui-datepicker .ui-datepicker-title select {
+  font-size: 1.1em;
+}
+.custom-calendar-saturday a.ui-state-default {
+  background-color: #c1e0ff;
+}
+.custom-calendar-sunday a.ui-state-default {
+  background-color: #ffc1c1;
+}
+#ui-datepicker-div {
+  z-index: 99 !important;
+}
 
 /*-------------------------------------
  modal 
@@ -1359,8 +1392,10 @@ select {
     top: 18px;
   }
   #search_cont .search_list li .f_date {
-    justify-content: space-between;
     gap: 10px;
+  }
+  #search_cont .search_list li .f_date p {
+    width: 100%;
   }
   #search_cont .search_list li .f_date .date_wrap {
     width: 100%;
@@ -1384,6 +1419,9 @@ select {
     width: 18px;
     height: 18px;
     left: 15px;
+  }
+  .ui-datepicker-year {
+    padding: 0;
   }
 
   /*-------------------------------------
