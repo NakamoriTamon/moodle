@@ -409,7 +409,7 @@ unset($_SESSION['old_input']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if (!empty($guardian_kbn) && $age <= ADULT_AGE): ?>
+                            <?php if ($age <= ADULT_AGE): ?>
                                 <li>
                                     <span class="error-msg" id="applicant_kbn-error">
                                         <?php if (!empty($errors['applicant_kbn'])): ?>
