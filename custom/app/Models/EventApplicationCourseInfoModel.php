@@ -43,8 +43,9 @@ class EventApplicationCourseInfoModel extends BaseModel
             try {
                 $offset = ($page - 1) * $perPage;
                 $stmt = $this->pdo->prepare(
-                    "SELECT id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn 
-                    FROM mdl_event_application_course_info 
+                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, e.event_kbn 
+                    FROM mdl_event_application_course_info eaci
+                    LEFT JOIN mdl_event e ON event_id = e.id
                     WHERE event_id = ? 
                     LIMIT $perPage OFFSET $offset"
                 );

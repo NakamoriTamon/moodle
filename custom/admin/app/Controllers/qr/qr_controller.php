@@ -419,6 +419,16 @@ class QrController
                 'status' => 'error',
                 'message' => '既に参加登録されています'
             ];
+        } else if(isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['NON_PARTICIPATION']) {
+            return [
+                'status' => 'error',
+                'message' => '不参加で登録されています'
+            ];
+        } else if(isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['CANCEL']) {
+            return [
+                'status' => 'error',
+                'message' => '申込はキャンセルされています'
+            ];
         }
 
         if($event_kbn == EVERY_DAY_EVENT) {

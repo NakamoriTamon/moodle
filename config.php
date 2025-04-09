@@ -126,6 +126,7 @@ define('CONFIRMED', [ // メール確認状況
 define('PARTICIPATION_KBN', [ // イベント参加状況
   'PARTICIPATION' => 1, // 参加
   'NON_PARTICIPATION' => 2, // 不参加 
+  'CANCEL' => 3 // キャンセル
 ]);
 define('TICKET_TYPE', [ // チケットタイプ区分
   'SELF' => 1, // 本人分
@@ -265,7 +266,7 @@ $adult_age = 18;
 define('ADULT_AGE', $adult_age);
 
 // イベント参加状態
-$is_participation_list = [1 => '参加済', 2 => '不参加'];
+$is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);
 
 // アカウント承認状態

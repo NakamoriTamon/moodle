@@ -167,6 +167,7 @@ class MypageController
                     elf ON elf.event_id = e.id
                 WHERE 
                     ea.user_id = :user_id 
+                    AND eaci.participation_kbn IS NULL
                     AND DATE_ADD(
                 ci.course_date,
                 INTERVAL CAST(
