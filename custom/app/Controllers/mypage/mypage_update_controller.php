@@ -192,7 +192,7 @@ class MypageUpdateController
                 $data->guardian_email = $guardian_email;
                 $data->guardian_phone = $guardian_phone;
                 $data->child_name = $child_name;
-                
+
                 // 「お子様の氏名」が入力されているかどうかでguardian_kbnを設定
                 $data->guardian_kbn = !empty($child_name) ? 1 : 0;
 
@@ -410,7 +410,7 @@ class MypageUpdateController
                         $data = new stdClass();
                         $data->id = (int)$id;
                         $data->payment_method = PAYMENT_CREDIT;
-                        $data->paid_status = PAID_STATUS['SUBSCRIPTION_PROCESSING'];
+                        $data->paid_status = PAID_STATUS['COMPLETED'];
                         $data->is_subscription = $is_subscription;
 
                         $DB->update_record_raw('tekijuku_commemoration', $data);
