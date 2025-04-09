@@ -726,6 +726,7 @@ unset(
 
                             <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($application->event_id) ?>">
                             <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($application->course_id) ?>">
+                            <input type="hidden" name="event_application_course_info_id" value="<?php echo htmlspecialchars($application->event_application_course_info_id) ?>">
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($application->event_application_id) ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
