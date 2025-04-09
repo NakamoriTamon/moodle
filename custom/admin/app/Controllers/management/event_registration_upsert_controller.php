@@ -10,16 +10,13 @@ global $DB;
 $participation_kbn_list = $_POST['participation_kbn'];
 $_SESSION['old_input'] = $_POST;
 
-// 参加・未参加を更新する
+// 参加・未参加・キャンセルまたは参加前の状態に更新する
 try {
     $transaction = $DB->start_delegated_transaction();
     foreach ($participation_kbn_list as $key => $participation_kbn) {
-        if(empty($participation_kbn)) {
-            continue;
-        }
         $event_application_course_info = new stdClass();
         $event_application_course_info->id = $key;
-        $event_application_course_info->participation_kbn = $participation_kbn;
+        $event_application_course_info->participation_kbn = empty($participation_kbn) ? null : $participation_kbn;
         $DB->update_record_raw('event_application_course_info', $event_application_course_info);
     }
     $transaction->allow_commit();
