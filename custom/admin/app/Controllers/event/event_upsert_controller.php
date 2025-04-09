@@ -61,6 +61,24 @@ $start_hour = $_POST['start_hour'] ?? null; // 開始時間　必須
 $_SESSION['errors']['start_hour'] = validate_time($start_hour, '開始時間', true);
 $end_hour = $_POST['end_hour'] ?? null; // 終了時間　必須
 $_SESSION['errors']['end_hour'] = validate_time($end_hour, '終了時間', true);
+
+// 開始時間と終了時間が両方とも正しい形式の場合のみ比較
+if ($_SESSION['errors']['start_hour'] === null && $_SESSION['errors']['end_hour'] === null) {
+    // 開始時間を終了時間に変換
+    $start_time = DateTime::createFromFormat('H:i', $start_hour);
+    $end_time = DateTime::createFromFormat('H:i', $end_hour);
+    
+    // 開始時間が終了時間より後の場合、値を交換する
+    if ($start_time > $end_time) {
+        $temp = $start_hour;
+        $start_hour = $end_hour;
+        $end_hour = $temp;
+    
+        $_POST['start_hour'] = $start_hour;
+        $_POST['end_hour'] = $end_hour;
+    }
+}
+
 $access = $_POST['access'] ?? null; // 交通アクセス
 $_SESSION['errors']['access'] = validate_text($access, '交通アクセス', 500, false); // バリデーションチェック
 $google_map = $_POST['google_map'] ?? null; // Google Map
