@@ -399,6 +399,7 @@
   }
   #desc .desc_info .category .cat_item {
     width: calc(50% - 10px);
+    max-width: 190px;
   }
   #desc .desc_img {
     width: 100%;

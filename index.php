@@ -8,9 +8,9 @@ $now = $now->format('Ymd');
 
 <!-- 一時的に検索フォームを非表示にします -->
 <style>
-    /* #search {
+    #search {
         display: none;
-    } */
+    }
 
     #juku {
         margin-top: 170px !important;

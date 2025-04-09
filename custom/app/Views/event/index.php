@@ -15,9 +15,9 @@ unset($SESSION->formdata);
 
 <!-- 一時的に検索フォームを非表示にします -->
 <style>
-    /* #search {
+    #search {
         display: none;
-    } */
+    }
 </style>
 
 <main id="subpage">

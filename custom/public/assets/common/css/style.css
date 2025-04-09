@@ -1266,8 +1266,11 @@ select {
     gap: 10px 20px;
   }
   #category .cat_item {
-    width: calc(50% - 10px);
+    width: calc(30% - 10px);
     height: 45px;
+  }
+  .cat_item .txt {
+    letter-spacing: normal;
   }
   #category .cat_item input[type="checkbox"] {
     display: none;
@@ -1439,5 +1442,11 @@ select {
   #modal .modal_cont .cross::before,
   #modal .modal_cont .cross::after {
     width: 30px;
+  }
+}
+
+@media only screen and (max-width: 599px) {
+  #category .cat_item {
+    width: calc(50% - 10px);
   }
 }
