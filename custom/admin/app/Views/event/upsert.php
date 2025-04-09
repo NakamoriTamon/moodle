@@ -343,7 +343,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 												<label class="me-2">時間( 終了時間 )</label>
 												<span class="badge bg-danger">必須</span>
 											</div>
-											<input name="end_hour" class="timepicker w-100" type="text" placeholder="" value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>"">
+											<input name="end_hour" class="timepicker w-100" type="text" placeholder="" value="<?= htmlspecialchars(isSetValue($eventData['end_hour'] ?? '', ($old_input['end_hour'] ?? ''))) ?>">
 										</div>
 									<?php endif; ?>
 									<div class=" mb-3">
