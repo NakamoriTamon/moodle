@@ -1,4 +1,12 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
+<?php
+// 現在のURLが/custom/app/Views/index.phpの場合、/にリダイレクト
+$current_url = $_SERVER['REQUEST_URI'];
+if ($current_url == '/custom/app/Views/index.php') {
+    header('Location: /');
+    exit;
+}
+
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php');
 $now = new DateTime();
 $now = $now->format('Ymd');
