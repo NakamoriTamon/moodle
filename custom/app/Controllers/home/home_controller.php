@@ -27,6 +27,11 @@ $events = $eventModel->getEvents([
 $now = new DateTime();
 $now = $now->format('Ymd');
 
+$best_events = $eventModel->getEvents([
+    'event_start_date' => $event_start_date,
+    'is_best' => true
+], $currentPage, $perPage);
+
 if(!empty($events)) {
     foreach($events as &$event) { 
         $select_lecture_formats = [];

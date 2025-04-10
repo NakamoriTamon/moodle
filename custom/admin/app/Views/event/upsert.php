@@ -372,8 +372,44 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">
-											<input name="is_top" type="checkbox" value="1" <?php if (isset($eventData['is_top']) && !empty($eventData['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
+											<input name="is_top" type="checkbox" value="1" <?php if (isset($eventData['is_top']) && !empty($eventData['is_top']) || !empty($old_input['is_top'])): ?>checked<?php endif; ?> class="form-check-input">
 											<span class="form-check-label">トップに固定する</span>
+										</label>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">
+											<input id="is_best" name="is_best" type="checkbox" value="1" <?php if (isset($eventData['is_best']) && !empty($eventData['is_best']) || !empty($old_input['is_best'])): ?>checked<?php endif; ?> class="form-check-input">
+											<span class="form-check-label">推しイベントに設定する</span>
+										</label>
+									</div>
+									<div class="mb-3" id="best_event_img_tag" <?php if(empty($eventData['is_best'] ?? null)): ?>style="display: none;"<?php endif; ?>>
+										<div class="form-label d-flex align-items-center">
+											<label class="me-2">推しイベント画像</label>
+											<span class="badge bg-danger">必須</span>
+										</div>
+										<div class="mb-3">
+											<input type="file" id="best_event_img" name="best_event_img" class="form-control" accept=".png,.jpeg,.jpg">
+										</div>
+										<div id="image-preview" class="mb-3">
+											<!-- プレビュー画像がここに表示されます -->
+										</div>
+										<?php if (isset($eventData['best_event_img']) && !empty($eventData['best_event_img'])): ?>
+											<div class="mb-3">
+												<img class="fit-picture"
+													id="best_event_img_tag"
+													src="<?= htmlspecialchars($eventData['best_event_img']) ?>"
+													width="300" />
+												<button type="button" class="delete-best-img delete_btn btn btn-danger ms-auto me-0" data-id="<?= $id ?>">削除</button>
+											</div>
+										<?php endif; ?>
+										<?php if (!empty($errors['best_event_img'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['best_event_img']); ?></div>
+										<?php endif; ?>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">
+											<input name="is_tekijuku_only" type="checkbox" value="1" <?php if (isset($eventData['is_tekijuku_only']) && !empty($eventData['is_tekijuku_only']) || !empty($old_input['is_tekijuku_only'])): ?>checked<?php endif; ?> class="form-check-input">
+											<span class="form-check-label">適塾会員限定イベント</span>
 										</label>
 									</div>
 									<div class="mb-3 one_area">
@@ -826,6 +862,29 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 						</div>
 					</div>
 				</div>
+				<!-- 削除モーダル -->
+				<div class="modal fade" id="delete_best_img_modal" tabindex="-1" aria-labelledby="deleteBestImgModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="deleteBestImgModalLabel">削除確認</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<form method="POST" action="/custom/admin/app/Controllers/event/best_img_delete_controller.php">
+								<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="id" value="<?= htmlspecialchars($id ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<input type="hidden" name="best_event_img" value="<?= htmlspecialchars($eventData['best_event_img'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+								<div class="modal-body">
+									本当にこの推しイベント画像を削除しますか？現在編集中の内容は削除されます。
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+									<button type="submit" id="best_img_delete" class="btn btn-danger">削除</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
 			</main>
 		</div>
 	</div>
@@ -852,6 +911,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const allDeadlineReq = $('#all_deadline_req'); // 各回申し込み締切日の必須表示
 		const oneArea = $('.one_area');
 		const deadlineArea = $('#deadline_area');
+		const is_best = $('#is_best').prop('checked'); // 推しイベント設定
+		const best_event_img_tag = $('#best_event_img_tag'); // 推しイベント画像
+
+		if(is_best) {
+			best_event_img_tag.css('display', 'block');
+		} else {
+			best_event_img_tag.css('display', 'none');
+		}
 
 		// 初期表示で value="2" の場合は表示
 		if (eventKbnElement.value == '2') {
@@ -1111,6 +1178,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				$('#image-preview').html(''); // プレビューをクリア
 			}
 		});
+													
+		$('#is_best').on('change', function () {
+			if ($(this).prop('checked')) {
+				$('#best_event_img_tag').css('display', 'block'); // 表示
+			} else {
+				$('#best_event_img_tag').css('display', 'none'); // 非表示
+			}
+		});
 
 		let selectedId;
 		// 削除リンクがクリックされたとき
@@ -1118,6 +1193,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			event.preventDefault();
 			selectedId = $(this).data('id');
 			$('#delete_confirm_modal').modal('show');
+		});
+		// 削除リンクがクリックされたとき
+		$('.delete-best-img').on('click', function(event) {
+			event.preventDefault();
+			selectedId = $(this).data('id');
+			$('#delete_best_img_modal').modal('show');
 		});
 		// モーダル内の削除ボタンがクリックされたとき
 		$('#confirm_delete').on('click', function(e) {
