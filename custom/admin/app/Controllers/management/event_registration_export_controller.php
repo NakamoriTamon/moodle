@@ -155,7 +155,7 @@ try {
 
         if (empty($path_name)) {
             $path_name = $event['name'];
-            if (!empty($course_no)) {
+            if (!empty($event['name']) && !empty($course_no)) {
                 $path_name .= '_第' . $course_no . '回';
             }
         }
