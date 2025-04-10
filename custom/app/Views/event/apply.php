@@ -9,14 +9,15 @@ $eventId = isset($_GET['id']) ? $_GET['id'] : null;
 $courseInfoId = isset($_GET['course_info_id']) ? $_GET['course_info_id'] : null;
 $formdata = null;
 if (isset($SESSION->formdata)) {
+    $formdata = $SESSION->formdata;
     if (is_null($eventId)) {
-        $eventId = isset($SESSION->formdata) && isset($SESSION->formdata['id']) ? $SESSION->formdata['id'] : null;
+        $eventId = isset($formdata['id']) ? $formdata['id'] : null;
     }
-    if (is_null($eventId)) {
-        $courseInfoId = is_null($courseInfoId) && isset($SESSION->formdata) && isset($SESSION->formdata['course_info_id']) ? $SESSION->formdata['course_info_id'] : null;
+    if (is_null($courseInfoId) && isset($formdata['course_info_id'])) {
+        $courseInfoId = $formdata['course_info_id'];
     }
-    $formdata = isset($SESSION->formdata) ? $SESSION->formdata : null;
 }
+
 $eventApplicationController = new EventApplicationController();
 $responce = $eventApplicationController->getEvenApplication($eventId, $courseInfoId, $formdata);
 $event = $responce['event'];
@@ -48,7 +49,7 @@ $guardian_email = "";
 $guardian_phone = "";
 $capacity = $event['capacity'];
 
-if ($responce['event']['capacity'] == 0) {
+if ($event['capacity'] == 0) {
     $aki_ticket = 50;
 } else {
     $aki_ticket = $responce['aki_ticket'];
@@ -105,7 +106,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         exit();
     }
 
-    if($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
+    if ($tekijuku !== false && ((int)$tekijuku['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'])) {
         $tekijuku_flg = true;
         $tekijuku_discount = empty($event['tekijuku_discount']) ? 0 : $event['tekijuku_discount'];
         if ($tekijuku_discount > 0) {
@@ -168,7 +169,7 @@ if (!empty($old_input)) {
     $guardian_email = isset($formdata['guardian_email']) ? $formdata['guardian_email'] : $guardian_email;
     $guardian_phone = isset($formdata['guardian_phone']) ? $formdata['guardian_phone'] : $guardian_phone;
 }
-
+unset($_SESSION['old_input']);
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event_apply.css" />
@@ -259,11 +260,17 @@ if (!empty($old_input)) {
                             <li class="long_item">
                                 <p class="list_label">開催日</p>
                                 <div class="list_field f_txt list_col">
-                                    <?php foreach ($event['select_course'] as $no => $course): ?>
+                                    <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
                                         <p class="f_check">
-                                            <?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?>
+                                            <?= (new DateTime($event['start_event_date']))->format('Y年m月d日'); ?>～<?= (new DateTime($event['end_event_date']))->format('Y年m月d日'); ?>
                                         </p>
-                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php foreach ($event['select_course'] as $no => $course): ?>
+                                            <p class="f_check">
+                                                <?= $no ?>回目：<?= (new DateTime($course['course_date']))->format('Y年m月d日'); ?>
+                                            </p>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
                             </li>
                             <span class="error-msg" id="ticket-error">
@@ -402,7 +409,7 @@ if (!empty($old_input)) {
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if (!empty($guardian_kbn) && $age <= ADULT_AGE): ?>
+                            <?php if ($age <= ADULT_AGE): ?>
                                 <li>
                                     <span class="error-msg" id="applicant_kbn-error">
                                         <?php if (!empty($errors['applicant_kbn'])): ?>
@@ -510,21 +517,30 @@ if (!empty($old_input)) {
     });
 
     function createInputMail() {
-        const ticketInput = document.getElementById('ticket'); // チケット枚数の入力欄
-        const emailContainer = document.getElementById('input_emails'); // メール入力欄を追加するコンテナ
-        const other_mails_tag = document.getElementById('other_mails_tag');
+        const ticketInput = document.getElementById('ticket'); // チケット枚数入力欄
+        const emailContainer = document.getElementById('input_emails'); // 追加するメール入力欄のコンテナ
+        const other_mails_tag = document.getElementById('other_mails_tag'); // 連れ先メール見出しの要素
 
-        let ticketCount = parseInt(ticketInput.value); // 入力されたチケット枚数
-        var maxValue = $('input[type="number"]').attr('max');
+        // 入力されたチケット枚数 (整数)
+        const ticketCount = parseInt(ticketInput.value, 10);
+        // 連れ先メール欄は、チケット枚数が2以上の場合 (チケット数 - 1) 必要となる
+        const desiredCount = (ticketCount > 1) ? ticketCount - 1 : 0;
+        // 現在の入力フィールドの数
+        let currentCount = emailContainer.querySelectorAll('input[type="email"]').length;
 
-        // 現在のメール入力欄の数を取得
-        const currentEmailFields = emailContainer.querySelectorAll('input[type="email"]').length;
-
-        if (ticketCount > 1 && akiTicketCount >= ticketCount && ticketCount > currentEmailFields) {
+        // チケット枚数が2以上なら見出しを表示、それ以外の場合は隠す
+        if (desiredCount > 0) {
             other_mails_tag.style.display = 'block';
+        } else {
+            // 1枚の場合はコンテナの内容もすべてクリア
+            emailContainer.innerHTML = '';
+            other_mails_tag.style.display = 'none';
+            return; // これ以降の処理は不要
+        }
 
-            // チケット数が増えた場合、追加
-            for (let i = currentEmailFields; i < ticketCount - 1; i++) {
+        // 欲しい入力欄の数が現在より多ければ追加
+        if (currentCount < desiredCount) {
+            for (let i = currentCount; i < desiredCount; i++) {
                 const pElement = document.createElement('p');
                 pElement.classList.add('f_check');
                 const newInput = document.createElement('input');
@@ -532,17 +548,14 @@ if (!empty($old_input)) {
                 newInput.name = 'companion_mails[]';
                 newInput.style.marginRight = '2rem';
                 newInput.placeholder = `メールアドレス ${i + 1}`;
-                // <p> の中に <input> を追加
                 pElement.appendChild(newInput);
                 emailContainer.appendChild(pElement);
             }
-        } else if (ticketCount <= currentEmailFields) {
-            // チケット数が減った場合、余分な入力欄を削除
-            for (let i = 0; currentEmailFields - ticketCount >= i; i++) {
+        }
+        // 余分な入力欄があれば削除（末尾から削除）
+        else if (currentCount > desiredCount) {
+            while (emailContainer.querySelectorAll('input[type="email"]').length > desiredCount) {
                 emailContainer.removeChild(emailContainer.lastChild);
-            }
-            if (ticketCount <= 1) {
-                other_mails_tag.style.display = 'none';
             }
         }
     }

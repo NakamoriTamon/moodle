@@ -188,10 +188,15 @@ class QrController
 
         // 開催回数を取得
         $course_numbers = [];
-        $total_courses = $event['total_courses'] ?? 1; // イベントの総回数
-
-        for ($i = 1; $i <= $total_courses; $i++) {
-            $course_numbers[] = $i;
+        $event_kbn = $event['event_kbn'];
+        if($event_kbn == EVERY_DAY_EVENT) {
+            $total_courses = 0;
+        } else {
+            $total_courses = $event['total_courses'] ?? 1; // イベントの総回数
+    
+            for ($i = 1; $i <= $total_courses; $i++) {
+                $course_numbers[] = $i;
+            }
         }
 
         // イベント名を安全にエスケープしてJSONに含める
@@ -200,7 +205,8 @@ class QrController
         echo json_encode([
             'status' => 'success',
             'course_numbers' => $course_numbers,
-            'event_name' => $event_name
+            'event_name' => $event_name,
+            'event_kbn' => $event_kbn
         ]);
         exit;
     }
@@ -222,8 +228,9 @@ class QrController
         $qr_data = clean_param(optional_param('qr_data', '', PARAM_TEXT), PARAM_TEXT);
         $event_id = optional_param('event_id', 0, PARAM_INT);
         $course_no = optional_param('course_no', 0, PARAM_INT);
+        $event_kbn = optional_param('event_kbn', 0, PARAM_INT);
 
-        if (empty($qr_data) || empty($event_id) || empty($course_no)) {
+        if (empty($qr_data) || empty($event_id) || ($event_kbn != EVERY_DAY_EVENT && empty($course_no))) {
             echo json_encode([
                 'status' => 'error',
                 'message' => '必要なパラメータが不足しています'
@@ -243,7 +250,7 @@ class QrController
         }
 
         // IDと他のパラメータ（event_id, course_no）を照合
-        $verification_result = $this->verifyEventApplication($event_application_course_info_id, $event_id, $course_no);
+        $verification_result = $this->verifyEventApplication($event_application_course_info_id, $event_id, $course_no, $event_kbn);
 
         if ($verification_result['status'] === 'error') {
             echo json_encode([
@@ -382,14 +389,14 @@ class QrController
      * @return array 照合結果を含む連想配列
      *               ['status' => 'success'|'error', 'message' => エラーメッセージ, 'app_info' => 申し込み情報]
      */
-    private function verifyEventApplication($id, $event_id, $course_no)
+    private function verifyEventApplication($id, $event_id, $course_no, $event_kbn)
     {
         // すべてのパラメータが整数であることを確認
         $id = clean_param($id, PARAM_INT);
         $event_id = clean_param($event_id, PARAM_INT);
         $course_no = clean_param($course_no, PARAM_INT);
 
-        if ($id <= 0 || $event_id <= 0 || $course_no <= 0) {
+        if ($id <= 0 || $event_id <= 0 || ($event_kbn != EVERY_DAY_EVENT && $course_no <= 0)) {
             return [
                 'status' => 'error',
                 'message' => '無効なパラメータが指定されました'
@@ -406,40 +413,77 @@ class QrController
                 'message' => '処理でエラーが発生しております'
             ];
         }
-
         // 既に参加済みの場合
         if (isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['PARTICIPATION']) {
             return [
                 'status' => 'error',
                 'message' => '既に参加登録されています'
             ];
+        } else if(isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['NON_PARTICIPATION']) {
+            return [
+                'status' => 'error',
+                'message' => '不参加で登録されています'
+            ];
+        } else if(isset($app_info['participation_kbn']) && $app_info['participation_kbn'] == PARTICIPATION_KBN['CANCEL']) {
+            return [
+                'status' => 'error',
+                'message' => '申込はキャンセルされています'
+            ];
         }
 
-        // 既に開催終了している場合
-        if (isset($app_info['course_date']) && isset($app_info['end_hour'])) {
-            // イベント終了時刻を作成（日付と終了時間を結合）
-            $course_date = date('Y-m-d', strtotime($app_info['course_date']));
-            $end_time = $app_info['end_hour'];
-            $event_end_datetime = $course_date . ' ' . $end_time;
+        if($event_kbn == EVERY_DAY_EVENT) {
+            // イベント詳細を取得
+            $event = $this->eventModel->getEventById($event_id);
+            $start_event_date = date('Y-m-d', strtotime($event['start_event_date']));
+            $end_event_date = date('Y-m-d', strtotime($event['end_event_date']));
 
             // 現在時刻と比較
-            $current_datetime = date('Y-m-d H:i:s');
+            $current_datetime = date('Y-m-d');
 
-            if (strtotime($current_datetime) > strtotime($event_end_datetime)) {
+            if (strtotime($current_datetime) <= strtotime($start_event_date)
+                || strtotime($current_datetime) >= strtotime($end_event_date)) {
                 return [
                     'status' => 'error',
-                    'message' => '既に開催終了しています'
+                    'message' => '開催期間外です'
                 ];
             }
-        }
 
-        // イベントIDと回数の照合
-        if ($app_info['event_id'] == $event_id && $app_info['no'] == $course_no) {
-            // 照合成功
-            return [
-                'status' => 'success',
-                'app_info' => $app_info
-            ];
+            // イベントIDと回数の照合
+            if ($app_info['event_id'] == $event_id) {
+                // 照合成功
+                return [
+                    'status' => 'success',
+                    'app_info' => $app_info
+                ];
+            }
+        } else {
+
+            // 既に開催終了している場合
+            if (!empty($app_info['course_date']) && !empty($app_info['end_hour'])) {
+                // イベント終了時刻を作成（日付と終了時間を結合）
+                $course_date = date('Y-m-d', strtotime($app_info['course_date']));
+                $end_time = $app_info['end_hour'];
+                $event_end_datetime = $course_date . ' ' . $end_time;
+
+                // 現在時刻と比較
+                $current_datetime = date('Y-m-d H:i:s');
+
+                if (strtotime($current_datetime) > strtotime($event_end_datetime)) {
+                    return [
+                        'status' => 'error',
+                        'message' => '既に開催終了しています'
+                    ];
+                }
+            }
+
+            // イベントIDと回数の照合
+            if ($app_info['event_id'] == $event_id && $app_info['no'] == $course_no) {
+                // 照合成功
+                return [
+                    'status' => 'success',
+                    'app_info' => $app_info
+                ];
+            }
         }
 
         // 照合失敗

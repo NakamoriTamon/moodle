@@ -86,6 +86,7 @@ $now = $now->format('Ymd');
                 <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                 <div class="event_info">
                   <ul class="event_status">
+                    <li class="<?php if ($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars(EVENT_STATUS_LIST[$row['event_status']]); ?></li>
                     <?php foreach (DEADLINE_LIST as $key => $status): ?>
                       <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
                         <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>

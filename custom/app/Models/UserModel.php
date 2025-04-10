@@ -282,6 +282,67 @@ class UserModel extends BaseModel
         return [];
     }
 
+    public function getUsers($filters = [], $page = 1, $perPage = 15)
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+                $sql = "SELECT 
+                    u.*, 
+                    r.id AS role_id,
+                    r.sortorder AS role_sortorder,
+                    r.shortname AS role
+                FROM mdl_user u
+                JOIN mdl_role_assignments ra ON u.id = ra.userid
+                JOIN mdl_role r ON ra.roleid = r.id";
+
+                $where = " WHERE u.deleted = 0";
+                $where .= " AND r.shortname = 'user'";
+                $orderBy = ' ORDER BY u.lastname, u.firstname ASC';
+
+                // 動的に検索条件を追加
+                $params = [];
+                if (!empty($filters['keyword'])) {
+                    $where .= " AND (u.id LIKE :keyword OR u.name LIKE :keyword OR u.email LIKE :keyword OR u.name_kana LIKE :keyword)";
+                    $params[':keyword'] = '%' . $filters['keyword'] . '%';
+                }
+
+                // ページネーション用のオフセットを計算
+                $offset = ($page - 1) * $perPage;
+                $limit = " LIMIT $perPage OFFSET $offset";
+
+                // 最終SQLの組み立て
+                $sql .= $where;
+                if (!empty($having)) {
+                    $sql .= $having;
+                }
+                $sql .= $orderBy . $limit;
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($users as $Key => $user) {
+                    $tekijuku = $this->getTekijukuByUserId($user['id']);
+                    if (!$tekijuku) {
+                        $users[$Key]['tekijuku'] = [];
+                    } else {
+                        $users[$Key]['tekijuku'] = $this->getTekijukuByUserId($user['id']);
+                    }
+                }
+
+                return $users;
+            } catch (\PDOException $e) {
+                error_log('ユーザー一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
+        }
+    }
+
     private function getTekijukuByUserId($user_id)
     {
         if ($this->pdo) {

@@ -25,7 +25,7 @@ class BaseModel
         $password = $CFG->dbpass;
 
         try {
-            $this->pdo = new \PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+            $this->pdo = new \PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
             $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
             echo '接続に失敗しました。管理者にお問い合わせください。';

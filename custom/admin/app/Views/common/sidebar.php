@@ -24,7 +24,7 @@
 							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/user_registration.php">ユーザー情報管理</a></li>
 						<?php endif; ?>
 						<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/event_registration.php">イベント登録情報管理</a></li>
-						<?php if (in_array('admin', $roles)): ?>
+						<?php if (in_array('admin', $roles) || $USER->id == MEMBERSHIP_ACCESS_ACOUNT): ?>
 							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/membership_fee_registration.php">費用請求</a></li>
 						<?php endif; ?>
 						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li> -->

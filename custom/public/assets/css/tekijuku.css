@@ -89,7 +89,7 @@
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {
   #subpage {
-    font-size: 2rem;
+    font-size: 1.3rem;
   }
   /*-------------------------------------
  juku 
@@ -101,7 +101,8 @@
     position: initial;
     display: block;
     margin: 30px auto 0;
-    width: 180px;
+    width: 65%;
+    max-width: 400px;
   }
   #juku .juku_about01 .desc {
     width: 100%;
@@ -120,14 +121,55 @@
   }
   #juku .juku_about02 .juku_about-txt .juku_about-txt__ttl {
     margin-bottom: 10px;
-    font-size: 20px;
+    font-size: 25px;
   }
   #juku .juku_about02 .juku_about-cont img {
     margin: 20px auto 0;
-    width: 200px;
+    width: 80%;
+    max-width: 500px;
   }
   #juku .juku_block .memb_list {
     margin-bottom: 20px;
-    font-size: 2.2rem;
+    font-size: 1.5rem;
+  }
+  .block_ttl {
+    min-height: 40px;
+    height: auto;
+    margin-bottom: 20px;
+    padding: 5px 20px;
+    font-size: 30px;
+  }
+}
+@media only screen and (max-width: 700px) {
+  #subpage {
+    font-size: 1.2em;
+  }
+  #juku .juku_block .memb_list {
+    margin-bottom: 20px;
+    font-size: 1.3em;
+  }
+  .block_ttl {
+    min-height: 40px;
+    height: auto;
+    margin-bottom: 20px;
+    padding: 5px 20px;
+    font-size: 25px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  #subpage {
+    font-size: 1em;
+  }
+  #juku .juku_block .memb_list {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+  }
+  .block_ttl {
+    min-height: 40px;
+    height: auto;
+    margin-bottom: 20px;
+    padding: 5px 20px;
+    font-size: 1.5em;
   }
 }

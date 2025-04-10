@@ -132,7 +132,8 @@ class MypageController
                 WITH elf AS (
                     SELECT *
                     FROM {event_lecture_format}
-                    WHERE lecture_format_id = 1
+
+                    WHERE lecture_format_id = " . LOCAL . " OR lecture_format_id = " . LIVE . "
                 )
                 SELECT DISTINCT
                     eaci.id AS event_application_course_info_id,
@@ -145,6 +146,9 @@ class MypageController
                     ea.event_application_package_types,
                     e.name AS event_name,
                     e.venue_name AS venue_name,
+                    e.event_kbn,
+                    e.start_event_date,
+                    e.end_event_date,
                     ci.id AS course_id,
                     ci.no,
                     ci.course_date,
@@ -163,11 +167,23 @@ class MypageController
                     elf ON elf.event_id = e.id
                 WHERE 
                     ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
+                    AND (eaci.participation_kbn != 3 OR eaci.participation_kbn IS NULL)
+                    AND DATE_ADD(
+                ci.course_date,
+                INTERVAL CAST(
+                    COALESCE(
+                        REPLACE(e.material_release_period, ' days', ''),
+                        '0'
+                    ) AS SIGNED
+                ) DAY
+            ) "
+                . $comparison_operator .
+                " :current_date
                     AND eaci.ticket_type = :self_ticket_type
                 ORDER BY 
                     ci.course_date ASC
                 ";
+
 
             // カウント用クエリ
             $count_sql = "
@@ -178,9 +194,22 @@ class MypageController
                     {event_application} ea ON ea.id = eaci.event_application_id
                 JOIN 
                     {course_info} ci ON ci.id = eaci.course_info_id
+                JOIN 
+                    {event} e ON e.id = ea.event_id
                 WHERE 
                     ea.user_id = :user_id 
-                    AND ci.course_date $comparison_operator :current_date
+                    AND (eaci.participation_kbn != 3 OR eaci.participation_kbn IS NULL)
+                   AND DATE_ADD(
+                ci.course_date,
+                INTERVAL CAST(
+                    COALESCE(
+                        REPLACE(e.material_release_period, ' days', ''),
+                        '0'
+                    ) AS SIGNED
+                ) DAY
+            ) "
+                . $comparison_operator .
+                " :current_date
                     AND eaci.ticket_type = :self_ticket_type
                 ";
 

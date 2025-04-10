@@ -16,8 +16,13 @@ class UserRegistrationController
     {
 
         // 検索項目取得
-        $page = $_POST['page'] ?? null;
+        $keyword = $_POST['keyword'] ?? null;
         $_SESSION['old_input'] = $_POST;
+
+        $filters = [];
+        if (!empty($keyword)) {
+            $filters['keyword'] = $keyword;
+        }
 
         // ページネーション
         $per_page = 15;
@@ -33,7 +38,7 @@ class UserRegistrationController
             $current_page  = 1;
         }
 
-        $user_list = $this->userModel->getUser($current_page, $per_page);
+        $user_list = $this->userModel->getUsers($filters, $current_page, $per_page);
         $user_count_list = $this->userModel->getUserCount();
 
         $data_list = [];

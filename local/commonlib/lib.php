@@ -128,7 +128,7 @@ function validate_textarea($val, $title, $required, $size = 10000)
 {
     if (empty($val) && $required) {
         return $title . 'は必須です。';
-    } elseif(empty($val) && !$required) {
+    } elseif (empty($val) && !$required) {
         return null;
     }
     // 改行を除去
@@ -537,6 +537,23 @@ function validate_url($url, $title, $required)
     }
     if (!filter_var($url, FILTER_VALIDATE_URL)) {
         return $title . 'に入力されたURLは無効な形式です。';
+    }
+    return null;
+}
+
+// チケット枚数
+function validate_ticket($input)
+{
+    if (empty($input)) {
+        return '枚数選択は必須です。';
+    }
+    if (is_int($input)) {
+        return '枚数選択は数字を入力してください。';
+    }
+
+    $limt_32bit = 2147483647;
+    if ($input > $limt_32bit) {
+        return '枚数選択は21億を超えることはできません。';
     }
     return null;
 }

@@ -126,6 +126,7 @@ define('CONFIRMED', [ // メール確認状況
 define('PARTICIPATION_KBN', [ // イベント参加状況
   'PARTICIPATION' => 1, // 参加
   'NON_PARTICIPATION' => 2, // 不参加 
+  'CANCEL' => 3 // キャンセル
 ]);
 define('TICKET_TYPE', [ // チケットタイプ区分
   'SELF' => 1, // 本人分
@@ -265,7 +266,7 @@ $adult_age = 18;
 define('ADULT_AGE', $adult_age);
 
 // イベント参加状態
-$is_participation_list = [1 => '参加済', 2 => '不参加'];
+$is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);
 
 // アカウント承認状態
@@ -393,6 +394,19 @@ $dm_send_kbn_tekijuku = 2; // 適塾単位で送信
 define('DM_SEND_KBN_TEKIJUKU', $dm_send_kbn_tekijuku);
 $dm_send_kbn_all = 3; // 全体単位で送信
 define('DM_SEND_KBN_ALL', $dm_send_kbn_all);
+
+
+// 講義形式
+$local = 1; // 会場(対面)
+define('LOCAL', $local);
+$on_demand = 2; // オンデマンド配信
+define('ON_DEMAND', $on_demand);
+$live = 3; // ライブ配信
+define('LIVE', $live);
+
+// 費用請求へ遷移できる部門管理者アカウント
+$membership_access_acount = 1557;
+define('MEMBERSHIP_ACCESS_ACOUNT', $membership_access_acount);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

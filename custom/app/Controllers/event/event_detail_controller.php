@@ -60,36 +60,94 @@ if (!empty($event)) {
 
     $tutor_ids = [];
     $tutor_names = [];
-    foreach($event['course_infos'] as $select_course) {
-        if(!empty($select_course['id'])) {
-            $deadline_date = new DateTime($select_course['deadline_date']);
-            // 現在時刻のUNIXタイムスタンプ
-            $current_timestamp = new DateTime();
-            if($current_timestamp > $deadline_date) {
-                $select_course['close_date'] = 1;
-            }
+    if($event['event_kbn'] == EVERY_DAY_EVENT) {
+        $count = count($event['course_infos']) - 1;
+        $select_cours = $event['course_infos'];
+        $select_course = $select_cours[$count];
+        $deadline_date = new DateTime($select_course['deadline_date']);
+        // 現在時刻のUNIXタイムスタンプ
+        $current_timestamp = new DateTime();
+        if($current_timestamp > $deadline_date) {
+            $select_course['close_date'] = 1;
+        }
+            
+        $event['select_course'][$select_course['no']] = $select_course;
 
-            /*
-             * ログインユーザが既に申込みをしたイベントか確認
-             * 返り値：
-             * 　・0：未申込み
-             * 　・0以上：申込み済み
-            */
-            $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
-            $select_course['check_entry'] = $checkEntryVal;
-            
-            $event['select_course'][$select_course['no']] = $select_course;
-            
-            if(isset($select_course['details'])) {
-                foreach($select_course['details'] as $details) {
-                    $tutor_id = $details['tutor_id'];
-                    $tutor_name = $details['tutor_name'];
-                    if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                        if(!empty($tutor_id)) {
-                            $tutor_ids[] = $tutor_id;
-                        } else {
-                            if(!empty($tutor_name)) {
-                                $tutor_names[] = $tutor_name;
+        // foreach($event['course_infos'] as $key => $select_course) {
+        //     $deadline_date = new DateTime($select_course['deadline_date']);
+        //     // 現在時刻のUNIXタイムスタンプ
+        //     $current_timestamp = new DateTime();
+        //     if($current_timestamp > $deadline_date) {
+        //         if($key+1 == count($event['course_infos'])) {
+        //             $select_course['close_date'] = 1;
+        //         } else {
+        //             continue;
+        //         }
+        //     }
+                
+        //     $event['select_course'][$select_course['no']] = $select_course;
+        //     break;
+        // }
+        foreach($event['course_infos'] as $select_course) {
+            if(!empty($select_course['id'])) {
+                if(isset($select_course['details'])) {
+                    foreach($select_course['details'] as $details) {
+                        $tutor_id = $details['tutor_id'];
+                        $tutor_name = $details['tutor_name'];
+                        if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
+                            if(!empty($tutor_id)) {
+                                $tutor_ids[] = $tutor_id;
+                            } else {
+                                if(!empty($tutor_name)) {
+                                    $tutor_names[] = $tutor_name;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*
+                 * ログインユーザが既に申込みをしたイベントか確認
+                 * 返り値：
+                 * 　・0：未申込み
+                 * 　・0以上：申込み済み
+                */
+                $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
+                $select_course['check_entry'] = $checkEntryVal;
+                $event['select_course'][$select_course['no']] = $select_course;
+            }
+        }
+    } else {
+        foreach($event['course_infos'] as $select_course) {
+            if(!empty($select_course['id'])) {
+                $deadline_date = new DateTime($select_course['deadline_date']);
+                // 現在時刻のUNIXタイムスタンプ
+                $current_timestamp = new DateTime();
+                if($current_timestamp > $deadline_date) {
+                    $select_course['close_date'] = 1;
+                }
+
+                /*
+                 * ログインユーザが既に申込みをしたイベントか確認
+                 * 返り値：
+                 * 　・0：未申込み
+                 * 　・0以上：申込み済み
+                */
+                $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
+                $select_course['check_entry'] = $checkEntryVal;
+                $event['select_course'][$select_course['no']] = $select_course;
+                
+                if(isset($select_course['details'])) {
+                    foreach($select_course['details'] as $details) {
+                        $tutor_id = $details['tutor_id'];
+                        $tutor_name = $details['tutor_name'];
+                        if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
+                            if(!empty($tutor_id)) {
+                                $tutor_ids[] = $tutor_id;
+                            } else {
+                                if(!empty($tutor_name)) {
+                                    $tutor_names[] = $tutor_name;
+                                }
                             }
                         }
                     }
