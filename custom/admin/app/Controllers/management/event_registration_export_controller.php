@@ -55,7 +55,7 @@ try {
     // null の要素を削除しイベント検索
     $filters = array_filter($filters);
     $event_list = $eventModel->getEvents($filters, 1, 100000);
-    
+
     // 部門管理者ログイン時は自身が作成したイベントのみを取得する
     if ($role->roleid == ROLE['COURSECREATOR']) {
         foreach ($event_list as $key => $event) {
@@ -95,7 +95,7 @@ try {
     if (is_numeric($keyword)) {
         $keyword = ltrim($keyword, '0');
     }
-    
+
     $application_course_info_list = [];
     // 講義回数まで絞り込んだ場合
     if (!empty($course_info_id)) {
@@ -114,7 +114,7 @@ try {
         foreach ($event_list as $event) {
             $event_ids[] = $event['id'];
         }
-        
+
         if (!empty($event_ids)) {
             // 配列内の各イベントIDに対してデータを取得し、結合
             foreach ($event_ids as $eid) {
@@ -137,6 +137,8 @@ try {
         '会員番号',
         'ユーザー名',
         'メールアドレス',
+        '年齢',
+        '備考',
         '決済方法',
         '決済状況',
         '決済日',
@@ -150,14 +152,14 @@ try {
     foreach ($application_course_info_list as $application_course_info) {
         $application = reset($application_course_info['application']);
         $event = $application['event'];
-        
+
         if (empty($path_name)) {
             $path_name = $event['name'];
             if (!empty($course_no)) {
                 $path_name .= '_第' . $course_no . '回';
             }
         }
-        
+
         $application_date = new DateTime($application['application_date']);
         $application_date = $application_date->format("Y年n月j日");
 
@@ -166,13 +168,15 @@ try {
         $is_paid = '';
         $payment_type = '';
         $payment_date = '';
+        $note = '';
+        $age = null;
 
         // お連れ様の場合はユーザー情報は取得しない
         if ($application['user']['email'] == $application_course_info['participant_mail']) {
             $name = $application['user']['name'];
             $formatted_id = sprintf('%08d', $application["user"]['id']);
             $user_id = substr_replace($formatted_id, ' ', 4, 0);
-            
+
             if ($application['pay_method'] != FREE_EVENT) {
                 $payment_type = PAYMENT_SELECT_LIST[$application['pay_method']];
                 $is_paid = !empty($application['payment_date']) ? '決済済' : '未決済';
@@ -181,6 +185,13 @@ try {
                     $payment_date = $payment_date->format("Y年n月j日");
                 }
             }
+
+            if($application['note']){
+                $note = str_replace(",", "、", $application['note']);
+            }
+
+            $age = getAge($application['user']['birthday']);
+
         } elseif (!empty($keyword)) {
             // キーワード検索時はお連れ様の情報も取得する
             continue;
@@ -193,13 +204,15 @@ try {
             $user_id,
             $name,
             $application_course_info['participant_mail'],
+            $age,
+            $note,
             $payment_type,
             $is_paid,
             $payment_date,
             $application_date,
             IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
         ];
-        
+
         $csv_list[$count] = $csv_array;
         $count++;
     }
@@ -255,4 +268,19 @@ try {
         redirect('/custom/admin/app/Views/management/event_registration.php');
         exit;
     }
-} 
+}
+
+/**
+ *  現在の年齢を取得する
+ */
+function getAge(?string $birthday = null): ?int
+{
+    if (empty($birthday)) {
+        return null;
+    }
+
+    $birthday = new DateTime(substr($birthday, 0, 10));
+    $today = new DateTime();
+    $age = $today->diff($birthday)->y;
+    return $age;
+}
