@@ -516,3 +516,116 @@
     white-space: nowrap;
   }
 }
+
+
+/* モーダルの背景 */
+.confirmation_modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* モーダル本体 */
+.confirmation_modal .modal_main_item {
+  background: white;
+  width: 500px;
+  max-width: 80%;
+  padding: 40px 50px 55px;
+  border-top: 20px solid #81bfda;
+  border-radius: 8px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* メッセージテキスト */
+.confirmation_modal .modal_main_item p {
+  font-size: 18px;
+  line-height: 2;
+  letter-spacing: 0.012em;
+  text-align: center;
+  color: #373737;
+  font-weight: 570;
+}
+.confirmation_modal .modal_main_item h2 {
+  font-size: 20px;
+  line-height: 2;
+  letter-spacing: 0.012em;
+  font-weight: bold;
+  color: #373737;
+  font-family: "Noto Sans JP", serif;
+  margin-bottom: 40px;
+}
+
+/* ボタンのスタイル */
+.confirmation_modal .modal_main_item .modal_buttons {
+  margin-top: 40px;
+}
+
+.confirmation_modal .modal_main_item button {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 60px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: 40%;
+  max-width: 150px;
+  font-size: 16px;
+}
+
+/* YES（赤） */
+.modal_yes_buttom {
+  border-radius: 60px;
+  background: #d9534f;
+  color: white;
+  font-weight: bold;
+}
+
+.modal_yes_buttom:hover {
+  background: #c9302c;
+}
+
+/* 閉じるボタン（グレー） */
+.modal_close_buttom {
+  background: #777;
+  color: white;
+  font-weight: bold;
+  margin-left: 15px !important;
+}
+
+.modal_close_buttom:hover {
+  background: #555;
+}
+/*  mobile & smart phone
+---------------------------------------------- */
+@media only screen and (max-width: 959px) {
+  /* 退会ボタン（赤） */
+  .modal_yes_buttom {
+      margin-right: 0px !important;
+      font-size: 14px !important;;
+  }
+  /* 閉じるボタン（グレー） */
+  #modal_close_buttom {
+      background: #777;
+      color: white;
+      margin-left: 0px !important;
+  }
+  .confirmation_modal .modal_main_item button{
+      margin: 5px;
+      font-size: 14px !important;
+  }
+  /* モーダル本体 */
+  .confirmation_modal .modal_main_item {
+      padding: 40px 30px 55px;
+  }
+
+}
