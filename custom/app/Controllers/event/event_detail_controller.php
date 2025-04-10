@@ -88,6 +88,10 @@ if (!empty($event)) {
         //     $event['select_course'][$select_course['no']] = $select_course;
         //     break;
         // }
+
+        // 申し込み確認用の変数定義
+        $check_entry = 0;
+
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {
                 if(isset($select_course['details'])) {
@@ -113,10 +117,13 @@ if (!empty($event)) {
                  * 　・0以上：申込み済み
                 */
                 $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
-                $select_course['check_entry'] = $checkEntryVal;
-                $event['select_course'][$select_course['no']] = $select_course;
+                $check_entry += $checkEntryVal;
             }
         }
+
+        // 既に申し込みが行われているかを確認する値を event > select_course > No > check_entry に保存
+        $select_course['check_entry'] = $check_entry;
+        $event['select_course'][$select_course['no']] = $select_course;
     } else {
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {

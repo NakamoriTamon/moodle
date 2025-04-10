@@ -218,7 +218,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <!-- <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a> -->
                                         <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
                                     <?php endif; ?>
                                 </div>
