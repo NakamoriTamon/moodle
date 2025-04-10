@@ -215,6 +215,55 @@ class UserModel extends BaseModel
         }
     }
 
+    public function getFilterUserCount($filters = [])
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+                $sql = "SELECT 
+                    u.*, 
+                    r.id AS role_id,
+                    r.sortorder AS role_sortorder,
+                    r.shortname AS role
+                FROM mdl_user u
+                JOIN mdl_role_assignments ra ON u.id = ra.userid
+                JOIN mdl_role r ON ra.roleid = r.id";
+
+                $where = " WHERE u.deleted = 0";
+                $where .= " AND r.shortname = 'user'";
+
+                // 動的に検索条件を追加
+                $params = [];
+                if (!empty($filters['keyword'])) {
+                    $where .= ' AND u.name LIKE :keyword';
+                    $params[':keyword'] = '%' . $filters['keyword'] . '%';
+                }
+
+                $sql .= $where;
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($users as $Key => $user) {
+                    $tekijuku = $this->getTekijukuByUserId($user['id']);
+                    if (!$tekijuku) {
+                        $users[$Key]['tekijuku'] = [];
+                    } else {
+                        $users[$Key]['tekijuku'] = $this->getTekijukuByUserId($user['id']);
+                    }
+                }
+                return $users;
+            } catch (\PDOException $e) {
+                error_log('ユーザー数取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
+        }
+    }
+
     public function getEventEntryUser($filters = [], int $page = 1, int $perPage = 8)
     {
         if ($this->pdo) {

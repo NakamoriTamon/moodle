@@ -8,10 +8,17 @@ require_once($CFG->dirroot . '/custom/app/Models/UserModel.php');
 try {
     $userModel = new UserModel();
 
+    // POSTから検索キーワードを取得
+    $keyword = $_POST['keyword'] ?? null;
     $_SESSION['old_input'] = $_POST;
 
+    $filters = [];
+    if (!empty($keyword)) {
+        $filters['keyword'] = $keyword;
+    }
+
     // ユーザーデータの全件取得（ページネーションを無視して全データを取得）
-    $user_count_list = $userModel->getUserCount();
+    $user_count_list = $userModel->getUsers($filters);
     $user_list = [];
 
     foreach ($user_count_list as $key => $user) {

@@ -4,7 +4,6 @@ require_once('/var/www/html/moodle/custom/app/Models/UserModel.php');
 
 class UserRegistrationController
 {
-
     private $userModel;
 
     public function __construct()
@@ -14,8 +13,7 @@ class UserRegistrationController
 
     public function index()
     {
-
-        // 検索項目取得
+        // POSTから検索キーワードを取得
         $keyword = $_POST['keyword'] ?? null;
         $_SESSION['old_input'] = $_POST;
 
@@ -25,8 +23,9 @@ class UserRegistrationController
         }
 
         // ページネーション
-        $per_page = 15;
-        $current_page = $_GET['page'];
+        $per_page = 3;
+        $current_page = $_POST['keyword'] ?? $_GET['page'] ?? 1;
+        $current_page = max(1, (int)$current_page);
 
         if ($current_page < 0) {
             $current_page = 1;
@@ -38,11 +37,12 @@ class UserRegistrationController
             $current_page  = 1;
         }
 
+        // ユーザーデータ取得 (UserModel 側で $filters, $current_page, $per_page を考慮)
         $user_list = $this->userModel->getUsers($filters, $current_page, $per_page);
-        $user_count_list = $this->userModel->getUserCount();
+        $user_count_list = $this->userModel->getFilterUserCount($filters);
 
         $data_list = [];
-        foreach ($user_list as $Key => $user) {
+        foreach ($user_list as $key => $user) {
             $formatted_id = sprintf('%08d', $user['id']);
             $user_id = substr_replace($formatted_id, ' ', 4, 0);
             if (empty($user['birthday'])) {
@@ -52,7 +52,7 @@ class UserRegistrationController
                 $birthday = $date->format('Y年n月j日');
             }
 
-            // 年度が設定できるようになればここも動的に変えること
+            // 年度計算（例）
             $month = date('n');
             $year = date('Y');
             $fiscal_year = ($month >= 4) ? $year : $year - 1;
@@ -64,7 +64,7 @@ class UserRegistrationController
                 $payment_method = PAYMENT_SELECT_LIST[$user['tekijuku']['payment_method']];
             }
 
-            $data_list[$Key] = [
+            $data_list[$key] = [
                 'id' => $user['id'],
                 'user_id' => $user_id,
                 'name' => $user['name'],
@@ -73,9 +73,9 @@ class UserRegistrationController
                 'city' => $user['city'],
                 'email' => $user['email'],
                 'phone' => $user['phone1'],
-                'gurdian_name' =>  $user['guardian_name'],
-                'gurdian_email' =>  $user['guardian_email'],
-                'gurdian_phone' =>  $user['guardian_phone'],
+                'gurdian_name' => $user['guardian_name'],
+                'gurdian_email' => $user['guardian_email'],
+                'gurdian_phone' => $user['guardian_phone'],
                 'is_tekijuku' => $is_tekijuku,
                 'pay_method' => $payment_method,
                 'is_apply' => $user['is_apply']
@@ -84,11 +84,11 @@ class UserRegistrationController
 
         $total_count = count($user_count_list);
         $data = [
-            'data_list' => $data_list,
-            'total_count' => $total_count,
-            'per_page' => $per_page,
-            'current_page' => $current_page,
-            'page' => $current_page,
+            'data_list'      => $data_list,
+            'total_count'    => $total_count,
+            'per_page'       => $per_page,
+            'current_page'   => $current_page,
+            'page'           => $current_page,
         ];
 
         return $data;
