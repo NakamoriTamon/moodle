@@ -252,6 +252,10 @@ class EventModel extends BaseModel
                     $where .= ' AND e.target = :target';
                     $params[':target'] = $filters['target'];
                 }
+                if (!empty($filters['is_best'])) {
+                    $where .= ' AND e.is_best = :is_best';
+                    $params[':is_best'] = $filters['is_best'];
+                }
                 // キーワード　フリー入力
                 if (!empty($filters['keyword'])) {
                     // 開催場所、イベント名、講師名の部分一致検索

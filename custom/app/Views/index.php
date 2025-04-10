@@ -1,4 +1,12 @@
-<?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
+<?php
+// 現在のURLが/custom/app/Views/index.phpの場合、/にリダイレクト
+$current_url = $_SERVER['REQUEST_URI'];
+if ($current_url == '/custom/app/Views/index.php') {
+    header('Location: /');
+    exit;
+}
+
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/home/home_controller.php');
 $now = new DateTime();
 $now = $now->format('Ymd');
@@ -6,14 +14,30 @@ $now = $now->format('Ymd');
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
 <main>
   <section id="mv">
-    <img
-      src="/custom/public/assets/img/home/mv.png"
-      alt="大阪大学 社会と未来、学びをつなぐ"
-      class="mv_img nosp" />
-    <img
-      src="/custom/public/assets/img/home/mv-sp.png"
-      alt="大阪大学 社会と未来、学びをつなぐ"
-      class="mv_img nopc" />
+    <!-- 推しイベント用 <?php if(!empty($best_events)): ?>
+      <div class="slide-container">
+        <div class="slide-wrapper">
+          <img
+            src="/custom/public/assets/img/home/mv.png"
+            alt="大阪大学 社会と未来、学びをつなぐ"
+            class="mv_img nosp slide" />
+          <?php foreach($best_events as $best_event): ?>
+            <img
+              src="<?= $best_event['best_event_img'] ?>"
+              class="mv_img slide" />
+          <?php endforeach; ?>
+        </div>
+      </div>
+    <?php else: ?>
+    <?php endif; ?> -->
+      <img
+        src="/custom/public/assets/img/home/mv.png"
+        alt="大阪大学 社会と未来、学びをつなぐ"
+        class="mv_img nosp" />
+      <img
+        src="/custom/public/assets/img/home/mv-sp.png"
+        alt="大阪大学 社会と未来、学びをつなぐ"
+        class="mv_img nopc" />
     <p class="mv_scroll nosp">SCROLL</p>
   </section>
   <!-- mv -->
