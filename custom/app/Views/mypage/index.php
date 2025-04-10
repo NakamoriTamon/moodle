@@ -252,10 +252,10 @@ unset(
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-        <div id="user_form">
-            <div id="form" class="mypage_cont">
-                <h3 class="mypage_head">知の広場 会員情報</h3>
-                <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
+        <div id="displayContainer">
+            <div id="user_form">
+                <div id="form" class="mypage_cont">
+                    <h3 class="mypage_head">知の広場 会員情報</h3>
                     <div class="whitebox form_cont">
                         <div class="inner_m">
                             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
@@ -265,84 +265,27 @@ unset(
                                     <p class="list_label">会員番号</p>
                                     <div class="list_field f_txt"><?php echo htmlspecialchars($user_id); ?></div>
                                 </li>
-                                <li class="list_item02 req">
+                                <li class="list_item02">
                                     <p class="list_label">お名前</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text" name="name" value="<?php echo htmlspecialchars($old_input['name'] ?? $user->name); ?>" />
-                                        <?php if (!empty($errors['name'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->name ?? null); ?></div>
                                 </li>
-                                <li class="list_item03 req">
+                                <li class="list_item03">
                                     <p class="list_label">フリガナ</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text" name="name_kana" value="<?php echo htmlspecialchars($old_input['name_kana'] ?? $user->name_kana); ?>" />
-                                        <?php if (!empty($errors['name_kana'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->name_kana ?? null); ?></div>
                                 </li>
-                                <li class="list_item04 req">
+                                <li class="list_item04">
                                     <p class="list_label">お住いの都道府県</p>
-                                    <div class="list_field f_select select">
-                                        <select name="city">
-                                            <?php foreach ($prefectures as $key => $prefecture): ?>
-                                                <option value="<?php echo htmlspecialchars($key); ?>"
-                                                    <?= ($key === ($old_input['city'] ?? $user->city ?? null)) ? 'selected' : '' ?>>
-                                                    <?php echo htmlspecialchars($prefecture); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <?php if (!empty($errors['city'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->city ?? null); ?></div>
                                 </li>
-                                <li class="list_item05 req">
+                                <li class="list_item05 ">
                                     <p class="list_label">メールアドレス</p>
-                                    <div class="list_field f_txt">
-                                        <input type="email" name="email" value="<?php echo htmlspecialchars($old_input['email'] ?? $user->email); ?>"
-                                            inputmode="email"
-                                            autocomplete="email"
-                                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
-                                        <?php if (!empty($errors['email'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->email ?? null); ?></div>
                                 </li>
                                 <li class="list_item06">
-                                    <p class="list_label">パスワード（変更時のみ入力）</p>
-                                    <div class="list_field f_txt">
-                                        <input type="password" name="password" />
-
-                                        <?php if (!empty($errors['password'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
-                                        <?php endif; ?>
-
-                                        <p class="note">
-                                            8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
-                                        </p>
-                                        <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
-
-                                    </div>
-                                </li>
-                                <li class="list_item07 req">
                                     <p class="list_label">電話番号（ハイフンなし）</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text"
-                                            maxlength="15"
-                                            pattern="[0-9]*"
-                                            inputmode="numeric"
-                                            name="phone"
-                                            value="<?php echo htmlspecialchars($old_input['phone'] ?? $user->phone1); ?>"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                                        <?php if (!empty($errors['phone'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['phone']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->phone1 ?? null); ?></div>
                                 </li>
-                                <li class="list_item08 <?= $birthday == ''  ? 'req' : '' ?>">
+                                <li class="list_item07 <?= $birthday == ''  ? '' : '' ?>">
                                     <p class="list_label">生年月日</p>
                                     <div class="list_field f_txt">
                                         <?php
@@ -362,84 +305,231 @@ unset(
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item09">
+                                <li class="list_item08">
                                     <p class="list_label">お子様の氏名</p>
-                                    <div class="list_field f_txt">
-                                        <input type="text" name="child_name" value="<?php echo htmlspecialchars($old_input['child_name'] ?? $user->child_name); ?>" />
-                                        <?php if (!empty($errors['child_name'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['child_name']); ?></div>
-                                        <?php endif; ?>
-                                        <p class="note">
-                                            保護者が代理入力している場合記入してください。
-                                        </p>
-                                    </div>
+                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->child_name ?? null); ?></div>
                                 </li>
-                                <li class="list_item10 long_item">
+                                <li class="list_item09 long_item">
                                     <p class="list_label">備考</p>
-                                    <div class="list_field f_txtarea">
-                                        <textarea name="description"><?php echo htmlspecialchars($old_input['description'] ?? $user->description); ?></textarea>
-                                        <?php if (!empty($errors['description'])): ?>
-                                            <div class=" text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <div class="list_field f_txtarea"><?php echo htmlspecialchars($user->description ?? null); ?></div>
                                 </li>
                                 <div id="parents_input_area">
-                                    <li class="list_item11 req">
+                                    <li class="list_item10">
                                         <p class="list_label">保護者の氏名</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="guardian_name" value="<?= htmlspecialchars($old_input['guardian_name'] ?? $user->guardian_name) ?>" />
-                                            <?php if (!empty($errors['guardian_name'])): ?>
-                                                <div class="error-msg mt-2">
-                                                    <?= htmlspecialchars($errors['guardian_name']); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($user->guardian_name ?? null); ?></div>
                                     </li>
-                                    <li class="list_item12 req">
+                                    <li class="list_item11">
                                         <p class="list_label">保護者メールアドレス</p>
-                                        <div class="list_field f_txt">
-                                            <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? $user->guardian_email) ?>" />
-                                            <?php if (!empty($errors['guardian_email'])): ?>
-                                                <div class="error-msg mt-2">
-                                                    <?= htmlspecialchars($errors['guardian_email']); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($user->guardian_email ?? null) ?><div>
                                     </li>
-                                    <li class="list_item13 req">
+                                    <li class="list_item12">
                                         <p class="list_label">保護者電話番号 <br class="responsive_br">（ハイフンなし）</p>
-                                        <div class="list_field f_txt">
-                                            <input type="tel" name="guardian_phone" value="<?= htmlspecialchars($old_input['guardian_phone'] ?? $user->guardian_phone) ?>" />
-                                            <?php if (!empty($errors['guardian_phone'])): ?>
-                                                <div class="error-msg mt-2">
-                                                    <?= htmlspecialchars($errors['guardian_phone']); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
-                                </div>
-                                <div id="parents_check_area">
-                                    <li class="list_item12 req">
-                                        <div class="agree">
-                                            <p class="agree_txt">
-                                                この会員登録は保護者の同意を得ています 。
-                                            </p>
-                                            <label for="parent_agree">
-                                                <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
-                                            </label>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($user->guardian_phone ?? null) ?></div>
                                     </li>
                                 </div>
                             </ul>
                         </div>
                     </div>
-                    <div class="form_btn">
-                        <input type="hidden" name="post_kbn" value="update_user">
-                        <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="user_form_button">変更を確定する</a>
+                    <div class="edit_btn">
+                        <a id="editButton" class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);">情報を変更する</a>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
+
+        <div id="editContainer" style="display: none;">
+            <div id="user_form">
+                <div id="form" class="mypage_cont">
+                    <h3 class="mypage_head">知の広場 会員情報</h3>
+                    <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
+                        <div class="whitebox form_cont">
+                            <div class="inner_m">
+                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+                                <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
+                                <ul class="list">
+                                    <li class="list_item01">
+                                        <p class="list_label">会員番号</p>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($user_id); ?></div>
+                                    </li>
+                                    <li class="list_item02 req">
+                                        <p class="list_label">お名前</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="name" value="<?php echo htmlspecialchars($old_input['name'] ?? $user->name); ?>" />
+                                            <?php if (!empty($errors['name'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item03 req">
+                                        <p class="list_label">フリガナ</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="name_kana" value="<?php echo htmlspecialchars($old_input['name_kana'] ?? $user->name_kana); ?>" />
+                                            <?php if (!empty($errors['name_kana'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name_kana']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item04 req">
+                                        <p class="list_label">お住いの都道府県</p>
+                                        <div class="list_field f_select select">
+                                            <select name="city">
+                                                <?php foreach ($prefectures as $key => $prefecture): ?>
+                                                    <option value="<?php echo htmlspecialchars($key); ?>"
+                                                        <?= ($key === ($old_input['city'] ?? $user->city ?? null)) ? 'selected' : '' ?>>
+                                                        <?php echo htmlspecialchars($prefecture); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <?php if (!empty($errors['city'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['city']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item05 req">
+                                        <p class="list_label">メールアドレス</p>
+                                        <div class="list_field f_txt">
+                                            <input type="email" name="email" value="<?php echo htmlspecialchars($old_input['email'] ?? $user->email); ?>"
+                                                inputmode="email"
+                                                autocomplete="email"
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
+                                            <?php if (!empty($errors['email'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['email']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item06">
+                                        <p class="list_label">パスワード（変更時のみ入力）</p>
+                                        <div class="list_field f_txt">
+                                            <input type="password" name="password" />
+
+                                            <?php if (!empty($errors['password'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
+                                            <?php endif; ?>
+
+                                            <p class="note">
+                                                8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
+                                            </p>
+                                            <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
+
+                                        </div>
+                                    </li>
+                                    <li class="list_item07 req">
+                                        <p class="list_label">電話番号（ハイフンなし）</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text"
+                                                maxlength="15"
+                                                pattern="[0-9]*"
+                                                inputmode="numeric"
+                                                name="phone"
+                                                value="<?php echo htmlspecialchars($old_input['phone'] ?? $user->phone1); ?>"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                                            <?php if (!empty($errors['phone'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['phone']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item08 <?= $birthday == ''  ? 'req' : '' ?>">
+                                        <p class="list_label">生年月日</p>
+                                        <div class="list_field f_txt">
+                                            <?php
+                                            $birthday_raw = $old_input['birthday'] ?? $birthday;
+                                            $birthday_date = DateTime::createFromFormat('Y-m-d', $birthday_raw);
+                                            $birthday_formatted = $birthday_date ? $birthday_date->format('Y年n月j日') : null;
+                                            ?>
+                                            <?php if ($birthday == ''): ?>
+                                                <?php $birthday_date = $birthday_date ? $birthday_date->format('Y-m-d') : ''; ?>
+                                                <input type="date" name="birthday" value="<?= htmlspecialchars($birthday_date) ?>" />
+                                            <?php else: ?>
+                                                <input type="hidden" name="birthday" value="<?php echo htmlspecialchars($birthday_raw); ?>">
+                                                <p><?php echo htmlspecialchars($birthday_formatted); ?></p>
+                                            <?php endif ?>
+                                            <?php if (!empty($errors['birthday'])): ?>
+                                                <div class="error-msg mt-2"><?= htmlspecialchars($errors['birthday']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <li class="list_item09">
+                                        <p class="list_label">お子様の氏名</p>
+                                        <div class="list_field f_txt">
+                                            <input type="text" name="child_name" value="<?php echo htmlspecialchars($old_input['child_name'] ?? $user->child_name); ?>" />
+                                            <?php if (!empty($errors['child_name'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['child_name']); ?></div>
+                                            <?php endif; ?>
+                                            <p class="note">
+                                                保護者が代理入力している場合記入してください。
+                                            </p>
+                                        </div>
+                                    </li>
+                                    <li class="list_item10 long_item">
+                                        <p class="list_label">備考</p>
+                                        <div class="list_field f_txtarea">
+                                            <textarea name="description"><?php echo htmlspecialchars($old_input['description'] ?? $user->description); ?></textarea>
+                                            <?php if (!empty($errors['description'])): ?>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                    <div id="parents_input_area">
+                                        <li class="list_item11 req">
+                                            <p class="list_label">保護者の氏名</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="guardian_name" value="<?= htmlspecialchars($old_input['guardian_name'] ?? $user->guardian_name) ?>" />
+                                                <?php if (!empty($errors['guardian_name'])): ?>
+                                                    <div class="error-msg mt-2">
+                                                        <?= htmlspecialchars($errors['guardian_name']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item12 req">
+                                            <p class="list_label">保護者メールアドレス</p>
+                                            <div class="list_field f_txt">
+                                                <input type="email" name="guardian_email" value="<?= htmlspecialchars($old_input['guardian_email'] ?? $user->guardian_email) ?>" />
+                                                <?php if (!empty($errors['guardian_email'])): ?>
+                                                    <div class="error-msg mt-2">
+                                                        <?= htmlspecialchars($errors['guardian_email']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item13 req">
+                                            <p class="list_label">保護者電話番号 <br class="responsive_br">（ハイフンなし）</p>
+                                            <div class="list_field f_txt">
+                                                <input type="tel" name="guardian_phone" value="<?= htmlspecialchars($old_input['guardian_phone'] ?? $user->guardian_phone) ?>" />
+                                                <?php if (!empty($errors['guardian_phone'])): ?>
+                                                    <div class="error-msg mt-2">
+                                                        <?= htmlspecialchars($errors['guardian_phone']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                    </div>
+                                    <div id="parents_check_area">
+                                        <li class="list_item12 req">
+                                            <div class="agree">
+                                                <p class="agree_txt">
+                                                    この会員登録は保護者の同意を得ています 。
+                                                </p>
+                                                <label for="parent_agree">
+                                                    <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form_btn">
+                            <input type="hidden" name="post_kbn" value="update_user">
+                            <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="user_form_button">変更を確定する</a>
+                            <button type="button" id="cancelButton" class="btn btn_red box_bottom_btn cancel_btn">キャンセル</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
 
         <?php
         if (
@@ -1326,6 +1416,19 @@ unset(
                 $('#payment_is_subscription_checkbox').prop('checked', false);
             }
         });
+    });
+
+    // テキスト表示から編集可能に
+    $('#editButton').click(function() {
+        $('#displayContainer').hide();
+        $('#editContainer').show();
+    });
+
+    // キャンセルボタン
+    $('#cancelButton').click(function(e) {
+        e.preventDefault();
+        $('#editContainer').hide();
+        $('#displayContainer').show();
     });
 </script>
 
