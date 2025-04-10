@@ -118,8 +118,7 @@ class EventRegistrationController
                             $is_display = true;
                         }
                     }
-                }
-                elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = "";
                         $course_no = "";
@@ -163,6 +162,8 @@ class EventRegistrationController
             $is_paid = '';
             $payment_type = '';
             $payment_date = '';
+            $note = '';
+            $age = null;
 
             // お連れ様の場合はユーザー情報は取得しない
             if ($application['user']['email'] ==  $application_course_info['participant_mail']) {
@@ -177,6 +178,8 @@ class EventRegistrationController
                         $payment_date = $payment_date->format("Y年n月j日");
                     }
                 }
+                $note = $application['note'];
+                $age = $this->getAge($application['user']['birthday']);
             } elseif (!empty($keyword)) {
                 // キーワード未検索時はお連れ様の情報も取得する
                 continue;
@@ -194,6 +197,8 @@ class EventRegistrationController
                 'payment_date' => $payment_date,
                 'application_date' => $application_date,
                 'participation_kbn' => $application_course_info['participation_kbn'],
+                'age' => $age,
+                'note' => $note,
             ];
         }
 
@@ -216,5 +221,20 @@ class EventRegistrationController
         ];
 
         return $data;
+    }
+
+    /**
+     *  現在の年齢を取得する
+     */
+    public function getAge(?string $birthday = null): ?int
+    {
+        if (empty($birthday)) {
+            return null;
+        }
+
+        $birthday = new DateTime(substr($birthday, 0, 10));
+        $today = new DateTime();
+        $age = $today->diff($birthday)->y;
+        return $age;
     }
 }

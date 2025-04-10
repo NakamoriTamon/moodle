@@ -107,7 +107,7 @@ class EventApplicationCourseInfoModel extends BaseModel
         if ($this->pdo) {
             try {
                 // ベースとなる SQL
-                $sql = "SELECT id, name, email, child_name FROM mdl_user";
+                $sql = "SELECT id, name, email, child_name, birthday FROM mdl_user";
                 $where = [];
                 $params = [];
 
@@ -246,5 +246,81 @@ class EventApplicationCourseInfoModel extends BaseModel
         }
 
         return [];
+    }
+
+    // ユーザIDとイベントIDから、本人のレコードを取得
+    public function getFirstByUserIdAndEventId(int $user_id, int $course_info_id): array
+    {
+        $sql = "SELECT eaci.* 
+                    FROM mdl_event_application_course_info eaci 
+                    JOIN mdl_event_application ea ON eaci.event_application_id = ea.id 
+                    WHERE ea.user_id = ? AND eaci.course_info_id = ? AND eaci.ticket_type = ? 
+                    AND ( ea.payment_date IS NOT NULL OR ea.pay_method = 4 ) 
+                    ";
+
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare($sql);
+
+                $stmt->execute([$user_id, $course_info_id, TICKET_TYPE['SELF']]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $result ?: [];
+            } catch (\PDOException $e) {
+                error_log('イベント申込コース情報取得エラー: ' . $e->getMessage() . ' UserID: ' . $user_id . ' EventID: ' . $course_info_id);
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    // updateを行う
+    public function update(int $id, array $data)
+    {
+        $sql = ' UPDATE mdl_event_application_course_info SET ';
+
+        $updateColumns = [];
+        $params = [];
+
+        if (isset($data['participant_mail'])) {
+            $updateColumns[] = " participant_mail = :participant_mail ";
+            $params[':participant_mail'] = $data['participant_mail'];
+        }
+        if (isset($data['participation_kbn'])) {
+            $updateColumns[] = " participation_kbn = :participation_kbn ";
+            $params[':participation_kbn'] = $data['participation_kbn'];
+        }
+        if (isset($data['ticket_type'])) {
+            $updateColumns[] = " ticket_type = :ticket_type ";
+            $params[':ticket_type'] = $data['ticket_type'];
+        }
+
+        if (empty($updateColumns)) {
+            throw new Exception('更新するカラムが指定されていません');
+        }
+
+        $sql .= ' ' . implode(',', $updateColumns) . ' WHERE id = :id ';
+        $params[':id'] = $id;
+
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare($sql);
+
+                // 実行
+                $stmt->execute($params);
+
+                return $stmt->rowCount();
+            } catch (\PDOException $e) {
+                error_log('updateエラー: ' . $e->getMessage() . ' ID: ' . $id);
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
     }
 }

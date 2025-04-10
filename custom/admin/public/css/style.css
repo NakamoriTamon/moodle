@@ -127,6 +127,10 @@ input.timepicker {
 #management .card .button-div button{
     margin-right: auto;
 }
+#management .break-cell {
+    min-width: 100px;
+    max-width: 500px;
+}
 .card{
     box-shadow: initial;
 }
@@ -283,6 +287,11 @@ video#qr-video {
     }
 }
 @media (max-width: 992px) {
+    /** management */
+    #management .break-cell {
+        min-width: 100px;
+        max-width: 300px;
+    }
     /* upload */
     #upload .search-area .p-055{
         padding-top: 0px !important;
