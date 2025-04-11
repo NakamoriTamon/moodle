@@ -175,4 +175,38 @@ class EventApplicationModel extends BaseModel
 
         return [];
     }
+
+    public function checkRegisteredEvent($eventId, $courseInfoId)
+    {
+        if($this->pdo){
+            try{
+                global $USER;
+                // ユーザーID(会員番号)を取得
+                $userid = $USER->id;
+                $stmt = $this->pdo->prepare("SELECT COUNT(*) AS event_count FROM mdl_event_application ea
+                    JOIN mdl_event_application_course_info eac ON ea.id = eac.event_application_id
+                    WHERE ea.user_id = :userId
+                    AND ea.event_id = :eventId
+                    AND eac.course_info_id = :course_info_id");
+                // パラメータ設定
+                $params = [
+                    ':userId' => $userid,
+                    ':eventId' => $eventId,
+                    ':course_info_id' => $courseInfoId
+                ];
+                // クエリの実行
+                $stmt->execute($params);
+                $event = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $event['event_count'];
+            }catch (\PDOException $e){
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
+            }
+        }else{
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
+        }
+        return 0;
+    }
 }

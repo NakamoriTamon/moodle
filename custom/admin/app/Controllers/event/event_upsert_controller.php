@@ -84,6 +84,15 @@ $_SESSION['errors']['access'] = validate_text($access, '交通アクセス', 500
 $google_map = $_POST['google_map'] ?? null; // Google Map
 $_SESSION['errors']['google_map'] = validate_google_map($google_map, 'Google Map', false);
 $is_top = !isset($_POST['is_top']) ? 0 : $_POST['is_top']; // トップに固定
+$is_best = !isset($_POST['is_best']) ? 0 : $_POST['is_best']; // 推しイベント設定
+if(!empty($is_best)) {
+    $best_event_img = $_FILES['best_event_img'] ?? null; // 推しイベント画像　新規登録は必須
+    $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像', true); // バリデーションチェック
+} else {
+    $best_event_img = null;
+    $_SESSION['errors']['best_event_img'] = null;
+}
+$is_tekijuku_only = !isset($_POST['is_tekijuku_only']) ? 0 : $_POST['is_tekijuku_only']; // 適塾会員限定イベント
 $program = ""; // プログラム
 $sponsor = $_POST['sponsor'] ?? null; // 主催
 $_SESSION['errors']['sponsor'] = validate_text($sponsor, '主催', 225, false); // バリデーションチェック
@@ -532,6 +541,8 @@ if (
     || $_SESSION['errors']['end_event_date']
     || $_SESSION['errors']['material_release_period']
     || $_SESSION['errors']['inquiry_mail']
+    || $_SESSION['errors']['thumbnail_img']
+    || $_SESSION['errors']['best_event_img']
     || $error_flg
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
@@ -599,6 +610,8 @@ try {
                 real_time_distribution_url = :real_time_distribution_url,
                 material_release_period = :material_release_period,
                 inquiry_mail = :inquiry_mail,
+                is_best = :is_best,
+                is_tekijuku_only = :is_tekijuku_only,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ");
@@ -638,6 +651,8 @@ try {
             ':real_time_distribution_url' => $real_time_distribution_url,
             ':material_release_period' => $material_release_period,
             ':inquiry_mail' => $inquiry_mail,
+            ':is_best' => $is_best,
+            ':is_tekijuku_only' => $is_tekijuku_only,
             ':id' => $id // 一意の識別子をWHERE条件として設定
         ]);
 
@@ -650,7 +665,7 @@ try {
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_customfield_category_id, is_apply_btn, start_event_date, end_event_date
-                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail
+                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only
             ) 
             VALUES (
                 :userid, :name, :description
@@ -658,7 +673,7 @@ try {
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_customfield_category_id, :is_apply_btn, :start_event_date, :end_event_date
-                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only
             )
         ");
 
@@ -698,13 +713,16 @@ try {
             ':tekijuku_discount' => $tekijuku_discount,
             ':real_time_distribution_url' => $real_time_distribution_url,
             ':material_release_period' => $material_release_period,
-            ':inquiry_mail' => $inquiry_mail
+            ':inquiry_mail' => $inquiry_mail,
+            ':is_best' => $is_best,
+            ':is_tekijuku_only' => $is_tekijuku_only
         ]);
 
         // mdl_eventの挿入IDを取得
         $eventId = $pdo->lastInsertId();
     }
-    if (empty($eventId) || (!empty($eventId) && !empty($thumbnail_img['name']))) {
+
+    if (!empty($eventId) && !empty($thumbnail_img['name'])) {
         if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
             // 一時ファイルと元のファイル情報を取得
             $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
@@ -783,6 +801,101 @@ try {
 
                 $stmt->execute([
                     ':thumbnail_img' => $fileUrl, // ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                header('Location: /custom/admin/app/Views/event/upsert.php');
+                return;
+            }
+        } else {
+            $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
+            $_SESSION['old_input'] = $_POST; // 入力内容も保持
+            header('Location: /custom/admin/app/Views/event/upsert.php');
+            return;
+        }
+    }
+    
+    if (!empty($eventId) && !empty($is_best) && !empty($best_event_img['name'])) {
+        if ($best_event_img && $best_event_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $tmpName = $best_event_img['tmp_name']; // 一時ファイルパス
+            $originalName = pathinfo($best_event_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $extension = pathinfo($best_event_img['name'], PATHINFO_EXTENSION);  // 拡張子
+
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/best_event';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'best_eventディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用ディレクトリの作成に失敗しました: $eventDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($eventDir);
+
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $newFileName = "best_event_{$timestamp}.{$extension}";
+            $destination = $eventDir . '/' . $newFileName;
+
+            // ファイルを保存
+            if (move_uploaded_file($tmpName, $destination)) {
+
+                // ファイルURLを取得
+                $relativePath = '/uploads/best_event/' . $eventId . '/' . $newFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($eventDir . $file != $relativePath) {
+                        unlink($eventDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        best_event_img = :best_event_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':best_event_img' => $fileUrl, // ファイルURLを保存
                     ':id' => $eventId // イベントID
                 ]);
             } else {

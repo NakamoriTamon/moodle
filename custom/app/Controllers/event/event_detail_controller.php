@@ -5,12 +5,17 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TutorModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
+
+global $USER;
+$userid = $USER->id;
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $tutorModel = new TutorModel();
 $targetModel = new TargetModel();
+$eventApplicationModel = new EventApplicationModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -83,6 +88,10 @@ if (!empty($event)) {
         //     $event['select_course'][$select_course['no']] = $select_course;
         //     break;
         // }
+
+        // 申し込み確認用の変数定義
+        $check_entry = 0;
+
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {
                 if(isset($select_course['details'])) {
@@ -100,8 +109,21 @@ if (!empty($event)) {
                         }
                     }
                 }
+
+                /*
+                 * ログインユーザが既に申込みをしたイベントか確認
+                 * 返り値：
+                 * 　・0：未申込み
+                 * 　・0以上：申込み済み
+                */
+                $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
+                $check_entry += $checkEntryVal;
             }
         }
+
+        // 既に申し込みが行われているかを確認する値を event > select_course > No > check_entry に保存
+        $select_course['check_entry'] = $check_entry;
+        $event['select_course'][$select_course['no']] = $select_course;
     } else {
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {
@@ -111,7 +133,15 @@ if (!empty($event)) {
                 if($current_timestamp > $deadline_date) {
                     $select_course['close_date'] = 1;
                 }
-                
+
+                /*
+                 * ログインユーザが既に申込みをしたイベントか確認
+                 * 返り値：
+                 * 　・0：未申込み
+                 * 　・0以上：申込み済み
+                */
+                $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
+                $select_course['check_entry'] = $checkEntryVal;
                 $event['select_course'][$select_course['no']] = $select_course;
                 
                 if(isset($select_course['details'])) {

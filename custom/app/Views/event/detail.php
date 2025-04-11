@@ -192,7 +192,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         </div>
                     </div>
                     <?php if ($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                        <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</a>
+                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
                         <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
                         </p>
@@ -218,7 +218,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -241,7 +241,8 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a>
+                                        <!-- <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a> -->
+                                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -289,6 +290,20 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
     </div>
 </div>
 
+<!-- 申し込み確認モーダル -->
+<div id="checkEntryModal" class="confirmation_modal">
+            <div class="modal_main_item">
+                <input type="hidden" class="modal_event_id">
+                <input type="hidden" class="modal_course_info_id">
+                <h2>申し込みの確認</h2>
+                <p></p>
+                <div class="modal-buttons">
+                    <button class="modal_yes_buttom">申し込む</button>
+                    <button class="modal_close_buttom">キャンセル</button>
+                </div>
+            </div>
+        </div>
+
 <ul id="pankuzu" class="inner_l scrollable-breadcrumb">
     <li><a href="/custom/app/Views/index.php">トップページ</a></li>
     <li><a href="/custom/app/Views/event/index.php">イベント一覧</a></li>
@@ -314,6 +329,52 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
         });
         $(window).scrollTop(srlpos);
     });
+
+    /*
+     * 既に申込み済みか確認する。
+     * 申込み済みなら再度申込みを行うかダイアログを表示する。（申込みを禁止するわけではない）
+     * ・eventId：イベントのID
+     * ・courseInfoId：複数回開催イベントや期間内イベントの日毎や開催回を区別する値（まとめて申し込むボタンには存在しない）
+     * ・entryCheck：申込み済みか確認するための値（0:未申込み、0より大きい:申込み済み）
+    */
+    function checkUserEntryItem(eventId, courseInfoId, entryCheck){
+        if(entryCheck == 0){
+            entryHrefExecution(eventId, courseInfoId);
+        }else{
+            $('#checkEntryModal').fadeIn();
+            $('#checkEntryModal').addClass('display_modal');
+            $('.modal_event_id').val(eventId);
+            $('.modal_course_info_id').val(courseInfoId);
+            if(courseInfoId){
+                $('.modal_main_item').find('p').html('既に申し込んだイベントですが申し込みを行いますか？');
+            }else{
+                $('.modal_main_item').find('p').html('既に申し込んだイベントが含まれていますが申し込みを行いますか？');
+            }
+        }
+    }
+    // モーダルの許可ボタン
+    $(document).on('click', '.modal_yes_buttom', function() {
+        entryHrefExecution($('.modal_event_id').val(), $('.modal_course_info_id').val());
+    });
+    // モーダルの閉じるボタン
+    $(document).on('click', '.modal_close_buttom', function() {
+        checkEntryModalClose();
+    });
+    // モーダル外をクリックされた際にもモーダルを閉じる
+    $(document).on('click', function(e) {
+        var target = $(e.target);
+        if(target.hasClass('display_modal')){
+            checkEntryModalClose();
+        }
+    });
+    function checkEntryModalClose(){
+        $('#checkEntryModal').removeClass('display_modal');
+        $('#checkEntryModal').fadeOut();
+    }
+    function entryHrefExecution(eventId, courseInfoId){
+        let hrefWord = "apply.php?id="+eventId+(courseInfoId ? "&course_info_id="+courseInfoId : "");
+        window.location.href = hrefWord;
+    }
 </script>
 
 </body>
