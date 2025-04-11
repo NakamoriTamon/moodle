@@ -24,17 +24,13 @@ class UserRegistrationController
 
         // ページネーション
         $per_page = 3;
-        $current_page = $_POST['keyword'] ?? $_GET['page'] ?? 1;
+        // 検索ボタンが押された場合のみ1ページ目を表示
+        $is_search = isset($_POST['search']) && $_POST['search'] == 1;
+        $current_page = $is_search ? 1 : ($_POST['page'] ?? $_GET['page'] ?? 1);
         $current_page = max(1, (int)$current_page);
 
         if ($current_page < 0) {
             $current_page = 1;
-        }
-        if (empty($current_page) && !empty($page)) {
-            $current_page  = $page;
-        }
-        if (empty($current_page) && empty($page)) {
-            $current_page  = 1;
         }
 
         // ユーザーデータ取得 (UserModel 側で $filters, $current_page, $per_page を考慮)

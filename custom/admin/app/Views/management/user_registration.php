@@ -16,7 +16,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 // ページネーション
 $total_count = $result_list['total_count'];
 $per_page = $result_list['per_page'];
-$current_page = $result_list['current_page'];
+$current_page = $_POST['page'] ?? $_GET['page'] ?? 1;
 $page = $result_list['page'];
 ?>
 
@@ -60,7 +60,7 @@ $page = $result_list['page'];
                                             <div class="mb-3 w-100"></div>
                                         </div>
                                         <div class="d-flex justify-content-end ms-auto">
-                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1" onclick="document.getElementById('page').value='1';">検索</button>
                                         </div>
                                     </form>
 
@@ -145,8 +145,21 @@ $page = $result_list['page'];
                                     <ul class="pagination">
                                         <?php
                                         $total_pages = ceil($total_count / $per_page);
-                                        $start_page = max(1, $current_page - 1); // 最小1
-                                        $end_page = min($total_pages, $start_page + 2); // 最大3つ
+                                        
+                                        // 表示するページ範囲の計算
+                                        if ($current_page <= 2) {
+                                            // 1または2ページ目の場合は1から3まで表示
+                                            $start_page = 1;
+                                            $end_page = min($total_pages, 3);
+                                        } elseif ($current_page >= $total_pages - 1) {
+                                            // 最後または最後から2番目のページの場合は最後3ページを表示
+                                            $start_page = max(1, $total_pages - 2);
+                                            $end_page = $total_pages;
+                                        } else {
+                                            // それ以外は現在のページを中心に前後1ページずつ表示
+                                            $start_page = $current_page - 1;
+                                            $end_page = $current_page + 1;
+                                        }
 
                                         // 前のページボタン
                                         if ($current_page > 1): ?>
