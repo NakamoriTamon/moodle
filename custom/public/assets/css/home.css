@@ -423,10 +423,17 @@
     gap: 40px;
   }
   #juku .juku_cont .img {
+    display: flex;
+    justify-content: center;
     width: 100%;
   }
   #juku .juku_cont .sent {
     margin: 40px 0;
+  }
+  #juku .juku_cont .img img {
+    width: 65%;
+    min-width: 23em;
+    height: auto;
   }
 
   /*-------------------------------------

@@ -191,7 +191,7 @@ select {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 1709px;
   min-height: 860px;
   background: url(../../common/img/bg_heading.png) no-repeat center bottom / cover;
  
@@ -939,12 +939,12 @@ select {
  header 
  -------------------------------------*/
   #header {
-    height: 50px;
+    height: clamp(50px, 10vw, 75px);
     padding: 0 0 0 2.5%;
   }
   #header .header_logo {
     flex: none;
-    width: 130px;
+    width: clamp(130px, 25vw, 200px);
   }
   #header nav {
     position: absolute;
@@ -1049,15 +1049,17 @@ select {
     align-items: center;
     flex-direction: column;
     gap: 5px;
-    width: 50px;
-    height: 50px;
+    /* width: 50px;
+    height: 50px; */
+    width: clamp(50px, 10vw, 75px);
+    height: clamp(50px, 10vw, 75px);
     background: #81bfda;
     cursor: pointer;
     z-index: 99999;
   }
   #header .header_hbg .hbg {
     position: relative;
-    width: 22px;
+    width: 40%;
     height: 18px;
   }
   #header .header_hbg .hbg li {
@@ -1090,7 +1092,7 @@ select {
   }
   #header .header_hbg .txt {
     color: #fff;
-    font-size: 8px;
+    font-size: clamp(10px, 2vw, 18px);
     letter-spacing: 0.04em;
   }
   #header .header_bottom {
@@ -1165,7 +1167,7 @@ select {
  下層ページ共通
  -------------------------------------*/
   #subpage::after {
-    height: 80vh;
+    height: 1506px;
     min-height: inherit;
     background: url(../../common/img/bg_heading-sp.png) no-repeat center / cover;
     z-index: -1px;
