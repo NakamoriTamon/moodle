@@ -4,11 +4,13 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $targetModel = new TargetModel();
+$eventApplicationModel = new EventApplicationModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -69,6 +71,71 @@ if (!empty($events)) {
                 $count++;
             }
         }
+
+        // 定員数に空きがあるか確認を行う
+        $capacityFlg = false;
+        if($event['event_kbn'] == PLURAL_EVENT && $event['capacity'] > 0){ // 複数回シリーズのイベント
+            foreach ($event['course_infos'] as $select_course){
+                // n回講座の開催日の一日前が既に過ぎているものはチェックの対象外とする
+                $deadline = !empty($event['deadline']) ? (new DateTime($event['deadline']))->format('Ymd') : ((new DateTime($event['course_date']))->modify('-1 day'))->format('Ymd');
+                if ($deadline <= $now) {
+                    continue;
+                }
+                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
+                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
+                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], empty($select_course['id']), true);
+                // if(!empty($result)) {
+                //     $ticket_data = $result[0];
+                //     $aki_ticket = $ticket_data['available_tickets'];
+                //     $capacityFlg = $aki_ticket > 0 ? true : false;
+                //     if($capacityFlg){
+                //         break;
+                //     }
+                // }else{
+                //     $capacityFlg = true;
+                //     break;
+                // }
+                $capacityFlg = checkCapacity($event['id'], $select_course['id']);
+                if($capacityFlg){
+                    break;
+                }
+            }
+        }elseif($event['event_kbn'] == EVERY_DAY_EVENT && $event['capacity'] > 0){ // 期間内に毎日開催のイベント
+            // 開催日時になる前ならチェック対象とする
+            $deadline = (new DateTime($event['end_event_date']))->format('YmdHis');
+            if (!($deadline > (new DateTime())->format('YmdHis'))) {
+                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
+                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
+                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], null, true);
+                // if(!empty($result)) {
+                //     $ticket_data = $result[0];
+                //     $aki_ticket = $ticket_data['available_tickets'];
+                //     $capacityFlg = $aki_ticket > 0 ? true : false;
+                // }else{
+                //     $capacityFlg = true;
+                // }
+                $capacityFlg = checkCapacity($event['id'], null);
+            }
+        }elseif($event['event_kbn'] == SINGLE_EVENT && $event['capacity'] > 0){// 単発のイベント
+            // 開催日が既に過ぎているものはチェックの対象外とする
+            $deadline = !empty($event['deadline']) ? (new DateTime($event['deadline']))->format('Ymd') : ((new DateTime($event['event_date']))->modify('-1 day'))->format('Ymd');
+            if ($deadline <= $now) {
+                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
+                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
+                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], null, true);
+                // if(!empty($result)) {
+                //     $ticket_data = $result[0];
+                //     $aki_ticket = $ticket_data['available_tickets'];
+                //     $capacityFlg = $aki_ticket > 0 ? true : false;
+                // }else{
+                //     $capacityFlg = true;
+                // }
+                $capacityFlg = checkCapacity($event['id'], null);
+            }
+        }else{
+            $capacityFlg = true;
+        }
+        $event['capacity_flg'] = $capacityFlg;
     }
 }
 
@@ -93,4 +160,21 @@ $queryString = http_build_query($queryParams); // クエリ文字列を作成
 $_SESSION['old_input'] = $_GET; // 入力内容も保持
 if ($action === 'index') {
     include '/var/www/html/moodle/custom/app/Views/event/index.php';
+}
+
+function checkCapacity($eventId,$courseInfoId){
+    $capacity_flg = false;
+    // $courseInfoIdが無い場合、空数が最小のレコードを取得
+    // $courseInfoIdが有る場合、指定した開催日のレコードを取得
+    global $eventApplicationModel;
+    $result = $eventApplicationModel->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true);
+    if(!empty($result)) {
+        $ticket_data = $result[0];
+        $aki_ticket = $ticket_data['available_tickets'];
+        $capacity_flg = $aki_ticket > 0 ? true : false;
+    }else{
+        $capacity_flg = true;
+    }
+
+    return $capacity_flg;
 }
