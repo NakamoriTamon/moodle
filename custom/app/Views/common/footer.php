@@ -52,6 +52,9 @@ $is_hidden_withdraw = !$is_general_user;
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script src="/custom/public/assets/common/js/common.js"></script>
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
 <script>
     $(document).ready(function() {
         var tekijuku_commemoration = <?php echo json_encode($footre_tekijuku_commemoration); ?>;

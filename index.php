@@ -5,6 +5,7 @@ $now = $now->format('Ymd');
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/home.css" />
 
+
 <!-- 一時的に検索フォームを非表示にします -->
 <style>
     #search {
@@ -207,11 +208,11 @@ $now = $now->format('Ymd');
                         <p class="term">開催日時</p>
                         <div class="field f_date">
                             <p>
-                                <input type="date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" placeholder="年/月/日" />
+                                <input type="text" id="event_start_date" name="event_start_date" value="<?php if (isset($old_input['event_start_date'])) echo $old_input['event_start_date']; ?>" readonly placeholder="年/月/日" />
                             </p>
                             <span>～</span>
                             <p>
-                                <input type="date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" placeholder="年/月/日" />
+                                <input type="text" id="event_end_date" name="event_end_date" value="<?php if (isset($old_input['event_end_date'])) echo $old_input['event_end_date']; ?>" readonly placeholder="年/月/日" />
                             </p>
                         </div>
                     </li>
@@ -270,7 +271,9 @@ $now = $now->format('Ymd');
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php') ?>
 <script src="/custom/public/assets/js/home.js"></script>
+<script src="/custom/public/assets/js/datepicker.js"></script>
 <script src="/custom/public/assets/js/search_input_reset.js"></script>
+
 </body>
 
 </html>

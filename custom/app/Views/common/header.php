@@ -158,6 +158,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
     <meta property="og:site_name" content="" />
     <meta property="og:locale" content="ja_JP" />
     <!-- stylesheet -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="/custom/public/assets/common/css/import.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
     <!-- fontawesome -->
