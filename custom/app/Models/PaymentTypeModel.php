@@ -1,8 +1,27 @@
 <?php
 class PaymentTypeModel extends BaseModel
 {
-    // is_delete：0のカテゴリーを全件取得
+    // is_delete：0,is_admin：0のカテゴリーを全件取得
     public function getPaymentTypes()
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM mdl_payment_types WHERE is_delete = 0 AND is_admin = 0 ORDER BY id ASC");
+                $stmt->execute();
+                $paymentTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $paymentTypes;
+            } catch (\PDOException $e) {
+                error_log('支払いタイプ一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
+            }
+        }
+
+        return [];
+    }
+
+    // is_delete：0のカテゴリーを全件取得
+    public function getPaymentTypeAll()
     {
         if ($this->pdo) {
             try {
