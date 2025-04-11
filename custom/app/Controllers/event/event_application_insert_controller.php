@@ -448,6 +448,7 @@ if ($result) {
                                 <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
                             </div>
                             <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">開催回数：第" . $select_course['no'] . "回</p>
                             <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
                             <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
                             <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
