@@ -30,10 +30,10 @@ $headers = getallheaders();
 $signature = $headers['X-Komoju-Signature'] ?? '';
 
 // 本番環境のではコメント解除
-// if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
-//     http_response_code(400);
-//     exit('Invalid signature');
-// }
+if (!hash_equals(hash_hmac('sha256', $input, $komoju_webhook_secret_key), $signature)) {
+    http_response_code(400);
+    exit('Invalid signature');
+}
 
 // イベントタイプに基づいて処理を分岐
 switch ($event_type) {
