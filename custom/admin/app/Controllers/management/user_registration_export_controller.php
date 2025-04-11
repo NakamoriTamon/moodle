@@ -18,7 +18,7 @@ try {
     }
 
     // ユーザーデータの全件取得（ページネーションを無視して全データを取得）
-    $user_count_list = $userModel->getUsers($filters);
+    $user_count_list = $userModel->getAllUsersForExport($filters);
     $user_list = [];
 
     foreach ($user_count_list as $key => $user) {
