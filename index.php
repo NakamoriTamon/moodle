@@ -22,17 +22,38 @@ $now = $now->format('Ymd');
     }
 </style>
 <main>
-    <section id="mv">
+    <!-- pc版mv -->
+    <section id="mv" class="mv-slider nosp">
+        <div class="swiper-wrapper mv_img">
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv.png" alt="画像1"></div>
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv02.png" alt="画像2"></div>
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv03.png" alt="画像3"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+        <p class="mv_scroll nosp">SCROLL</p>
+    </section>
+    <!-- sp版mv -->
+    <section id="mv" class="mv-slider nopc">
+        <div class="swiper-wrapper mv_img">
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv-sp.png" alt="画像1"></div>
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv02.png" alt="画像2"></div>
+            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv01.png" alt="画像3"></div>
+        </div>
+        <div class="swiper-pagination"></div>
+    </section>
+
+    <!-- スライドショーではないmv -->
+    <!-- <section id="mv" class="mv-slider">
         <img
-            src="/custom/public/assets/img/home/mv.png"
+            src=" /custom/public/assets/img/home/mv.png"
             alt="大阪大学 社会と未来、学びをつなぐ"
             class="mv_img nosp" />
         <img
             src="/custom/public/assets/img/home/mv-sp.png"
             alt="大阪大学 社会と未来、学びをつなぐ"
             class="mv_img nopc" />
-        <p class="mv_scroll nosp">SCROLL</p>
-    </section>
+            <p class="mv_scroll nosp">SCROLL</p>
+    </section> -->
     <!-- mv -->
 
     <section id="about">

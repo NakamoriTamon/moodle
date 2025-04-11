@@ -88,6 +88,33 @@
   }
 }
 
+/* mvスライダー */
+.mv-slider .swiper-wrapper {
+    margin: 110px 0 0 auto;
+    width: 80%;
+    height: 100% !important;
+}
+.mv-slider .swiper-wrapper img {
+    width: 80%;
+    height: auto;
+    border-top-left-radius: 120px; 
+    position: relative;
+    aspect-ratio: 1.82;
+}
+.mv-slider .swiper-pagination {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    z-index: 10;
+}
+.mv-slider .swiper-pagination .swiper-pagination-bullet-active {
+    background-color: #FFF !important;
+    /* アクティブなドット */
+}
+
 /*-------------------------------------
  about 
   -------------------------------------*/
@@ -259,10 +286,15 @@
     margin: 50px 0 0 auto;
     width: 80%;
     height: auto;
-    
   }
   #mv .mv_scroll {
     bottom: 0;
+  }
+  .mv-slider .swiper-wrapper img {
+    width: 100%;
+    max-width: 95%;
+    height: auto;
+    aspect-ratio: 2 / 3;
   }
 
   /*-------------------------------------
