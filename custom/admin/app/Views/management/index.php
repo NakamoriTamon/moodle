@@ -31,27 +31,6 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/Managemen
                 </div>
             </nav>
 
-
-            <!-- 一時的に非表示 -->
-            <!-- <div class="col-12 col-lg-12">
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <div class="card">
-                                <div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
-                                    <form id="form" method="POST" action="/custom/admin/app/Views/management/index.php" class="w-100">
-                                        <div id="keyword_div" class="mb-4 w-100">
-                                            <label class="form-label" for="notyf-message">フリーワード</label>
-                                            <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
-                                        </div>
-                                        <div class="d-flex justify-content-end ms-auto">
-                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
             <main class="content">
                 <div class="card min-70vh">
                     <div class="col-12 col-lg-12">
@@ -92,14 +71,32 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/Managemen
                                 <div class="d-flex">
                                     <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
                                         <ul class="pagination">
-                                            <?php if ($currentPage >= 1 && $totalCount > 10): ?>
-                                                <li class="paginate_button page-item previous" id="datatables-buttons_previous"><a href="?page=<?= intval($currentPage) - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a></li>
+                                            <?php
+                                            $total_pages = ceil($total_count / $per_page);
+                                            $start_page = max(1, $current_page - 1); // 最小1
+                                            $end_page = min($total_pages, $start_page + 2); // 最大3つ
+
+                                            // 前のページボタン
+                                            if ($current_page > 1): ?>
+                                                <li class="paginate_button page-item previous">
+                                                    <a data-page="<?= $current_page - 1 ?>" aria-controls="datatables-buttons" class="page-link">Previous</a>
+                                                </li>
                                             <?php endif; ?>
-                                            <?php for ($i = 1; $i <= ceil($totalCount / 10); $i++): ?>
-                                                <li class="paginate_button page-item <?= $i == $currentPage ? 'active' : '' ?>"><a href="?page=<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
+
+                                            <?php
+                                            // ページ番号の表示
+                                            for ($i = $start_page; $i <= $end_page; $i++): ?>
+                                                <li class="paginate_button page-item <?= $i == $current_page ? 'active' : '' ?>">
+                                                    <a data-page="<?= $i ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a>
+                                                </li>
                                             <?php endfor; ?>
-                                            <?php if ($currentPage >= 0 && $totalCount > 10): ?>
-                                                <li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($currentPage) + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
+
+                                            <?php
+                                            // 次のページボタン
+                                            if ($current_page < $total_pages): ?>
+                                                <li class="paginate_button page-item next">
+                                                    <a data-page="<?= $current_page + 1 ?>" aria-controls="datatables-buttons" class="page-link">Next</a>
+                                                </li>
                                             <?php endif; ?>
                                         </ul>
                                     </div>
@@ -121,11 +118,12 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/management/Managemen
         return confirm("権限を更新します。本当によろしいですか？");
     }
 
-    // モック用アラート　本番時は消してください
-    $('#submit').on('click', function(event) {
-        sessionStorage.setItem('alert', 'aaasss');
-        setTimeout(() => {
-            location.reload();
-        }, 50);
+    $(document).ready(function() {
+        // ページネーション押下時
+        $(document).on("click", ".paginate_button a", function(e) {
+            e.preventDefault();
+            const nextPage = $(this).data("page");
+            location.href = '/custom/admin/app/Views/management/index.php?page=' + nextPage;
+        });
     });
 </script>

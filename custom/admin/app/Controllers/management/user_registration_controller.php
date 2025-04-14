@@ -23,7 +23,7 @@ class UserRegistrationController
         }
 
         // ページネーション
-        $per_page = 3;
+        $per_page = 15;
         // 検索ボタンが押された場合のみ1ページ目を表示
         $is_search = isset($_POST['search']) && $_POST['search'] == 1;
         $current_page = $is_search ? 1 : ($_POST['page'] ?? $_GET['page'] ?? 1);

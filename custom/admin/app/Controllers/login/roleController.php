@@ -29,7 +29,8 @@ $redirect_url_list = [
 
 // コースクリエーター (ID:2) は `一部機能` へアクセス不可
 if (in_array('coursecreator', $roles) && in_array(parse_url($request_uri, PHP_URL_PATH), $redirect_url_list)) {
-    if ($request_uri == '/custom/admin/app/Views/management/membership_fee_registration.php' && $USER->id !== $membership_access_acount) {
+    if ($request_uri == '/custom/admin/app/Views/management/membership_fee_registration.php' && $USER->id == $membership_access_acount) {
+    } else {
         redirect('/custom/admin/app/Views/event/index.php'); // イベント画面へリダイレクト
         exit;
     }
