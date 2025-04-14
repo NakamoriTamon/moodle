@@ -28,13 +28,15 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
                         <li class="list_item02">
                             <p class="list_label">パスワード</p>
                             <div class="list_field f_txt">
-                                <input type="password" name="password" />
-                                <?php if (!empty($errors['password'])): ?>
-                                    <div class="error-msg mt-2">
-                                        <?= htmlspecialchars($errors['password']); ?>
-                                    </div>
-                                <?php endif; ?>
+                                <input type="password" id="password" name="password" style="padding-right: 40px;" />
+                                <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                             </div>
+                            <?php if (!empty($errors['password'])): ?>
+                                <div class="error-msg mt-2">
+                                    <?= htmlspecialchars($errors['password']); ?>
+                                </div>
+                            <?php endif; ?>
                         </li>
                     </ul>
                     <a href="../user/pass_mail.php" class="pass_rink">パスワードをお忘れですか？</a>
@@ -55,4 +57,20 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 </body>
+
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+    });
+</script>
+
 </html>

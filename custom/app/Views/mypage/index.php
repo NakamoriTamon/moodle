@@ -400,8 +400,11 @@ unset(
                                     <li class="list_item06">
                                         <p class="list_label">パスワード（変更時のみ入力）</p>
                                         <div class="list_field f_txt">
-                                            <input type="password" name="password" />
-
+                                            <div class="input-container" style="position: relative;">
+                                                <input type="password" id="password" name="password" style="padding-right: 40px;" />
+                                                <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                            </div>
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
