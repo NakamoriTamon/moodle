@@ -15,6 +15,11 @@ class CourseInfoModel extends BaseModel
         $tomorrow_end = date('Y-m-d', strtotime('+1 day', strtotime($tomorrow))); // 翌日の日付をPHP側で計算
 
         $sql = "
+            WITH elf AS (
+                SELECT *
+                FROM {event_lecture_format}
+                WHERE lecture_format_id = " . LIVE . "
+            )
             SELECT 
                 ca.id AS ca_id,
                 ci.id AS ci_id,
@@ -22,13 +27,17 @@ class CourseInfoModel extends BaseModel
                 ca.participant_mail, 
                 e.start_hour,
                 e.name,
-                e.venue_name
+                e.venue_name,
+                e.real_time_distribution_url,
+                elf.lecture_format_id
             FROM 
                 mdl_event_application_course_info ca
             INNER JOIN 
                 mdl_course_info ci ON ca.course_info_id = ci.id
             INNER JOIN 
                 mdl_event e ON ca.event_id = e.id
+            JOIN 
+                elf ON elf.event_id = e.id
             WHERE 
                 ci.course_date >= :tomorrow
             AND 

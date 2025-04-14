@@ -2,7 +2,8 @@
 define('CLI_SCRIPT', true);
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CourseInfoModel.php');
-require(__DIR__.'/../../config.php');
+require(__DIR__ . '/../../config.php');
+
 use Dotenv\Dotenv;
 use core\context\system;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -22,7 +23,13 @@ foreach ($targets as $index => $target) {
     $evnt_name = $target->name;
     $venue_name = $target->venue_name;
     $start_hour = $target->start_hour;
+    $real_time_distribution_url = $target->real_time_distribution_url;
+    $lecture_format_id = $target->lecture_format_id;
     $no = $target->no;
+    $extraHTML = '';
+    if ($lecture_format_id == LIVE) {
+        $extraHTML = '<p style="text-align: left; font-size: 13px; margin:0;">ライブ配信URL: ' . $real_time_distribution_url . '</p><br>';
+    }
     // メール送信処理
     $mail = new PHPMailer(true);
     $mail->isSMTP();
@@ -48,6 +55,7 @@ foreach ($targets as $index => $target) {
         <p style=\"text-align: left; font-size: 13px; margin:0; \">日程:{$tomorrow}</p><br>
         <p style=\"text-align: left; font-size: 13px; margin:0; \">イベント名:【第{$no}回】{$evnt_name}</p><br>
         <p style=\"text-align: left; font-size: 13px; margin:0; \">会場:{$venue_name}</p><br>
+        " . $extraHTML . "
         <p style=\"text-align: left; font-size: 13px; margin:0; \">開始時間:{$start_hour}</p><br>
         <br>
         <p style=\"text-align: left; font-size: 13px; margin:0; \">ご不明な点がございましたら、お気軽にお問い合わせください。</p><br>
@@ -68,7 +76,7 @@ foreach ($targets as $index => $target) {
             'allow_self_signed' => true
         )
     );
-    
+
     // メール送信の試行
     try {
         $mail->send();
