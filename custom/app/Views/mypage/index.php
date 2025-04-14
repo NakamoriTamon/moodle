@@ -697,10 +697,19 @@ unset(
                         continue;
                     }
                     $allCourseDateNull = false;
-                    $event_name = '【第' . $application->no . '回】' . $application->event_name;
-                    $date = date('Y/m/d', strtotime($application->course_date));
-                    $weekday = $weekdays[date('w', strtotime($date))];
-                    $format_date = $date . " ($weekday)";
+                    if ($application->event_kbn == EVERY_DAY_EVENT) {
+                        // 毎日開催の場合、開始日から終了日までの期間をフォーマット
+                        $event_name = $application->event_name;
+                        $start_date = date('Y/m/d', strtotime($application->start_event_date));
+                        $end_date = date('Y/m/d', strtotime($application->end_event_date));
+                        $format_date = $start_date . '～' . $end_date;
+                    } else {
+                        // 通常の場合は、course_dateと曜日を表示
+                        $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                        $date = date('Y/m/d', strtotime($application->course_date));
+                        $weekday = $weekdays[date('w', strtotime($date))];
+                        $format_date = $date . " ($weekday)";
+                    }
                     $package_types = '';
                     switch ($application->event_application_package_types) {
                         case EVENT_APPLICATION_PACKAGE_TYPE['SINGLE']:
@@ -804,7 +813,11 @@ unset(
                                     </p>
                                     <div class="txt">
                                         <p class="txt_ttl">
-                                            <?php echo htmlspecialchars('【第' . $history->no . '回】' . $history->event_name) ?>
+                                            <?php if ($history->event_kbn == EVERY_DAY_EVENT) : ?>
+                                                <?php echo htmlspecialchars($history->event_name) ?>
+                                            <?php else: ?>
+                                                <?php echo htmlspecialchars('【第' . $history->no . '回】' . $history->event_name) ?>
+                                            <?php endif; ?>
                                         </p>
                                         <ul class="txt_other">
                                             <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li>
