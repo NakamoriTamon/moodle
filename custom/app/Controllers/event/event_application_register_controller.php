@@ -27,7 +27,7 @@ class EventRegisterController
 
             // 本人用チケットのみを取得（TICKET_TYPE['SELF']）
             $self_ticket_type = TICKET_TYPE['SELF'];
-            
+
             $now = new DateTime();
             $now_time = $now->format('Y-m-d H:i:s');
             $day_end_time = $now->format('Y-m-d 23:59:59');
@@ -60,6 +60,7 @@ class EventRegisterController
             e.archive_streaming_period,
             e.material_release_period,
             e.start_hour,
+            e.event_kbn,
             ci.id AS course_id,
             ci.no,
             ci.course_date,
