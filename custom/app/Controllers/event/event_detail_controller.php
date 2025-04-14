@@ -60,6 +60,7 @@ if (!empty($event)) {
 
     $tutor_ids = [];
     $tutor_names = [];
+    $all_capacity_flg = false;
     if($event['event_kbn'] == EVERY_DAY_EVENT) {
         $count = count($event['course_infos']) - 1;
         $select_cours = $event['course_infos'];
@@ -124,6 +125,22 @@ if (!empty($event)) {
         // 既に申し込みが行われているかを確認する値を event > select_course > No > check_entry に保存
         $select_course['check_entry'] = $check_entry;
         $event['select_course'][$select_course['no']] = $select_course;
+
+        /*
+         *対象イベントのコースが定員数に到達しているか確認
+         * 
+        */
+        $capacity_flg = false;
+        $checkCapacityResult = $eventApplicationModel->getSumTicketCountByEventId($id, null, true);
+        if(!empty($checkCapacityResult)) {
+            $ticket_data = $checkCapacityResult[0];
+            $aki_ticket = $ticket_data['available_tickets'];
+            $capacity_flg = $aki_ticket > 0 ? true : false;
+        }else{
+            $capacity_flg = true;
+        }
+        $select_course['check_capacity'] = $capacity_flg;
+        $event['select_course'][$select_course['no']] = $select_course;
     } else {
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {
@@ -142,6 +159,29 @@ if (!empty($event)) {
                 */
                 $checkEntryVal = $eventApplicationModel->checkRegisteredEvent($id, $select_course['id']);
                 $select_course['check_entry'] = $checkEntryVal;
+                $event['select_course'][$select_course['no']] = $select_course;
+
+                /*
+                 *対象イベントのコースが定員数に到達しているか確認
+                 * 
+                */
+                $capacity_flg = false;
+                if($event['capacity'] != 0){
+                    $checkCapacityResult = $eventApplicationModel->getSumTicketCountByEventId($id, $select_course['id'], true);
+                    if(!empty($checkCapacityResult)) {
+                        $ticket_data = $checkCapacityResult[0];
+                        $aki_ticket = $ticket_data['available_tickets'];
+                        $capacity_flg = $aki_ticket > 0 ? true : false;
+                    }else{
+                        $capacity_flg = true;
+                    }
+                }else{
+                    $capacity_flg = true;
+                }
+                if(!$all_capacity_flg){
+                    $all_capacity_flg = $capacity_flg;
+                }
+                $select_course['check_capacity'] = $capacity_flg;
                 $event['select_course'][$select_course['no']] = $select_course;
                 
                 if(isset($select_course['details'])) {
@@ -162,6 +202,9 @@ if (!empty($event)) {
             }
         }
     }
+
+    $event['check_all_capacity'] = $all_capacity_flg;
+
     // 重複を削除
     $tutor_ids = array_unique($tutor_ids);
     $tutor_names = array_unique($tutor_names);

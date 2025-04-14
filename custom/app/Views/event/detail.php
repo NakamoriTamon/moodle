@@ -192,8 +192,12 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         </div>
                     </div>
                     <?php if ($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
-                        <p class="detail_txt">
+                        <?php if ($event['check_all_capacity']): ?>
+                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
+                        <?php else: ?>
+                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                        <?php endif; ?>
+                            <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
                         </p>
                     <?php endif; ?>
@@ -218,7 +222,11 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php if ($course['check_capacity']): ?>
+                                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -226,7 +234,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                             <?php foreach ($event['select_course'] as $no => $course): ?>
                                 <div class="program">
                                     <h4 class="sub_ttl">【<?php if (count($event['select_course']) > 1): ?>第<?= $no ?><?php endif; ?>講座】<?= (new DateTime($course['course_date']))->format('m月d日') . '（' . WEEKDAYS[(new DateTime($course['course_date']))->format('w')] . '）'; ?><?= htmlspecialchars($start_hour); ?>～<?= htmlspecialchars($end_hour); ?>
-                                        <?php if (isset($course['close_date'])): ?>
+                                        <?php if (isset($course['close_date']) || !$course['check_capacity']): ?>
                                             <span style="color: red;">(申込終了)</span>
                                         <?php endif; ?>
                                     </h4>
@@ -241,8 +249,11 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <!-- <a href="apply.php?id=<?= htmlspecialchars($event['id']) ?>&course_info_id=<?= htmlspecialchars($course['id']) ?>" class="btn btn_red arrow">この日程で申し込む</a> -->
-                                        <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php if ($course['check_capacity']): ?>
+                                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
