@@ -40,17 +40,18 @@ class EventReserveController
         $common_application = $common_array['application'][0];
         $no = '【第' . $common_array['course_info']['no'] . '回】';
         $realtime_path = $common_application['event']['real_time_distribution_url'];
-        $event_name =  $no . $common_application['event']['name'];
+        $event_kbn = $common_application['event']['event_kbn'];
+        $event_name =  $common_application['event']['name'];
         $price = $common_application['price'] != 0 ? number_format($common_application['price']) . '円' : '無料';
 
-        if($common_application['price'] != 0) {
+        if ($common_application['price'] != 0) {
             $pay_method = PAYMENT_SELECT_LIST[$common_application['pay_method']];
             $is_payment = empty($common_application['payment_date']) ? '未決済' : '決済済';
         } else {
             $pay_method = "";
             $is_payment = "";
         }
-        
+
         $child_name = $common_application['companion_name'] ?? $common_application['user']['child_name'];
 
         $companion_array = [];
@@ -74,7 +75,9 @@ class EventReserveController
         $data = [
             'common_array' => $common_array,
             'common_application' => $common_application,
+            'course_number' => $no,
             'event_name' => $event_name,
+            'event_kbn' => $event_kbn,
             'price' => $price,
             'pay_method' => $pay_method,
             'is_payment' => $is_payment,
