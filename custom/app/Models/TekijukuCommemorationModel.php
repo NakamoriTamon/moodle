@@ -3,7 +3,7 @@ require_once('/var/www/html/moodle/config.php');
 
 class TekijukuCommemorationModel extends BaseModel
 {
-    // 全管理者を取得
+    // 条件に一致する適塾会員を取得
     public function getTekijukuUser($filters = [], int $page = 1, int $perPage = 15)
     {
         if ($this->pdo) {
@@ -152,6 +152,33 @@ class TekijukuCommemorationModel extends BaseModel
                 return $tekijuku;
             } catch (\PDOException $e) {
                 error_log('支払済適塾記念会ユーザー取得エラー: ' . $e->getMessage() . ' UserID: ' . $fk_user_id);
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+    
+    // 条件に一致する適塾会員を取得
+    public function getTekijukuUserAll()
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+
+                $sql = "SELECT * FROM mdl_tekijuku_commemoration as t WHERE t.is_delete = 0";
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute();
+                $tekijuku_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $tekijuku_list;
+            } catch (\PDOException $e) {
+                error_log('適塾記念会ユーザー一覧取得エラー: ' . $e->getMessage());
                 echo 'データの取得に失敗しました';
             }
         } else {

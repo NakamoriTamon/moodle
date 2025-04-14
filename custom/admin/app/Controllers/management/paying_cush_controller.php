@@ -22,29 +22,29 @@ class PayingCushController
     {
         // 検索項目取得
         $keyword = $_POST['keyword'] ?? null;
-        $user_id = $_POST['user_id'] ?? null;
-        $_SESSION['old_input'] = $_POST;
+        $fk_user_id = $_POST['fk_user_id'] ?? $_SESSION['old_input']['fk_user_id'] ?? null;
+        
 
         $filters = [];
         if (!empty($keyword)) {
             $filters['keyword'] = $keyword;
-            $filters['user_id'] = $user_id;
+            $filters['fk_user_id'] = $fk_user_id;
         }
 
-        $user_list = $this->userModel->getUsers($filters, 1, 1000000);
+        $tekijuku_list = $this->tekijukuCommemorationModel->getTekijukuUserAll();
 
         $tekijuku = [];
-        if(!empty($user_id)) {
-            $tekijuku = $this->tekijukuCommemorationModel->getTekijukuUserByPaid($user_id);
+        if(!empty($fk_user_id)) {
+            $tekijuku = $this->tekijukuCommemorationModel->getTekijukuUserByPaid($fk_user_id);
         }
 
         $payment_type_list = $this->paymentTypeModel->getPaymentTypeAll();
 
         $data = [
-            'user_list' => $user_list,
+            'tekijuku_list' => $tekijuku_list,
             'tekijuku' => $tekijuku,
             'keyword' => $keyword,
-            'user_id' => $user_id,
+            'fk_user_id' => $fk_user_id,
             'payment_type_list' => $payment_type_list
         ];
 

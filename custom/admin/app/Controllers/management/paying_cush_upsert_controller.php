@@ -12,7 +12,7 @@ require_once('/var/www/html/moodle/custom/helpers/form_helpers.php');
 
 global $DB;
 
-$user_id = htmlspecialchars(required_param('user_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
+$fk_user_id = htmlspecialchars(required_param('fk_user_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $name_size = 50;
 $size = 500;
 // 決済状態
@@ -46,7 +46,7 @@ $_SESSION['errors']['tekijuku_email'] = validate_custom_email($email);
 $techiku_commem_count = $DB->get_records_select(
     'tekijuku_commemoration',
     'email = :email AND fk_user_id != :fk_user_id AND is_delete = 0',
-    ['email' => $email, 'fk_user_id' => $user_id]
+    ['email' => $email, 'fk_user_id' => $fk_user_id]
 );
 
 // 結果が空でないかをチェック

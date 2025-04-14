@@ -8,10 +8,10 @@ $paying_cush_controller = new PayingCushController();
 $results = $paying_cush_controller->index();
 
 // 情報取得
-$user_list = $results['user_list'] ?? [];
+$tekijuku_list = $results['tekijuku_list'] ?? [];
 $tekijuku_commemoration = empty($results['tekijuku']) ? false : $results['tekijuku'];
 $keyword = $results['keyword']  ?? '';
-$user_id = $results['user_id']  ?? '';
+$fk_user_id = $results['fk_user_id']  ?? '';
 $payment_type_list = $results['payment_type_list'] ?? [];
 
 // old_inputがあれば値を取得
@@ -186,12 +186,12 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                         <div class="card-body p-055">
                             <form id="form" method="POST" action="/custom/admin/app/Views/management/paying_cush.php" class="w-100">
                                 <div class="mb-3">
-                                    <label class="form-label" for="notyf-message">会員</label>
-                                    <select id="user_id" name="user_id" class="form-control">
+                                    <label class="form-label" for="notyf-message">適塾会員</label>
+                                    <select id="fk_user_id" name="fk_user_id" class="form-control">
                                         <option value="">選択してください</option>
-                                        <?php foreach ($user_list as $user) { ?>
-                                            <option value=<?= $user['id'] ?> <?= isSelected($user['id'], $user_id, $old_input['user_id'] ?? null) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars(sprintf('%08d', $user['id']) . '：' .$user['name']) ?></option>
+                                        <?php foreach ($tekijuku_list as $tekijuku) { ?>
+                                            <option value=<?= $tekijuku['fk_user_id'] ?> <?= isSelected($tekijuku['fk_user_id'], $fk_user_id, $old_input['fk_user_id'] ?? null) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($tekijuku['number'] ? sprintf('%08d', $tekijuku['number']) : '') ?><?= htmlspecialchars('：' .$tekijuku['name']) ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -210,7 +210,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     <h5 class="card-title mb-0 mt-3">適塾記念会 会員情報</h5>
                                 </div>
                                 <div class="card-body">
-                                    <input type="hidden" name="user_id" value="<?= htmlspecialchars(isSetValue($user_id, $old_input['user_id'])); ?>" >
+                                    <input type="hidden" name="fk_user_id" value="<?= htmlspecialchars(isSetValue($fk_user_id, $old_input['fk_user_id'] ?? '')); ?>" >
                                     <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
                                     <input type="hidden" name="old_paid_status" value="<?= htmlspecialchars($tekijuku_commemoration['paid_status'] ?? 0) ?>" >
                                     
@@ -408,7 +408,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
         }
     }
 
-    const element = document.getElementById('user_id');
+    const element = document.getElementById('fk_user_id');
     const choices = new Choices(element, {
     removeItemButton: true,
     searchEnabled: true,
