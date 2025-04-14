@@ -8,7 +8,7 @@ global $USER;
 $userModel = new UserModel();
 
 $current_page = $_GET['page'] ?? 1;
-if ($_GET['page'] < 0) {
+if ($current_page < 0) {
     $current_page = 1;
 }
 $per_page = 15;
