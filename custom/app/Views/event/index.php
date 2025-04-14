@@ -131,13 +131,17 @@ unset($SESSION->formdata);
                                 <div class="event_info">
                                     <ul class="event_status">
                                         <li class="<?php if ($row['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars(EVENT_STATUS_LIST[$row['event_status']]); ?></li>
-                                        <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                                            <?php if ($key != DEADLINE_END && $key == $row['deadline_status']): ?>
-                                                <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                            <?php elseif ($key == DEADLINE_END && $key == $row['deadline_status']): ?>
-                                                <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                            <?php endif ?>
-                                        <?php endforeach; ?>
+                                        <?php if($row['capacity_flg']): ?>
+                                            <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                                                <?php if ($key != DEADLINE_END && $key == $row['deadline_status']): ?>
+                                                    <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                <?php elseif ($key == DEADLINE_END && $key == $row['deadline_status']): ?>
+                                                    <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                <?php endif ?>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
+                                        <?php endif; ?>
                                     </ul>
                                     <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
                                     <div class="event_sched">

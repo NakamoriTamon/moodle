@@ -176,6 +176,7 @@ class EventApplicationModel extends BaseModel
         return [];
     }
 
+    // チェック対象のユーザが対象のイベント（event_id、course_info_id）に申し込んでいるか確認する
     public function checkRegisteredEvent($eventId, $courseInfoId)
     {
         if($this->pdo){
