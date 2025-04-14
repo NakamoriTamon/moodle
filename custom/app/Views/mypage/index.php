@@ -128,10 +128,14 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
 
     // 決済状態の判定
     if (($isDeposit || $hasPaidDate)) {
+        $can_edit = true;
+        if($tekijuku_commemoration['payment_method'] != 2) {
+            $can_edit = false;
+        }
         return [
             'status' => 'completed',
             'label' => '決済済',
-            'can_edit' => true
+            'can_edit' => $can_edit
         ];
     } elseif (!$hasPaidDate && !$isDeposit && $tekijuku_commemoration['paid_status'] == PAID_STATUS['PROCESSING']) {
         return [
@@ -719,23 +723,27 @@ unset(
                                     <li class="list_item01 req">
                                         <p class="list_label">支払方法</p>
                                         <div class="list_field f_txt radio-group">
-                                            <?php foreach ($payment_select_list as $key => $value) { ?>
-                                                <input class="radio_input" id="payment_method_<?= $key ?>"
-                                                    style="vertical-align: middle;"
-                                                    type="radio"
-                                                    name="payment_method"
-                                                    value="<?= $key ?>"
-                                                    <?= $disabledAttr ?>
-                                                    <?php
-                                                    // デフォルトの選択
-                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
-                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
-                                                    ) {
-                                                        echo 'checked';
-                                                    }
-                                                    ?> />
-                                                <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
-                                            <?php } ?>
+                                            <?php if($tekijuku_commemoration && $tekijuku_commemoration['payment_method'] == 5): ?>
+                                                <label class="checkbox_label">現金払い</label>
+                                            <?php else: ?>
+                                                <?php foreach ($payment_select_list as $key => $value) { ?>
+                                                    <input class="radio_input" id="payment_method_<?= $key ?>"
+                                                        style="vertical-align: middle;"
+                                                        type="radio"
+                                                        name="payment_method"
+                                                        value="<?= $key ?>"
+                                                        <?= $disabledAttr ?>
+                                                        <?php
+                                                        // デフォルトの選択
+                                                        if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
+                                                            isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
+                                                        ) {
+                                                            echo 'checked';
+                                                        }
+                                                        ?> />
+                                                    <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
+                                                <?php } ?>
+                                            <?php endif; ?>
                                             <?php if (!empty($errors['payment_method'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
                                             <?php endif; ?>
