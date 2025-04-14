@@ -286,6 +286,9 @@
 .submit_btn:disabled{
   background: #ccc;
 }
+.cancel_btn{
+  background: #ccc;
+}
 /*-------------------------------------
  event
  -------------------------------------*/

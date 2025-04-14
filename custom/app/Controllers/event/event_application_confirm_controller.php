@@ -246,8 +246,7 @@ if (!empty($event_customfield_category_id)) {
 
 // エラーがある場合
 if (
-    $_SESSION['errors']['ticket']
-    || $_SESSION['errors']['pay_method']
+    $_SESSION['errors']['pay_method']
     || $_SESSION['errors']['trigger']
     || $_SESSION['errors']['trigger_other']
     || $_SESSION['errors']['note']

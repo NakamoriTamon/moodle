@@ -1,3 +1,23 @@
+<?php 
+require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
+
+/** 動画を見たら、オンデマンド配信イベントは参加済みにする */
+$user_id = $_SESSION['user_id'] ?? null;
+// URLから "file" パラメータを取得
+$file = isset($_GET['file']) ? $_GET['file'] : null;
+if ($file) {
+    // ファイルパスを分割して、materialCourseIdを取得
+    $pathParts = explode('/', $file); // '/'で分割
+    $materialCourseId = isset($pathParts[3]) ? $pathParts[3] : null; // 3番目の部分がmaterialCourseId
+}
+if ($user_id && $materialCourseId) {
+    $event_application_register_controller = new EventRegisterController();
+    $res = $event_application_register_controller->updateParticipation($user_id, $materialCourseId);
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="ja">
 

@@ -252,26 +252,60 @@ if ($result) {
         $pdo = $baseModel->getPdo();
         $pdo->beginTransaction();
 
-        // 1. イベントのcapacityと現在のチケット枚数をロック
-        $stmt = $pdo->prepare("
-            SELECT e.capacity, COALESCE(SUM(a.ticket_count), 0) AS current_count
-            FROM mdl_event e
-            LEFT JOIN mdl_event_application a ON e.id = a.event_id
-            WHERE e.id = :event_id
-            FOR UPDATE
-        ");
+        // 1. イベントをロック
+        $stmt = $pdo->prepare("SELECT capacity FROM mdl_event WHERE id = :event_id FOR UPDATE");
         $stmt->execute([':event_id' => $eventId]);
         $event_capacity = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$event_capacity) {
-            throw new Exception("イベントが見つかりません。");
-        }
+        if (!$event_capacity) throw new Exception("イベントが存在しません。");
 
         $capacity = (int)$event_capacity['capacity'];
-        $currentCount = (int)$event_capacity['current_count'];
-        $participation_fee = (int)$event['participation_fee'];
+
+        // 2. コース一覧取得（courseInfoId指定有無で分岐）
+        if ($courseInfoId) {
+            $courseIds = [$courseInfoId];
+        } else {
+            $stmt = $pdo->prepare("SELECT course_info_id FROM mdl_event_course_info WHERE event_id = :event_id");
+            $stmt->execute([':event_id' => $eventId]);
+            $courseIds = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'course_info_id');
+        }
+
+        if (empty($courseIds)) throw new Exception("対象コースが存在しません。");
+
+        // 3. 対象コースの申込行をロック（FOR UPDATE）
+        $inClause = implode(',', array_fill(0, count($courseIds), '?'));
+        $params = array_merge([$eventId], $courseIds);
+        $stmt = $pdo->prepare("
+            SELECT eac.course_info_id
+            FROM mdl_event_application_course_info eac
+            JOIN mdl_event_application ea ON ea.id = eac.event_application_id
+            WHERE ea.event_id = ? AND eac.course_info_id IN ($inClause)
+            FOR UPDATE
+        ");
+        $stmt->execute($params);
+
+        // 4. 各コースごとの申込数を取得
+        $stmt = $pdo->prepare("
+            SELECT eac.course_info_id, COUNT(*) AS ticket_count
+            FROM mdl_event_application_course_info eac
+            JOIN mdl_event_application ea ON ea.id = eac.event_application_id
+            WHERE ea.event_id = ? AND eac.course_info_id IN ($inClause)
+            GROUP BY eac.course_info_id
+        ");
+        $stmt->execute(array_merge([$eventId], $courseIds));
+        $ticketCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // course_info_id => ticket_count
+
+        // 5. 各コースの残チケット数を計算
+        $minRemaining = PHP_INT_MAX;
+        foreach ($courseIds as $cid) {
+            $used = isset($ticketCounts[$cid]) ? (int)$ticketCounts[$cid] : 0;
+            $remaining = $capacity - $used;
+            if ($remaining < $minRemaining) {
+                $minRemaining = $remaining;
+            }
+        }
+
         // 2. 定員超過のチェック 定員：無制限(0)、または定員数1人以上で定員数1が受付済みのチケット枚数 + 注文しているチケット枚数以下であること
-        if ($capacity < 1 || ($capacity > 0 && ($currentCount + $ticket) <= $capacity)) {
+        if ($capacity < 1 || $minRemaining >= $ticket) {
             $itmt = $pdo->prepare("
                 INSERT INTO mdl_event_application (
                     event_id, user_id, event_custom_field_id, field_value

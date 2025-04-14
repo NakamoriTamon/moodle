@@ -7,16 +7,18 @@ global $USER;
 
 $userModel = new UserModel();
 
-// 検索項目取得
-$keyword     = $_POST['keyword'] ?? null;
+$current_page = $_GET['page'] ?? 1;
+if ($current_page < 0) {
+    $current_page = 1;
+}
+$per_page = 15;
 
-$filters = array_filter([
-    'keyword' => $keyword
-]);
+$admins = $userModel->getAdminUsers([], $current_page, $per_page);
 
-$admins = $userModel->getAdminUsers($filters, 1, 100000);
 // 総件数
-$totalCount = count($admins);
+$admin_count = $userModel->getAdminUserCount();
+$total_count = count($admin_count);
+
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
 

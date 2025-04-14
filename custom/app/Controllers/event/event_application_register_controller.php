@@ -3,6 +3,7 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventApplicationModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/EventApplicationCourseInfoModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/MovieModel.php');
 
 class EventRegisterController
@@ -27,7 +28,7 @@ class EventRegisterController
 
             // 本人用チケットのみを取得（TICKET_TYPE['SELF']）
             $self_ticket_type = TICKET_TYPE['SELF'];
-            
+
             $now = new DateTime();
             $now_time = $now->format('Y-m-d H:i:s');
             $day_end_time = $now->format('Y-m-d 23:59:59');
@@ -60,6 +61,7 @@ class EventRegisterController
             e.archive_streaming_period,
             e.material_release_period,
             e.start_hour,
+            e.event_kbn,
             ci.id AS course_id,
             ci.no,
             ci.course_date,
@@ -325,4 +327,28 @@ class EventRegisterController
 
         return $data;
     }
+
+    /**
+     * 動画再生時にオンデマンドでまだ不参加の人を参加にする処理
+     */
+    public function  updateParticipation(int $user_id, int $course_info_id)
+    {
+        $eaciModel = new EventApplicationCourseInfoModel();
+        // mdl_event_application_course_infoのレコードを取得
+        $eaci = $eaciModel->getFirstByUserIdAndEventId($user_id, $course_info_id, TICKET_TYPE['SELF']);
+        if(!$eaci || count($eaci) === 0) {
+            // 取得に失敗したら返る
+            return;
+        }
+        $eventModel = new EventModel();
+        if(!$eventModel->isExistEventLecture($eaci['event_id'], ON_DEMAND)) {
+            // そもそもオンデマンドではなければここで終了
+            return;
+        }
+        // 不参加なら参加にアップデートを行う（既に参加であれば何もしない）
+        if($eaci['participation_kbn'] === PARTICIPATION_KBN['NON_PARTICIPATION']) {
+            $eaciModel->update($eaci['id'], ['participation_kbn' => PARTICIPATION_KBN['PARTICIPATION']]);
+        }
+    }
+
 }
