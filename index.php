@@ -122,13 +122,17 @@ $now = $now->format('Ymd');
                                 <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                                            <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
-                                                <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                            <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
-                                                <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                            <?php endif ?>
-                                        <?php endforeach; ?>
+                                        <?php if(!$row['capacity_flg']): ?>
+                                            <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
+                                        <?php else: ?>
+                                            <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                                                <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
+                                                    <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
+                                                    <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                <?php endif ?>
+                                            <?php endforeach; ?>
+                                        <?php endif ?>
                                     </ul>
                                     <p class="event_ttl"><?= htmlspecialchars($row['name']); ?></p>
                                     <div class="event_sched">
