@@ -229,7 +229,7 @@ if ($env === 'development') {
 define('KOMOJU_API_KEY', $komoju_api_key);
 $komoju_endpoint = 'https://komoju.com/api/v1/sessions'; // エンドポイント
 define('KOMOJU_ENDPOINT', $komoju_endpoint);
-$payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法
+$payment_method_list = [1 => 'konbini', 2 => 'credit_card', 3 => 'bank_transfer',]; // 決済方法 KOMOJUの決済方法とは関係ないため表示していないですが"4:無料,5:現金"もあります
 define('PAYMENT_METHOD_LIST', $payment_method_list);
 
 $deadline_selects = [

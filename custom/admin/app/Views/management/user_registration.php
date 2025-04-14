@@ -16,7 +16,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 // ページネーション
 $total_count = $result_list['total_count'];
 $per_page = $result_list['per_page'];
-$current_page = $result_list['current_page'];
+$current_page = $_POST['page'] ?? $_GET['page'] ?? 1;
 $page = $result_list['page'];
 ?>
 
@@ -51,14 +51,19 @@ $page = $result_list['page'];
                             <div class="card">
                                 <div class="card-body p-055 p-025 sp-block d-flex align-items-bottom">
                                     <form id="form" method="POST" action="/custom/admin/app/Views/management/user_registration.php" class="w-100">
-                                        <div id="keyword_div" class="mb-4 w-100">
-                                            <label class="form-label" for="notyf-message">フリーワード</label>
-                                            <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
+                                        <input type="hidden" name="page" id="page" value="<?= htmlspecialchars($current_page) ?>">
+                                        <div class="d-flex sp-block justify-content-between">
+                                            <div class="mb-3 w-100">
+                                                <label class="form-label" for="notyf-message">フリーワード</label>
+                                                <input id="notyf-message" name="keyword" type="text" class="form-control" value="<?= htmlspecialchars(isset($old_input['keyword']) ? $old_input['keyword'] : '', ENT_QUOTES, 'UTF-8') ?>" placeholder="田中 翔太">
+                                            </div>
+                                            <div class="mb-3 w-100"></div>
                                         </div>
                                         <div class="d-flex justify-content-end ms-auto">
-                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1">検索</button>
+                                            <button class="btn btn-primary me-0 search-button" type="submit" name="search" value="1" onclick="document.getElementById('page').value='1';">検索</button>
                                         </div>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -69,7 +74,6 @@ $page = $result_list['page'];
                     <div class="col-12 col-lg-12">
                         <div class="card-body p-0">
                             <form method="POST" action="/custom/admin/app/Controllers/management/user_registration_upsert_controller.php" class="w-100">
-                                <input type="hidden" name="page" value="<?= $page ?>">
                                 <div class="card-body p-0">
                                     <div class="d-flex w-100 align-items-center justify-content-between mt-3">
                                         <div></div>
@@ -132,15 +136,30 @@ $page = $result_list['page'];
 
                             <!-- 非表示のform（CSV出力用） -->
                             <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/user_registration_export_controller.php">
+                                <input type="hidden" name="keyword" id="csv_keyword">
                             </form>
+
 
                             <div class="d-flex">
                                 <div class="dataTables_paginate paging_simple_numbers ms-auto mr-025" id="datatables-buttons_paginate">
                                     <ul class="pagination">
                                         <?php
                                         $total_pages = ceil($total_count / $per_page);
-                                        $start_page = max(1, $current_page - 1); // 最小1
-                                        $end_page = min($total_pages, $start_page + 2); // 最大3つ
+                                        
+                                        // 表示するページ範囲の計算
+                                        if ($current_page <= 2) {
+                                            // 1または2ページ目の場合は1から3まで表示
+                                            $start_page = 1;
+                                            $end_page = min($total_pages, 3);
+                                        } elseif ($current_page >= $total_pages - 1) {
+                                            // 最後または最後から2番目のページの場合は最後3ページを表示
+                                            $start_page = max(1, $total_pages - 2);
+                                            $end_page = $total_pages;
+                                        } else {
+                                            // それ以外は現在のページを中心に前後1ページずつ表示
+                                            $start_page = $current_page - 1;
+                                            $end_page = $current_page + 1;
+                                        }
 
                                         // 前のページボタン
                                         if ($current_page > 1): ?>
@@ -169,6 +188,7 @@ $page = $result_list['page'];
                             </div>
                         </div>
                     </div>
+                </div>
             </main>
         </div>
     </div>
@@ -187,13 +207,13 @@ $page = $result_list['page'];
         // ページネーション押下時
         $(document).on("click", ".paginate_button a", function(e) {
             e.preventDefault();
-            const nextPage = $(this).data("page");
-            $('input[name="page"]').val(nextPage);
+            $('input[name="page"]').val($(this).data("page"));
             $('#form').submit();
         });
 
-        // CSV出力ボタン押下時
-        $('#csv_button').on('click', function(event) {
+
+        $('#csv_button').on('click', function() {
+            $('#csv_keyword').val($('#notyf-message').val());
             $('#csvExportForm').submit();
         });
     });
