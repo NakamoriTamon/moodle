@@ -184,35 +184,6 @@ class MypageController
                     ci.course_date ASC
                 ";
 
-
-            // カウント用クエリ
-            $count_sql = "
-                SELECT COUNT(eaci.id) as count
-                    FROM 
-                    {event_application_course_info} eaci
-                JOIN 
-                    {event_application} ea ON ea.id = eaci.event_application_id
-                JOIN 
-                    {course_info} ci ON ci.id = eaci.course_info_id
-                JOIN 
-                    {event} e ON e.id = ea.event_id
-                WHERE 
-                    ea.user_id = :user_id 
-                    AND (eaci.participation_kbn != 3 OR eaci.participation_kbn IS NULL)
-                   AND DATE_ADD(
-                ci.course_date,
-                INTERVAL CAST(
-                    COALESCE(
-                        REPLACE(e.material_release_period, ' days', ''),
-                        '0'
-                    ) AS SIGNED
-                ) DAY
-            ) "
-                . $comparison_operator .
-                " :current_date
-                    AND eaci.ticket_type = :self_ticket_type
-                ";
-
             $params = [
                 'user_id' => $this->USER->id,
                 'current_date' => $current_date,
@@ -220,7 +191,12 @@ class MypageController
             ];
 
             // トータルカウントの取得
-            $totalCount = (int) $this->DB->count_records_sql($count_sql, $params);
+            $total = $this->DB->get_records_sql($course_sql, $params);
+            if($total) {
+                $totalCount = count($total);
+            } else {
+                $totalCount = 0;
+            }
 
             // トータルページ数の計算
             $totalPages = ceil($totalCount / $perPage);

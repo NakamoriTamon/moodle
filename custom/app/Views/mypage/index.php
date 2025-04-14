@@ -794,8 +794,12 @@ unset(
                         $end_date = date('Y/m/d', strtotime($application->end_event_date));
                         $format_date = $start_date . '～' . $end_date;
                     } else {
-                        // 通常の場合は、course_dateと曜日を表示
-                        $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                        if ($application->event_kbn == PLURAL_EVENT) {
+                            // 通常の場合は、course_dateと曜日を表示
+                            $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                        } else {
+                            $event_name = $application->event_name;
+                        }
                         $date = date('Y/m/d', strtotime($application->course_date));
                         $weekday = $weekdays[date('w', strtotime($date))];
                         $format_date = $date . " ($weekday)";
@@ -837,10 +841,10 @@ unset(
                                 </p>
                                 <div class="txt">
                                     <p class="txt_ttl">
-                                        <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
-                                            <?php echo htmlspecialchars($application->event_name) ?>
-                                        <?php else: ?>
+                                        <?php if ($application->event_kbn == PLURAL_EVENT) : ?>
                                             <?php echo htmlspecialchars('【第' . $application->no . '回】' . $application->event_name) ?>
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars($application->event_name) ?>
                                         <?php endif; ?>
                                     </p>
                                     <ul class="txt_other">
@@ -903,10 +907,10 @@ unset(
                                     </p>
                                     <div class="txt">
                                         <p class="txt_ttl">
-                                            <?php if ($history->event_kbn == EVERY_DAY_EVENT) : ?>
-                                                <?php echo htmlspecialchars($history->event_name) ?>
-                                            <?php else: ?>
+                                            <?php if ($history->event_kbn == PLURAL_EVENT) : ?>
                                                 <?php echo htmlspecialchars('【第' . $history->no . '回】' . $history->event_name) ?>
+                                            <?php else: ?>
+                                                <?php echo htmlspecialchars($history->event_name) ?>
                                             <?php endif; ?>
                                         </p>
                                         <ul class="txt_other">
