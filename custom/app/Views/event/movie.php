@@ -15,6 +15,13 @@ $result_list = $event_movie_controller->index($course_info_id);
 $errors   = $_SESSION['errors']   ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// 動画を見たら、オンデマンド配信イベントは参加済みにする
+$user_id = $_SESSION['user_id'] ?? null;
+if ($user_id) {
+    $event_application_register_controller = new EventRegisterController();
+    $res = $event_application_register_controller->updateParticipation($user_id, $course_info_id);
+}
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 

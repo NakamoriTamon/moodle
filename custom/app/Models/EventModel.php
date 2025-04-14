@@ -1160,4 +1160,29 @@ class EventModel extends BaseModel
             echo "データの取得に失敗しました。";
         }
     }
+
+    // 特定のイベントが、特定のイベント参加方法(対面・オンデマンド・配信)を持つかどうかを見る
+    public function isExistEventLecture($event_id, $lecture_format_id): bool
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT * FROM mdl_event_lecture_format WHERE event_id = ? AND lecture_format_id = ? "
+                );
+
+                $stmt->execute([$event_id, $lecture_format_id]);
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return count($data) !== false;
+            } catch (\PDOException $e) {
+                error_log('データ取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
+                return false;
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
+            return false;
+        }
+    }
 }
