@@ -723,27 +723,23 @@ unset(
                                     <li class="list_item01 req">
                                         <p class="list_label">支払方法</p>
                                         <div class="list_field f_txt radio-group">
-                                            <?php if($tekijuku_commemoration && $tekijuku_commemoration['payment_method'] == 5): ?>
-                                                <label class="checkbox_label">現金払い</label>
-                                            <?php else: ?>
-                                                <?php foreach ($payment_select_list as $key => $value) { ?>
-                                                    <input class="radio_input" id="payment_method_<?= $key ?>"
-                                                        style="vertical-align: middle;"
-                                                        type="radio"
-                                                        name="payment_method"
-                                                        value="<?= $key ?>"
-                                                        <?= $disabledAttr ?>
-                                                        <?php
-                                                        // デフォルトの選択
-                                                        if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
-                                                            isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
-                                                        ) {
-                                                            echo 'checked';
-                                                        }
-                                                        ?> />
-                                                    <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
-                                                <?php } ?>
-                                            <?php endif; ?>
+                                            <?php foreach ($payment_select_list as $key => $value) { ?>
+                                                <input class="radio_input" id="payment_method_<?= $key ?>"
+                                                    style="vertical-align: middle;"
+                                                    type="radio"
+                                                    name="payment_method"
+                                                    value="<?= $key ?>"
+                                                    <?= $disabledAttr ?>
+                                                    <?php
+                                                    // デフォルトの選択
+                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
+                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
+                                                    ) {
+                                                        echo 'checked';
+                                                    }
+                                                    ?> />
+                                                <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
+                                            <?php } ?>
                                             <?php if (!empty($errors['payment_method'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
                                             <?php endif; ?>
