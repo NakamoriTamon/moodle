@@ -31,13 +31,17 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter your password" />
+                                            <div class="input-container" style="position: relative;">
+                                                <input class="form-control form-control-lg" type="password" id="password" name="password" />
+                                                <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                            </div>
                                             <small>
                                                 <a href="recipient.php">パスワードを忘れましたか?</a>
                                             </small>
                                         </div>
                                         <div class="d-grid gap-2 mt-3">
-                                        <button type="submit" class="btn btn-lg btn-primary">ログイン</button>
+                                            <button type="submit" class="btn btn-lg btn-primary">ログイン</button>
                                         </div>
                                     </form>
                                 </div>
@@ -52,5 +56,19 @@
         </div>
     </main>
 </body>
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+    });
+</script>
 
 </html>
