@@ -128,10 +128,14 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
 
     // 決済状態の判定
     if (($isDeposit || $hasPaidDate)) {
+        $can_edit = true;
+        if($tekijuku_commemoration['payment_method'] != 2) {
+            $can_edit = false;
+        }
         return [
             'status' => 'completed',
             'label' => '決済済',
-            'can_edit' => true
+            'can_edit' => $can_edit
         ];
     } elseif (!$hasPaidDate && !$isDeposit && $tekijuku_commemoration['paid_status'] == PAID_STATUS['PROCESSING']) {
         return [
@@ -400,17 +404,18 @@ unset(
                                     <li class="list_item06">
                                         <p class="list_label">パスワード（変更時のみ入力）</p>
                                         <div class="list_field f_txt">
-                                            <input type="password" name="password" />
-
+                                            <div class="input-container" style="position: relative;">
+                                                <input type="password" id="password" name="password" style="padding-right: 40px;" />
+                                                <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                            </div>
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
-
                                             <p class="note">
                                                 8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
                                             </p>
                                             <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
-
                                         </div>
                                     </li>
                                     <li class="list_item07 req">
@@ -794,8 +799,12 @@ unset(
                         $end_date = date('Y/m/d', strtotime($application->end_event_date));
                         $format_date = $start_date . '～' . $end_date;
                     } else {
-                        // 通常の場合は、course_dateと曜日を表示
-                        $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                        if ($application->event_kbn == PLURAL_EVENT) {
+                            // 通常の場合は、course_dateと曜日を表示
+                            $event_name = '【第' . $application->no . '回】' . $application->event_name;
+                        } else {
+                            $event_name = $application->event_name;
+                        }
                         $date = date('Y/m/d', strtotime($application->course_date));
                         $weekday = $weekdays[date('w', strtotime($date))];
                         $format_date = $date . " ($weekday)";
@@ -837,10 +846,10 @@ unset(
                                 </p>
                                 <div class="txt">
                                     <p class="txt_ttl">
-                                        <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
-                                            <?php echo htmlspecialchars($application->event_name) ?>
-                                        <?php else: ?>
+                                        <?php if ($application->event_kbn == PLURAL_EVENT) : ?>
                                             <?php echo htmlspecialchars('【第' . $application->no . '回】' . $application->event_name) ?>
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars($application->event_name) ?>
                                         <?php endif; ?>
                                     </p>
                                     <ul class="txt_other">
@@ -903,10 +912,10 @@ unset(
                                     </p>
                                     <div class="txt">
                                         <p class="txt_ttl">
-                                            <?php if ($history->event_kbn == EVERY_DAY_EVENT) : ?>
-                                                <?php echo htmlspecialchars($history->event_name) ?>
-                                            <?php else: ?>
+                                            <?php if ($history->event_kbn == PLURAL_EVENT) : ?>
                                                 <?php echo htmlspecialchars('【第' . $history->no . '回】' . $history->event_name) ?>
+                                            <?php else: ?>
+                                                <?php echo htmlspecialchars($history->event_name) ?>
                                             <?php endif; ?>
                                         </p>
                                         <ul class="txt_other">
@@ -970,6 +979,19 @@ unset(
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
+    $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+    });
+
     $(".info_wrap_qr").on("click", function(e) {
         e.preventDefault();
         if ($(this).parents('div').hasClass('js_pay')) {

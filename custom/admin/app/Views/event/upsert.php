@@ -390,7 +390,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										<div class="mb-3">
 											<input type="file" id="best_event_img" name="best_event_img" class="form-control" accept=".png,.jpeg,.jpg">
 										</div>
-										<div id="image-preview" class="mb-3">
+										<div id="best-image-preview" class="mb-3">
 											<!-- プレビュー画像がここに表示されます -->
 										</div>
 										<?php if (isset($eventData['best_event_img']) && !empty($eventData['best_event_img'])): ?>
@@ -1184,6 +1184,27 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				$('#best_event_img_tag').css('display', 'block'); // 表示
 			} else {
 				$('#best_event_img_tag').css('display', 'none'); // 非表示
+			}
+		});
+
+		$('#best_event_img').on('change', function(event) {
+			const file = event.target.files[0]; // 選択されたファイルを取得
+
+			// ファイルが画像であるか確認
+			if (file && file.type.match('image.*')) {
+				const reader = new FileReader(); // FileReader のインスタンスを作成
+
+				// ファイルの読み込みが完了したらプレビューを表示
+				reader.onload = function(e) {
+					$('#best-image-preview').html(
+						`<img src="${e.target.result}" alt="プレビュー" class="preview">`
+					);
+				};
+
+				reader.readAsDataURL(file); // ファイルを読み込む
+			} else {
+				alert('画像ファイルを選択してください。');
+				$('#best-image-preview').html(''); // プレビューをクリア
 			}
 		});
 

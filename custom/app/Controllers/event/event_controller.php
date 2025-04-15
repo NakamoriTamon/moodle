@@ -77,24 +77,10 @@ if (!empty($events)) {
         if($event['event_kbn'] == PLURAL_EVENT && $event['capacity'] > 0){ // 複数回シリーズのイベント
             foreach ($event['course_infos'] as $select_course){
                 // n回講座の開催日の一日前が既に過ぎているものはチェックの対象外とする
-                $deadline = !empty($event['deadline']) ? (new DateTime($event['deadline']))->format('Ymd') : ((new DateTime($event['course_date']))->modify('-1 day'))->format('Ymd');
-                if ($deadline <= $now) {
+                $deadline = !empty($select_course['deadline_date']) ? (new DateTime($select_course['deadline_date']))->format('Ymd') : ((new DateTime($select_course['course_date']))->modify('-1 day'))->format('Ymd');
+                if ($deadline < $now) {
                     continue;
                 }
-                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
-                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
-                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], empty($select_course['id']), true);
-                // if(!empty($result)) {
-                //     $ticket_data = $result[0];
-                //     $aki_ticket = $ticket_data['available_tickets'];
-                //     $capacityFlg = $aki_ticket > 0 ? true : false;
-                //     if($capacityFlg){
-                //         break;
-                //     }
-                // }else{
-                //     $capacityFlg = true;
-                //     break;
-                // }
                 $capacityFlg = checkCapacity($event['id'], $select_course['id']);
                 if($capacityFlg){
                     break;
@@ -104,32 +90,12 @@ if (!empty($events)) {
             // 開催日時になる前ならチェック対象とする
             $deadline = (new DateTime($event['end_event_date']))->format('YmdHis');
             if (!($deadline > (new DateTime())->format('YmdHis'))) {
-                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
-                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
-                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], null, true);
-                // if(!empty($result)) {
-                //     $ticket_data = $result[0];
-                //     $aki_ticket = $ticket_data['available_tickets'];
-                //     $capacityFlg = $aki_ticket > 0 ? true : false;
-                // }else{
-                //     $capacityFlg = true;
-                // }
                 $capacityFlg = checkCapacity($event['id'], null);
             }
         }elseif($event['event_kbn'] == SINGLE_EVENT && $event['capacity'] > 0){// 単発のイベント
             // 開催日が既に過ぎているものはチェックの対象外とする
             $deadline = !empty($event['deadline']) ? (new DateTime($event['deadline']))->format('Ymd') : ((new DateTime($event['event_date']))->modify('-1 day'))->format('Ymd');
-            if ($deadline <= $now) {
-                // // $courseInfoIdが無い場合、空数が最小のレコードを取得
-                // // $courseInfoIdが有る場合、指定した開催日のレコードを取得
-                // $result = $eventApplicationModel->getSumTicketCountByEventId($event['id'], null, true);
-                // if(!empty($result)) {
-                //     $ticket_data = $result[0];
-                //     $aki_ticket = $ticket_data['available_tickets'];
-                //     $capacityFlg = $aki_ticket > 0 ? true : false;
-                // }else{
-                //     $capacityFlg = true;
-                // }
+            if ($deadline < $now) {
                 $capacityFlg = checkCapacity($event['id'], null);
             }
         }else{

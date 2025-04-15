@@ -2,6 +2,21 @@
 /*  setting.css
 ---------------------------------------------- */
 
+/* ---------------------------------
+共通処理
+----------------------------------*/
+
+#setting input[type="password"]::-ms-reveal,
+#setting input[type="password"]::-ms-clear {
+    display: none;
+}
+
+#setting input[type="password"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
 /*  pc
 ---------------------------------------------- */
 

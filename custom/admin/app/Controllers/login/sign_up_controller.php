@@ -127,14 +127,14 @@ if ($name_error || $department_error || $email_error || $password_error) {
                     </p>
                 </div>
                 ";
-            $subject = '【大阪大学】管理者仮登録完了のお知らせ';
+            $subject = '【大学】管理者仮登録完了のお知らせ';
             try {
                 $result = $SesClient->sendEmail([
                     'Destination' => [
                         'ToAddresses' => $recipients,
                     ],
                     'ReplyToAddresses' => ['no-reply@example.com'],
-                    'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                    'Source' => "場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
                     'Message' => [
                         'Subject' => [
                             'Data' => $subject,

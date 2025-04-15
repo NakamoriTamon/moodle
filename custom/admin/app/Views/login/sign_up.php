@@ -50,7 +50,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">パスワード</label>
-                                            <input class="form-control form-control-lg" type="password" name="password" placeholder="Enter password" />
+                                            <div class="input-container" style="position: relative;">
+                                                <input class="form-control form-control-lg" type="password" id="password" name="password" />
+                                                <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                            </div>
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
@@ -69,5 +73,19 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
         </div>
     </main>
 </body>
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+    });
+</script>
 
 </html>

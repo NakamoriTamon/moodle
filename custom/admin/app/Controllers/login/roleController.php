@@ -25,6 +25,7 @@ $redirect_url_list = [
     '/custom/admin/app/Views/management/index.php',
     '/custom/admin/app/Views/management/user_registration.php',
     '/custom/admin/app/Views/management/membership_fee_registration.php',
+    '/custom/admin/app/Views/management/paying_cush.php',
 ];
 
 // コースクリエーター (ID:2) は `一部機能` へアクセス不可

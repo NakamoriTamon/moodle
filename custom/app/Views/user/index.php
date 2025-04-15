@@ -88,7 +88,11 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                         <li class="list_item06 req">
                             <p class="list_label">パスワード</p>
                             <div class="list_field f_txt">
-                                <input type="password" name="password" />
+                                <div class="input-container" style="position: relative;">
+                                    <input type="password" id="password" name="password" style="padding-right: 40px;" />
+                                    <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                </div>
                                 <?php if (!empty($errors['password'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['password']); ?>
@@ -97,13 +101,19 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
                                 <p class="note">
                                     8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
                                 </p>
-                                <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
+                                <p class="note">
+                                    使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~
+                                </p>
                             </div>
                         </li>
                         <li class="list_item07 req">
                             <p class="list_label">パスワード（確認用）</p>
                             <div class="list_field f_txt">
-                                <input type="password" name="password_confirm" onpaste="return false" autocomplete="off" />
+                                <div class="input-container" style="position: relative;">
+                                    <input type="password" id="password_confirm" name="password_confirm" onpaste="return false" autocomplete="off" style="padding-right: 40px;" />
+                                    <i class="fa fa-eye-slash toggle-password" data-toggle="#password_confirm"
+                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                </div>
                                 <?php if (!empty($errors['password_confirm'])): ?>
                                     <div class="error-msg mt-2">
                                         <?= htmlspecialchars($errors['password_confirm']); ?>
@@ -241,6 +251,17 @@ unset($_SESSION['errors'], $_SESSION['old_input']); ?>
 
 <script>
     $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+
         $('input[name="birthdate"]').on('change', function() {
             const birthdate = $(this).val();
             displayRange(birthdate);
