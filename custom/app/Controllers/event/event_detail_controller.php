@@ -139,6 +139,9 @@ if (!empty($event)) {
         }else{
             $capacity_flg = true;
         }
+        if(!$all_capacity_flg){
+            $all_capacity_flg = $capacity_flg;
+        }
         $select_course['check_capacity'] = $capacity_flg;
         $event['select_course'][$select_course['no']] = $select_course;
     } else {
