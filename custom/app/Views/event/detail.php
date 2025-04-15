@@ -23,13 +23,17 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                 <h3 class="event_ttl"><?= htmlspecialchars($event['name']); ?></h3>
                 <ul class="event_status">
                     <li class="<?php if ($event['event_status'] <= 2): ?>active<?php else: ?>no<?php endif ?>"><?= htmlspecialchars(EVENT_STATUS_LIST[$event['event_status']]); ?></li>
-                    <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                        <?php if ($key != DEADLINE_END && $key == $event['deadline_status']): ?>
-                            <li class="active"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
-                        <?php elseif ($key == DEADLINE_END && $key == $event['deadline_status']): ?>
-                            <li class="end"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
-                        <?php endif ?>
-                    <?php endforeach; ?>
+                    <?php if($event['check_all_capacity']): ?>
+                        <?php foreach (DEADLINE_LIST as $key => $status): ?>
+                            <?php if ($key != DEADLINE_END && $key == $event['deadline_status']): ?>
+                                <li class="active"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
+                            <?php elseif ($key == DEADLINE_END && $key == $event['deadline_status']): ?>
+                                <li class="end"><?= DEADLINE_LIST[$event['deadline_status']] ?></li>
+                            <?php endif ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
+                    <?php endif; ?>
                 </ul>
                 <div class="event_sched">
                     <p class="term">開催日</p>
