@@ -28,7 +28,11 @@ $pass_reset_result = $pass_reset_controller->index($_GET['token']);
                             <li class="list_item01">
                                 <p class="list_label">新しいパスワード</p>
                                 <div class="list_field f_txt">
-                                    <input type="password" name="password" />
+                                    <div class="input-container" style="position: relative;">
+                                        <input type="password" id="password" name="password" style="padding-right: 40px;" />
+                                        <i class="fa fa-eye-slash toggle-password" data-toggle="#password"
+                                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                    </div>
                                     <?php if (!empty($errors['password'])): ?>
                                         <div class="error-msg mt-2">
                                             <?= htmlspecialchars($errors['password']); ?>
@@ -43,7 +47,11 @@ $pass_reset_result = $pass_reset_controller->index($_GET['token']);
                             <li class="list_item02">
                                 <p class="list_label">パスワード（確認用）</p>
                                 <div class="list_field f_txt">
-                                    <input type="password" name="confirm_password" />
+                                    <div class="input-container" style="position: relative;">
+                                        <input type="password" id="password_confirm" name="password_confirm" onpaste="return false" autocomplete="off" style="padding-right: 40px;" />
+                                        <i class="fa fa-eye-slash toggle-password" data-toggle="#password_confirm"
+                                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                                    </div>
                                     <?php if (!empty($errors['confirm_password'])): ?>
                                         <div class="error-msg mt-2">
                                             <?= htmlspecialchars($errors['confirm_password']); ?>
@@ -71,4 +79,19 @@ $pass_reset_result = $pass_reset_controller->index($_GET['token']);
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 </body>
+<script>
+    $(document).ready(function() {
+        $('.toggle-password').click(function() {
+            var input = $($(this).attr('data-toggle'));
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            }
+        });
+    });
+</script>
+
 </html>
