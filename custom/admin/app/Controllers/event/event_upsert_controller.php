@@ -87,10 +87,13 @@ $is_top = !isset($_POST['is_top']) ? 0 : $_POST['is_top']; // トップに固定
 $is_best = !isset($_POST['is_best']) ? 0 : $_POST['is_best']; // 推しイベント設定
 if(!empty($is_best)) {
     $best_event_img = $_FILES['best_event_img'] ?? null; // 推しイベント画像　新規登録は必須
-    $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像', true); // バリデーションチェック
+    $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像 パソコン表示用', true); // バリデーションチェック
+    $best_event_sp_img = $_FILES['best_event_sp_img'] ?? null; // 推しイベント画像　新規登録は必須
+    $_SESSION['errors']['best_event_sp_img'] = validate_image_file($best_event_sp_img, '推しイベント画像 スマホ表示用', true); // バリデーションチェック
 } else {
     $best_event_img = null;
     $_SESSION['errors']['best_event_img'] = null;
+    $_SESSION['errors']['best_event_sp_img'] = null;
 }
 $is_tekijuku_only = !isset($_POST['is_tekijuku_only']) ? 0 : $_POST['is_tekijuku_only']; // 適塾会員限定イベント
 $program = ""; // プログラム
@@ -543,6 +546,7 @@ if (
     || $_SESSION['errors']['inquiry_mail']
     || $_SESSION['errors']['thumbnail_img']
     || $_SESSION['errors']['best_event_img']
+    || $_SESSION['errors']['best_event_sp_img']
     || $error_flg
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
@@ -817,12 +821,16 @@ try {
         }
     }
     
-    if (!empty($eventId) && !empty($is_best) && !empty($best_event_img['name'])) {
+    if (!empty($eventId) && !empty($is_best) && !empty($best_event_img['name']) && !empty($best_event_sp_img['name'])) {
         if ($best_event_img && $best_event_img['error'] === UPLOAD_ERR_OK) {
             // 一時ファイルと元のファイル情報を取得
             $tmpName = $best_event_img['tmp_name']; // 一時ファイルパス
             $originalName = pathinfo($best_event_img['name'], PATHINFO_FILENAME); // 元のファイル名
             $extension = pathinfo($best_event_img['name'], PATHINFO_EXTENSION);  // 拡張子
+            
+            $spTmpName = $best_event_sp_img['tmp_name']; // 一時ファイルパス
+            $spOriginalName = pathinfo($best_event_sp_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $spExtension = pathinfo($best_event_sp_img['name'], PATHINFO_EXTENSION);  // 拡張子
 
             // 保存先ディレクトリの設定
             $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
@@ -868,13 +876,18 @@ try {
             $timestamp = date('YmdHis');
             $newFileName = "best_event_{$timestamp}.{$extension}";
             $destination = $eventDir . '/' . $newFileName;
+            $spNewFileName = "best_event_sp_{$timestamp}.{$extension}";
+            $spDestination = $eventDir . '/' . $spNewFileName;
 
             // ファイルを保存
-            if (move_uploaded_file($tmpName, $destination)) {
+            if (move_uploaded_file($tmpName, $destination) && move_uploaded_file($spTmpName, $spDestination)) {
 
                 // ファイルURLを取得
                 $relativePath = '/uploads/best_event/' . $eventId . '/' . $newFileName;
                 $fileUrl = new moodle_url($relativePath);
+
+                $spRelativePath = '/uploads/best_event/' . $eventId . '/' . $spNewFileName;
+                $spFileUrl = new moodle_url($spRelativePath);
 
                 foreach ($allFiles as $file) {
                     if ($file === '.' || $file === '..') {
@@ -890,12 +903,14 @@ try {
                     UPDATE mdl_event
                     SET 
                         best_event_img = :best_event_img,
+                        best_event_sp_img = :best_event_sp_img,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = :id
                 ");
 
                 $stmt->execute([
                     ':best_event_img' => $fileUrl, // ファイルURLを保存
+                    ':best_event_sp_img' => $spFileUrl, // SP用ファイルURLを保存
                     ':id' => $eventId // イベントID
                 ]);
             } else {
