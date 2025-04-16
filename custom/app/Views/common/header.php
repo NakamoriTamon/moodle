@@ -172,7 +172,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
 <body id="home">
     <header id="header">
         <h1 class="header_logo">
-            <a href="/custom/app/Views/index.php"><img src="/custom/public/assets/common/img/logo_header.svg" alt="知の広場ハンダイ市民講座" />
+            <a href="/"><img src="/custom/public/assets/common/img/logo_header.svg" alt="知の広場ハンダイ市民講座" />
             </a>
         </h1>
         <nav>
