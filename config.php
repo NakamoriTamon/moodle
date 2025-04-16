@@ -405,7 +405,7 @@ $live = 3; // ライブ配信
 define('LIVE', $live);
 
 // 費用請求へ遷移できる部門管理者アカウント
-$membership_access_acount = 1557;
+$membership_access_acount = 1579;
 define('MEMBERSHIP_ACCESS_ACOUNT', $membership_access_acount);
 													
 // There is no php closing tag in this file,
