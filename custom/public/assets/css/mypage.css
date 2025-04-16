@@ -272,6 +272,7 @@
   font-size: 1.8rem;
   line-height: 2;
   letter-spacing: 0.012em;
+  padding: 0px 30px;
 }
 #modal.modal_ticket .modal_cont .ticket_qr {
   margin: 40px auto 50px;
