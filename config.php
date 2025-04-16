@@ -27,7 +27,7 @@ if ($env === 'development') { // 開発環境
     'dbcollation' => 'utf8mb4_0900_ai_ci',
   );
 
-  $CFG->wwwroot   = 'http://192.168.128.67:8000';
+  $CFG->wwwroot   = 'http://localhost:8000';
   $CFG->dataroot  = '/var/www/moodledata';
   $CFG->admin     = 'admin';
 } else { // 本番環境
