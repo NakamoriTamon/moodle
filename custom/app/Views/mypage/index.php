@@ -80,6 +80,8 @@ $birthday = substr($user->birthday ?? "", 0, 10); // 生年月日を文字列化
 
 $errors = $_SESSION['errors'] ?? []; // バリデーションエラー
 $success = $_SESSION['message_success'] ?? [];
+$message_error = $_SESSION['message_error'] ?? [];
+$user_message_error = $_SESSION['user_message_error'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
 $message_membership_success = $_SESSION['message_membership_success'] ?? [];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
@@ -129,7 +131,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
     // 決済状態の判定
     if (($isDeposit || $hasPaidDate)) {
         $can_edit = true;
-        if($tekijuku_commemoration['payment_method'] != 2) {
+        if ($tekijuku_commemoration['payment_method'] != 2) {
             $can_edit = false;
         }
         return [
@@ -170,6 +172,8 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php');
 unset(
     $_SESSION['old_input'],
     $_SESSION['message_success'],
+    $_SESSION['message_error'],
+    $_SESSION['user_message_error'],
     $_SESSION['tekijuku_success'],
     $_SESSION['message_'],
     $_SESSION['message_membership_error'],
@@ -252,7 +256,7 @@ unset(
                     </div>
                 </div>
                 <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                    <div class="inactive-text">（退会済み）</div>
+                    <div class="inactive-text-card">退会済み</div>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -262,7 +266,7 @@ unset(
                     <h3 class="mypage_head">知の広場 会員情報</h3>
                     <div class="whitebox form_cont">
                         <div class="inner_m">
-                            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+                            <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
                             <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
                             <ul class="list">
                                 <li class="list_item01">
@@ -348,7 +352,7 @@ unset(
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
-                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+                                <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
                                 <?php if (!empty($success)) { ?><p id="main_success_message"> <?= $success ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
@@ -360,7 +364,8 @@ unset(
                                         <div class="list_field f_txt">
                                             <input type="text" name="name" value="<?php echo htmlspecialchars($old_input['name'] ?? $user->name); ?>" />
                                             <?php if (!empty($errors['name'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['name']); ?>
+                                                </div>
                                             <?php endif; ?>
                                         </div>
                                     </li>
@@ -474,7 +479,7 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <div id="parents_input_area">
+                                    <div id="edit_parents_input_area">
                                         <li class="list_item11 req">
                                             <p class="list_label">保護者の氏名</p>
                                             <div class="list_field f_txt">
@@ -509,7 +514,7 @@ unset(
                                             </div>
                                         </li>
                                     </div>
-                                    <div id="parents_check_area">
+                                    <div id="edit_parents_check_area">
                                         <li class="list_item12 req">
                                             <div class="agree">
                                                 <p class="agree_txt">
@@ -526,9 +531,8 @@ unset(
                         </div>
                         <div class="form_btn">
                             <input type="hidden" name="post_kbn" value="update_user">
-                            <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="user_form_button">変更を確定する</a>
+                            <button id="user_form_button" type="button" class="btn btn_red box_bottom_btn submit_btn">変更を確定する</button>
                             <button type="button" id="cancelButton" class="btn btn_red box_bottom_btn cancel_btn">キャンセル</button>
-
                         </div>
                     </form>
                 </div>
@@ -545,7 +549,7 @@ unset(
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">適塾記念会 会員情報
                         <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                            <div class="inactive-text">（退会済み）</div>
+                            <div class="inactive-text">退会済み</div>
                         <?php endif; ?>
                     </h3>
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
@@ -698,9 +702,6 @@ unset(
                             <span class="payment-status <?php echo $paymentStatus['status']; ?>">
                                 <?php echo htmlspecialchars($paymentStatus['label']); ?>
                             </span>
-                        <?php endif; ?>
-                        <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                            <div class="inactive-text">（退会済み）</div>
                         <?php endif; ?>
                     </h3>
 
@@ -1062,12 +1063,16 @@ unset(
     function displayRange(birthdate) {
         $('#parents_input_area').css('display', 'none');
         $('#parents_check_area').css('display', 'none');
+        $('#edit_parents_input_area').css('display', 'none');
+        $('#edit_parents_check_area').css('display', 'none');
         if (birthdate) {
             const age = calculateAge(birthdate);
             if (age < 13) {
                 $('#parents_input_area').css('display', 'block');
-            } else if (age < 19) {
+                $('#edit_parents_input_area').css('display', 'block');
+            } else if (age < 18) {
                 $('#parents_check_area').css('display', 'block');
+                $('#edit_parents_check_area').css('display', 'block');
             }
         }
         // 同意チェック
@@ -1104,50 +1109,62 @@ unset(
         function displayRange(birthday) {
             $('#parents_input_area').css('display', 'none');
             $('#parents_check_area').css('display', 'none');
+            $('#edit_parents_input_area').css('display', 'none');
+            $('#edit_parents_check_area').css('display', 'none');
             if (birthday) {
                 const age = calculateAge(birthday);
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
-                } else if (age < 19) {
+                    $('#edit_parents_input_area').css('display', 'block');
+                } else if (age < 18) {
                     $('#parents_check_area').css('display', 'block');
+                    $('#edit_parents_check_area').css('display', 'block');
+                    if ($('#parent_agree').is(':checked')) {
+                        $('#user_form_button').prop('disabled', false);
+                        $('#user_form_button').addClass('btn_red');
+                        $('#user_form_button').removeClass('btn_gray');
+                    } else {
+                        $('#user_form_button').prop('disabled', true);
+                        $('#user_form_button').addClass('btn_gray');
+                        $('#user_form_button').removeClass('btn_red');
+                    }
                 }
             }
             // 同意チェック
             checkParentAgree();
         }
 
-        // 初回の確認
-        checkAgree();
-        $(document).on('change', '#agree', checkAgree);
-        $(document).on('change', '#parent_agree', checkParentAgree);
-
-        // 利用規約同意チェック
-        function checkAgree() {
-            if (processing) return; // 処理中は再実行しない
-
-            // 利用規約の同意がチェックされている場合
-            if ($('#agree').prop('checked')) {
-                checkParentAgree();
-            } else {
-                $('#submit').prop('disabled', true);
-            }
-        }
-
         // 保護者の同意チェック
         function checkParentAgree() {
             if (processing) return;
-
-            if ($('#parents_check_area').css('display') !== 'none') {
-                // 両方がチェックされている場合にボタンを有効化
-                if ($('#parent_agree').prop('checked')) {
-                    $('.submit_btn').prop('disabled', false); // 両方チェックされている場合は有効化
+            if ($('#edit_parents_check_area').is(':visible')) {
+                if ($('#parent_agree').is(':checked')) {
+                    $('#user_form_button').prop('disabled', false);
+                    $('#user_form_button').addClass('btn_red');
+                    $('#user_form_button').removeClass('btn_gray');
                 } else {
-                    $('.submit_btn').prop('disabled', true);
+                    $('#user_form_button').prop('disabled', true);
+                    $('#user_form_button').addClass('btn_gray');
+                    $('#user_form_button').removeClass('btn_red');
                 }
-            } else {
-                $('.submit_btn').prop('disabled', false);
             }
         }
+
+        $(document).ready(function() {
+            $('#parent_agree').on('change', function() {
+                let submitBtn = $('#user_form_button');
+                if ($(this).is(':checked')) {
+                    submitBtn.prop('disabled', false); // 有効化
+                    submitBtn.addClass('btn_red');
+                    submitBtn.removeClass('btn_gray');
+                } else {
+                    submitBtn.prop('disabled', true); // 無効化
+                    submitBtn.addClass('btn_gray');
+                    submitBtn.removeClass('btn_red');
+                }
+            });
+        });
+
     });
 
     $(document).ready(function() {
@@ -1453,17 +1470,28 @@ unset(
         });
     });
 
-    // テキスト表示から編集可能に
-    $('#editButton').click(function() {
-        $('#displayContainer').hide();
-        $('#editContainer').show();
-    });
+    $(document).ready(function() {
+        // エラーが発生している場合、editContainer を優先表示する
+        if ($('#editContainer .text-danger').length > 0 || $('#editContainer .error-msg').length > 0) {
+            $('#displayContainer').hide();
+            $('#editContainer').show();
+        } else {
+            $('#displayContainer').show();
+            $('#editContainer').hide();
+        }
 
-    // キャンセルボタン
-    $('#cancelButton').click(function(e) {
-        e.preventDefault();
-        $('#editContainer').hide();
-        $('#displayContainer').show();
+        // テキスト表示から編集可能に
+        $('#editButton').click(function() {
+            $('#displayContainer').hide();
+            $('#editContainer').show();
+        });
+
+        // キャンセルボタン
+        $('#cancelButton').click(function(e) {
+            e.preventDefault();
+            $('#editContainer').hide();
+            $('#displayContainer').show();
+        });
     });
 </script>
 

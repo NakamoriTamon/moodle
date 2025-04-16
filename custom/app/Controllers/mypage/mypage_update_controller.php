@@ -117,9 +117,6 @@ class MypageUpdateController
         $age = $current_date->diff($birthday_obj)->y;
 
         // 保護者情報
-        $guardian_name = "";
-        $guardian_email = "";
-        $guardian_phone = "";
         if ($age < 13) {
             $guardian_name = htmlspecialchars(required_param('guardian_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
             $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者の氏名', $name_size, true);
@@ -136,6 +133,16 @@ class MypageUpdateController
                     $_SESSION['errors']['guardian_phone'] = '無効な電話番号です。';
                 }
             }
+        } elseif ($age < 18) {
+            $parent_agree = htmlspecialchars(optional_param('parent_agree', '', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+            if (empty($parent_agree)) {
+                $_SESSION['errors']['parent_agree'] = '保護者の同意は必須です。';
+            }
+        } else {
+            $parent_agree = "";
+            $guardian_name = "";
+            $guardian_email = "";
+            $guardian_phone = "";
         }
 
         // $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_TEXT));
@@ -163,11 +170,17 @@ class MypageUpdateController
             ) {
                 $result = true;
             }
+        } elseif ($age < 18) {
+            if (
+                $_SESSION['errors']['parent_agree']
+            ) {
+                $result = true;
+            }
         }
         // バリデーションチェックの結果
         if ($result) {
             $_SESSION['old_input'] = $_POST; // 入力内容も保持
-
+            $_SESSION['user_message_error'] = '登録に失敗しました';
             header('Location: /custom/app/Views/mypage/index.php#user_form');
             return;
         }
@@ -209,7 +222,7 @@ class MypageUpdateController
         } catch (PDOException $e) {
             $pdo->rollBack();
             error_log('マイページ情報更新エラー: ' . $e->getMessage());
-            $_SESSION['message_error'] = '登録に失敗しました';
+            $_SESSION['user_message_error'] = '登録に失敗しました';
             header('Location: /custom/app/Views/mypage/index.php#user_form');
         }
     }
@@ -410,7 +423,7 @@ class MypageUpdateController
                         $data = new stdClass();
                         $data->id = (int)$id;
                         $data->payment_method = PAYMENT_CREDIT;
-                        $data->paid_status = PAID_STATUS['COMPLETED'];
+                        $data->paid_status = PAID_STATUS['SUBSCRIPTION_PROCESSING'];
                         $data->is_subscription = $is_subscription;
 
                         $DB->update_record_raw('tekijuku_commemoration', $data);
