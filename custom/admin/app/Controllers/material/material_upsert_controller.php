@@ -114,18 +114,15 @@ if (isset($_FILES['file'])) {
                     }
                 } elseif (isset($post_files[$key])) {
                     // 既存レコードとファイル名が違う => 古い方を削除/置き換え
-                    if ($material_record->file_name != basename($post_files[$key])) {
-                        $target_id = (int)$key;
-                        if ($target_id > 0) {
-                            $update_record = $DB->get_record('course_material', array('id' => $target_id));
-                            if ($update_record) {
-                                $old_file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $update_record->file_name;
-                                // ファイルが存在する場合は削除、存在しなければDBレコードも削除
-                                if (file_exists($old_file_path)) {
-                                    unlink($old_file_path);
-                                } else {
-                                    $DB->delete_records('course_material', array('id' => $target_id));
-                                }
+                    $target_id = (int)$key;
+                    if ($target_id > 0) {
+                        $update_record = $DB->get_record('course_material', array('id' => $target_id));
+                        if ($update_record) {
+                            $old_file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $update_record->file_name;
+                            // ファイルが存在する場合は削除、存在しなければDBレコードも削除
+                            if (file_exists($old_file_path)) {
+                                unlink($old_file_path);
+                                $DB->delete_records('course_material', array('id' => $target_id));
                             }
                         }
                     }
@@ -134,24 +131,27 @@ if (isset($_FILES['file'])) {
             $_SESSION['material_deletion_done'] = true;
         }
 
-        // 重複チェック：すでに同一ファイル名が存在しているか？
-        $duplicate_material_list = $DB->get_records('course_material', [
-            'file_name'      => $file_name,
-            'course_info_id' => $course_info->course_info_id
-        ]);
-        $existingFileNames = array_column($duplicate_material_list, 'file_name');
-        if (in_array($file_name, $existingFileNames)) {
-            echo json_encode(['status' => 'error', 'error' => '既に' . $file_name . 'は登録されています']);
-            exit;
+        $currentId = intval($_POST['id'] ?? 0);
+        $needInsert = true;
+
+        if ($currentId > 0) {
+            $currentRec = $DB->get_record('course_material', ['id' => $currentId]);
+            if ($currentRec && $currentRec->file_name === $file_name) {
+                // 上書き
+                $currentRec->updated_at = $updated_at;
+                $DB->update_record('course_material', $currentRec);
+                $needInsert = false;
+            }
         }
 
-        // DB登録処理
-        $data = new stdClass();
-        $data->file_name      = $file_name;
-        $data->course_info_id = $course_info->course_info_id;
-        $data->created_at     = $created_at;
-        $data->updated_at     = $updated_at;
-        $registered_ids[]     = $DB->insert_record('course_material', $data);
+        if ($needInsert) {
+            $data = new stdClass();
+            $data->file_name      = $file_name;
+            $data->course_info_id = $course_info->course_info_id;
+            $data->created_at     = $created_at;
+            $data->updated_at     = $updated_at;
+            $registered_ids[]     = $DB->insert_record('course_material', $data);
+        }
 
         // セッションに登録済みIDをマージ
         $posted_ids = $_POST['ids'] ?? [];
