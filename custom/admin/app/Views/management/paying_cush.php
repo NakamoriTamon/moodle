@@ -186,7 +186,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                         <div class="card-body p-055">
                             <form id="form" method="POST" action="/custom/admin/app/Views/management/paying_cush.php" class="w-100">
                                 <div class="mb-3">
-                                    <label class="form-label" for="notyf-message">適塾会員</label>
+                                    <label class="form-label" for="notyf-message">会員</label>
                                     <select id="fk_user_id" name="fk_user_id" class="form-control">
                                         <option value="">選択してください</option>
                                         <?php foreach ($user_list as $user) { ?>
