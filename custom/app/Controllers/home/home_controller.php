@@ -78,14 +78,16 @@ if(!empty($events)) {
             }
         }elseif($event['event_kbn'] == EVERY_DAY_EVENT && $event['capacity'] > 0){ // 期間内に毎日開催のイベント
             // 開催日時になる前ならチェック対象とする
-            $deadline = (new DateTime($event['end_event_date']))->format('YmdHis');
-            if (!($deadline > (new DateTime())->format('YmdHis'))) {
+            $deadline_day = (new DateTime($event['end_event_date']))->format('Y-m-d');
+            $deadline_hour = (new DateTime($event['end_hour']))->format('H:i:s');
+            $deadline = (new DateTime($deadline_day.' '.$deadline_hour))->format('YmdHis');
+            if ($deadline >= (new DateTime())->format('YmdHis')) {
                 $capacityFlg = checkCapacity($event['id'], null);
             }
         }elseif($event['event_kbn'] == SINGLE_EVENT && $event['capacity'] > 0){// 単発のイベント
             // 開催日が既に過ぎているものはチェックの対象外とする
             $deadline = !empty($event['deadline']) ? (new DateTime($event['deadline']))->format('Ymd') : ((new DateTime($event['event_date']))->modify('-1 day'))->format('Ymd');
-            if ($deadline < $now) {
+            if ($deadline >= $now) {
                 $capacityFlg = checkCapacity($event['id'], null);
             }
         }else{
