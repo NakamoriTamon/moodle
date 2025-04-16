@@ -48,8 +48,8 @@ $pass_reset_result = $pass_reset_controller->index($_GET['token']);
                                 <p class="list_label">パスワード（確認用）</p>
                                 <div class="list_field f_txt">
                                     <div class="input-container" style="position: relative;">
-                                        <input type="password" id="password_confirm" name="password_confirm" onpaste="return false" autocomplete="off" style="padding-right: 40px;" />
-                                        <i class="fa fa-eye-slash toggle-password" data-toggle="#password_confirm"
+                                        <input type="password" id="confirm_password" name="confirm_password" onpaste="return false" autocomplete="off" style="padding-right: 40px;" />
+                                        <i class="fa fa-eye-slash toggle-password" data-toggle="#confirm_password"
                                             style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                                     </div>
                                     <?php if (!empty($errors['confirm_password'])): ?>

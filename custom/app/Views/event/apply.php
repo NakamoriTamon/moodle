@@ -44,7 +44,6 @@ $email = "";
 $age = 0;
 $guardian_kbn = "";
 $guardian_name = "";
-$guardian_kana = "";
 $guardian_email = "";
 $guardian_phone = "";
 $capacity = $event['capacity'];
@@ -140,7 +139,6 @@ if (!empty($old_input)) {
     $mailsArray = isset($old_input['companion_mails']) ? $old_input['companion_mails'] : [];
     $notification_kbn = isset($old_input['notification_kbn']) ? $old_input['notification_kbn'] : null;
     $guardian_name = isset($old_input['guardian_name']) ? $old_input['guardian_name'] : $guardian_name;
-    $guardian_kana = isset($old_input['guardian_kana']) ? $old_input['guardian_kana'] : $guardian_kana;
     $guardian_kbn = isset($old_input['guardian_kbn']) ? $old_input['guardian_kbn'] : $guardian_kbn;
     $guardian_email = isset($old_input['guardian_email']) ? $old_input['guardian_email'] : $guardian_email;
     $guardian_phone = isset($old_input['guardian_phone']) ? $old_input['guardian_phone'] : $guardian_phone;
@@ -165,7 +163,6 @@ if (!empty($old_input)) {
     $notification_kbn = isset($formdata['notification_kbn']) ? $formdata['notification_kbn'] : null;
     $applicant_kbn = isset($formdata['applicant_kbn']) ? $formdata['applicant_kbn'] : $applicant_kbn;
     $guardian_name = isset($formdata['guardian_name']) ? $formdata['guardian_name'] : $guardian_name;
-    $guardian_kana = isset($formdata['guardian_kana']) ? $formdata['guardian_kana'] : $guardian_kana;
     $guardian_email = isset($formdata['guardian_email']) ? $formdata['guardian_email'] : $guardian_email;
     $guardian_phone = isset($formdata['guardian_phone']) ? $formdata['guardian_phone'] : $guardian_phone;
 }
@@ -421,7 +418,8 @@ unset($_SESSION['old_input']);
                                     <div class="list_field list_col">
                                         <p class="f_check">
                                             <label>
-                                                <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>><span style="font-weight: bold; color: #2D287F;">この申し込みは保護者の許可を得ています</span>
+                                                <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" class="checkbox_input" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>>
+                                                    <label class="checkbox_label">この申し込みは保護者の許可を得ています</label>
                                             </label>
                                         </p>
                                     </div>
@@ -435,17 +433,6 @@ unset($_SESSION['old_input']);
                                     <p class="list_label">保護者名</p>
                                     <div class="list_field f_txt" id="guardian_name">
                                         <input type="text" style="margin-right: 2rem" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" ;>
-                                    </div>
-                                </li>
-                                <span class="error-msg" id="guardian_kana-error">
-                                    <?php if (!empty($errors['guardian_kana'])): ?>
-                                        <?= htmlspecialchars($errors['guardian_kana']); ?>
-                                    <?php endif; ?>
-                                </span>
-                                <li class="long_item">
-                                    <p class="list_label">保護者名フリガナ</p>
-                                    <div class="list_field f_txt" id="guardian_kana">
-                                        <input type="text" style="margin-right: 2rem" name="guardian_kana" value="<?= htmlspecialchars($guardian_kana) ?>" ;>
                                     </div>
                                 </li>
                                 <span class="error-msg" id="guardian_email-error">

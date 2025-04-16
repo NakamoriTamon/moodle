@@ -92,7 +92,8 @@ class UserModel extends BaseModel
                     r.shortname AS role
                 FROM mdl_user u
                 JOIN mdl_role_assignments ra ON u.id = ra.userid
-                JOIN mdl_role r ON ra.roleid = r.id";
+                JOIN mdl_role r ON ra.roleid = r.id
+                WHERE u.id = :id";
 
                 $params[':id'] = $id;
 
@@ -503,5 +504,37 @@ class UserModel extends BaseModel
         }
 
         return [];
+    }
+    public function getShortNameUserList()
+    {
+        if ($this->pdo) {
+            try {
+                // ベースのSQLクエリ
+                $sql = "SELECT 
+                    u.*, 
+                    r.id AS role_id,
+                    r.sortorder AS role_sortorder,
+                    r.shortname AS role
+                FROM mdl_user u
+                JOIN mdl_role_assignments ra ON u.id = ra.userid
+                JOIN mdl_role r ON ra.roleid = r.id
+                WHERE u.deleted = 0
+                AND r.shortname = 'user'
+                ORDER BY u.id ASC";
+
+                // クエリの実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute();
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $users;
+            } catch (\PDOException $e) {
+                error_log('ユーザー一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました。';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました。";
+        }
     }
 }
