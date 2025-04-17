@@ -174,13 +174,16 @@ $guardian_phone = htmlspecialchars(optional_param('guardian_phone', '', PARAM_TE
 $guardian_phone = removeHyphens($guardian_phone);
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-if (!empty($guardian_kbn) && ADULT_AGE >= $age) {
+if (!empty($guardian_kbn) && ADULT_AGE >= $age && TEENAGER_AGE <= $age) {
     $_SESSION['errors']['applicant_kbn'] = validate_int($applicant_kbn, '保護者の許可', true);
+} else {
+    $_SESSION['errors']['applicant_kbn'] = null;
+}
+if (!empty($guardian_kbn) && TEENAGER_AGE > $age) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
     $_SESSION['errors']['guardian_phone'] = validate_tel_number($guardian_phone);
 } else {
-    $_SESSION['errors']['applicant_kbn'] = null;
     $_SESSION['errors']['guardian_name'] = null;
     $_SESSION['errors']['guardian_email'] = null;
     $_SESSION['errors']['guardian_phone'] = null;
@@ -359,7 +362,8 @@ if (
         'hiddens' => $hiddens,
         'params' => $params,
         'tekijuku_discount' => $tekijuku_discount,
-        'event_date' => $event_date
+        'event_date' => $event_date,
+        'age' => $age
     ];
     redirect(new moodle_url('/custom/app/Views/event/confirm.php'));
     exit;

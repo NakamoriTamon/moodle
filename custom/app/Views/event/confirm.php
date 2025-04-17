@@ -65,6 +65,7 @@ if (isset($SESSION->formdata)) {
     $hiddens = $formdata['hiddens'];
     $tekijuku_discount = $formdata['tekijuku_discount'];
     $event_date = $formdata['event_date'];
+    $age = $formdata['age'];
 }
 
 $tekijuku_text = "";
@@ -218,7 +219,7 @@ if ($price > 0) {
                             </p>
                         </li>
                         <?php echo $passages ?>
-                        <?php if ($guardian_kbn == 1): ?>
+                        <?php if ($age < TEENAGER_AGE): ?>
                             <li>
                                 <p class="list_label">保護者名</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_name) ?></p>
@@ -230,6 +231,18 @@ if ($price > 0) {
                             <li>
                                 <p class="list_label">保護者連絡先電話番号</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_phone) ?></p>
+                            </li>
+                        <?php endif ?>
+                        <?php if ($age <= ADULT_AGE && $age >= TEENAGER_AGE): ?>
+                            <li>
+                                <div class="list_field list_col">
+                                    <p class="f_check">
+                                        <label>
+                                            <input type="checkbox" checked disabled style="cursor: default">
+                                            <label class="checkbox_label">この申し込みは保護者の許可を得ています</label>
+                                        </label>
+                                    </p>
+                                </div>
                             </li>
                         <?php endif ?>
                     </ul>

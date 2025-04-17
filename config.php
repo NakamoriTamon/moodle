@@ -265,6 +265,10 @@ define('WEEKDAYS', $weekdays);
 $adult_age = 18;
 define('ADULT_AGE', $adult_age);
 
+// 子ども年齢
+$teenager_age = 13;
+define('TEENAGER_AGE', $teenager_age);
+
 // イベント参加状態
 $is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);

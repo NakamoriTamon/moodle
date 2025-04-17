@@ -122,9 +122,11 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
-    if ($age <= ADULT_AGE) {
-        $guardian_name = $user->guardian_name ?? "";
+    if($age <= ADULT_AGE && $age >= TEENAGER_AGE) {
         $guardian_kbn = $user->guardian_kbn ?? "";
+    }
+    if ($age < TEENAGER_AGE) {
+        $guardian_name = $user->guardian_name ?? "";
         $guardian_email = $user->guardian_email ?? "";
         $guardian_phone = $user->guardian_phone ?? "";
     }
@@ -406,7 +408,7 @@ unset($_SESSION['old_input']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if ($age <= ADULT_AGE): ?>
+                            <?php if ($age <= ADULT_AGE && $age >= TEENAGER_AGE): ?>
                                 <li>
                                     <span class="error-msg" id="applicant_kbn-error">
                                         <?php if (!empty($errors['applicant_kbn'])): ?>
@@ -419,11 +421,13 @@ unset($_SESSION['old_input']);
                                         <p class="f_check">
                                             <label>
                                                 <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" class="checkbox_input" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>>
-                                                    <label class="checkbox_label">この申し込みは保護者の許可を得ています</label>
+                                                    <label for="applicant_kbn" class="checkbox_label">この申し込みは保護者の許可を得ています</label>
                                             </label>
                                         </p>
                                     </div>
                                 </li>
+                            <?php endif; ?>
+                            <?php if ($age < TEENAGER_AGE): ?>
                                 <span class="error-msg" id="guardian_name-error">
                                     <?php if (!empty($errors['guardian_name'])): ?>
                                         <?= htmlspecialchars($errors['guardian_name']); ?>
