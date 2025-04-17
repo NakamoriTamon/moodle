@@ -66,7 +66,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     ) - INTERVAL 5 DAY
                                 ) THEN 1 -- 受付中
@@ -76,7 +76,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     ) - INTERVAL 5 DAY
                                 ) 
@@ -85,7 +85,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     )
                                 ) THEN 2 -- もうすぐ締め切り
@@ -95,7 +95,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     )
                                 ) THEN 3 -- 受付終了
