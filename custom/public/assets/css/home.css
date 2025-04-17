@@ -48,6 +48,9 @@
   margin: 110px 0 0 auto;
   width: 80%;
   height: auto;
+  max-height: 100% !important;
+  aspect-ratio: 1.82;
+  
 }
 #mv .mv_scroll {
   position: absolute;
@@ -92,7 +95,7 @@
 .mv-slider .swiper-wrapper {
     margin: 110px 0 0 auto;
     width: 80%;
-    height: 100% !important;
+    /* height: 100% !important; */
 }
 .mv-slider .swiper-wrapper img {
     width: 80%;
@@ -286,6 +289,7 @@
     margin: 50px 0 0 auto;
     width: 80%;
     height: auto;
+    aspect-ratio: initial;
   }
   #mv .mv_scroll {
     bottom: 0;
