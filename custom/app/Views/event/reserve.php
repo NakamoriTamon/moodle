@@ -148,7 +148,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
 
 <script>
   var price = "<?= htmlspecialchars($price, ENT_QUOTES, 'UTF-8') ?>";
-  var message = "イベントの参加をキャンセルしても返金はできません。本当にキャンセルしてもよろしいですか。";
+  var message = "イベントの参加をキャンセルしても<br><span style='color:red'>返金はできません。</span><br>本当にキャンセルしてもよろしいですか。";
   if (price == '無料') {
     message = "本当にキャンセルしてもよろしいですか。";
   }
@@ -156,11 +156,40 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
     $('#submit').on("click", function() {
       $('#upsert_form').submit();
     });
-    $('#cancel_form').on("click", function(e) {
+  });
+
+  $(document).ready(function() {
+    // キャンセルボタンクリック時
+    $('#cancel_form').on('click', function(e) {
       e.preventDefault(); // aタグのデフォルト動作を防止
-      if (confirm(message)) {
-        $('#cancel_form').submit(); // フォームを送信
-      }
+      showModal('イベント参加キャンセル', message);
     });
+
+    $(document).on('click', '.goCancel', function() {
+      $('#cancel_form').submit(); // フォームを送信
+    });
+  });
+
+  // モーダル表示
+  function showModal(title, message) {
+    var modalHtml = `
+        <div id="confirmation-modal">
+            <div class="modal_cont">
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <div class="modal-buttons">
+                    <button class="modal-withdrawal goCancel">キャンセル</button>
+                    <button class="modal-close">いいえ</button>
+                </div>
+            </div>
+        </div>
+    `;
+    $('body').append(modalHtml);
+    $('#confirmation-modal').show();
+  }
+
+  // モーダルの閉じるボタン
+  $(document).on('click', '.modal-close', function() {
+    $('#confirmation-modal').remove();
   });
 </script>
