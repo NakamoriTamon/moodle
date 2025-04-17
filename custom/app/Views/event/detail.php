@@ -199,7 +199,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         <?php if ($event['check_all_capacity']): ?>
                             <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
                         <?php else: ?>
-                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                            <button type="button" class="btn btn_gray arrow">全日程分は定員に達しました</button>
                         <?php endif; ?>
                             <p class="detail_txt">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
@@ -229,7 +229,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                         <?php if ($course['check_capacity']): ?>
                                             <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
                                         <?php else: ?>
-                                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                                            <button type="button" class="btn btn_gray arrow">定員に達しました</button>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
@@ -256,7 +256,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                         <?php if ($course['check_capacity']): ?>
                                             <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
                                         <?php else: ?>
-                                            <button type="button" class="btn btn_gray arrow">定員になりました</button>
+                                            <button type="button" class="btn btn_gray arrow">この日程は定員に達しました</button>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>

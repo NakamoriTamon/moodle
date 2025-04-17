@@ -145,6 +145,7 @@ if (!empty($event)) {
         $select_course['check_capacity'] = $capacity_flg;
         $event['select_course'][$select_course['no']] = $select_course;
     } else {
+        $all_capacity_check = 0;
         foreach($event['course_infos'] as $select_course) {
             if(!empty($select_course['id'])) {
                 $deadline_date = new DateTime($select_course['deadline_date']);
@@ -181,8 +182,8 @@ if (!empty($event)) {
                 }else{
                     $capacity_flg = true;
                 }
-                if(!$all_capacity_flg){
-                    $all_capacity_flg = $capacity_flg;
+                if(!$capacity_flg){
+                    $all_capacity_check++;
                 }
                 $select_course['check_capacity'] = $capacity_flg;
                 $event['select_course'][$select_course['no']] = $select_course;
@@ -204,6 +205,7 @@ if (!empty($event)) {
                 }
             }
         }
+        $all_capacity_flg = $all_capacity_check <= 0 ? true : false;
     }
 
     $event['check_all_capacity'] = $all_capacity_flg;
