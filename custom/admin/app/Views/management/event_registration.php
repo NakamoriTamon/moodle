@@ -165,7 +165,7 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['user_id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
-                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['note']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_type']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap <?= $application['is_paid'] == '未決済' ? 'text-danger' : '' ?>">

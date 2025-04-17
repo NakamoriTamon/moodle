@@ -37,6 +37,9 @@ class EventApplicationModel extends BaseModel
                                 COUNT(eac.course_info_id) AS total_tickets
                             FROM mdl_event_application_course_info eac
                             JOIN mdl_event_application ea ON eac.event_application_id = ea.id
+                            AND (eac.participation_kbn IS NULL 
+                            OR eac.participation_kbn = 1
+                            OR eac.participation_kbn = 2)
                             GROUP BY eac.course_info_id, eac.event_id
                         )
                         SELECT 
