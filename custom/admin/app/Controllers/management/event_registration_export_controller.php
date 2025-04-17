@@ -72,7 +72,7 @@ try {
     foreach ($event_list as $event) {
         if (!empty($event_id)) {
             // 単発イベントの場合
-            if ($event['event_kbn'] == 1) {
+            if ($event['event_kbn'] == SINGLE_EVENT) {
                 foreach ($event['course_infos'] as $course_info) {
                     $course_info_id = $course_info['id'];
                     $course_no = 1;
@@ -81,11 +81,18 @@ try {
                 }
             }
             // 複数回イベントの場合
-            if ($event['event_kbn'] == 2 && !empty($course_no)) {
+            elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
                 foreach ($event['course_infos'] as $course_info) {
                     if ($course_info['no'] == $course_no) {
                         $course_info_id = $course_info['id'];
                     }
+                }
+            } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                foreach ($event['course_infos'] as $course_info) {
+                    $course_info_id = "";
+                    $course_no = "";
+                    $_SESSION['old_input']['course_no'] = "";
+                    $is_single = true;
                 }
             }
         }
@@ -129,22 +136,40 @@ try {
         return $a['course_info']['no'] <=> $b['course_info']['no'];
     });
 
-    // CSVヘッダー
-    $csv_list[0] = [
-        'ID',
-        'イベント名',
-        '講座回数',
-        '会員番号',
-        'ユーザー名',
-        'メールアドレス',
-        '年齢',
-        '備考',
-        '決済方法',
-        '決済状況',
-        '決済日',
-        '申込日',
-        '参加状態'
-    ];
+    if($is_single) {
+        // CSVヘッダー
+        $csv_list[0] = [
+            'ID',
+            'イベント名',
+            '会員番号',
+            'ユーザー名',
+            'メールアドレス',
+            '年齢',
+            '備考',
+            '決済方法',
+            '決済状況',
+            '決済日',
+            '申込日',
+            '参加状態'
+        ];
+    } else {
+        // CSVヘッダー
+        $csv_list[0] = [
+            'ID',
+            'イベント名',
+            '講座回数',
+            '会員番号',
+            'ユーザー名',
+            'メールアドレス',
+            '年齢',
+            '備考',
+            '決済方法',
+            '決済状況',
+            '決済日',
+            '申込日',
+            '参加状態'
+        ];
+    }
 
     // データの書き込み
     $count = 1;
@@ -197,21 +222,38 @@ try {
             continue;
         }
 
-        $csv_array = [
-            $application_course_info['id'],
-            $event['name'],
-            '第' . $application_course_info['course_info']['no'] . '講座',
-            $user_id,
-            $name,
-            $application_course_info['participant_mail'],
-            $age,
-            $note,
-            $payment_type,
-            $is_paid,
-            $payment_date,
-            $application_date,
-            IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
-        ];
+        if($is_single) {
+            $csv_array = [
+                $application_course_info['id'],
+                $event['name'],
+                $user_id,
+                $name,
+                $application_course_info['participant_mail'],
+                $age,
+                $note,
+                $payment_type,
+                $is_paid,
+                $payment_date,
+                $application_date,
+                IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
+            ];
+        } else {
+            $csv_array = [
+                $application_course_info['id'],
+                $event['name'],
+                '第' . $application_course_info['course_info']['no'] . '講座',
+                $user_id,
+                $name,
+                $application_course_info['participant_mail'],
+                $age,
+                $note,
+                $payment_type,
+                $is_paid,
+                $payment_date,
+                $application_date,
+                IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
+            ];
+        }
 
         $csv_list[$count] = $csv_array;
         $count++;

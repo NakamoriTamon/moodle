@@ -106,6 +106,7 @@ class EventRegisterController
                     ) >= '$now_time'
                 )
             )
+            AND eaci.participation_kbn != :participation_kbn 
         ORDER BY 
             ci.course_date ASC
         LIMIT $perPage OFFSET $offset";
@@ -114,6 +115,7 @@ class EventRegisterController
             $params = [
                 'user_id' => $this->USER->id,
                 'self_ticket_type' => $self_ticket_type,
+                'participation_kbn' => PARTICIPATION_KBN['CANCEL'],
             ];
 
             // トータル件数を取得するためのクエリ
@@ -169,6 +171,7 @@ class EventRegisterController
                     ) >= '$now_time'
                 )
             )
+            AND eaci.participation_kbn != :participation_kbn 
         ORDER BY 
             ci.course_date ASC
         ";

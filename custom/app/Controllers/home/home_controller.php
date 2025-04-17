@@ -30,7 +30,8 @@ $now = new DateTime();
 $now = $now->format('Ymd');
 
 $best_events = $eventModel->getEvents([
-    'event_start_date' => $event_start_date,
+    // 'event_status' => [1, 2],
+    'deadline_status' => [1, 2],
     'is_best' => true
 ], $currentPage, $perPage);
 
