@@ -27,10 +27,8 @@ $now = $now->format('Ymd');
     <section id="mv" class="mv-slider nosp">
         <div class="swiper-wrapper mv_img">
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv.png" alt="画像1"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv02.png" alt="画像2"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv03.png" alt="画像3"></div>
-            <?php foreach($best_events as $best_event): ?>
-                <?php if(!empty($best_event['best_event_img'])): ?> 
+            <?php foreach ($best_events as $best_event): ?>
+                <?php if (!empty($best_event['best_event_img'])): ?>
                     <div class="swiper-slide">
                         <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
                             <img src="<?= htmlspecialchars($best_event['best_event_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
@@ -46,13 +44,11 @@ $now = $now->format('Ymd');
     <section id="mv" class="mv-slider nopc">
         <div class="swiper-wrapper mv_img">
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv-sp.png" alt="画像1"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv02.png" alt="画像2"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv01.png" alt="画像3"></div>
-            <?php foreach($best_events as $best_event): ?>
-                <?php if(!empty($best_event['best_event_sp_img'])): ?> 
+            <?php foreach ($best_events as $best_event): ?>
+                <?php if (!empty($best_event['best_event_sp_img'])): ?>
                     <div class="swiper-slide">
                         <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
-                        <img src="<?= htmlspecialchars($best_event['best_event_sp_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
+                            <img src="<?= htmlspecialchars($best_event['best_event_sp_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
                         </a>
                     </div>
                 <?php endif ?>
@@ -126,7 +122,7 @@ $now = $now->format('Ymd');
                                 <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <?php if(!$row['capacity_flg']): ?>
+                                        <?php if (!$row['capacity_flg']): ?>
                                             <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
                                         <?php else: ?>
                                             <?php foreach (DEADLINE_LIST as $key => $status): ?>
