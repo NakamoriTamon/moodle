@@ -25,6 +25,8 @@ $per_page = $result_list['per_page'];
 $current_page = $result_list['current_page'];
 $page = $result_list['page'];
 
+$current_page = max(1, (int)$current_page);
+$page         = max(1, (int)$page);
 ?>
 
 
@@ -163,7 +165,7 @@ $page = $result_list['page'];
 											<th class="w-25 p-4">ご職業等を教えてください</th>
 											<th class="w-25 p-4">性別をご回答ください</th>
 											<th class="w-25 p-4">お住いの地域を教えてください（〇〇県△△市のようにご回答ください</th>
-											<?php foreach($survey_field_list as $survey_field): ?>
+											<?php foreach ($survey_field_list as $survey_field): ?>
 												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
 											<?php endforeach; ?>
 										</tr>
@@ -177,7 +179,7 @@ $page = $result_list['page'];
 											?>
 											<tr>
 												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at'] ?? ''))) ?></td>
-												<td class="p-4"><?= htmlspecialchars('第' . $survey['course_info']['no'] ?? '' . '回') ?></td>
+												<td class="p-4"><?= '第' . htmlspecialchars($survey['course_info']['no'] ?? '') . '回' ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['thoughts'] ?? '') ?></td>
 												<td class="p-4">
 													<?= htmlspecialchars(DECISION_LIST[$survey['attend']] ?? '') ?>
@@ -224,7 +226,7 @@ $page = $result_list['page'];
 												<td class="p-4">
 													<?= htmlspecialchars(($survey['prefectures'] ?? '') . ($survey['address'] ?? '')) ?>
 												</td>
-												<?php foreach($survey['customfiel'] as $customfiel): ?>
+												<?php foreach ($survey['customfiel'] as $customfiel): ?>
 													<td class="p-4"><?= htmlspecialchars($customfiel['input_data'] ?? '') ?></td>
 												<?php endforeach; ?>
 											</tr>
