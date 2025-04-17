@@ -389,8 +389,8 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         <h2>申し込みの確認</h2>
         <p></p>
         <div class="modal-buttons">
-            <button class="modal_yes_buttom">申し込む</button>
-            <button class="modal_close_buttom">キャンセル</button>
+            <button class="modal_yes_buttom">はい</button>
+            <button class="modal_close_buttom">いいえ</button>
         </div>
     </div>
 </div>
