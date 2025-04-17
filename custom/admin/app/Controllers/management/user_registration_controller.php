@@ -15,6 +15,10 @@ class UserRegistrationController
     {
         // POSTから検索キーワードを取得
         $keyword = $_POST['keyword'] ?? null;
+        if (!empty($keyword) && preg_match('/^0.*0/', $keyword)) {
+            $keyword = preg_replace('/^0.*0/', '', $keyword);
+        }
+
         $_SESSION['old_input'] = $_POST;
 
         $filters = [];

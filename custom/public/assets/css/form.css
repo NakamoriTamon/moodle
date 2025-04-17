@@ -515,23 +515,26 @@ reserve
 }
 
 .inactive-text {
-    content: "退会済み";
-    display: inline-block;
-    margin-left: 10px;
-    padding: 2px 8px;
-    color: #cc0000;
-    font-size: 0.85em;
-    line-height: 1.5;
+  content: "退会済み";
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  color: #cc0000;
+  font-size: 0.85em;
+  line-height: 1.5;
 }
 
 .inactive-text-card {
-    content: "退会済み";
-    display: inline-block;
-    margin-top: 10px;
-    padding: 2px 8px;
-    color: #cc0000;
-    font-size: 0.85em;
-    line-height: 1.5;
+  content: "退会済み";
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 8px;
+  color: #cc0000;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+#cancel_submit{
+  cursor: pointer;
 }
 
 /*  mobile & smart phone
