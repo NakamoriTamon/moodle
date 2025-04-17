@@ -178,7 +178,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                 <h2>${title}</h2>
                 <p>${message}</p>
                 <div class="modal-buttons">
-                    <button class="modal-withdrawal goCancel">キャンセル</button>
+                    <button class="modal-withdrawal goCancel">はい</button>
                     <button class="modal-close">いいえ</button>
                 </div>
             </div>
