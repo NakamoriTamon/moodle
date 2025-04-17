@@ -407,6 +407,12 @@ define('LIVE', $live);
 // 費用請求へ遷移できる部門管理者アカウント
 $membership_access_acount = 1579;
 define('MEMBERSHIP_ACCESS_ACOUNT', $membership_access_acount);
+
+// 適塾会員限定イベント
+$kbn_is_tekijuku_not_only = 0;
+define('EVENT_TEKIJUKU_NOT_ONLY', $kbn_is_tekijuku_not_only);
+$kbn_is_tekijuku_only = 1;
+define('EVENT_TEKIJUKU_ONLY', $kbn_is_tekijuku_only);
 													
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

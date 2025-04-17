@@ -247,9 +247,13 @@
 #detail .speaker .speaker_desc .sub_ttl {
   margin-top: 0;
 }
-#detail .detail_txt {
+#detail .detail_txt_all {
   margin: 20px 0 40px;
   text-align: center;
+}
+#detail .detail_txt {
+  margin: 20px 0 40px;
+  text-align: end;
 }
 #detail .btn_entry,
 #detail .btn_contact {
@@ -333,6 +337,11 @@
   .ttl_event {
     margin-bottom: 20px;
     font-size: 20px;
+  }
+
+  #detail .detail_txt {
+    margin: 20px 0 40px;
+    text-align: center;
   }
 
   /*-------------------------------------

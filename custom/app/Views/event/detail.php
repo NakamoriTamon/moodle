@@ -1,6 +1,8 @@
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php');
 require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Controllers/event/event_detail_controller.php');
+require_once('/var/www/html/moodle/custom/app/Controllers/mypage/mypage_controller.php');
+require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
 
 $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
 $start_hour = $dateTime->format('H:i'); // "00:00"
@@ -8,6 +10,20 @@ $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
 $end_hour = $dateTime->format('H:i'); // "00:00"
 $index = array_search($event['target'], array_column($targets, 'id'));
 unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
+
+$tekijuku_user_flg = false;
+if (isloggedin() && isset($_SESSION['USER'])) {
+    global $DB, $USER;
+
+    $mypage_controller = new MypageController;
+    $user = $mypage_controller->getUser(); // ユーザーの情報を引っ張ってくる
+    $tekijukuCommemorationModel = new TekijukuCommemorationModel();
+    $tekijuku = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id);
+    // 決済前と決済中のユーザーは適塾割を適応させない
+    if (!(empty($tekijuku) || $tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING'])) {
+        $tekijuku_user_flg = true;
+    }
+}
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -196,14 +212,36 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                         </div>
                     </div>
                     <?php if ($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                        <?php if ($event['check_all_capacity']): ?>
-                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
+                        <?php if($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY): ?>
+                            <?php if($tekijuku_user_flg): ?>
+                                <?php if ($event['check_all_capacity']): ?>
+                                    <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn_gray arrow">全日程分は定員に達しました</button>
+                                <?php endif; ?>
+                                <p class="detail_txt_all">
+                                ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
+                                </p>
+                            <?php else: ?>
+                                <?php if ($event['check_all_capacity']): ?>
+                                    <button type="button" class="btn btn_gray arrow">全日程を一括で申し込む</button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn_gray arrow">全日程分は定員に達しました</button>
+                                <?php endif; ?>
+                                <p class="detail_txt_all">
+                                ※適塾記念会会員のみ参加可能です。
+                                </p>
+                            <?php endif; ?>
                         <?php else: ?>
-                            <button type="button" class="btn btn_gray arrow">全日程分は定員に達しました</button>
-                        <?php endif; ?>
-                            <p class="detail_txt">
+                            <?php if ($event['check_all_capacity']): ?>
+                                <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, null, <?= htmlspecialchars(array_sum(array_column($event['select_course'], 'check_entry'))) ?>)" class="btn btn_red arrow btn_entry">全日程を一括で申し込む</button>
+                            <?php else: ?>
+                                <button type="button" class="btn btn_gray arrow">全日程分は定員に達しました</button>
+                            <?php endif; ?>
+                            <p class="detail_txt_all">
                             ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
-                        </p>
+                            </p>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <div class="detail_item">
                         <h2 class="block_ttl">プログラム</h2>
@@ -226,10 +264,29 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <?php if ($course['check_capacity']): ?>
-                                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php if($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY): ?>
+                                            <?php if($tekijuku_user_flg): ?>
+                                                <?php if ($course['check_capacity']): ?>
+                                                    <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn_gray arrow">定員に達しました</button>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <?php if ($course['check_capacity']): ?>
+                                                    <button type="button" class="btn btn_gray arrow">この日程で申し込む</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn_gray arrow">定員に達しました</button>
+                                                <?php endif; ?>
+                                                <p class="detail_txt" class="arrow">
+                                                ※適塾記念会会員のみ参加可能です。
+                                                </p>
+                                            <?php endif; ?>
                                         <?php else: ?>
-                                            <button type="button" class="btn btn_gray arrow">定員に達しました</button>
+                                            <?php if ($course['check_capacity']): ?>
+                                                <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn_gray arrow">定員に達しました</button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
@@ -253,10 +310,29 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata);
                                 <?php endforeach; ?>
                                 <div class="program">
                                     <?php if (!isset($course['close_date']) && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
-                                        <?php if ($course['check_capacity']): ?>
-                                            <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                        <?php if($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY): ?>
+                                            <?php if($tekijuku_user_flg): ?>
+                                                <?php if ($course['check_capacity']): ?>
+                                                    <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn_gray arrow">この日程は定員に達しました</button>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <?php if ($course['check_capacity']): ?>
+                                                    <button type="button" class="btn btn_gray arrow">この日程で申し込む</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn_gray arrow">この日程は定員に達しました</button>
+                                                <?php endif; ?>
+                                                <p class="detail_txt" class="arrow">
+                                                ※適塾記念会会員のみ参加可能です。
+                                                </p>
+                                            <?php endif; ?>
                                         <?php else: ?>
-                                            <button type="button" class="btn btn_gray arrow">この日程は定員に達しました</button>
+                                            <?php if ($course['check_capacity']): ?>
+                                                <button type="button" onclick="checkUserEntryItem(<?= htmlspecialchars($event['id']) ?>, <?= htmlspecialchars($course['id']) ?>, <?= htmlspecialchars($course['check_entry']) ?>)" class="btn btn_red arrow">この日程で申し込む</button>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn_gray arrow">この日程は定員に達しました</button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
