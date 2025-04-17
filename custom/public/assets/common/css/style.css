@@ -194,6 +194,7 @@ select {
   height: 1709px;
   min-height: 860px;
   background: url(../../common/img/bg_heading.png) no-repeat center bottom / cover;
+  z-index: -1;
  
 }
 #heading {
