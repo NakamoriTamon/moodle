@@ -30,11 +30,13 @@ $now = $now->format('Ymd');
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv02.png" alt="画像2"></div>
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv03.png" alt="画像3"></div>
             <?php foreach($best_events as $best_event): ?>
-                <div class="swiper-slide">
-                    <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
-                        <img src="<?= htmlspecialchars($best_event['best_event_img']) ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
-                    </a>
-                </div>
+                <?php if(!empty($best_event['best_event_img'])): ?> 
+                    <div class="swiper-slide">
+                        <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
+                            <img src="<?= htmlspecialchars($best_event['best_event_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
+                        </a>
+                    </div>
+                <?php endif ?>
             <?php endforeach; ?>
             <div class="swiper-pagination"></div>
         </div>
@@ -47,11 +49,13 @@ $now = $now->format('Ymd');
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv02.png" alt="画像2"></div>
             <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv01.png" alt="画像3"></div>
             <?php foreach($best_events as $best_event): ?>
-                <div class="swiper-slide">
-                    <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
-                    <img src="<?= htmlspecialchars($best_event['best_event_img']) ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
-                    </a>
-                </div>
+                <?php if(!empty($best_event['best_event_sp_img'])): ?> 
+                    <div class="swiper-slide">
+                        <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
+                        <img src="<?= htmlspecialchars($best_event['best_event_sp_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
+                        </a>
+                    </div>
+                <?php endif ?>
             <?php endforeach; ?>
         </div>
         <div class="swiper-pagination"></div>

@@ -395,6 +395,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 										<?php if (isset($eventData['best_event_img']) && !empty($eventData['best_event_img'])): ?>
 											<div class="mb-3">
+												<input type="hidden" name="best_event_img_tag" value="1" >
 												<img class="fit-picture"
 													id="best_event_img_tag"
 													src="<?= htmlspecialchars($eventData['best_event_img']) ?>"
@@ -416,6 +417,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 										<?php if (isset($eventData['best_event_sp_img']) && !empty($eventData['best_event_sp_img'])): ?>
 											<div class="mb-3">
+											<input type="hidden" name="best_event_sp_img_tag" value="1" >
 												<img class="fit-picture"
 													id="best_event_sp_img_tag"
 													src="<?= htmlspecialchars($eventData['best_event_sp_img']) ?>"

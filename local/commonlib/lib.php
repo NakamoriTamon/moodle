@@ -257,7 +257,7 @@ function validate_image_file($val, $title, $required)
         return null;
     }
     // ファイルアップロードのチェック
-    if (!isset($val)) {
+    if (!isset($val) || empty($val['name'])) {
         return $title . 'は必須です。';
     }
     if ($val['error'] != UPLOAD_ERR_OK) {
