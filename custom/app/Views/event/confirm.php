@@ -192,7 +192,7 @@ if ($price > 0) {
                                 <p class="list_field"><?= $notification_kbn == 1 ? "希望する" : "希望しない"; ?></p>
                             </li>
                         <?php endif; ?>
-                        <li class="list_item09 long_item">
+                        <li class="list_item09 long_item req">
                             <p class="list_label">
                                 本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
                             </p>
@@ -220,22 +220,22 @@ if ($price > 0) {
                         </li>
                         <?php echo $passages ?>
                         <?php if ($age < TEENAGER_AGE): ?>
-                            <li>
+                            <li class="req">
                                 <p class="list_label">保護者名</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_name) ?></p>
                             </li>
-                            <li>
-                                <p class="list_label">保護者連絡先メールアドレス</p>
+                            <li class="req">
+                                <p class="list_label">保護者メールアドレス</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_email) ?></p>
                             </li>
-                            <li>
-                                <p class="list_label">保護者連絡先電話番号</p>
+                            <li class="req">
+                                <p class="list_label">保護者電話番号</p>
                                 <p class="list_field"><?= htmlspecialchars($guardian_phone) ?></p>
                             </li>
                         <?php endif ?>
                         <?php if ($age <= ADULT_AGE && $age >= TEENAGER_AGE): ?>
-                            <li>
-                                <div class="list_field list_col">
+                            <li class="req">
+                                <div class="list_field list_col applicant">
                                     <p class="f_check">
                                         <label>
                                             <input type="checkbox" checked disabled style="cursor: default">
