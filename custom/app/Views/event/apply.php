@@ -122,9 +122,11 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
-    if ($age <= ADULT_AGE) {
-        $guardian_name = $user->guardian_name ?? "";
+    if($age <= ADULT_AGE && $age >= TEENAGER_AGE) {
         $guardian_kbn = $user->guardian_kbn ?? "";
+    }
+    if ($age < TEENAGER_AGE) {
+        $guardian_name = $user->guardian_name ?? "";
         $guardian_email = $user->guardian_email ?? "";
         $guardian_phone = $user->guardian_phone ?? "";
     }
@@ -319,7 +321,7 @@ unset($_SESSION['old_input']);
                                     <?= htmlspecialchars($errors['trigger']); ?>
                                 <?php endif; ?>
                             </span>
-                            <li class="list_item09 long_item">
+                            <li class="list_item09 long_item req">
                                 <p class="list_label">
                                     本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
                                 </p>
@@ -406,30 +408,32 @@ unset($_SESSION['old_input']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if ($age <= ADULT_AGE): ?>
-                                <li>
+                            <?php if ($age <= ADULT_AGE && $age >= TEENAGER_AGE): ?>
+                                <!-- <li> -->
                                     <span class="error-msg" id="applicant_kbn-error">
                                         <?php if (!empty($errors['applicant_kbn'])): ?>
                                             <?= htmlspecialchars($errors['applicant_kbn']); ?>
                                         <?php endif; ?>
                                     </span>
-                                </li>
-                                <li class="long_item">
-                                    <div class="list_field list_col">
+                                <!-- </li> -->
+                                <li class="long_item req">
+                                    <div class="list_field list_col applicant">
                                         <p class="f_check">
                                             <label>
                                                 <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" class="checkbox_input" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>>
-                                                    <label class="checkbox_label">この申し込みは保護者の許可を得ています</label>
+                                                    <label for="applicant_kbn" class="checkbox_label">この申し込みは保護者の許可を得ています</label>
                                             </label>
                                         </p>
                                     </div>
                                 </li>
+                            <?php endif; ?>
+                            <?php if ($age < TEENAGER_AGE): ?>
                                 <span class="error-msg" id="guardian_name-error">
                                     <?php if (!empty($errors['guardian_name'])): ?>
                                         <?= htmlspecialchars($errors['guardian_name']); ?>
                                     <?php endif; ?>
                                 </span>
-                                <li class="long_item">
+                                <li class="long_item req">
                                     <p class="list_label">保護者名</p>
                                     <div class="list_field f_txt" id="guardian_name">
                                         <input type="text" style="margin-right: 2rem" name="guardian_name" value="<?= htmlspecialchars($guardian_name) ?>" ;>
@@ -440,8 +444,8 @@ unset($_SESSION['old_input']);
                                         <?= htmlspecialchars($errors['guardian_email']); ?>
                                     <?php endif; ?>
                                 </span>
-                                <li class="long_item">
-                                    <p class="list_label">保護者連絡先メールアドレス</p>
+                                <li class="long_item req">
+                                    <p class="list_label">保護者メールアドレス</p>
                                     <div class="list_field f_txt" id="guardian_email">
                                         <input type="email" style="margin-right: 2rem" name="guardian_email" value="<?= htmlspecialchars($guardian_email) ?>" ;>
                                     </div>
@@ -451,8 +455,8 @@ unset($_SESSION['old_input']);
                                         <?= htmlspecialchars($errors['guardian_phone']); ?>
                                     <?php endif; ?>
                                 </span>
-                                <li class="long_item">
-                                    <p class="list_label">保護者連絡先電話番号</p>
+                                <li class="long_item req">
+                                    <p class="list_label">保護者電話番号</p>
                                     <div class="list_field f_txt" id="guardian_phone">
                                         <input type="text" style="margin-right: 2rem" name="guardian_phone" value="<?= htmlspecialchars($guardian_phone) ?>" ;>
                                     </div>
