@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $password_error = validate_password($new_password);
 
-    if($password_error) {
+    if ($password_error) {
         $_SESSION['result_message'] = $password_error;
         header('Location: /custom/admin/app/Views/login/reset.php?token=' . $token);
         exit;

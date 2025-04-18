@@ -134,7 +134,7 @@ if ($name_error || $department_error || $email_error || $password_error) {
                         'ToAddresses' => $recipients,
                     ],
                     'ReplyToAddresses' => ['no-reply@example.com'],
-                    'Source' => "場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                    'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
                     'Message' => [
                         'Subject' => [
                             'Data' => $subject,
