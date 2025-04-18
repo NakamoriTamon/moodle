@@ -122,7 +122,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
-    if ($age <= ADULT_AGE) {
+    if ($age < CHILDREN_AGE) {
         $guardian_name = $user->guardian_name ?? "";
         $guardian_kbn = $user->guardian_kbn ?? "";
         $guardian_email = $user->guardian_email ?? "";
@@ -406,7 +406,7 @@ unset($_SESSION['old_input']);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                             <?php echo $responce['passage'] ?>
-                            <?php if ($age <= ADULT_AGE): ?>
+                            <?php if ($age >= CHILDREN_AGE && $age < ADULT_AGE): ?>
                                 <li>
                                     <span class="error-msg" id="applicant_kbn-error">
                                         <?php if (!empty($errors['applicant_kbn'])): ?>
@@ -424,6 +424,8 @@ unset($_SESSION['old_input']);
                                         </p>
                                     </div>
                                 </li>
+                            <?php endif; ?>
+                            <?php if ($age < CHILDREN_AGE): ?>
                                 <span class="error-msg" id="guardian_name-error">
                                     <?php if (!empty($errors['guardian_name'])): ?>
                                         <?= htmlspecialchars($errors['guardian_name']); ?>
