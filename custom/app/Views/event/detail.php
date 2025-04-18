@@ -386,7 +386,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     <div class="modal_main_item">
         <input type="hidden" class="modal_event_id">
         <input type="hidden" class="modal_course_info_id">
-        <h2>申し込みの確認</h2>
+        <h2>申し込み確認</h2>
         <p></p>
         <div class="modal-buttons">
             <button class="modal_yes_buttom">はい</button>
