@@ -1,7 +1,10 @@
 <?php
 require_once('/var/www/html/moodle/config.php');
+require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/UserModel.php');
 global $DB;
 
+$userModel = new UserModel();
 try {
     if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["users"])) {
         // roleid=9の現在の件数を取得
@@ -13,17 +16,16 @@ try {
             [9]
         );
 
-        // 変更後にroleid=9が0件になるか確認
         $new_admin_count = $admin_count;
         foreach ($_POST["users"] as $user) {
             $id = intval($user['id']);
             $role_id = intval($user['role_id']);
-
             if (!empty($id) && !empty($role_id)) {
-                // roleid=9を削除する場合、カウントを減らす
                 $current_role = $DB->get_field('role_assignments', 'roleid', ['userid' => $id]);
                 if ($current_role == 9 && $role_id != 9) {
                     $new_admin_count--;
+                } elseif ($currentRole != 9 && $role_id == 9) {
+                    $new_admin_count++;
                 }
             } else {
                 $_SESSION['message_error'] = '更新に失敗しました。';
