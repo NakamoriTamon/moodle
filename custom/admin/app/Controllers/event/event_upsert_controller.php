@@ -87,10 +87,23 @@ $is_top = !isset($_POST['is_top']) ? 0 : $_POST['is_top']; // トップに固定
 $is_best = !isset($_POST['is_best']) ? 0 : $_POST['is_best']; // 推しイベント設定
 if(!empty($is_best)) {
     $best_event_img = $_FILES['best_event_img'] ?? null; // 推しイベント画像　新規登録は必須
-    $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像', true); // バリデーションチェック
+    $tag = $_POST['best_event_img_tag'] ?? null;
+    $best_event_sp_img = $_FILES['best_event_sp_img'] ?? null; // 推しイベント画像　新規登録は必須
+    $sp_tag = $_POST['best_event_sp_img_tag'] ?? null;
+    if(empty($best_event_img['name']) && !empty($id) && !empty($tag)) {
+        $_SESSION['errors']['best_event_img'] = null;
+    } else {
+        $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像 パソコン表示用', true); // バリデーションチェック
+    }
+    if(empty($best_event_sp_img['name']) && !empty($id) && !empty($sp_tag)) {
+        $_SESSION['errors']['best_event_sp_img'] = null;
+    } else {
+        $_SESSION['errors']['best_event_sp_img'] = validate_image_file($best_event_sp_img, '推しイベント画像 スマホ表示用', true); // バリデーションチェック
+    }
 } else {
     $best_event_img = null;
     $_SESSION['errors']['best_event_img'] = null;
+    $_SESSION['errors']['best_event_sp_img'] = null;
 }
 $is_tekijuku_only = !isset($_POST['is_tekijuku_only']) ? 0 : $_POST['is_tekijuku_only']; // 適塾会員限定イベント
 $program = ""; // プログラム
@@ -543,6 +556,7 @@ if (
     || $_SESSION['errors']['inquiry_mail']
     || $_SESSION['errors']['thumbnail_img']
     || $_SESSION['errors']['best_event_img']
+    || $_SESSION['errors']['best_event_sp_img']
     || $error_flg
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
@@ -829,6 +843,7 @@ try {
             $uploadsDir = $moodleDir . '/uploads';
             $thumbnailsDir = $uploadsDir . '/best_event';
             $eventDir = $thumbnailsDir . '/' . $eventId;
+            $pcDir = $eventDir . '/pc';
 
             // 必要なディレクトリを順番に作成
             if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
@@ -861,27 +876,37 @@ try {
                 }
             }
 
+            if (!file_exists($pcDir) && !is_dir($pcDir)) {
+                $result = mkdir($pcDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用pcディレクトリの作成に失敗しました: $pcDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
             // 1. 保存先ディレクトリの全ファイルを取得
-            $allFiles = scandir($eventDir);
+            $allFiles = scandir($pcDir);
 
             // 保存先ファイルパスを生成
             $timestamp = date('YmdHis');
             $newFileName = "best_event_{$timestamp}.{$extension}";
-            $destination = $eventDir . '/' . $newFileName;
+            $destination = $pcDir . '/' . $newFileName;
 
             // ファイルを保存
             if (move_uploaded_file($tmpName, $destination)) {
 
                 // ファイルURLを取得
-                $relativePath = '/uploads/best_event/' . $eventId . '/' . $newFileName;
+                $relativePath = '/uploads/best_event/' . $eventId . '/pc/' . $newFileName;
                 $fileUrl = new moodle_url($relativePath);
 
                 foreach ($allFiles as $file) {
                     if ($file === '.' || $file === '..') {
                         continue; // カレントディレクトリと親ディレクトリをスキップ
                     }
-                    if ($eventDir . $file != $relativePath) {
-                        unlink($eventDir .  '/' . $file); // ファイルを削除
+                    if ($pcDir . $file != $relativePath) {
+                        unlink($pcDir .  '/' . $file); // ファイルを削除
                     }
                 }
 
@@ -896,6 +921,115 @@ try {
 
                 $stmt->execute([
                     ':best_event_img' => $fileUrl, // ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                header('Location: /custom/admin/app/Views/event/upsert.php');
+                return;
+            }
+        } else {
+            $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
+            $_SESSION['old_input'] = $_POST; // 入力内容も保持
+            header('Location: /custom/admin/app/Views/event/upsert.php');
+            return;
+        }
+    }
+    
+    if (!empty($eventId) && !empty($is_best) && !empty($best_event_sp_img['name'])) {
+        if ($best_event_sp_img && $best_event_sp_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $spTmpName = $best_event_sp_img['tmp_name']; // 一時ファイルパス
+            $spOriginalName = pathinfo($best_event_sp_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $spExtension = pathinfo($best_event_sp_img['name'], PATHINFO_EXTENSION);  // 拡張子
+
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/best_event';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+            $spDir = $eventDir . '/sp';
+
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'best_eventディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用ディレクトリの作成に失敗しました: $eventDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($spDir) && !is_dir($spDir)) {
+                $result = mkdir($spDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用spディレクトリの作成に失敗しました: $spDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($spDir);
+
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $spNewFileName = "best_event_sp_{$timestamp}.{$spExtension}";
+            $spDestination = $spDir . '/' . $spNewFileName;
+
+            // ファイルを保存
+            if (move_uploaded_file($spTmpName, $spDestination)) {
+
+                // ファイルURLを取得
+                $relativePath = '/uploads/best_event/' . $eventId . '/sp/' . $spNewFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                $spRelativePath = '/uploads/best_event/' . $eventId . '/sp/' . $spNewFileName;
+                $spFileUrl = new moodle_url($spRelativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($spDir . $file != $relativePath) {
+                        unlink($spDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        best_event_sp_img = :best_event_sp_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':best_event_sp_img' => $spFileUrl, // SP用ファイルURLを保存
                     ':id' => $eventId // イベントID
                 ]);
             } else {

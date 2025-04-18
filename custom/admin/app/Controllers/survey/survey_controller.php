@@ -58,7 +58,6 @@ class SurveyController
         $role = $this->roleAssignmentsModel->getShortname($userid);
         $shortname = $role['shortname'];
 
-        // イベント選択時かつ他の選択肢が選択された際に対象イベントが含まれていなければ消す
         $first_filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
@@ -69,6 +68,7 @@ class SurveyController
         $found = false;
         if (!empty($first_filters) && !empty($event_id)) {
             $first_event_list = $this->eventModel->getEvents($first_filters, 1, 100000);
+            $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
             foreach ($first_event_list as $first_event) {
                 if ($event_id == $first_event['id']) {
                     $found = true;
@@ -88,11 +88,12 @@ class SurveyController
             'shortname' => $shortname
         ]);
 
-        // $role = $DB->get_record('role_assignments', ['userid' => $userid]);
+        $role = $DB->get_record('role_assignments', ['userid' => $userid]);
 
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
 
         $is_display = false;
         $is_single = false;
@@ -100,18 +101,18 @@ class SurveyController
         $event_survey_customfield_category_id = null;
 
         // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        // if ($role->roleid == ROLE['COURSECREATOR']) {
-        //     foreach ($event_list  as $key => $event) {
-        //         if ($event['userid'] != $userid) {
-        //             unset($event_list[$key]);
-        //         }
-        //     }
-        //     foreach ($select_event_list as $select_key => $select_event) {
-        //         if ($select_event['userid'] != $userid) {
-        //             unset($select_event_list[$select_key]);
-        //         }
-        //     }
-        // }
+        if ($role->roleid == ROLE['COURSECREATOR']) {
+            foreach ($event_list  as $key => $event) {
+                if ($event['userid'] != $userid) {
+                    unset($event_list[$key]);
+                }
+            }
+            foreach ($select_event_list as $select_key => $select_event) {
+                if ($select_event['userid'] != $userid) {
+                    unset($select_event_list[$select_key]);
+                }
+            }
+        }
 
         // イベント情報を特定する
         if (!empty($event_id)) {
@@ -154,12 +155,12 @@ class SurveyController
         if (!empty($course_info_id) || !empty($event_id)) {
             $survey_list = $this->surveyApplicationModel->getSurveyApplications($course_info_id, $event_id, $current_page);
             $total_count = $this->surveyApplicationModel->getCountSurveyApplications($course_info_id, $event_id);
-            if(!empty($event_survey_customfield_category_id)) {
+            if (!empty($event_survey_customfield_category_id)) {
                 $survey_field_list = $this->eventSurveyCustomFieldModel->getEventSurveyCustomFieldById($event_survey_customfield_category_id);
-                foreach($survey_list as &$survey) {
+                foreach ($survey_list as &$survey) {
                     $list = $this->surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
                     $survey['customfiel'] = $list;
-                    
+
                     // アンケート時間集計
                     $start = strtotime($survey['event']["start_hour"]);
                     $end = strtotime($survey['event']["end_hour"]);
@@ -167,12 +168,12 @@ class SurveyController
                 }
             }
         }
-        
+
         // 講座回数でソートする
         usort($survey_list, function ($a, $b) {
             return $a['course_info']['no'] <=> $b['course_info']['no'];
         });
-
+        $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
 
         $data = [

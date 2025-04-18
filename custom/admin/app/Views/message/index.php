@@ -173,7 +173,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['payment_type']) ?></td>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['is_paid']) ?></td>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['payment_date'] ?? '') ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['application_date']) ?>/td>
+                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['application_date']) ?>
                                                         </tr>
                                                         <input type="hidden" name="mail_to_list[]" value="<?= $application['email'] ?>">
                                                     <?php endforeach; ?>

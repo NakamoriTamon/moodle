@@ -142,9 +142,9 @@ $course_id      = $result_list['course_info'] ?? [];
 															<input type="hidden" class="hiddenFileField" name="files[<?= (int)$material->id ?>]" value="">
 															<input type="file" class="form-control fileUpload" name="files[<?= (int)$material->id ?>]" multiple accept="application/pdf">
 															<td class="text-center ps-4 pe-4 text-nowrap">
-																<a type="button" class="trash ms-2 btn btn-sm delete-link">
+																<button type="button" class="trash ms-2 btn-icon delete-link">
 																	<i data-feather="trash"></i>
-																</a>
+																</button>
 															</td>
 														</div>
 														<div class="fileInfo mt-2 d-none"></div>
@@ -162,9 +162,9 @@ $course_id      = $result_list['course_info'] ?? [];
 														<input type="hidden" class="hiddenFileField" name="files[0]" value="">
 														<input type="file" class="form-control fileUpload" name="files[0]" multiple accept="application/pdf">
 														<td class="text-center ps-4 pe-4 text-nowrap">
-															<a type="button" class="trash ms-2 btn btn-sm delete-link">
+															<button type="button" class="trash ms-2 btn-icon delete-link">
 																<i data-feather="trash"></i>
-															</a>
+															</button>
 														</td>
 													</div>
 													<div class="fileInfo mt-2 d-none"></div>
@@ -192,7 +192,7 @@ $course_id      = $result_list['course_info'] ?? [];
 				<div class="add_field mb-3 d-flex align-items-center">
 					<input type="hidden" class="hiddenFileField" value="">
 					<input type="file" class="form-control fileUpload" multiple accept="application/pdf">
-					<button type="button" class="trash ms-2 btn btn-sm delete-link">
+					<button type="button" class="trash ms-2 btn-icon delete-link">
 						<i data-feather="trash"></i>
 					</button>
 				</div>
@@ -201,6 +201,23 @@ $course_id      = $result_list['course_info'] ?? [];
 			</div>
 		</div>
 	</template>
+
+	<style>
+		.btn-icon {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 0.25rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.btn-icon:focus {
+			outline: none;
+			box-shadow: none;
+		}
+	</style>
 
 	<script src="/custom/admin/public/js/app.js"></script>
 	<script>
@@ -233,8 +250,15 @@ $course_id      = $result_list['course_info'] ?? [];
 			$(document).on('change', '.fileUpload', function(e) {
 				var file = this.files[0];
 				if (!file) return;
+
 				let $fileError = $(this).closest('.uploadRow').find('.fileError');
 				$fileError.text('').removeClass('duplicate-error').addClass('d-none');
+				if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+					$fileError.text('PDFファイルのみアップロード可能です。').removeClass('d-none');
+					$(this).val('');
+					return;
+				}
+
 				var fileName = file.name;
 				var fileURL = URL.createObjectURL(file);
 				var linkElem = createFileLink(fileURL, fileName);
@@ -281,28 +305,36 @@ $course_id      = $result_list['course_info'] ?? [];
 				}
 			});
 
+
 			$('#upload_button').on('click', function(e) {
 				e.preventDefault();
-				let newFileNames = [];
 				let fileInfoObjects = [];
 				let filesToUpload = [];
-				let usedFileNamesThisTime = new Set(occupiedFileNames);
+				let currentFileNames = new Set();
+
 				$('.material-container').each(function() {
 					let $container = $(this);
 					let materialId = $container.data('material-id') || 0;
 					let uploadRows = $container.find('.fileUpload');
-					let hasNewFile = false;
+
 					uploadRows.each(function() {
 						let rowElm = $(this).closest('.uploadRow');
 						let files = this.files;
 						if (files && files.length > 0) {
-							hasNewFile = true;
 							for (let i = 0; i < files.length; i++) {
 								let f = files[i];
-								newFileNames.push(f.name);
+								if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+									rowElm.find('.fileError')
+										.removeClass('d-none')
+										.html('<div class="error-message text-danger">PDFファイルのみアップロード可能です。</div>');
+									return;
+								}
+
+								currentFileNames.add(f.name);
 								fileInfoObjects.push({
 									name: f.name,
-									row: rowElm
+									row: rowElm,
+									materialId: materialId
 								});
 								filesToUpload.push({
 									file: f,
@@ -311,38 +343,52 @@ $course_id      = $result_list['course_info'] ?? [];
 							}
 						}
 					});
-					if (hasNewFile && existingMaterialMap.hasOwnProperty(materialId)) {
-						const oldName = existingMaterialMap[materialId];
-						if (oldName && usedFileNamesThisTime.has(oldName)) {
-							let uploadingDifferentName = false;
-							uploadRows.each(function() {
-								const files = this.files;
-								for (let i = 0; i < files.length; i++) {
-									if (files[i].name !== oldName) {
-										uploadingDifferentName = true;
-										break;
-									}
-								}
+				});
+				$('.fileError').text('').addClass('d-none').removeClass('duplicate-error');
+
+				let duplicateErrors = [];
+				const fileNameCounts = new Map();
+				fileInfoObjects.forEach(info => {
+					if (!fileNameCounts.has(info.name)) {
+						fileNameCounts.set(info.name, []);
+					}
+					fileNameCounts.get(info.name).push(info);
+				});
+
+				fileNameCounts.forEach((infoArray, fileName) => {
+					if (infoArray.length > 1) {
+						infoArray.forEach(info => {
+							duplicateErrors.push({
+								fileInfo: info,
+								message: '複数の行で同じファイル名が選択されています: ' + fileName
 							});
-							if (uploadingDifferentName) {
-								usedFileNamesThisTime.delete(oldName);
-							}
-						}
+						});
 					}
 				});
-				let duplicates = findDuplicates(Array.from(usedFileNamesThisTime), newFileNames);
-				$('.fileError').text('').addClass('d-none');
-				if (duplicates.length > 0) {
-					fileInfoObjects.forEach(function(info) {
-						if (duplicates.includes(info.name)) {
-							info.row.find('.fileError')
-								.removeClass('d-none')
-								.addClass('duplicate-error')
-								.html('<div class="error-message text-danger">同じファイル名が存在します: ' + info.name + '</div>');
-						}
+
+				fileInfoObjects.forEach(info => {
+					const fileName = info.name;
+					const materialId = info.materialId;
+
+					if (occupiedFileNames.has(fileName) &&
+						(!existingMaterialMap[materialId] || existingMaterialMap[materialId] !== fileName)) {
+						duplicateErrors.push({
+							fileInfo: info,
+							message: '既存のファイルと同じ名前です: ' + fileName
+						});
+					}
+				});
+
+				if (duplicateErrors.length > 0) {
+					duplicateErrors.forEach(error => {
+						error.fileInfo.row.find('.fileError')
+							.removeClass('d-none')
+							.addClass('duplicate-error')
+							.html('<div class="error-message text-danger">' + error.message + '</div>');
 					});
 					return;
 				}
+
 				if (filesToUpload.length === 0) {
 					let form_data = new FormData($('#upsert_form')[0]);
 					$.ajax({
@@ -471,6 +517,7 @@ $course_id      = $result_list['course_info'] ?? [];
 						fd.append($(this).attr('name'), $(this).val());
 					});
 				}
+
 				let currentIndex = 0;
 
 				function uploadNextFile() {
@@ -522,37 +569,29 @@ $course_id      = $result_list['course_info'] ?? [];
 				window.open(`/custom/app/Views/event/pdf.php?file=${encodeURIComponent(pdfUrl)}`, "_blank");
 			});
 
-
 			$('#add-btn').on('click', function(e) {
 				e.preventDefault();
 				const template = document.getElementById('uploadRowTemplate');
 				if (!template) return;
-				let $materialContainer = $('.material-container').last();
-				if ($materialContainer.length === 0) {
-					$materialContainer = $('<div class="material-container mb-4" data-material-id="0"></div>');
-					const fieldsContainer = $('<div class="fields-container"></div>');
-					$materialContainer.append(fieldsContainer);
-					$('#add-btn').closest('.d-flex').before($materialContainer);
-				}
-				let $fieldsContainer = $materialContainer.find('.fields-container').first();
-				if (!$fieldsContainer.length) {
-					$fieldsContainer = $('<div class="fields-container"></div>');
-					$materialContainer.append($fieldsContainer);
-				}
-				let indices = [];
-				$fieldsContainer.find('.fileUpload').each(function() {
-					const nameAttr = $(this).attr('name');
-					const match = nameAttr.match(/^files\[(\d+)\]$/);
-					if (match) {
-						indices.push(parseInt(match[1], 10));
-					}
-				});
-				let index = (indices.length > 0) ? Math.max(...indices) + 1 : 0;
+
+				let newMaterialId = Date.now();
+				let $materialContainer = $('<div class="material-container mb-4" data-material-id="new_' + newMaterialId + '"></div>');
+
+				const fieldsContainer = $('<div class="fields-container"></div>');
+				$materialContainer.append(fieldsContainer);
+
+				$materialContainer.append('<input type="hidden" name="ids[new_' + newMaterialId + ']" value="0">');
+
 				const clone = document.importNode(template.content, true);
 				let $newRow = $(clone).find('.uploadRow');
-				$newRow.find('.fileUpload').attr('name', 'files[' + index + ']');
-				$newRow.find('.hiddenFileField').attr('name', 'files[' + index + ']');
-				$fieldsContainer.append($newRow);
+
+				$newRow.find('.fileUpload').attr('name', 'files[new_' + newMaterialId + ']');
+				$newRow.find('.hiddenFileField').attr('name', 'files[new_' + newMaterialId + ']');
+
+				fieldsContainer.append($newRow);
+
+				$('#add-btn').closest('.d-flex').before($materialContainer);
+
 				feather.replace();
 			});
 

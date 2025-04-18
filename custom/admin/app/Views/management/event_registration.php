@@ -143,7 +143,7 @@ $page = $result_list['page'];
                                                     <tr>
                                                         <th class="ps-4 pe-4">ID</th>
                                                         <th class="ps-4 pe-4">イベント名</th>
-                                                        <th class="ps-4 pe-4">講座回数</th>
+                                                        <?php if(!$result_list['is_single']): ?><th class="ps-4 pe-4">講座回数</th><?php endif; ?>
                                                         <th class="ps-4 pe-4">会員番号</th>
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
@@ -161,11 +161,11 @@ $page = $result_list['page'];
                                                         <tr>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['event_name']) ?></td>
-                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td>
+                                                            <?php if(!$result_list['is_single']): ?><td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td><?php endif; ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['user_id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
-                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['note']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_type']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap <?= $application['is_paid'] == '未決済' ? 'text-danger' : '' ?>">
@@ -175,7 +175,7 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['application_date']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap">
                                                                 <select name="participation_kbn[<?= htmlspecialchars($application['id']) ?>]" class="form-control min-100">
-                                                                    <option value=""></option>
+                                                                    <option value="">参加前</option>
                                                                     <?php foreach ($is_participation_list as $key => $is_participation) { ?>
                                                                         <option value=<?= $key ?>
                                                                             <?= $key == $application['participation_kbn'] ? 'selected' : '' ?>>

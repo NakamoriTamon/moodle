@@ -384,7 +384,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3" id="best_event_img_tag" <?php if(empty($eventData['is_best'] ?? null)): ?>style="display: none;"<?php endif; ?>>
 										<div class="form-label d-flex align-items-center">
-											<label class="me-2">推しイベント画像</label>
+											<label class="me-2">推しイベント画像 パソコン表示用</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
 										<div class="mb-3">
@@ -395,15 +395,37 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</div>
 										<?php if (isset($eventData['best_event_img']) && !empty($eventData['best_event_img'])): ?>
 											<div class="mb-3">
+												<input type="hidden" name="best_event_img_tag" value="1" >
 												<img class="fit-picture"
 													id="best_event_img_tag"
 													src="<?= htmlspecialchars($eventData['best_event_img']) ?>"
 													width="300" />
-												<button type="button" class="delete-best-img delete_btn btn btn-danger ms-auto me-0" data-id="<?= $id ?>">削除</button>
 											</div>
 										<?php endif; ?>
 										<?php if (!empty($errors['best_event_img'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['best_event_img']); ?></div>
+										<?php endif; ?>
+										<div class="form-label d-flex align-items-center">
+											<label class="me-2">推しイベント画像 スマホ表示用</label>
+											<span class="badge bg-danger">必須</span>
+										</div>
+										<div class="mb-3">
+											<input type="file" id="best_event_sp_img" name="best_event_sp_img" class="form-control" accept=".png,.jpeg,.jpg">
+										</div>
+										<div id="best-sp-image-preview" class="mb-3">
+											<!-- プレビュー画像がここに表示されます -->
+										</div>
+										<?php if (isset($eventData['best_event_sp_img']) && !empty($eventData['best_event_sp_img'])): ?>
+											<div class="mb-3">
+											<input type="hidden" name="best_event_sp_img_tag" value="1" >
+												<img class="fit-picture"
+													id="best_event_sp_img_tag"
+													src="<?= htmlspecialchars($eventData['best_event_sp_img']) ?>"
+													width="300" />
+											</div>
+										<?php endif; ?>
+										<?php if (!empty($errors['best_event_sp_img'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['best_event_sp_img']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -862,29 +884,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 						</div>
 					</div>
 				</div>
-				<!-- 削除モーダル -->
-				<div class="modal fade" id="delete_best_img_modal" tabindex="-1" aria-labelledby="deleteBestImgModalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-dialog-centered">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="deleteBestImgModalLabel">削除確認</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<form method="POST" action="/custom/admin/app/Controllers/event/best_img_delete_controller.php">
-								<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-								<input type="hidden" name="id" value="<?= htmlspecialchars($id ?? '', ENT_QUOTES, 'UTF-8') ?>">
-								<input type="hidden" name="best_event_img" value="<?= htmlspecialchars($eventData['best_event_img'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-								<div class="modal-body">
-									本当にこの推しイベント画像を削除しますか？現在編集中の内容は削除されます。
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-									<button type="submit" id="best_img_delete" class="btn btn-danger">削除</button>
-								</div>
-							</form>
-						</div>
-					</div>
-				</div>
 			</main>
 		</div>
 	</div>
@@ -1208,18 +1207,33 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			}
 		});
 
+		$('#best_event_sp_img').on('change', function(event) {
+			const file = event.target.files[0]; // 選択されたファイルを取得
+
+			// ファイルが画像であるか確認
+			if (file && file.type.match('image.*')) {
+				const reader = new FileReader(); // FileReader のインスタンスを作成
+
+				// ファイルの読み込みが完了したらプレビューを表示
+				reader.onload = function(e) {
+					$('#best-sp-image-preview').html(
+						`<img src="${e.target.result}" alt="プレビュー" class="preview">`
+					);
+				};
+
+				reader.readAsDataURL(file); // ファイルを読み込む
+			} else {
+				alert('画像ファイルを選択してください。');
+				$('#best-sp-image-preview').html(''); // プレビューをクリア
+			}
+		});
+
 		let selectedId;
 		// 削除リンクがクリックされたとき
 		$('.delete-link').on('click', function(event) {
 			event.preventDefault();
 			selectedId = $(this).data('id');
 			$('#delete_confirm_modal').modal('show');
-		});
-		// 削除リンクがクリックされたとき
-		$('.delete-best-img').on('click', function(event) {
-			event.preventDefault();
-			selectedId = $(this).data('id');
-			$('#delete_best_img_modal').modal('show');
 		});
 		// モーダル内の削除ボタンがクリックされたとき
 		$('#confirm_delete').on('click', function(e) {

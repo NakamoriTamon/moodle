@@ -23,53 +23,54 @@ $now = $now->format('Ymd');
     }
 </style>
 <main>
-    <!-- pc版mv -->
-    <section id="mv" class="mv-slider nosp">
-        <div class="swiper-wrapper mv_img">
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv.png" alt="画像1"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv02.png" alt="画像2"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_pc_mv03.png" alt="画像3"></div>
-            <?php foreach($best_events as $best_event): ?>
-                <div class="swiper-slide">
-                    <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
-                        <img src="<?= htmlspecialchars($best_event['best_event_img']) ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
-                    </a>
-                </div>
-            <?php endforeach; ?>
+    <?php if (!empty($best_events)) { ?>
+        <!-- pc版mv -->
+        <section id="mv" class="mv-slider nosp">
+            <div class="swiper-wrapper mv_img">
+                <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv.png" alt="画像1"></div>
+                <?php foreach ($best_events as $best_event): ?>
+                    <?php if (!empty($best_event['best_event_img'])): ?>
+                        <div class="swiper-slide">
+                            <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
+                                <img src="<?= htmlspecialchars($best_event['best_event_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
+                            </a>
+                        </div>
+                    <?php endif ?>
+                <?php endforeach; ?>
+                <div class="swiper-pagination"></div>
+            </div>
+            <p class="mv_scroll nosp">SCROLL</p>
+        </section>
+        <!-- sp版mv -->
+        <section id="mv" class="mv-slider nopc">
+            <div class="swiper-wrapper mv_img">
+                <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv-sp.png" alt="画像1"></div>
+                <?php foreach ($best_events as $best_event): ?>
+                    <?php if (!empty($best_event['best_event_sp_img'])): ?>
+                        <div class="swiper-slide">
+                            <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
+                                <img src="<?= htmlspecialchars($best_event['best_event_sp_img'] ?? '') ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
+                            </a>
+                        </div>
+                    <?php endif ?>
+                <?php endforeach; ?>
+            </div>
             <div class="swiper-pagination"></div>
-        </div>
-        <p class="mv_scroll nosp">SCROLL</p>
-    </section>
-    <!-- sp版mv -->
-    <section id="mv" class="mv-slider nopc">
-        <div class="swiper-wrapper mv_img">
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/mv-sp.png" alt="画像1"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv02.png" alt="画像2"></div>
-            <div class="swiper-slide"><img src="/custom/public/assets/img/home/dummy_sp_mv01.png" alt="画像3"></div>
-            <?php foreach($best_events as $best_event): ?>
-                <div class="swiper-slide">
-                    <a href="/custom/app/Views/event/detail.php?id=<?= htmlspecialchars($best_event['id']) ?>">
-                    <img src="<?= htmlspecialchars($best_event['best_event_img']) ?>" alt="推しイベント <?= htmlspecialchars($best_event['name']) ?>">
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="swiper-pagination"></div>
-    </section>
-
-    <!-- スライドショーではないmv -->
-    <!-- <section id="mv" class="mv-slider">
-        <img
-            src=" /custom/public/assets/img/home/mv.png"
-            alt="大阪大学 社会と未来、学びをつなぐ"
-            class="mv_img nosp" />
-        <img
-            src="/custom/public/assets/img/home/mv-sp.png"
-            alt="大阪大学 社会と未来、学びをつなぐ"
-            class="mv_img nopc" />
-        <p class="mv_scroll nosp">SCROLL</p>
-    </section> -->
-    <!-- mv -->
+        </section>
+    <?php } else { ?>
+        <!-- スライドショーではないmv -->
+        <section id="mv" class="mv-slider">
+            <img
+                src=" /custom/public/assets/img/home/mv.png"
+                alt="大阪大学 社会と未来、学びをつなぐ"
+                class="mv_img nosp" />
+            <img
+                src="/custom/public/assets/img/home/mv-sp.png"
+                alt="大阪大学 社会と未来、学びをつなぐ"
+                class="mv_img nopc" />
+            <p class="mv_scroll nosp">SCROLL</p>
+        </section>
+    <?php } ?>
 
     <section id="about">
         <div class="about_cont inner_l">
@@ -122,7 +123,7 @@ $now = $now->format('Ymd');
                                 <figure class="img"><img src=<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?> alt="<?= htmlspecialchars($row['name']); ?>" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">
-                                        <?php if(!$row['capacity_flg']): ?>
+                                        <?php if (!$row['capacity_flg']): ?>
                                             <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
                                         <?php else: ?>
                                             <?php foreach (DEADLINE_LIST as $key => $status): ?>

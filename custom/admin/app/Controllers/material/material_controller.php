@@ -81,8 +81,7 @@ class MaterialController
         // 講義動画を取得
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
-                // 単発イベントの場合
-                if ($event['event_kbn'] == 1) {
+                if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
                         $course_number = [1];
@@ -90,17 +89,17 @@ class MaterialController
                         $is_display = true;
                         $is_single = true;
                     }
-                }
-                // 複数回イベントの場合
-                if ($event['event_kbn'] == 2 && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                } else {
+                    if (!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
+                        $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
+                        $course_number = range(1, $course_count);
                     }
-                    $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
-                    $course_number = range(1, $course_count);
                 }
             }
         }

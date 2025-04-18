@@ -66,7 +66,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     ) - INTERVAL 5 DAY
                                 ) THEN 1 -- 受付中
@@ -76,7 +76,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     ) - INTERVAL 5 DAY
                                 ) 
@@ -85,7 +85,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     )
                                 ) THEN 2 -- もうすぐ締め切り
@@ -95,7 +95,7 @@ class EventModel extends BaseModel
                                         (SELECT cd.deadline_date FROM closest_dates cd 
                                         WHERE cd.event_id = e.id 
                                         AND cd.deadline_date >= :current_timestamp 
-                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        ORDER BY cd.time_diff DESC LIMIT 1),
                                         (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
                                     )
                                 ) THEN 3 -- 受付終了
@@ -713,96 +713,97 @@ class EventModel extends BaseModel
                 $now_time = time(); // 現在のタイムスタンプ（秒）
                 // ベースのSQLクエリ - COUNT追加
                 $sql = 'WITH closest_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                c.course_date,
+                                c.deadline_date,
+                                ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                            WHERE e.id = :id
+                            ORDER BY c.course_date DESC
+                            LIMIT 1
+                        ),
+                        event_dates AS (
+                            SELECT 
+                                e.id AS event_id,
+                                MIN(c.course_date) AS min_course_date,
+                                MAX(c.course_date) AS max_course_date
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                            GROUP BY e.id
+                        )
                         SELECT 
-                            e.id AS event_id,
-                            c.course_date,
-                            c.deadline_date,
-                            ABS(TIMESTAMPDIFF(SECOND, :now_time, c.course_date)) AS time_diff
+                            e.*,
+                            CASE
+                                WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
+                                WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
+                                AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
+                                WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
+                            END AS set_event_deadline_status,
+                            (SELECT cd.course_date 
+                            FROM closest_dates cd 
+                            WHERE cd.event_id = e.id 
+                            ORDER BY cd.time_diff ASC 
+                            LIMIT 1) AS closest_course_date,
+                            CASE
+                                WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
+                                WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
+                                WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
+                                ELSE 0
+                            END AS event_status,
+                            CASE
+                                WHEN :current_timestamp <= (
+                                    COALESCE(
+                                        (SELECT cd.deadline_date FROM closest_dates cd 
+                                        WHERE cd.event_id = e.id 
+                                        AND cd.deadline_date >= :current_timestamp 
+                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                    ) - INTERVAL 5 DAY
+                                ) THEN 1 -- 受付中
+
+                                WHEN :current_timestamp > (
+                                    COALESCE(
+                                        (SELECT cd.deadline_date FROM closest_dates cd 
+                                        WHERE cd.event_id = e.id 
+                                        AND cd.deadline_date >= :current_timestamp 
+                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                    ) - INTERVAL 5 DAY
+                                ) 
+                                AND :current_timestamp <= (
+                                    COALESCE(
+                                        (SELECT cd.deadline_date FROM closest_dates cd 
+                                        WHERE cd.event_id = e.id 
+                                        AND cd.deadline_date >= :current_timestamp 
+                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                    )
+                                ) THEN 2 -- もうすぐ締め切り
+
+                                WHEN :current_timestamp > (
+                                    COALESCE(
+                                        (SELECT cd.deadline_date FROM closest_dates cd 
+                                        WHERE cd.event_id = e.id 
+                                        AND cd.deadline_date >= :current_timestamp 
+                                        ORDER BY cd.time_diff ASC LIMIT 1),
+                                        (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
+                                    )
+                                ) THEN 3 -- 受付終了
+
+                                ELSE 0
+                            END AS deadline_status
                         FROM mdl_event e
-                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                    ),
-                    event_dates AS (
-                        SELECT 
-                            e.id AS event_id,
-                            MIN(c.course_date) AS min_course_date,
-                            MAX(c.course_date) AS max_course_date,
-                            COUNT(c.id) AS total_courses
-                        FROM mdl_event e
-                        LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
-                        LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
-                        GROUP BY e.id
-                    )
-                    SELECT 
-                        e.*,
-                        COALESCE(ed.total_courses, 0) AS total_courses,
-                        CASE
-                            WHEN :current_timestamp <= e.deadline - INTERVAL 5 DAY THEN 1 -- 受付中
-                            WHEN :current_timestamp > e.deadline - INTERVAL 5 DAY 
-                            AND :current_timestamp <= e.deadline THEN 2 -- もうすぐ締め切り
-                            WHEN :current_timestamp > e.deadline THEN 3 -- 受付終了
-                        END AS set_event_deadline_status,
-                        (SELECT cd.course_date 
-                        FROM closest_dates cd 
-                        WHERE cd.event_id = e.id 
-                        ORDER BY cd.time_diff ASC 
-                        LIMIT 1) AS closest_course_date,
-                        CASE
-                            WHEN DATE(:current_timestamp) < DATE(ed.min_course_date) THEN 1 -- 開催前
-                            WHEN DATE(:current_timestamp) >= DATE(ed.min_course_date) AND DATE(:current_timestamp) <= DATE(ed.max_course_date) THEN 2 -- 開催中
-                            WHEN DATE(:current_timestamp) > DATE(ed.max_course_date) THEN 3 -- 開催終了
-                        ELSE 0
-                        END AS event_status,
-                        CASE
-                            WHEN :current_timestamp <= (
-                                COALESCE(
-                                    (SELECT cd.deadline_date FROM closest_dates cd 
-                                    WHERE cd.event_id = e.id 
-                                    AND cd.deadline_date >= :current_timestamp 
-                                    ORDER BY cd.time_diff ASC LIMIT 1),
-                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
-                                ) - INTERVAL 5 DAY
-                            ) THEN 1 -- 受付中
-
-                            WHEN :current_timestamp > (
-                                COALESCE(
-                                    (SELECT cd.deadline_date FROM closest_dates cd 
-                                    WHERE cd.event_id = e.id 
-                                    AND cd.deadline_date >= :current_timestamp 
-                                    ORDER BY cd.time_diff ASC LIMIT 1),
-                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
-                                ) - INTERVAL 5 DAY
-                            ) 
-                            AND :current_timestamp <= (
-                                COALESCE(
-                                    (SELECT cd.deadline_date FROM closest_dates cd 
-                                    WHERE cd.event_id = e.id 
-                                    AND cd.deadline_date >= :current_timestamp 
-                                    ORDER BY cd.time_diff ASC LIMIT 1),
-                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
-                                )
-                            ) THEN 2 -- もうすぐ締め切り
-
-                            WHEN :current_timestamp > (
-                                COALESCE(
-                                    (SELECT cd.deadline_date FROM closest_dates cd 
-                                    WHERE cd.event_id = e.id 
-                                    AND cd.deadline_date >= :current_timestamp 
-                                    ORDER BY cd.time_diff ASC LIMIT 1),
-                                    (SELECT MAX(cd.deadline_date) FROM closest_dates cd WHERE cd.event_id = e.id)
-                                )
-                            ) THEN 3 -- 受付終了
-
-                            ELSE 0
-                        END AS deadline_status
-                    FROM mdl_event e
-                    LEFT JOIN event_dates ed ON e.id = ed.event_id
-                LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
-                LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
-                LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
-                WHERE e.visible = 1 AND e.id = :id
-                GROUP BY e.id
-                ORDER BY MIN(ci.course_date) ASC';
+                        LEFT JOIN event_dates ed ON e.id = ed.event_id
+                    LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
+                    LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
+                    LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
+                    WHERE e.visible = 1 AND e.id = :id
+                    GROUP BY e.id
+                    ORDER BY MIN(ci.course_date) ASC';
 
                 // パラメータ設定
                 $params = [
