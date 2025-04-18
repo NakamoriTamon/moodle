@@ -47,17 +47,18 @@ if ($token) {
                                                         <div class="text-danger mt-2"><?= htmlspecialchars($errors); ?></div>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">パスワード(確認)</label>
-                                                    <div class="input-container" style="position: relative;">
-                                                        <input class="form-control form-control-lg" type="password" id="password_confirm" name="password_confirm" onpaste="return false" autocomplete="off" />
-                                                        <i class="fa fa-eye-slash toggle-password" data-toggle="#password_confirm"
-                                                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
-                                                    </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">パスワード(確認)</label>
+                                                <div class="input-container" style="position: relative;">
+                                                    <input class="form-control form-control-lg" type="password" id="password_confirm" name="password_confirmation" onpaste="return false" autocomplete="off" />
+                                                    <i class="fa fa-eye-slash toggle-password" data-toggle="#password_confirm"
+                                                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                                                 </div>
-                                                <div class="d-grid gap-2 mt-3">
-                                                    <button type="submit" class="btn btn-lg btn-primary">パスワードリセット</button>
-                                                </div>
+                                            </div>
+                                            <div class="d-grid gap-2 mt-3">
+                                                <button type="submit" class="btn btn-lg btn-primary">パスワードリセット</button>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>

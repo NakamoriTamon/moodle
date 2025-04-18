@@ -61,17 +61,17 @@ if (!empty($event)) {
     $tutor_ids = [];
     $tutor_names = [];
     $all_capacity_flg = false;
-    if($event['event_kbn'] == EVERY_DAY_EVENT) {
+    if ($event['event_kbn'] == EVERY_DAY_EVENT) {
         $count = count($event['course_infos']) - 1;
         $select_cours = $event['course_infos'];
         $select_course = $select_cours[$count];
         $deadline_date = new DateTime($select_course['deadline_date']);
         // 現在時刻のUNIXタイムスタンプ
         $current_timestamp = new DateTime();
-        if($current_timestamp > $deadline_date) {
+        if ($current_timestamp > $deadline_date) {
             $select_course['close_date'] = 1;
         }
-            
+
         $event['select_course'][$select_course['no']] = $select_course;
 
         // foreach($event['course_infos'] as $key => $select_course) {
@@ -85,7 +85,7 @@ if (!empty($event)) {
         //             continue;
         //         }
         //     }
-                
+
         //     $event['select_course'][$select_course['no']] = $select_course;
         //     break;
         // }
@@ -93,17 +93,17 @@ if (!empty($event)) {
         // 申し込み確認用の変数定義
         $check_entry = 0;
 
-        foreach($event['course_infos'] as $select_course) {
-            if(!empty($select_course['id'])) {
-                if(isset($select_course['details'])) {
-                    foreach($select_course['details'] as $details) {
+        foreach ($event['course_infos'] as $select_course) {
+            if (!empty($select_course['id'])) {
+                if (isset($select_course['details'])) {
+                    foreach ($select_course['details'] as $details) {
                         $tutor_id = $details['tutor_id'];
                         $tutor_name = $details['tutor_name'];
                         if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                            if(!empty($tutor_id)) {
+                            if (!empty($tutor_id)) {
                                 $tutor_ids[] = $tutor_id;
                             } else {
-                                if(!empty($tutor_name)) {
+                                if (!empty($tutor_name)) {
                                     $tutor_names[] = $tutor_name;
                                 }
                             }
@@ -132,26 +132,27 @@ if (!empty($event)) {
         */
         $capacity_flg = false;
         $checkCapacityResult = $eventApplicationModel->getSumTicketCountByEventId($id, null, true);
-        if(!empty($checkCapacityResult)) {
+
+        if (!empty($checkCapacityResult) && $event['capacity'] != 0) {
             $ticket_data = $checkCapacityResult[0];
             $aki_ticket = $ticket_data['available_tickets'];
             $capacity_flg = $aki_ticket > 0 ? true : false;
-        }else{
+        } else {
             $capacity_flg = true;
         }
-        if(!$all_capacity_flg){
+        if (!$all_capacity_flg) {
             $all_capacity_flg = $capacity_flg;
         }
         $select_course['check_capacity'] = $capacity_flg;
         $event['select_course'][$select_course['no']] = $select_course;
     } else {
         $all_capacity_check = 0;
-        foreach($event['course_infos'] as $select_course) {
-            if(!empty($select_course['id'])) {
+        foreach ($event['course_infos'] as $select_course) {
+            if (!empty($select_course['id'])) {
                 $deadline_date = new DateTime($select_course['deadline_date']);
                 // 現在時刻のUNIXタイムスタンプ
                 $current_timestamp = new DateTime();
-                if($current_timestamp > $deadline_date) {
+                if ($current_timestamp > $deadline_date) {
                     $select_course['close_date'] = 1;
                 }
 
@@ -170,33 +171,33 @@ if (!empty($event)) {
                  * 
                 */
                 $capacity_flg = false;
-                if($event['capacity'] != 0){
+                if ($event['capacity'] != 0) {
                     $checkCapacityResult = $eventApplicationModel->getSumTicketCountByEventId($id, $select_course['id'], true);
-                    if(!empty($checkCapacityResult)) {
+                    if (!empty($checkCapacityResult)) {
                         $ticket_data = $checkCapacityResult[0];
                         $aki_ticket = $ticket_data['available_tickets'];
                         $capacity_flg = $aki_ticket > 0 ? true : false;
-                    }else{
+                    } else {
                         $capacity_flg = true;
                     }
-                }else{
+                } else {
                     $capacity_flg = true;
                 }
-                if(!$capacity_flg){
+                if (!$capacity_flg) {
                     $all_capacity_check++;
                 }
                 $select_course['check_capacity'] = $capacity_flg;
                 $event['select_course'][$select_course['no']] = $select_course;
-                
-                if(isset($select_course['details'])) {
-                    foreach($select_course['details'] as $details) {
+
+                if (isset($select_course['details'])) {
+                    foreach ($select_course['details'] as $details) {
                         $tutor_id = $details['tutor_id'];
                         $tutor_name = $details['tutor_name'];
                         if (count($tutor_ids) == 0 || (count($tutor_ids) > 0 && !in_array($tutor_id, $tutor_ids))) {
-                            if(!empty($tutor_id)) {
+                            if (!empty($tutor_id)) {
                                 $tutor_ids[] = $tutor_id;
                             } else {
-                                if(!empty($tutor_name)) {
+                                if (!empty($tutor_name)) {
                                     $tutor_names[] = $tutor_name;
                                 }
                             }
@@ -213,7 +214,7 @@ if (!empty($event)) {
     // 重複を削除
     $tutor_ids = array_unique($tutor_ids);
     $tutor_names = array_unique($tutor_names);
-    
+
     foreach ($tutor_ids as $tutor_id) {
         $select_tutor[] = $tutorModel->getTutorsById($tutor_id);
     }
