@@ -10,6 +10,7 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/PaymentTypeModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 
 // セッションをクリア
 unset($SESSION->formdata);
@@ -28,6 +29,8 @@ $courseInfoId = htmlspecialchars(optional_param('course_info_id', 0, PARAM_INT))
 $courseInfoId = $courseInfoId == 0 ? null : $courseInfoId;
 $participation_fee = 0;
 $eventModel = new eventModel();
+
+$eventApplicationModel = new EventApplicationModel();
 
 $event_kbn = htmlspecialchars(optional_param('event_kbn', '', PARAM_INT));
 if ($event_kbn == PLURAL_EVENT && !is_null($courseInfoId)) {
@@ -115,10 +118,26 @@ $email = htmlspecialchars(optional_param('email', '', PARAM_TEXT));
 $age = htmlspecialchars(optional_param('age', '', PARAM_INT));
 // 枚数
 $ticket = htmlspecialchars(optional_param('ticket', '', PARAM_TEXT));
-$ticket_error = validate_ticket($ticket); // バリデーションチェック
+$ticket_error;
+if(!empty($event) && $event['capacity'] > 0){
+    $aki_ticket = $event['capacity'];
+    $result_check_ticket = $eventApplicationModel->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true);
+    if(!empty($result_check_ticket)) {
+        $ticket_data = $result_check_ticket[0];
+        $aki_ticket = $ticket_data['available_tickets'];
+    }
+    $ticket_error = validate_ticket($ticket, $aki_ticket); // バリデーションチェック
+}else{
+    $ticket_error = validate_ticket($ticket); // バリデーションチェック
+}
+
 if ($ticket_error) {
     $_SESSION['errors']['ticket'] = $ticket_error;
-    header('Location: /custom/app/Views/event/apply.php?id=' . $eventId);
+    if(!is_null($courseInfoId)){
+        header('Location: /custom/app/Views/event/apply.php?id=' . $eventId . '&course_info_id=' . $courseInfoId);
+    }else{
+        header('Location: /custom/app/Views/event/apply.php?id=' . $eventId);
+    }
     exit;
 }
 
@@ -174,13 +193,16 @@ $guardian_phone = htmlspecialchars(optional_param('guardian_phone', '', PARAM_TE
 $guardian_phone = removeHyphens($guardian_phone);
 $notification_kbn = htmlspecialchars(optional_param('notification_kbn', 1, PARAM_INT), ENT_QUOTES, 'UTF-8');
 
-if (!empty($guardian_kbn) && ADULT_AGE >= $age) {
+if (ADULT_AGE >= $age && TEENAGER_AGE <= $age) {
     $_SESSION['errors']['applicant_kbn'] = validate_int($applicant_kbn, '保護者の許可', true);
+} else {
+    $_SESSION['errors']['applicant_kbn'] = null;
+}
+if (TEENAGER_AGE > $age) {
     $_SESSION['errors']['guardian_name'] = validate_text($guardian_name, '保護者名', 225, true);
     $_SESSION['errors']['guardian_email'] = validate_custom_email($guardian_email, '保護者の');
     $_SESSION['errors']['guardian_phone'] = validate_tel_number($guardian_phone);
 } else {
-    $_SESSION['errors']['applicant_kbn'] = null;
     $_SESSION['errors']['guardian_name'] = null;
     $_SESSION['errors']['guardian_email'] = null;
     $_SESSION['errors']['guardian_phone'] = null;
@@ -359,7 +381,8 @@ if (
         'hiddens' => $hiddens,
         'params' => $params,
         'tekijuku_discount' => $tekijuku_discount,
-        'event_date' => $event_date
+        'event_date' => $event_date,
+        'age' => $age
     ];
     redirect(new moodle_url('/custom/app/Views/event/confirm.php'));
     exit;

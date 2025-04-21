@@ -123,7 +123,20 @@ $email = htmlspecialchars(required_param('email', PARAM_TEXT), ENT_QUOTES, 'UTF-
 $age = htmlspecialchars(optional_param('age', '', PARAM_INT));
 // 枚数
 $ticket = htmlspecialchars(required_param('ticket', PARAM_INT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
+// $_SESSION['errors']['ticket'] = validate_int($ticket, '枚数', true); // バリデーションチェック
+if(!empty($event) && $event['capacity'] > 0){
+    $aki_ticket = $event['capacity'];
+    $eventApplicationModel_check_ticket = new EventApplicationModel();
+    $result_check_ticket = $eventApplicationModel_check_ticket->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true);
+    if(!empty($result_check_ticket)) {
+        $ticket_data = $result_check_ticket[0];
+        $aki_ticket = $ticket_data['available_tickets'];
+    }
+    $_SESSION['errors']['ticket'] = validate_ticket($ticket, $aki_ticket); // バリデーションチェック
+}else{
+    $_SESSION['errors']['ticket'] = validate_ticket($ticket); // バリデーションチェック
+}
+
 $price =  htmlspecialchars(required_param('price', PARAM_INT), ENT_QUOTES, 'UTF-8');
 if ($price != $ticket * $participation_fee - $tekijuku_discount) {
     $_SESSION['message_error'] = '支払い料金が変更されました。ご確認の上、再度お申し込みしてください。';

@@ -30,7 +30,7 @@ if (isset($_FILES['file'])) {
     $total_chunks = intval($_POST['total_chunks']);
     $tmpFilePath  = $_FILES['file']['tmp_name'];
 
-    $upload_dir = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/';
+    $upload_dir = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'];
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -76,6 +76,7 @@ if (isset($_FILES['file'])) {
     $updated_at = date('Y-m-d H:i:s');
     $_SESSION['old_input'] = $_POST;
     $errors = [];
+    $registered_ids = [];
 
     try {
         $transaction = $DB->start_delegated_transaction();
@@ -106,7 +107,7 @@ if (isset($_FILES['file'])) {
                         if ($record) {
                             $file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $record->file_name;
                             // ファイルがあれば削除（なくても削除処理は実施）
-                            if (file_exists($file_path)) {
+                            if (file_exists($file_path) && $finalFilePath != $file_path) {
                                 unlink($file_path);
                             }
                             $DB->delete_records('course_material', array('id' => $target_id));
@@ -117,12 +118,15 @@ if (isset($_FILES['file'])) {
                     $target_id = (int)$key;
                     if ($target_id > 0) {
                         $update_record = $DB->get_record('course_material', array('id' => $target_id));
-                        if ($update_record) {
+                        if ($update_record && $update_record->file_name != $file_name) {
                             $old_file_path = $CFG->dirroot . '/uploads/material/' . $_POST['course_info_id'] . '/' . $_POST['course_no'] . '/' . $update_record->file_name;
                             // ファイルが存在する場合は削除、存在しなければDBレコードも削除
                             if (file_exists($old_file_path)) {
                                 unlink($old_file_path);
-                                $DB->delete_records('course_material', array('id' => $target_id));
+                                $data = new stdClass();
+                                $data->id = $target_id;
+                                $data->file_name = $file_name;
+                                $DB->update_record('course_material', $data);
                             }
                         }
                     }
@@ -137,9 +141,12 @@ if (isset($_FILES['file'])) {
         if ($currentId > 0) {
             $currentRec = $DB->get_record('course_material', ['id' => $currentId]);
             if ($currentRec && $currentRec->file_name === $file_name) {
-                // 上書き
-                $currentRec->updated_at = $updated_at;
-                $DB->update_record('course_material', $currentRec);
+
+                $data = new stdClass();
+                $data->id = $target_id;
+                $data->file_name = $file_name;
+                $DB->update_record('course_material', $data);
+
                 $needInsert = false;
             }
         }

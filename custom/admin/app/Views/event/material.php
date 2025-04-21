@@ -91,6 +91,7 @@ $course_id      = $result_list['course_info'] ?? [];
 												<label class="form-label" for="course_no_select">回数</label>
 												<div class="d-flex align-items-center">
 													<select id="course_no_select" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+														<option value="">未選択</option>
 														<?php foreach ($course_number as $course_no) { ?>
 															<option value="<?= $course_no ?>"
 																<?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>

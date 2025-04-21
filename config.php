@@ -95,7 +95,7 @@ $guardian_kbn_default = 0;
 define('GUARDIAN_KBN_DEFAULT', $guardian_kbn_default);
 $free_event = 4;
 define('FREE_EVENT', $free_event);
-$payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込'];
+$payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込', 5 => '現金払い'];
 define('PAYMENT_SELECT_LIST', $payment_select_list);
 $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
@@ -264,6 +264,10 @@ define('WEEKDAYS', $weekdays);
 // 成人年齢
 $adult_age = 18;
 define('ADULT_AGE', $adult_age);
+
+// 子ども年齢
+$teenager_age = 13;
+define('TEENAGER_AGE', $teenager_age);
 
 // イベント参加状態
 $is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
