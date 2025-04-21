@@ -123,7 +123,7 @@ try {
 
         $csv_array = [
             $survey['created_at'],
-            $survey['course_info']['no'] ?? '',
+            '第' . $survey['course_info']['no'] . '回' ?? '',
             $survey['thoughts'] ?? '',
             $attend,
             $found_method,

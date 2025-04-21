@@ -5,6 +5,7 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TekijukuCommemorationModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationCourseInfoModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 
 class MessageSelectController
 {
@@ -13,6 +14,7 @@ class MessageSelectController
     private $categoryModel;
     private $TekijukuCommemorationModel;
     private $eventApplicationCourseInfo;
+    private $roleAssignmentsModel;
 
     public function __construct()
     {
@@ -21,6 +23,7 @@ class MessageSelectController
         $this->categoryModel = new CategoryModel();
         $this->TekijukuCommemorationModel = new TekijukuCommemorationModel();
         $this->eventApplicationCourseInfo = new EventApplicationCourseInfoModel();
+        $this->roleAssignmentsModel = new RoleAssignmentsModel();
     }
 
     public function index()
@@ -31,18 +34,21 @@ class MessageSelectController
 
         $data = [];
 
+        $kbn_id = $_POST['kbn_id'] ?? 0;
+        $page = $_POST['page'] ?? 1;
+
         // 対象区分によって検索処理を変更
-        switch ($_POST['kbn_id']) {
+        switch ($kbn_id) {
             case DM_SEND_KBN_EVENT:
-                $data = $this->getEvent($USER, $DB, $_GET['page']);
+                $data = $this->getEvent($USER, $DB, $page);
                 break;
             case DM_SEND_KBN_TEKIJUKU:
-                $data = $this->getTekijuku($USER, $DB, $_GET['page']);
+                $data = $this->getTekijuku($USER, $DB, $page);
                 // 顧客作成の処理
                 break;
             case DM_SEND_KBN_ALL:
                 // 顧客情報更新の処理
-                $data = $this->getUser($USER, $DB, $_GET['page']);
+                $data = $this->getUser($USER, $DB, $page);
                 break;
 
             default:
@@ -58,22 +64,20 @@ class MessageSelectController
 
         // 検索項目取得
         $keyword = $_POST['keyword'] ?? null;
-        $page = $_POST['page'] ?? null;
         $category_id = $_POST['category_id'] ?? null;
         $event_status_id = $_POST['event_status_id'] ?? null;
         $event_id = $_POST['event_id'] ?? null;
         $course_no = $_POST['course_no'] ?? null;
         $keyword = $_POST['keyword'] ?? null;
         $_SESSION['old_input'] = $_POST;
+        $header_list = [];
+        $course_list = [];
 
         // ページネーション
         $per_page = 15;
         $current_page = $get_page;
 
-        if (empty($current_page) && !empty($page)) {
-            $current_page  = $page;
-        }
-        if (empty($current_page) && empty($page)) {
+        if (empty($current_page)) {
             $current_page  = 1;
         }
 
@@ -96,37 +100,28 @@ class MessageSelectController
             }
         }
 
+        $role = $this->roleAssignmentsModel->getShortname($USER->id);
+        $shortname = $role['shortname'];
+
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
             'event_id' => $event_id,
-            'course_no' => $course_no
+            'course_no' => $course_no,
+            'userid' => $USER->id,
+            'shortname' => $shortname
         ]);
-
-        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
 
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([
+            'userid' => $USER->id,
+            'shortname' => $shortname], 1, 100000); // イベント名選択用
 
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
-
-        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid == ROLE['COURSECREATOR']) {
-            foreach ($event_list  as $key => $event) {
-                if ($event['userid'] != $USER->id) {
-                    unset($event_list[$key]);
-                }
-            }
-            foreach ($select_event_list as $select_key => $select_event) {
-                if ($select_event['userid'] != $USER->id) {
-                    unset($select_event_list[$select_key]);
-                }
-            }
-        }
 
         // イベント情報を特定する
         foreach ($event_list as $event) {
@@ -142,11 +137,14 @@ class MessageSelectController
                     }
                 }
                 // 複数回イベントの場合
-                if ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                if ($event['event_kbn'] == PLURAL_EVENT) {
+                    $course_list = $event['course_infos'];
+                    if(!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
                 }
@@ -249,6 +247,7 @@ class MessageSelectController
             'current_page' => $current_page,
             'page' => $current_page,
             'header_list' => $header_list,
+            'course_list' => $course_list,
         ];
 
         return $data;

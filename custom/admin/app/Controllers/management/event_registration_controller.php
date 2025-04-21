@@ -4,6 +4,7 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationCourseInfoModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 
 class EventRegistrationController
 {
@@ -11,12 +12,14 @@ class EventRegistrationController
     private $categoryModel;
     private $eventModel;
     private $eventApplicationCourseInfo;
+    private $roleAssignmentsModel;
 
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
         $this->eventModel = new EventModel();
         $this->eventApplicationCourseInfo = new EventApplicationCourseInfoModel();
+        $this->roleAssignmentsModel = new RoleAssignmentsModel();
     }
 
     public function index()
@@ -65,37 +68,28 @@ class EventRegistrationController
             }
         }
 
+        $role = $this->roleAssignmentsModel->getShortname($USER->id);
+        $shortname = $role['shortname'];
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
             'event_id' => $event_id,
-            'course_no' => $course_no
+            'course_no' => $course_no,
+            'userid' => $USER->id,
+            'shortname' => $shortname
         ]);
-
-        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
 
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([
+            'userid' => $USER->id,
+            'shortname' => $shortname], 1, 100000); // イベント名選択用
+        $course_list = [];
 
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
-
-        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid == ROLE['COURSECREATOR']) {
-            foreach ($event_list  as $key => $event) {
-                if ($event['userid'] != $USER->id) {
-                    unset($event_list[$key]);
-                }
-            }
-            foreach ($select_event_list as $select_key => $select_event) {
-                if ($select_event['userid'] != $USER->id) {
-                    unset($select_event_list[$select_key]);
-                }
-            }
-        }
 
         // イベント情報を特定する
         foreach ($event_list as $event) {
@@ -111,11 +105,14 @@ class EventRegistrationController
                     }
                 }
                 // 複数回イベントの場合
-                elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                elseif ($event['event_kbn'] == PLURAL_EVENT) {
+                    $course_list = $event['course_infos'];
+                    if(!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
                 } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
@@ -218,6 +215,7 @@ class EventRegistrationController
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
+            'course_list' => $course_list,
         ];
 
         return $data;

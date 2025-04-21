@@ -3,6 +3,7 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/MovieModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 global $DB;
 class MovieController
 {
@@ -10,12 +11,14 @@ class MovieController
     private $categoryModel;
     private $eventModel;
     private $movieModel;
+    private $roleAssignmentsModel;
 
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
         $this->eventModel = new EventModel();
         $this->movieModel = new MovieModel();
+        $this->roleAssignmentsModel = new RoleAssignmentsModel();
     }
 
     public function index()
@@ -50,39 +53,32 @@ class MovieController
             }
         }
 
+        $role = $this->roleAssignmentsModel->getShortname($USER->id);
+        $shortname = $role['shortname'];
+
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
             'event_id' => $event_id,
-            'course_no' => $course_no
+            'course_no' => $course_no,
+            'userid' => $USER->id,
+            'shortname' => $shortname
         ]);
 
-        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
 
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([
+            'userid' => $USER->id,
+            'shortname' => $shortname], 1, 100000); // イベント名選択用
 
         $movie = [];
         $is_display = false;
         $is_single = false;
         $is_double_speed = false;
         $course_info_id = null;
-
-        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid == ROLE['COURSECREATOR']) {
-            foreach ($event_list  as $key => $event) {
-                if ($event['userid'] != $USER->id) {
-                    unset($event_list[$key]);
-                }
-            }
-            foreach ($select_event_list as $select_key => $select_event) {
-                if ($select_event['userid'] != $USER->id) {
-                    unset($select_event_list[$select_key]);
-                }
-            }
-        }
+        $course_list = [];
 
         // 講義動画を取得
         foreach ($event_list as $event) {
@@ -99,11 +95,14 @@ class MovieController
                     }
                 }
                 // 複数回イベントの場合
-                if ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                if ($event['event_kbn'] == PLURAL_EVENT) {
+                    $course_list = $event['course_infos'];
+                    if(!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
                 }
@@ -123,6 +122,7 @@ class MovieController
             'is_double_speed' => $is_double_speed,
             'course_info_id' => $course_info_id,
             'course_no' => $course_no,
+            'course_list' => $course_list,
         ];
 
         return $data;
