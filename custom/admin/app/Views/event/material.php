@@ -93,9 +93,9 @@ $course_id      = $result_list['course_info'] ?? [];
 													<select id="course_no_select" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 														<option value="">未選択</option>
 														<?php foreach ($course_number as $course_no) { ?>
-															<option value="<?= $course_no ?>"
-																<?= isSelected($course_no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
-																<?= "第" . htmlspecialchars($course_no) . "回" ?>
+															<option value="<?= $course_no['no'] ?>"
+																<?= isSelected($course_no['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+																<?= "第" . htmlspecialchars($course_no['no']) . "回" ?>
 															</option>
 														<?php } ?>
 													</select>

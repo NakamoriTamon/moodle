@@ -18,6 +18,7 @@ $event_list = $result_list['event_list']  ?? [];
 $survey_list = $result_list['survey_list'];
 $survey_period = $result_list['survey_period'];
 $survey_field_list = $result_list['survey_field_list'] ?? [];
+$course_list = $result_list['course_list'] ?? [];
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -98,10 +99,10 @@ $page         = max(1, (int)$page);
 									<div class="d-flex align-items-center">
 										<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 											<option value="">未選択</option>
-											<?php for ($i = 1; $i < 10; $i++) { ?>
-												<option value=<?= $i ?>
-													<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
-													<?= "第" . $i . "回" ?>
+											<?php foreach ($course_list as $course) { ?>
+												<option value=<?= $course['no'] ?>
+													<?= isSelected($course['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+													<?= "第" . $course['no'] . "回" ?>
 												</option>
 											<?php } ?>
 										</select>
