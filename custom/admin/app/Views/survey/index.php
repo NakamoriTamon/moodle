@@ -104,7 +104,7 @@ $page         = max(1, (int)$page);
 													<?= isSelected($course['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 													<?= "第" . $course['no'] . "回" ?>
 												</option>
-											<?php endforeach; ?>
+											<?php } ?>
 										</select>
 									</div>
 								</div>
