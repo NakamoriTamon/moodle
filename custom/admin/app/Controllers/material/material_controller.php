@@ -78,7 +78,7 @@ class MaterialController
                 }
             }
         }
-        // 講義動画を取得
+
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
                 if ($event['event_kbn'] == SINGLE_EVENT) {
@@ -89,16 +89,22 @@ class MaterialController
                         $is_display = true;
                         $is_single = true;
                     }
-                } else {
-                    if (!empty($course_no)) {
-                        foreach ($event['course_infos'] as $course_info) {
-                            if ($course_info['no'] == $course_no) {
-                                $course_info_id = $course_info['id'];
-                                $is_display = true;
-                            }
+                } elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        if ($course_info['no'] == $course_no) {
+                            $course_info_id = $course_info['id'];
+                            $is_display = true;
                         }
-                        $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
-                        $course_number = range(1, $course_count);
+                    }
+                    $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
+                    $course_number = range(1, $course_count);
+                } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        $course_info_id = $course_info['id'];
+                        $course_number = "";
+                        $_SESSION['old_input']['course_no'] = "1";
+                        $is_single = true;
+                        $is_display = true;
                     }
                 }
             }
@@ -114,7 +120,7 @@ class MaterialController
             'event_list'     => $event_list,
             'course_info'    => $course_info_id ?? '',
             'material'       => $material,
-            'course_number'  => $course_number ?? [1],
+            'course_number'  => $course_number ?? null,
             'is_display'     => $is_display,
             'is_single'      => $is_single
         ];
