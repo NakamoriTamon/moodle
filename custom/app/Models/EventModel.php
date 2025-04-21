@@ -4,7 +4,7 @@ require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 class EventModel extends BaseModel
 {
     private $roleAssignmentsModel;
-    
+
 
     public function __construct()
     {
@@ -255,6 +255,10 @@ class EventModel extends BaseModel
                 if (!empty($filters['is_best'])) {
                     $where .= ' AND e.is_best = :is_best';
                     $params[':is_best'] = $filters['is_best'];
+                }
+                if (!empty($filters['course_no'])) {
+                    $where .= ' AND ci.no = :course_no';
+                    $params[':course_no'] = $filters['course_no'];
                 }
                 // キーワード　フリー入力
                 if (!empty($filters['keyword'])) {

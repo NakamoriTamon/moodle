@@ -46,15 +46,11 @@ class SurveyController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'] ?? 1;
-
-        if (empty($current_page) && !empty($page)) {
-            $current_page  = $page;
+        if (!empty($page) && is_numeric($page) && (int)$page > 0) {
+            $current_page = (int)$page;
+        } else {
+            $current_page = 1;
         }
-        if (empty($current_page) && empty($page)) {
-            $current_page  = 1;
-        }
-
         $role = $this->roleAssignmentsModel->getShortname($userid);
         $shortname = $role['shortname'];
 
@@ -127,23 +123,24 @@ class SurveyController
                         $is_single = true;
                         $is_display = true;
                     }
-                }
-                // 複数回イベントの場合
-                if ($event['event_kbn'] == 2 && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                } elseif ($event['event_kbn'] == PLURAL_EVENT) {
+                    if (!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
-                }
-                // 毎日開催イベントの場合
-                if ($event['event_kbn'] == 3) {
-                    $course_info_id = null;
-                    $course_no = "";
-                    $_SESSION['old_input']['course_no'] = "";
-                    $is_single = true;
-                    $is_display = true;
+                    $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
+                    $course_no = range(1, $course_count);
+                } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        $course_info_id = "";
+                        $_SESSION['old_input']['course_no'] = "1";
+                        $is_single = true;
+                        $is_display = true;
+                    }
                 }
             }
         }

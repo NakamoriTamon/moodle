@@ -56,7 +56,7 @@ $page         = max(1, (int)$page);
 				<div class="card">
 					<div class="card-body p-055 p-025">
 						<form id="form" method="POST" action="/custom/admin/app/Views/survey/index.php" class="w-100">
-							<input type="hidden" name="page" value="<?= $page ?>">
+							<input type="hidden" name="page" value="<?= $current_page ?>">
 							<div class="d-flex sp-block justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">カテゴリー</label>
@@ -98,12 +98,22 @@ $page         = max(1, (int)$page);
 									<div class="d-flex align-items-center">
 										<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 											<option value="">未選択</option>
-											<?php for ($i = 1; $i < 10; $i++) { ?>
-												<option value=<?= $i ?>
-													<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
-													<?= "第" . $i . "回" ?>
+											<?php
+											if (
+												! $result_list['is_single']
+												&& ! empty($result_list['course_no'])
+												&& is_array($result_list['course_no'])
+											) {
+												$numbers = $result_list['course_no'];
+											} else {
+												$numbers = range(1, 10);
+											}
+											foreach ($numbers as $no): ?>
+												<option value="<?= htmlspecialchars($no, ENT_QUOTES, 'UTF-8') ?>"
+													<?= isSelected($no, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+													第<?= htmlspecialchars($no, ENT_QUOTES, 'UTF-8') ?>回
 												</option>
-											<?php } ?>
+											<?php endforeach; ?>
 										</select>
 									</div>
 								</div>
@@ -286,7 +296,8 @@ $page         = max(1, (int)$page);
 
 			// 検索
 			$('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
-				$("#form").submit();
+				$('input[name="page"]').val(1);
+				$('#form').submit();
 			});
 			$('#search-button').on('click', function(event) {
 				$('input[name="page"]').val(1);
