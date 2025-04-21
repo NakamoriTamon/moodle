@@ -174,7 +174,7 @@ class EventApplicationController
             }
         }
 
-        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket];
+        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket, 'default_max_ticket' => DEFAULT_MAX_TICKET];
     }
 
     public function getEvenApplicationById($eventId)
