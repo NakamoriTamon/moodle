@@ -29,6 +29,11 @@ class MembershipFeeRegistrationController
             $keyword = $old_input['select_keyword'];
             $_SESSION['old_input']['keyword'] = $keyword;
         }
+        $payment_status = $_POST['payment_status'] ?? null;
+        if(is_null($keyword) && isset($old_input['select_payment_status'])) {
+            $payment_status = $old_input['select_payment_status'];
+            $_SESSION['old_input']['payment_status'] = $payment_status;
+        }
         $page = $_POST['page'] ?? 1;
         $email_send_setting = [];
 
@@ -57,11 +62,14 @@ class MembershipFeeRegistrationController
         }
 
         $filters = [];
+        // 年度末までにアカウントが作成されたか確認
+        $filters['year'] = $year;
         if (!empty($keyword)) {
             $filters['keyword'] = $keyword;
         }
-        // 年度末までにアカウントが作成されたか確認
-        $filters['deadline_date'] = $year + 1 . '-04-01 00:00:00';
+        if (!empty($payment_status)) {
+            $filters['payment_status'] = $payment_status;
+        }
 
         $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
         $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
@@ -72,28 +80,6 @@ class MembershipFeeRegistrationController
         }
         $filters['year'] = $year;
         $email_send_setting = $this->EmailSendSettingModel->getEmailSendSetting($filters);
-
-        // 決済状況を組み込む
-        foreach ($tekijuku_commemoration_list as $key => $tekijuku_commemoration) {
-            $target = 'is_deposit_' . $year;
-            if (!empty($tekijuku_commemoration[$target]) && $tekijuku_commemoration[$target] == 1) {
-                $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
-                $tekijuku_commemoration_list[$key]['paid_date'] = $year . '-04-01 00:00:00';
-            }
-            if ($tekijuku_commemoration[$target] != 1 && !empty($tekijuku_commemoration['paid_date'])) {
-                $start_date = new DateTime($year . '-04-01 00:00:00');
-                $end_date = new DateTime($year + 1 . '-04-01 00:00:00');
-                $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
-                if ($start_date <= $paid_date && $paid_date < $end_date) {
-                    $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
-                } else {
-                    $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
-                }
-            }
-            if (empty($tekijuku_commemoration_list[$key]['display_depo'])) {
-                $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
-            }
-        }
 
         $data = [
             'tekijuku_commemoration_list' => $tekijuku_commemoration_list,

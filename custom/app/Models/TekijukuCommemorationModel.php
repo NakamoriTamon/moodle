@@ -10,22 +10,49 @@ class TekijukuCommemorationModel extends BaseModel
             try {
                 // ベースのSQLクエリ
 
-                $sql = "SELECT * FROM mdl_tekijuku_commemoration as t";
+                $sql = "SELECT
+                            c.*,
+                            CASE
+                                WHEN h.id IS NULL THEN '未決済'
+                                ELSE '決済済'
+                            END AS payment_status,
+                            h.paid_date as paid_date_history
+                            FROM
+                            mdl_tekijuku_commemoration c
+                            LEFT JOIN (
+                            SELECT *
+                            FROM mdl_tekijuku_commemoration_history
+                            WHERE paid_date BETWEEN :start_paid_date AND :end_paid_date
+                            ) h ON c.id = h.fk_tekijuku_commemoration_id
+                            WHERE
+                            (
+                                -- 退会会員でも指定年度までに支払いがあれば表示
+                                c.is_delete = 0
+                                OR EXISTS (
+                                SELECT 1
+                                FROM mdl_tekijuku_commemoration_history h2
+                                WHERE h2.fk_tekijuku_commemoration_id = c.id
+                                    AND h2.paid_date BETWEEN :start_paid_date AND :end_paid_date
+                                )
+                            )";
                 $stmt = $this->pdo->prepare($sql);
 
-                $where = " WHERE t.is_delete = 0";
-
-                // 動的に検索条件を追加
+                $range = $this->get_fiscal_year_range($filters['year']);
+                // 年度の範囲必須
                 $params = [];
+                $params[':start_paid_date'] = $range['start'];
+                $params[':end_paid_date'] = $range['end'];
+                $where = "";
                 if (!empty($filters['keyword'])) {
-                    $searchTerm = "%" . $filters['keyword'] . "%";
-                    $where .= " AND t.name LIKE :keyword";
-                    $params[':keyword'] = $searchTerm;
+                    $where .= " AND (:keyword IS NULL OR c.name LIKE CONCAT('%', :keyword, '%'))";
+                    $params[':keyword'] = $filters['keyword'];
                 }
-                if (!empty($filters['deadline_date'])) {
-                    $searchTerm = $filters['deadline_date'];
-                    $where .= " AND t.created_at < :deadline_date";
-                    $params[':deadline_date'] = $searchTerm;
+                if (!empty($filters['payment_status'])) {
+                    $where .= " AND (:payment_status IS NULL
+                                OR (:payment_status = '決済済' AND h.id IS NOT NULL)
+                                OR (:payment_status = '未決済' AND h.id IS NULL)
+                        )";
+                    $params[':payment_status'] = $filters['payment_status'];
                 }
 
                 // ページネーション用のオフセットを計算
@@ -187,5 +214,23 @@ class TekijukuCommemorationModel extends BaseModel
         }
 
         return [];
+    }
+
+    private function get_fiscal_year_range(int $fiscalYear): array {
+        // 定義されている起算日（月日）
+        $startMonthDay = MEMBERSHIP_START_DATE; // 例: '04-01'
+    
+        // 開始日：たとえば2025-04-01
+        $startDate = "{$fiscalYear}-{$startMonthDay}";
+    
+        // 終了日：開始日の1年後の前日
+        $startDateTime = new DateTime($startDate);
+        $endDateTime = clone $startDateTime;
+        $endDateTime->modify('+1 year')->modify('-1 day');
+    
+        return [
+            'start' => $startDateTime->format('Y-m-d 00:00:00'),
+            'end'   => $endDateTime->format('Y-m-d 23:59:59'),
+        ];
     }
 }

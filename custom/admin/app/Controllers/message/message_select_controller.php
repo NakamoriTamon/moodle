@@ -292,11 +292,11 @@ class MessageSelectController
         }
 
         $filters = [];
+        $filters['year'] = $year;
+        $filters['payment_status'] = '決済済';
         if (!empty($keyword)) {
             $filters['keyword'] = $keyword;
         }
-        // 年度末までにアカウントが作成されたか確認
-        $filters['deadline_date'] = $year + 1 . '-04-01 00:00:00';
 
         $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
         $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
