@@ -18,9 +18,13 @@ try {
     if (!empty($keyword)) {
         $filters['keyword'] = $keyword;
     }
+    if (!empty($payment_status)) {
+        $filters['payment_status'] = $payment_status;
+    }
+
     if (!empty($year)) {
         // 年度末までにアカウントが作成されたか確認
-        $filters['deadline_date'] = $year + 1 . '-04-01 00:00:00';
+        $filters['year'] = $year;
     } else {
         $_SESSION['message_error'] = '年度を選択してください';
         redirect('/custom/admin/app/Views/management/membership_fee_registration.php');
@@ -30,28 +34,6 @@ try {
     // データの取得
     $tekijuku_commemoration_list = $TekijukuCommemorationModel->getTekijukuUser($filters, 1, 10000);
     $total_count = $TekijukuCommemorationModel->getTekijukuUserCount($filters);
-
-    // 決済状況を組み込む
-    foreach ($tekijuku_commemoration_list as $key => $tekijuku_commemoration) {
-        $target = 'is_deposit_' . $year;
-        if (!empty($tekijuku_commemoration[$target]) && $tekijuku_commemoration[$target] == 1) {
-            $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
-            $tekijuku_commemoration_list[$key]['paid_date'] = $year . '-04-01 00:00:00';
-        }
-        if ($tekijuku_commemoration[$target] != 1 && !empty($tekijuku_commemoration['paid_date'])) {
-            $start_date = new DateTime($year . '-04-01 00:00:00');
-            $end_date = new DateTime($year + 1 . '-04-01 00:00:00');
-            $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
-            if ($start_date <= $paid_date && $paid_date < $end_date) {
-                $tekijuku_commemoration_list[$key]['display_depo'] = '決済済';
-            } else {
-                $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
-            }
-        }
-        if (empty($tekijuku_commemoration_list[$key]['display_depo'])) {
-            $tekijuku_commemoration_list[$key]['display_depo'] = '未決済';
-        }
-    }
 
     // CSVヘッダー
     $csv_list[0] = [
@@ -78,9 +60,9 @@ try {
         $number = str_pad($result['number'], 8, '0', STR_PAD_LEFT);
         $menu = $result['type_code'] === 1 ? '普通会員' : '賛助会員';
         $created_date = new DateTime($result['created_at']);
-        $paid_date = null;
-        if (!empty($result['paid_date'])) {
-            $paid_date = new DateTime($result['paid_date']);
+        $paid_date = '';
+        if (!empty($result['paid_date_history'])) {
+            $paid_date = new DateTime($result['paid_date_history']);
             $paid_date = $paid_date->format("Y年n月j日");
         }
 
@@ -95,11 +77,11 @@ try {
             $result['department'],
             $result['major'],
             $result['official'],
-            $result['display_depo'],
+            $result['payment_status'],
             $payment_select_list[$result['payment_method']] ?? '',
             $paid_date,
             $created_date->format("Y年n月j日"),
-            $result['old_number']
+            $result['old_number'] ?? ''
         ];
         $csv_list[$count] = $csv_array;
         $count++;

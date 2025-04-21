@@ -67,11 +67,18 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                     </div>
                                 </div>
                                 <div class="d-flex sp-block justify-content-between">
-                                    <div class="mb-4 sp-ms-0 w-100">
+                                    <div class="mb-3 w-100">
+                                        <label class="form-label" for="notyf-message">決済状態</label>
+                                        <select name="payment_status" class="form-control">
+                                            <option value=>未選択</option>
+                                            <option value='決済済' <?php if (isset($old_input['payment_status']) && $old_input['payment_status'] == '決済済') { ?>selected<?php } ?>>決済済</option>
+                                            <option value='未決済' <?php if (isset($old_input['payment_status']) && $old_input['payment_status'] == '未決済') { ?>selected<?php } ?>>未決済</option>
+                                        </select>
+                                    </div>
+                                    <div class="ms-3 sp-ms-0 mb-3 w-100">
                                         <label class="form-label" for="notyf-message">フリーワード</label>
                                         <input id="notyf-message" name="keyword" type="text" class="form-control" placeholder="田中 翔太" value="<?= isset($old_input['keyword']) ? $old_input['keyword'] : '' ?>">
                                     </div>
-                                    <div class="w-100"></div>
                                 </div>
                                 <!-- <hr> -->
                                 <div class="d-flex w-100">
@@ -124,15 +131,15 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     $number = str_pad($result['number'], 8, '0', STR_PAD_LEFT);
                                                     $menu = $result['type_code'] === 1 ? '普通会員' : '賛助会員';
                                                     $created_date = new DateTime($result['created_at']);
-                                                    $paid_date = null;
+                                                    $paid_date = '';
 
                                                     if(empty($subject_ids)) {
                                                         $subject_ids = $result['id'];
                                                     } else {
                                                         $subject_ids .= "," . $result['id'];
                                                     }
-                                                    if (!empty($result['paid_date'])) {
-                                                        $paid_date = new DateTime($result['paid_date']);
+                                                    if (!empty($result['paid_date_history'])) {
+                                                        $paid_date = new DateTime($result['paid_date_history']);
                                                         $paid_date = $paid_date->format("Y年n月j日");
                                                     }
                                                     ?>
@@ -146,13 +153,13 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['department']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['major']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['official']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap <?php if ($result['display_depo'] == '未決済') { ?>text-danger<?php } ?>">
-                                                        <?= htmlspecialchars($result['display_depo']) ?>
+                                                    <td class="ps-4 pe-4 text-nowrap <?php if ($result['payment_status'] == '未決済') { ?>text-danger<?php } ?>">
+                                                        <?= htmlspecialchars($result['payment_status']) ?>
                                                     </td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($payment_select_list[$result['payment_method']]) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($paid_date) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['old_number']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['old_number'] ?? '') ?></td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
@@ -206,6 +213,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                             <input type="hidden" name="select_category_id" value="<?= isset($old_input['category_id']) ? $old_input['category_id'] : '' ?>" >
                             <input type="hidden" name="select_year" value="<?= isset($old_input['year']) ? $old_input['year'] : '' ?>" >
                             <input type="hidden" name="select_keyword" value="<?= isset($old_input['keyword']) ? $old_input['keyword'] : '' ?>" >
+                            <input type="hidden" name="select_payment_status" value="<?= isset($old_input['payment_status']) ? $old_input['payment_status'] : '' ?>" >
                             <div class="card-body ml-025">
                                 <div class="mb-3">
                                     <label class="form-label">請求メール送信日時</label>

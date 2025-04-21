@@ -560,7 +560,7 @@ function validate_ticket($input, $limit_num = null)
     // if ($input > $limt_32bit) {
     //     return '枚数選択は21億を超えることはできません。';
     // }
-    if ($input > 50) {
+    if ($input > DEFAULT_MAX_TICKET) {
         return '枚数選択は50を超えることはできません。';
     }
 
