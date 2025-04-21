@@ -542,7 +542,7 @@ function validate_url($url, $title, $required)
 }
 
 // チケット枚数
-function validate_ticket($input)
+function validate_ticket($input, $limit_num = null)
 {
     if (empty($input)) {
         return '枚数選択は必須です。';
@@ -550,10 +550,19 @@ function validate_ticket($input)
     if (is_int($input)) {
         return '枚数選択は数字を入力してください。';
     }
-
-    $limt_32bit = 2147483647;
-    if ($input > $limt_32bit) {
-        return '枚数選択は21億を超えることはできません。';
+    if(!is_null($limit_num)){
+        if ($input > $limit_num) {
+            return '枚数選択は空き枠を超えることはできません。';
+        }
     }
+
+    // $limt_32bit = 2147483647;
+    // if ($input > $limt_32bit) {
+    //     return '枚数選択は21億を超えることはできません。';
+    // }
+    if ($input > 50) {
+        return '枚数選択は50を超えることはできません。';
+    }
+
     return null;
 }

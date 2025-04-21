@@ -191,6 +191,9 @@ class EventApplicationModel extends BaseModel
                     JOIN mdl_event_application_course_info eac ON ea.id = eac.event_application_id
                     WHERE ea.user_id = :userId
                     AND ea.event_id = :eventId
+                    AND (eac.participation_kbn IS NULL 
+                        OR eac.participation_kbn = 1
+                        OR eac.participation_kbn = 2)
                     AND eac.course_info_id = :course_info_id");
                 // パラメータ設定
                 $params = [
