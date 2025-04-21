@@ -887,8 +887,15 @@ unset(
                     $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' . $package_types : '無料';
                     // QR表示判定
                     $qr_class = '';
-                    if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
-                        $qr_class = 'js_pay';
+                    // if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
+                    //     $qr_class = 'js_pay';
+                    // }
+                    if ($application->lecture_format_id != ON_DEMAND) {
+                        if ($application->price == 0) {
+                            $qr_class = 'js_pay';
+                        }elseif (!empty($application->payment_date)) {
+                            $qr_class = 'js_pay';
+                        }
                     }
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
