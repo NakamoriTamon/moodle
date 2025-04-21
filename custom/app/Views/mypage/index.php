@@ -350,6 +350,7 @@ unset(
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">知の広場 会員情報</h3>
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
+                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id'] ?? 0) ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
                                 <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
@@ -647,19 +648,13 @@ unset(
                                         <li class="list_item03 req">
                                             <p class="list_label">お名前</p>
                                             <div class="list_field f_txt">
-                                                <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration['name']); ?>">
-                                                <?php if (!empty($errors['tekijuku_name'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_name']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ? $tekijuku_commemoration['name'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item04 req">
                                             <p class="list_label">フリガナ</p>
                                             <div class="list_field f_txt">
-                                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration['kana']) ?>">
-                                                <?php if (!empty($errors['kana'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['kana'] ? $tekijuku_commemoration['kana'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item05 req">
@@ -689,27 +684,13 @@ unset(
                                         <li class="list_item07 req">
                                             <p class="list_label">電話番号（ハイフンなし）</p>
                                             <div class="list_field f_txt">
-                                                <div class="phone-input">
-                                                    <input type="text" name="tell_number" maxlength="15"
-                                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
-                                                        pattern="[0-9]*" inputmode="numeric"
-                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                    <?php if (!empty($errors['tell_number'])): ?>
-                                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
-                                                    <?php endif; ?>
-                                                </div>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['tell_number'] ? $tekijuku_commemoration['tell_number'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item08 req">
                                             <p class="list_label">メールアドレス</p>
                                             <div class="list_field f_txt">
-                                                <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration['email']) ?>"
-                                                    inputmode="email"
-                                                    autocomplete="email"
-                                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
-                                                <?php if (!empty($errors['tekijuku_email'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_email']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['email'] ? $tekijuku_commemoration['email'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item11">
