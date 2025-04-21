@@ -66,9 +66,13 @@ try {
             $paid_date = $paid_date->format("Y年n月j日");
         }
 
+        $name = $result['name'];
+        if($result['is_delete']) {
+            $name .= '(退会済)';
+        }
         $csv_array = [
             substr_replace($number, ' ', 4, 0),
-            $result['name'],
+            $name,
             $result['email'],
             $result['post_code'],
             $result['address'],
