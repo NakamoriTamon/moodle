@@ -139,7 +139,7 @@ class EventApplicationController
                     $name .= '[]';
                     $passage .= '<p class="f_check"><label><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label></p>';
                 }
-                $passage .= '</div>';
+                $passage .= '</div></li>';
                 continue;
             }
             if ($fields['field_type'] == 4) {
@@ -157,24 +157,24 @@ class EventApplicationController
 
                     $passage .= '<label class="f_radio"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $option . '"' . $checked . '>' . $option . '</label>';
                 }
-                $passage .= '</div>';
+                $passage .= '</div></li>';
                 continue;
             }
             if ($fields['field_type'] == 2) {
                 $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
                 $value = is_null($params) ? "" : $params[$name];
-                $passage .= '<div class="list_field f_txtarea"><textarea name="' . $name . '" rows="4" cols="50">' . $value . '</textarea></div>';
+                $passage .= '<div class="list_field f_txtarea"><textarea name="' . $name . '" rows="4" cols="50">' . $value . '</textarea></div></li>';
                 continue;
             }
             if ($fields['field_type'] == 1 || $fields['field_type'] == 5) {
                 $name = $customfield_type_list[$fields['field_type']] . '_' . $fields['id'] . '_' . $fields['field_type'];
                 $value = is_null($params) ? "" : $params[$name];
-                $passage .= '<div class="list_field list_col"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $value . '"></div>';
+                $passage .= '<div class="list_field list_col"><input type="' . $customfield_type_list[$fields['field_type']] . '" name="' . $name . '" value="' . $value . '"></div></li>';
                 continue;
             }
         }
 
-        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket];
+        return ['passage' => $passage, 'event' => $event, 'cognitions' => $cognitions, 'paymentTypes' => $paymentTypes, 'aki_ticket' => $aki_ticket, 'default_max_ticket' => DEFAULT_MAX_TICKET];
     }
 
     public function getEvenApplicationById($eventId)

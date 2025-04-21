@@ -260,7 +260,7 @@ unset(
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-        <div id="displayContainer">
+        <div id="displayUserContainer">
             <div id="user_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">知の広場 会員情報</h3>
@@ -339,13 +339,13 @@ unset(
                         </div>
                     </div>
                     <div class="edit_btn">
-                        <a id="editButton" class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);">情報を変更する</a>
+                        <a id="editUserButton" class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);">情報を変更する</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="editContainer" style="display: none;">
+        <div id="editUserContainer" style="display: none;">
             <div id="user_form">
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">知の広場 会員情報</h3>
@@ -532,7 +532,7 @@ unset(
                         <div class="form_btn">
                             <input type="hidden" name="post_kbn" value="update_user">
                             <button id="user_form_button" type="button" class="btn btn_red box_bottom_btn submit_btn">変更を確定する</button>
-                            <button type="button" id="cancelButton" class="btn btn_red box_bottom_btn cancel_btn">キャンセル</button>
+                            <button type="button" id="cancelUserButton" class="btn btn_red box_bottom_btn cancel_btn">キャンセル</button>
                         </div>
                     </form>
                 </div>
@@ -545,148 +545,227 @@ unset(
             $tekijuku_commemoration !== false &&
             ((int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['COMPLETED'] || (int)$tekijuku_commemoration['paid_status'] === PAID_STATUS['SUBSCRIPTION_PROCESSING'] || $tekijuku_commemoration['is_deposit_' . $current_fiscal_year] == 1)
         ): ?>
-            <div id="tekijuku_form">
-                <div id="form" class="mypage_cont">
-                    <h3 class="mypage_head">適塾記念会 会員情報
-                        <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                            <div class="inactive-text">退会済み</div>
-                        <?php endif; ?>
-                    </h3>
-                    <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
-                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
+            <div id="displayTekijukuContainer">
+                <div id="tekijuku_form">
+                    <div id="form" class="mypage_cont">
+                        <h3 class="mypage_head">適塾記念会 会員情報</h3>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
-                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= htmlspecialchars($basic_error) ?></p><?php } ?>
-                                <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= htmlspecialchars($tekijuku_success) ?></p><?php } ?>
+                                <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
+                                <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= $tekijuku_success ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
                                         <p class="list_label">会員番号</p>
-                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : null); ?></div>
                                     </li>
-                                    <li class="list_item02 req">
+                                    <li class="list_item02">
                                         <p class="list_label">会員種別</p>
                                         <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration['type_code']) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></div>
                                     </li>
-                                    <li class="list_item03 req">
+                                    <li class="list_item03">
                                         <p class="list_label">お名前</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration['name']); ?>">
-                                            <?php if (!empty($errors['tekijuku_name'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_name']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ?? null); ?></div>
                                     </li>
-                                    <li class="list_item04 req">
+                                    <li class="list_item04">
                                         <p class="list_label">フリガナ</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration['kana']) ?>">
-                                            <?php if (!empty($errors['kana'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['kana'] ?? null); ?></div>
                                     </li>
-                                    <li class="list_item05 req">
+                                    <li class="list_item05 ">
                                         <p class="list_label">郵便番号（ハイフンなし）</p>
-                                        <div class="list_field f_txt a">
-                                            <div class="post_code">
-                                                <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
-                                                    value="<?= htmlspecialchars($old_input['post_code'] ?? $tekijuku_commemoration['post_code']) ?>"
-                                                    pattern="[0-9]*" inputmode="numeric"
-                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
-                                            </div>
-                                            <?php if (!empty($errors['post_code'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['post_code']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['post_code'] ?? null); ?></div>
                                     </li>
-                                    <li class="list_item06 req">
+                                    <li class="list_item06">
                                         <p class="list_label">住所</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? $tekijuku_commemoration['address']) ?>">
-                                            <?php if (!empty($errors['address'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['address']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['address'] ?? null); ?></div>
                                     </li>
-                                    <li class="list_item07 req">
+                                    <li class="list_item07">
                                         <p class="list_label">電話番号（ハイフンなし）</p>
-                                        <div class="list_field f_txt">
-                                            <div class="phone-input">
-                                                <input type="text" name="tell_number" maxlength="15"
-                                                    value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
-                                                    pattern="[0-9]*" inputmode="numeric"
-                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                <?php if (!empty($errors['tell_number'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
-                                                <?php endif; ?>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['tell_number'] ?? null); ?></div>
+                                    </li>
+                                    <li class="list_item08">
+                                        <p class="list_label">メールアドレス</p>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['email'] ?? null); ?></div>
+                                    </li>
+                                    <li class="list_item09">
+                                        <div class="area name">
+                                            <div class="checkbox_label">
+                                                <?php
+                                                $isPublished = ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1';
+                                                ?>
+                                                <input class="checkbox_input" type="checkbox"
+                                                    <?= $isPublished ? 'checked' : '' ?> disabled>
+                                                <p class="checkbox_label">大阪大学教職員・学生の方</p>
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="list_item08 req">
-                                        <p class="list_label">メールアドレス</p>
-                                        <div class="list_field f_txt">
-                                            <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration['email']) ?>"
-                                                inputmode="email"
-                                                autocomplete="email"
-                                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
-                                            <?php if (!empty($errors['tekijuku_email'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_email']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item11">
-                                        <div class="list_field">
-                                            <label class="checkbox_label">
-                                                <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
-                                                <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
-                                            </label>
-                                        </div>
-                                    </li>
-                                    <li class="list_item12 req" id="department_field">
-                                        <p class="list_label">所属部局（学部・研究科）</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="department" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration['department']); ?>">
-                                            <?php if (!empty($errors['department'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item13" id="major_field">
-                                        <p class="list_label">講座/部課/専攻名</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
-                                            <?php if (!empty($errors['major'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item14 req" id="official_field">
-                                        <p class="list_label">職名・学年</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
-                                            <?php if (!empty($errors['official'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </li>
-                                    <li class="list_item15">
+                                    <li class="list_item10">
                                         <div class="area name">
-                                            <label class="checkbox_label" for="">
-                                                <input type="hidden" name="is_published" value="0">
-                                                <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
-                                                <label class="checkbox_label">氏名掲載を許可します</label>
-                                            </label>
+                                            <div class="checkbox_label">
+                                                <?php
+                                                $isPublished = ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1';
+                                                ?>
+                                                <input class="checkbox_input" type="checkbox"
+                                                    <?= $isPublished ? 'checked' : '' ?> disabled>
+                                                <p class="checkbox_label">氏名掲載を許可します</p>
+                                            </div>
                                         </div>
                                     </li>
+
                                 </ul>
                             </div>
                         </div>
-                        <div class="form_btn">
-                            <input type="hidden" name="post_kbn" value="update_membership">
-                            <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="tekijuku_form_button">変更を確定する</a>
+                        <div class="edit_btn">
+                            <a id="editTekijukuButton" class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);">情報を変更する</a>
                         </div>
-                    </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="editTekijukuContainer" style="display: none;">
+                <div id="tekijuku_form">
+                    <div id="form" class="mypage_cont">
+                        <h3 class="mypage_head">適塾記念会 会員情報
+                            <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                                <div class="inactive-text">退会済み</div>
+                            <?php endif; ?>
+                        </h3>
+                        <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
+                            <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
+                            <div class="whitebox form_cont">
+                                <div class="inner_m">
+                                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= htmlspecialchars($basic_error) ?></p><?php } ?>
+                                    <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= htmlspecialchars($tekijuku_success) ?></p><?php } ?>
+                                    <ul class="list">
+                                        <li class="list_item01">
+                                            <p class="list_label">会員番号</p>
+                                            <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></div>
+                                        </li>
+                                        <li class="list_item02 req">
+                                            <p class="list_label">会員種別</p>
+                                            <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration['type_code']) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></div>
+                                        </li>
+                                        <li class="list_item03 req">
+                                            <p class="list_label">お名前</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration['name']); ?>">
+                                                <?php if (!empty($errors['tekijuku_name'])): ?>
+                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_name']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item04 req">
+                                            <p class="list_label">フリガナ</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration['kana']) ?>">
+                                                <?php if (!empty($errors['kana'])): ?>
+                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item05 req">
+                                            <p class="list_label">郵便番号（ハイフンなし）</p>
+                                            <div class="list_field f_txt a">
+                                                <div class="post_code">
+                                                    <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
+                                                        value="<?= htmlspecialchars($old_input['post_code'] ?? $tekijuku_commemoration['post_code']) ?>"
+                                                        pattern="[0-9]*" inputmode="numeric"
+                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                                    <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
+                                                </div>
+                                                <?php if (!empty($errors['post_code'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['post_code']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item06 req">
+                                            <p class="list_label">住所</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" id="address" name="address" value="<?= htmlspecialchars($old_input['address'] ?? $tekijuku_commemoration['address']) ?>">
+                                                <?php if (!empty($errors['address'])): ?>
+                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['address']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item07 req">
+                                            <p class="list_label">電話番号（ハイフンなし）</p>
+                                            <div class="list_field f_txt">
+                                                <div class="phone-input">
+                                                    <input type="text" name="tell_number" maxlength="15"
+                                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
+                                                        pattern="[0-9]*" inputmode="numeric"
+                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                                    <?php if (!empty($errors['tell_number'])): ?>
+                                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="list_item08 req">
+                                            <p class="list_label">メールアドレス</p>
+                                            <div class="list_field f_txt">
+                                                <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration['email']) ?>"
+                                                    inputmode="email"
+                                                    autocomplete="email"
+                                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
+                                                <?php if (!empty($errors['tekijuku_email'])): ?>
+                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_email']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item11">
+                                            <div class="list_field">
+                                                <label class="checkbox_label">
+                                                    <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
+                                                    <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                                </label>
+                                            </div>
+                                        </li>
+                                        <li class="list_item12 req" id="department_field">
+                                            <p class="list_label">所属部局（学部・研究科）</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="department" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration['department']); ?>">
+                                                <?php if (!empty($errors['department'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item13" id="major_field">
+                                            <p class="list_label">講座/部課/専攻名</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
+                                                <?php if (!empty($errors['major'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item14 req" id="official_field">
+                                            <p class="list_label">職名・学年</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
+                                                <?php if (!empty($errors['official'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </li>
+                                        <li class="list_item15">
+                                            <div class="area name">
+                                                <label class="checkbox_label" for="">
+                                                    <input type="hidden" name="is_published" value="0">
+                                                    <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
+                                                    <label class="checkbox_label">氏名掲載を許可します</label>
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="form_btn">
+                                <input type="hidden" name="post_kbn" value="update_membership">
+                                <a class="btn btn_red box_bottom_btn submit_btn" href="javascript:void(0);" id="tekijuku_form_button">変更を確定する</a>
+                                <button type="button" id="cancelTekijukuButton" class="btn btn_red box_bottom_btn cancel_btn">キャンセル</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         <?php endif; ?>
@@ -1471,26 +1550,50 @@ unset(
     });
 
     $(document).ready(function() {
-        // エラーが発生している場合、editContainer を優先表示する
-        if ($('#editContainer .text-danger').length > 0 || $('#editContainer .error-msg').length > 0) {
-            $('#displayContainer').hide();
-            $('#editContainer').show();
+        // エラーが発生している場合、editUserContainer を優先表示する
+        if ($('#editUserContainer .text-danger').length > 0 || $('#editUserContainer .error-msg').length > 0) {
+            $('#displayUserContainer').hide();
+            $('#editUserContainer').show();
         } else {
-            $('#displayContainer').show();
-            $('#editContainer').hide();
+            $('#displayUserContainer').show();
+            $('#editUserContainer').hide();
         }
 
         // テキスト表示から編集可能に
-        $('#editButton').click(function() {
-            $('#displayContainer').hide();
-            $('#editContainer').show();
+        $('#editUserButton').click(function() {
+            $('#displayUserContainer').hide();
+            $('#editUserContainer').show();
         });
 
         // キャンセルボタン
-        $('#cancelButton').click(function(e) {
+        $('#cancelUserButton').click(function(e) {
             e.preventDefault();
-            $('#editContainer').hide();
-            $('#displayContainer').show();
+            $('#editUserContainer').hide();
+            $('#displayUserContainer').show();
+        });
+    });
+
+    $(document).ready(function() {
+        // エラーが発生している場合、editTekijukuContainer を優先表示する
+        if ($('#editTekijukuContainer .text-danger').length > 0 || $('#editTekijukuContainer .error-msg').length > 0) {
+            $('#displayTekijukuContainer').hide();
+            $('#editTekijukuContainer').show();
+        } else {
+            $('#displayTekijukuContainer').show();
+            $('#editTekijukuContainer').hide();
+        }
+
+        // テキスト表示から編集可能に
+        $('#editTekijukuButton').click(function() {
+            $('#displayTekijukuContainer').hide();
+            $('#editTekijukuContainer').show();
+        });
+
+        // キャンセルボタン
+        $('#cancelTekijukuButton').click(function(e) {
+            e.preventDefault();
+            $('#editTekijukuContainer').hide();
+            $('#displayTekijukuContainer').show();
         });
     });
 </script>

@@ -17,6 +17,7 @@ $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
 $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
+$course_list = $result_list['course_list'] ?? [];
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -91,10 +92,10 @@ $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 												<div class="d-flex align-items-center">
 													<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
 														<option value="" selected disabled>未選択</option>
-														<?php for ($i = 1; $i < 10; $i++) { ?>
-															<option value=<?= $i ?>
-																<?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
-																<?= "第" . $i . "回" ?>
+														<?php foreach ($course_list as $course) { ?>
+															<option value=<?= $course['no'] ?>
+																<?= isSelected($course['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+																<?= "第" . $course['no'] . "回" ?>
 															</option>
 														<?php } ?>
 													</select>

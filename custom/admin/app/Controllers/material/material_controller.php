@@ -3,18 +3,21 @@ require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/MaterialModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/RoleAssignmentsModel.php');
 
 class MaterialController
 {
     private $categoryModel;
     private $eventModel;
     private $materialModel;
+    private $roleAssignmentsModel;
 
     public function __construct()
     {
         $this->categoryModel = new CategoryModel();
         $this->eventModel = new EventModel();
         $this->materialModel = new MaterialModel();
+        $this->roleAssignmentsModel = new RoleAssignmentsModel();
     }
 
     public function index()
@@ -49,59 +52,54 @@ class MaterialController
             }
         }
 
+        $role = $this->roleAssignmentsModel->getShortname($USER->id);
+        $shortname = $role['shortname'];
+
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
             'event_id' => $event_id,
-            'course_no' => $course_no
+            'course_no' => $course_no,
+            'userid' => $USER->id,
+            'shortname' => $shortname
         ]);
-        $role = $DB->get_record('role_assignments', ['userid' => $USER->id]);
+
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([
+            'userid' => $USER->id,
+            'shortname' => $shortname], 1, 100000); // イベント名選択用
 
         $material = [];
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
-
-        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid == ROLE['COURSECREATOR']) {
-            foreach ($event_list  as $key => $event) {
-                if ($event['userid'] != $USER->id) {
-                    unset($event_list[$key]);
-                }
-            }
-            foreach ($select_event_list as $select_key => $select_event) {
-                if ($select_event['userid'] != $USER->id) {
-                    unset($select_event_list[$select_key]);
-                }
-            }
-        }
+        $course_number = [];
 
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
                 if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
-                        $course_number = [1];
+                        $course_number = [];
                         $_SESSION['old_input']['course_no'] = "1";
                         $is_display = true;
                         $is_single = true;
                     }
-                } elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                } elseif ($event['event_kbn'] == PLURAL_EVENT) {
+                    if (!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
-                    $course_count = $DB->get_field_sql("SELECT COUNT(*) FROM {event_course_info} WHERE event_id = ?", [$event_id]);
-                    $course_number = range(1, $course_count);
+                    $course_number = $event['course_infos'];
                 } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
-                        $course_number = "";
+                        $course_number = [];
                         $_SESSION['old_input']['course_no'] = "1";
                         $is_single = true;
                         $is_display = true;
@@ -120,7 +118,7 @@ class MaterialController
             'event_list'     => $event_list,
             'course_info'    => $course_info_id ?? '',
             'material'       => $material,
-            'course_number'  => $course_number ?? null,
+            'course_number'  => $course_number ?? [],
             'is_display'     => $is_display,
             'is_single'      => $is_single
         ];

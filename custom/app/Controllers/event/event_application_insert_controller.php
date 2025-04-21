@@ -302,7 +302,8 @@ if ($result) {
             FROM mdl_event_application_course_info eac
             JOIN mdl_event_application ea ON ea.id = eac.event_application_id
             WHERE ea.event_id = ? AND eac.course_info_id IN ($inClause)
-            GROUP BY eac.course_info_id
+            AND eac.participation_kbn <> ".PARTICIPATION_KBN['CANCEL']." "
+            ."GROUP BY eac.course_info_id
         ");
         $stmt->execute(array_merge([$eventId], $courseIds));
         $ticketCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // course_info_id => ticket_count

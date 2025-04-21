@@ -417,6 +417,10 @@ $kbn_is_tekijuku_not_only = 0;
 define('EVENT_TEKIJUKU_NOT_ONLY', $kbn_is_tekijuku_not_only);
 $kbn_is_tekijuku_only = 1;
 define('EVENT_TEKIJUKU_ONLY', $kbn_is_tekijuku_only);
-													
+
+// チケット上限数
+$max_ticket = 50;
+define('DEFAULT_MAX_TICKET', $max_ticket);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

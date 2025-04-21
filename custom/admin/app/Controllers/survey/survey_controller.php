@@ -46,15 +46,11 @@ class SurveyController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'] ?? 1;
-
-        if (empty($current_page) && !empty($page)) {
-            $current_page  = $page;
+        if (!empty($page) && is_numeric($page) && (int)$page > 0) {
+            $current_page = (int)$page;
+        } else {
+            $current_page = 1;
         }
-        if (empty($current_page) && empty($page)) {
-            $current_page  = 1;
-        }
-
         $role = $this->roleAssignmentsModel->getShortname($userid);
         $shortname = $role['shortname'];
 
@@ -79,6 +75,8 @@ class SurveyController
             }
         }
 
+        $role = $this->roleAssignmentsModel->getShortname($userid);
+        $shortname = $role['shortname'];
         $filters = array_filter([
             'category_id' => $category_id,
             'event_status' => $event_status_id,
@@ -88,38 +86,25 @@ class SurveyController
             'shortname' => $shortname
         ]);
 
-        $role = $DB->get_record('role_assignments', ['userid' => $userid]);
-
         // null の要素を削除しイベント検索
         $filters = array_filter($filters);
         $event_list = $this->eventModel->getEvents($filters, 1, 100000); // イベント名選択用
-        $select_event_list = $this->eventModel->getEvents([], 1, 100000); // イベント名選択用
+        $select_event_list = $this->eventModel->getEvents([
+            'userid' => $userid,
+            'shortname' => $shortname], 1, 100000); // イベント名選択用
 
         $is_display = false;
         $is_single = false;
         $course_info_id = null;
         $event_survey_customfield_category_id = null;
-
-        // 部門管理者ログイン時は自身が作成したイベントのみを取得する
-        if ($role->roleid == ROLE['COURSECREATOR']) {
-            foreach ($event_list  as $key => $event) {
-                if ($event['userid'] != $userid) {
-                    unset($event_list[$key]);
-                }
-            }
-            foreach ($select_event_list as $select_key => $select_event) {
-                if ($select_event['userid'] != $userid) {
-                    unset($select_event_list[$select_key]);
-                }
-            }
-        }
+        $course_list = [];
 
         // イベント情報を特定する
         if (!empty($event_id)) {
             foreach ($event_list as $event) {
                 $event_survey_customfield_category_id = $event['event_survey_customfield_category_id'];
                 // 単発イベントの場合
-                if ($event['event_kbn'] == 1) {
+                if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
                         $course_no = 1;
@@ -129,16 +114,19 @@ class SurveyController
                     }
                 }
                 // 複数回イベントの場合
-                if ($event['event_kbn'] == 2 && !empty($course_no)) {
-                    foreach ($event['course_infos'] as $course_info) {
-                        if ($course_info['no'] == $course_no) {
-                            $course_info_id = $course_info['id'];
-                            $is_display = true;
+                if ($event['event_kbn'] == PLURAL_EVENT) {
+                    $course_list = $event['course_infos'];
+                    if(!empty($course_no)) {
+                        foreach ($event['course_infos'] as $course_info) {
+                            if ($course_info['no'] == $course_no) {
+                                $course_info_id = $course_info['id'];
+                                $is_display = true;
+                            }
                         }
                     }
                 }
                 // 毎日開催イベントの場合
-                if ($event['event_kbn'] == 3) {
+                if ($event['event_kbn'] == EVERY_DAY_EVENT) {
                     $course_info_id = null;
                     $course_no = "";
                     $_SESSION['old_input']['course_no'] = "";
@@ -190,6 +178,7 @@ class SurveyController
             'page' => $current_page,
             'survey_period' => $survey_period,
             'survey_field_list' => $survey_field_list,
+            'course_list' => $course_list
         ];
 
         return $data;

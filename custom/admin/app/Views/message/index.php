@@ -14,14 +14,15 @@ $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $user_list = $result_list['user_list']  ?? [];
 $header_list = $result_list['header_list'] ?? [];
+$course_list = $result_list['course_list'] ?? [];
 $application_list = $result_list['application_list'] ?? [];
 $tekijuku_commemoration_list = $result_list['tekijuku_commemoration_list'] ?? [];
 
 // ページネーション
 $total_count = $result_list['total_count'] ?? 0;
 $per_page = $result_list['per_page'] ?? 1;
-$current_page = $result_list['current_page'];
-$page = $result_list['page'];
+$current_page = $result_list['current_page'] ?? 1;
+$page = $result_list['page'] ?? 1;
 
 // 入力値の保持とエラーメッセージの取得
 $mail_title = "";
@@ -121,12 +122,12 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                         </div>
                                         <div class="sp-ms-0 mb-3 ms-3 w-100">
                                             <label class="form-label" for="notyf-message">回数</label>
-                                            <select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+                                            <select name="course_no" class="form-control w-100" <?= isset($result_list['is_single']) && $result_list['is_single'] ? 'disabled' : '' ?>>
                                                 <option value="">未選択</option>
-                                                <?php for ($i = 1; $i < 10; $i++) { ?>
-                                                    <option value=<?= $i ?>
-                                                        <?= isSelected($i, $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
-                                                        <?= "第" . $i . "回" ?>
+                                                <?php foreach ($course_list as $course) { ?>
+                                                    <option value=<?= $course['no'] ?>
+                                                        <?= isSelected($course['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
+                                                        <?= "第" . $course['no'] . "回" ?>
                                                     </option>
                                                 <?php } ?>
                                             </select>
