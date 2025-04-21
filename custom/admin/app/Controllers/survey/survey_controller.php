@@ -46,15 +46,11 @@ class SurveyController
 
         // ページネーション
         $per_page = 15;
-        $current_page = $_GET['page'] ?? 1;
-
-        if (empty($current_page) && !empty($page)) {
-            $current_page  = $page;
+        if (!empty($page) && is_numeric($page) && (int)$page > 0) {
+            $current_page = (int)$page;
+        } else {
+            $current_page = 1;
         }
-        if (empty($current_page) && empty($page)) {
-            $current_page  = 1;
-        }
-
         $role = $this->roleAssignmentsModel->getShortname($userid);
         $shortname = $role['shortname'];
 

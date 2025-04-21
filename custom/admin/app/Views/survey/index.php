@@ -57,7 +57,7 @@ $page         = max(1, (int)$page);
 				<div class="card">
 					<div class="card-body p-055 p-025">
 						<form id="form" method="POST" action="/custom/admin/app/Views/survey/index.php" class="w-100">
-							<input type="hidden" name="page" value="<?= $page ?>">
+							<input type="hidden" name="page" value="<?= $current_page ?>">
 							<div class="d-flex sp-block justify-content-between">
 								<div class="mb-3 w-100">
 									<label class="form-label" for="notyf-message">カテゴリー</label>
@@ -104,7 +104,7 @@ $page         = max(1, (int)$page);
 													<?= isSelected($course['no'], $old_input['course_no'] ?? null, null) ? 'selected' : '' ?>>
 													<?= "第" . $course['no'] . "回" ?>
 												</option>
-											<?php } ?>
+											<?php endforeach; ?>
 										</select>
 									</div>
 								</div>
@@ -287,7 +287,8 @@ $page         = max(1, (int)$page);
 
 			// 検索
 			$('select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
-				$("#form").submit();
+				$('input[name="page"]').val(1);
+				$('#form').submit();
 			});
 			$('#search-button').on('click', function(event) {
 				$('input[name="page"]').val(1);
