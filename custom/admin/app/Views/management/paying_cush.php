@@ -38,22 +38,25 @@ $message_error = isset($_SESSION['message_error']) ? $_SESSION['message_error'] 
 // セッション変数をクリア
 unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
 
-$paid_status_list = [[
-    'id' => 1,
-    'status' => 'unpaid',
-    'label' => '未決済',
-    'can_edit' => true
-],[
-    'id' => 2,
-    'status' => 'in-progress',
-    'label' => '決済中',
-    'can_edit' => false
-],[
-    'id' => 3,
-    'status' => 'completed',
-    'label' => '決済済',
-    'can_edit' => true
-]
+$paid_status_list = [
+    [
+        'id' => 1,
+        'status' => 'unpaid',
+        'label' => '未決済',
+        'can_edit' => true
+    ],
+    [
+        'id' => 2,
+        'status' => 'in-progress',
+        'label' => '決済中',
+        'can_edit' => false
+    ],
+    [
+        'id' => 3,
+        'status' => 'completed',
+        'label' => '決済済',
+        'can_edit' => true
+    ]
 ];
 
 // 決済状態を判定する関数
@@ -89,8 +92,8 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
             $fiscal_start = new DateTime(date('Y') . '-' . $paid_deadline);
             $fiscal_end = new DateTime((date('Y') + 1) . '-' . date('m-d', strtotime($paid_deadline . ' -1 day')));
         }
-            
-        if($paid_date >= $fiscal_start && $paid_date <= $fiscal_end) {
+
+        if ($paid_date >= $fiscal_start && $paid_date <= $fiscal_end) {
             $hasPaidDate = true;
         }
     }
@@ -151,11 +154,16 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
     }
 
     .readonly-select {
-        background-color: #e9ecef; 
-        pointer-events: none; 
-        touch-action: none; 
+        background-color: #e9ecef;
+        pointer-events: none;
+        touch-action: none;
+    }
+
+    #university_member_fields {
+        display: none;
     }
 </style>
+
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
     <div class="wrapper">
         <?php include('/var/www/html/moodle/custom/admin/app/Views/common/sidebar.php'); ?>
@@ -191,7 +199,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <option value="">選択してください</option>
                                         <?php foreach ($user_list as $user) { ?>
                                             <option value=<?= $user['id'] ?> <?= isSelected($user['id'], $fk_user_id, $old_input['fk_user_id'] ?? null) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($user['id'] ? sprintf('%08d', $user['id']) : '') ?><?= htmlspecialchars('：' .$user['name']) ?></option>
+                                                <?= htmlspecialchars($user['id'] ? sprintf('%08d', $user['id']) : '') ?><?= htmlspecialchars('：' . $user['name']) ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -202,30 +210,34 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                             </form>
                         </div>
                     </div>
-                    <?php if(!empty($tekijuku_commemoration)): ?>
+                    <?php if (!empty($tekijuku_commemoration)): ?>
                         <form id="usert_form" method="POST" action="/custom/admin/app/Controllers/management/paying_cush_upsert_controller.php">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0 mt-3">適塾記念会 会員情報<?php if(!empty($tekijuku_commemoration['id'])){echo " 編集"; }else{echo " 新規登録";} ?></h5>
+                                    <h5 class="card-title mb-0 mt-3">適塾記念会 会員情報<?php if (!empty($tekijuku_commemoration['id'])) {
+                                                                                    echo " 編集";
+                                                                                } else {
+                                                                                    echo " 新規登録";
+                                                                                } ?></h5>
                                 </div>
                                 <div class="card-body">
-                                    <input type="hidden" name="fk_user_id" value="<?= htmlspecialchars(isSetValue($fk_user_id, $old_input['fk_user_id'] ?? '')); ?>" >
+                                    <input type="hidden" name="fk_user_id" value="<?= htmlspecialchars(isSetValue($fk_user_id, $old_input['fk_user_id'] ?? '')); ?>">
                                     <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id']) ?>>
-                                    <input type="hidden" name="old_paid_status" value="<?= htmlspecialchars($tekijuku_commemoration['paid_status'] ?? 0) ?>" >
-                                    <input type="hidden" name="type_code" value="<?= htmlspecialchars($tekijuku_commemoration['type_code'] ?? 0) ?>" >
+                                    <input type="hidden" name="old_paid_status" value="<?= htmlspecialchars($tekijuku_commemoration['paid_status'] ?? 0) ?>">
+                                    <input type="hidden" name="type_code" value="<?= htmlspecialchars($tekijuku_commemoration['type_code'] ?? 0) ?>">
                                     <input type="hidden" id="price_value" name="price" value="<?= htmlspecialchars($tekijuku_commemoration['price']) ?>" />
-                                    <?php if(!empty($tekijuku_commemoration['id'])): ?>
+                                    <?php if (!empty($tekijuku_commemoration['id'])): ?>
                                         <div class="mb-3">
                                             <label class="form-label">会員番号: <?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></label>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">会員種別: <?php if(!empty($tekijuku_commemoration['type_code'])) echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></label>
+                                            <label class="form-label">会員種別: <?php if (!empty($tekijuku_commemoration['type_code'])) echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></label>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">支払い方法: 
-                                                <?php foreach($payment_type_list as $payment_type): ?>
-                                                    <?php if($payment_type['id'] == $tekijuku_commemoration['payment_method']): ?>
+                                            <label class="form-label">支払い方法:
+                                                <?php foreach ($payment_type_list as $payment_type): ?>
+                                                    <?php if ($payment_type['id'] == $tekijuku_commemoration['payment_method']): ?>
                                                         <?= htmlspecialchars($payment_type['name']) ?>
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
@@ -242,7 +254,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     <?php endif; ?>
                                     <div class="mb-3">
                                         <label class="form-label">本年度決済</label>
-                                        <?php if((int)$tekijuku_commemoration['is_delete'] == TEKIJUKU_COMMEMORATION_IS_DELETE['ACTIVE']): ?>
+                                        <?php if ((int)$tekijuku_commemoration['is_delete'] == TEKIJUKU_COMMEMORATION_IS_DELETE['ACTIVE']): ?>
                                             <select id="paid_status" name="paid_status" class="form-control mb-3 <?php if ($paymentStatus['status'] == 'completed') { ?>readonly-select <?php } ?>">
                                                 <?php foreach ($paid_status_list as $paid_status): ?>
                                                     <option value="<?= htmlspecialchars($paid_status['id']) ?>"
@@ -328,7 +340,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    <?php if(empty($tekijuku_commemoration['id'])): ?>
+                                    <?php if (empty($tekijuku_commemoration['id'])): ?>
                                         <div class="mb-3">
                                             <label class="form-label">口数</label>
                                             <span class="badge bg-danger">必須</span>
@@ -343,8 +355,8 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         </div>
                                     <?php endif; ?>
                                     <div class="mb-3">
-                                        <label class="form-label">金額: 
-                                        <span id="price"><?php if(!empty($tekijuku_commemoration['price'])): ?><?= htmlspecialchars(number_format($tekijuku_commemoration['price'])) ?><?php else: ?>0<?php endif; ?>円</span></label>
+                                        <label class="form-label">金額:
+                                            <span id="price"><?php if (!empty($tekijuku_commemoration['price'])): ?><?= htmlspecialchars(number_format($tekijuku_commemoration['price'])) ?><?php else: ?>0<?php endif; ?>円</span></label>
                                         <?php if (!empty($errors['price'])): ?>
                                             <div class=" text-danger mt-2"><?= htmlspecialchars($errors['price']); ?></div>
                                         <?php endif; ?>
@@ -362,31 +374,33 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
                                         <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">所属部局（学部・研究科）</label>
-                                        <div class="align-items-center">
-                                            <input type="text" name="department" class="form-control" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration['department']); ?>">
-                                            <?php if (!empty($errors['department'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
-                                            <?php endif; ?>
+                                    <div id="university_member_fields">
+                                        <div class="mb-3">
+                                            <label class="form-label">所属部局（学部・研究科）</label>
+                                            <div class="align-items-center">
+                                                <input type="text" name="department" class="form-control" value="<?= htmlspecialchars($old_input['department'] ?? $tekijuku_commemoration['department']); ?>">
+                                                <?php if (!empty($errors['department'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['department']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">講座/部課/専攻名</label>
-                                        <div class="align-items-center">
-                                            <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
-                                            <?php if (!empty($errors['major'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
-                                            <?php endif; ?>
+                                        <div class="mb-3">
+                                            <label class="form-label">講座/部課/専攻名</label>
+                                            <div class="align-items-center">
+                                                <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
+                                                <?php if (!empty($errors['major'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">職名・学年</label>
-                                        <div class="align-items-center">
-                                            <input type="text" name="official" class="form-control" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
-                                            <?php if (!empty($errors['official'])): ?>
-                                                <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
-                                            <?php endif; ?>
+                                        <div class="mb-3">
+                                            <label class="form-label">職名・学年</label>
+                                            <div class="align-items-center">
+                                                <input type="text" name="official" class="form-control" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
+                                                <?php if (!empty($errors['official'])): ?>
+                                                    <div class="text-danger mt-2"><?= htmlspecialchars($errors['official']); ?></div>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -394,9 +408,9 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
                                         <label class="checkbox_label">氏名掲載を許可します</label>
                                     </div>
-									<div class="mb-3">
+                                    <div class="mb-3">
                                         <input type="submit" id="submit_btn" class="btn btn-primary" value="変更を確定する">
-									</div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -451,29 +465,29 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
 
     const element = document.getElementById('fk_user_id');
     const choices = new Choices(element, {
-    removeItemButton: true,
-    searchEnabled: true,
-    shouldSort: false
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false
     });
     // 部分一致検索にする：searchChoices をオーバーライド
-    choices.searchChoices = function (value) {
-    if (!value) return;
-    const escapedValue = value.toLowerCase();
+    choices.searchChoices = function(value) {
+        if (!value) return;
+        const escapedValue = value.toLowerCase();
 
-    this._currentState.choices = this._store.getChoicesFilteredByActive().map(choice => {
-        const haystack = String(choice.label || choice.value).toLowerCase();
-        const match = haystack.includes(escapedValue); // ★部分一致に変更
-        return {
-        ...choice,
-        score: match ? 1 : 0, // スコアを仮設定
-        match
-        };
-    }).filter(choice => choice.match);
+        this._currentState.choices = this._store.getChoicesFilteredByActive().map(choice => {
+            const haystack = String(choice.label || choice.value).toLowerCase();
+            const match = haystack.includes(escapedValue); // ★部分一致に変更
+            return {
+                ...choice,
+                score: match ? 1 : 0, // スコアを仮設定
+                match
+            };
+        }).filter(choice => choice.match);
 
-    this._highlightPosition = 0;
-    this._renderChoices(this._currentState.choices, true);
+        this._highlightPosition = 0;
+        this._renderChoices(this._currentState.choices, true);
     };
-    
+
     // 会員種別ごとの単価
     const PRICE_REGULAR_MEMBER = 2000; // 普通会員単価
     const PRICE_SUPPORTING_MEMBER = 10000; // 賛助会員単価
@@ -520,5 +534,25 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
 
     // ページ読み込み時に金額を初期化
     window.onload = updatePrice;
-</script>
 
+
+    // 大阪大学教職員・学生の方はこちらにチェックしてください。の処理
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkbox = document.getElementById("is_university_member");
+        const universityFields = document.getElementById("university_member_fields");
+
+        // チェックボックスの状態に応じてフォームを表示/非表示
+        checkbox.addEventListener("change", function() {
+            if (checkbox.checked) {
+                universityFields.style.display = "block"; // チェックされていれば表示
+            } else {
+                universityFields.style.display = "none"; // チェックされていなければ非表示
+            }
+        });
+
+        // 初期状態の処理（ページがロードされたときにチェックが入っている場合）
+        if (checkbox.checked) {
+            universityFields.style.display = "block";
+        }
+    });
+</script>
