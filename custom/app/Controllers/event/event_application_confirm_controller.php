@@ -268,31 +268,25 @@ if (!empty($event_customfield_category_id)) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             
-            if(empty($_SESSION['errors']['passage'][$tag_name])) {
-                $error = validate_text($input_value, $fields['name'], 100, false);
-                if($error) {
-                    $_SESSION['errors']['passage'][$tag_name] = $error;
-                }
+            $error = validate_text($input_value, $fields['name'], 100, false);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
             }
         } elseif ($fields['field_type'] == 2) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             
-            if(empty($_SESSION['errors']['passage'][$tag_name])) {
-                $error = validate_textarea($input_value, $fields['name'], false, 500);
-                if($error) {
-                    $_SESSION['errors']['passage'][$tag_name] = $error;
-                }
+            $error = validate_textarea($input_value, $fields['name'], false, 500);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
             }
         } elseif ($fields['field_type'] == 5) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             
-            if(empty($_SESSION['errors']['passage'][$tag_name])) {
-                $error = validate_date($input_value, $fields['name'], false);
-                if($error) {
-                    $_SESSION['errors']['passage'][$tag_name] = $error;
-                }
+            $error = validate_date($input_value, $fields['name'], false);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
             }
         }
     }

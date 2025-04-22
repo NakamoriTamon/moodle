@@ -86,6 +86,7 @@ $now = new DateTime();
 $nowDate = $now->format('Y-m-d');
 $tekijuku_discount = 0;
 $tekijuku_text = "";
+$tekijuku_user_flg = false;
 if (isloggedin() && isset($_SESSION['USER'])) {
     global $DB, $USER;
 
@@ -114,6 +115,12 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
         }
     }
+
+    // 適塾会員か確認
+    if (!(empty($tekijuku) || $tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING'])) {
+        $tekijuku_user_flg = true;
+    }
+
     // 必要な情報を取得
     $name = $user->name ?? "";
     $kana = $user->name_kana ?? "";
@@ -206,6 +213,22 @@ unset($_SESSION['old_input']);
                         </div>
                         <div class="form_btn">
                             <a href="index.php?id=<?= $eventId ?>" class="btn btn_gray">戻る</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    <?php elseif (($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY) && !($tekijuku_user_flg)): ?>
+        <div class="inner_l">
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+            <section id="form" class="event entry">
+                <form method="POST" action="confirm.php" class="whitebox form_cont">
+                    <div class="inner_m">
+                        <div class="form_btn">
+                            <p class="list_label">適塾記念会会員のみ参加可能のイベントです。</p>
+                        </div>
+                        <div class="form_btn">
+                            <a href="/custom/app/Views/event/index.php" class="btn btn_gray">戻る</a>
                         </div>
                     </div>
                 </form>
