@@ -1,5 +1,8 @@
 <?php include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php'); ?>
-
+<style>
+    ::-ms-reveal{display: none;}
+    ::-ms-clear{display: none;}
+</style>
 <body id="login" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
     <main class="d-flex w-100 h-100">
         <div class="container d-flex flex-column">
