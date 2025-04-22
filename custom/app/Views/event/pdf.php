@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
 
@@ -55,8 +55,6 @@ if ($user_id && $materialCourseId) {
 </head>
 
 <body>
-    <!-- 以下、PDF.js を利用した表示処理など -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <style>
         body {
             background-color: #f0f0f0;
@@ -99,7 +97,12 @@ if ($user_id && $materialCourseId) {
             // PDFを読み込む
             pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
                 pdfDoc = pdf;
-                renderPage(currentPage); // 最初のページをレンダリング
+                for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                    renderPage(pageNum);
+                }
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('pdf-container').innerHTML = "<p>PDFの読み込みに失敗しました。</p>";
             });
         }
 
@@ -118,24 +121,21 @@ if ($user_id && $materialCourseId) {
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
-                const renderContext = {
+                page.render({
                     canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
+                    viewport
+                }).promise.then(() => {
+                    const fontSize = Math.max(12, Math.round(viewport.height * 0.03));
+                    context.font = `${fontSize}px Arial`;
+                    context.fillStyle = "black";
+                    context.textAlign = "center";;
 
-                // ページ番号の表示
-                context.font = "16px Arial";
-                context.fillStyle = "black";
-                context.textAlign = "center";
-                context.fillText(`Page ${pageNum}`, canvas.width - 50, canvas.height - 20);
-
-                // 枠線描画
-                context.strokeStyle = "#000";
-                context.lineWidth = 2;
-                context.strokeRect(0, 0, canvas.width, canvas.height);
-
-                pageCache[pageNum] = canvas;
+                    context.strokeStyle = "#000";
+                    context.lineWidth = 2;
+                    context.strokeRect(0, 0, canvas.width, canvas.height);
+                });
+                document.getElementById('pdf-container').appendChild(canvas);
+                pageCache[pageNum] = true;
             });
         }
 

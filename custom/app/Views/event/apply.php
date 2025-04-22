@@ -47,6 +47,7 @@ $guardian_name = "";
 $guardian_email = "";
 $guardian_phone = "";
 $capacity = $event['capacity'];
+$default_max_ticket = $responce['default_max_ticket'];
 
 if ($event['capacity'] == 0) {
     $aki_ticket = 50;
@@ -85,6 +86,7 @@ $now = new DateTime();
 $nowDate = $now->format('Y-m-d');
 $tekijuku_discount = 0;
 $tekijuku_text = "";
+$tekijuku_user_flg = false;
 if (isloggedin() && isset($_SESSION['USER'])) {
     global $DB, $USER;
 
@@ -113,6 +115,12 @@ if (isloggedin() && isset($_SESSION['USER'])) {
             $tekijuku_text = "　(適塾記念会会員割引: {$tekijuku_discount}円　適用価格)";
         }
     }
+
+    // 適塾会員か確認
+    if (!(empty($tekijuku) || $tekijuku["paid_status"] == PAID_STATUS['UNPAID'] || $tekijuku["paid_status"] == PAID_STATUS['PROCESSING'])) {
+        $tekijuku_user_flg = true;
+    }
+
     // 必要な情報を取得
     $name = $user->name ?? "";
     $kana = $user->name_kana ?? "";
@@ -122,7 +130,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     $birthDate = new DateTime($birthday);
     $today = new DateTime(); // 現在の日付
     $age = $birthDate->diff($today)->y; // 年齢を取得
-    if($age <= ADULT_AGE && $age >= TEENAGER_AGE) {
+    if ($age <= ADULT_AGE && $age >= TEENAGER_AGE) {
         $guardian_kbn = $user->guardian_kbn ?? "";
     }
     if ($age < TEENAGER_AGE) {
@@ -210,6 +218,22 @@ unset($_SESSION['old_input']);
                 </form>
             </section>
         </div>
+    <?php elseif (($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY) && !($tekijuku_user_flg)): ?>
+        <div class="inner_l">
+            <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
+            <section id="form" class="event entry">
+                <form method="POST" action="confirm.php" class="whitebox form_cont">
+                    <div class="inner_m">
+                        <div class="form_btn">
+                            <p class="list_label">適塾記念会会員のみ参加可能のイベントです。</p>
+                        </div>
+                        <div class="form_btn">
+                            <a href="/custom/app/Views/event/index.php" class="btn btn_gray">戻る</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
     <?php else: ?>
         <div class="inner_l">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
@@ -234,6 +258,7 @@ unset($_SESSION['old_input']);
                     <input type="hidden" id="event_name" name="event_name" value="<?= htmlspecialchars($event_name) ?>">
                     <input type="hidden" id="aki_ticket" name="aki_ticket" value="<?= htmlspecialchars($aki_ticket) ?>">
                     <input type="hidden" id="default_max_ticket" name="default_max_ticket" value="<?= htmlspecialchars($default_max_ticket) ?>">
+                    <input type="hidden" id="capacity" name="capacity" value="<?= htmlspecialchars($capacity) ?>">
                     <input type="hidden" id="price" name="price" value="<?= htmlspecialchars($price) ?>">
                     <input type="hidden" id="now_notification" name="now_notification" value="<?= htmlspecialchars($now_notification) ?>">
                     <input type="hidden" id="event_kbn" name="event_kbn" value="<?= htmlspecialchars($event_kbn) ?>">
@@ -284,10 +309,12 @@ unset($_SESSION['old_input']);
                                     <button type="button" class="num_min">ー</button>
                                     <input type="number" min="1" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
                                     <button type="button" class="num_plus">＋</button>
-                                    <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
-                                        (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
-                                    <?php else: ?>
-                                        (空き枠：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                    <?php if (!$capacity == 0): ?>
+                                        <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
+                                            (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                        <?php else: ?>
+                                            (空き枠：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </li>
@@ -322,7 +349,7 @@ unset($_SESSION['old_input']);
                                     <?= htmlspecialchars($errors['trigger']); ?>
                                 <?php endif; ?>
                             </span>
-                            <li class="list_item09 long_item req">
+                            <li class="list_item09 long_item">
                                 <p class="list_label">
                                     本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
                                 </p>
@@ -411,18 +438,18 @@ unset($_SESSION['old_input']);
                             <?php echo $responce['passage'] ?>
                             <?php if ($age <= ADULT_AGE && $age >= TEENAGER_AGE): ?>
                                 <!-- <li> -->
-                                    <span class="error-msg" id="applicant_kbn-error">
-                                        <?php if (!empty($errors['applicant_kbn'])): ?>
-                                            <?= htmlspecialchars($errors['applicant_kbn']); ?>
-                                        <?php endif; ?>
-                                    </span>
+                                <span class="error-msg" id="applicant_kbn-error">
+                                    <?php if (!empty($errors['applicant_kbn'])): ?>
+                                        <?= htmlspecialchars($errors['applicant_kbn']); ?>
+                                    <?php endif; ?>
+                                </span>
                                 <!-- </li> -->
-                                <li class="long_item req">
+                                <li class="long_item ">
                                     <div class="list_field list_col applicant">
                                         <p class="f_check">
                                             <label>
                                                 <input type="checkbox" id="applicant_kbn" name="applicant_kbn" value="1" class="checkbox_input" <?php if (!empty($applicant_kbn)): ?> checked <?php endif ?>>
-                                                    <label for="applicant_kbn" class="checkbox_label">この申し込みは保護者の許可を得ています</label>
+                                                <label for="applicant_kbn" class="checkbox_label">この申し込みは保護者の許可を得ています</label>
                                             </label>
                                         </p>
                                     </div>
@@ -491,13 +518,14 @@ unset($_SESSION['old_input']);
     const tekijuku_text = <?= json_encode($tekijuku_text, JSON_UNESCAPED_UNICODE) ?>;
     const participation_fee = $('#participation_fee').val();
     const tekijuku_discount = $('#tekijuku_discount').val();
-    const akiTicketCount = $('#aki_ticket').val();
-    const defaultMaxTicketCount = $('#default_max_ticket').val();
+    const akiTicketCount = parseInt($('#aki_ticket').val());
+    const defaultMaxTicketCount = parseInt($('#default_max_ticket').val());
+    const constCapacity = parseInt($('#capacity').val());
     // ブラウザバック対応
     $('input[name="ticket"]').on('change', function() {
         // 枚数選択の値変更時に最大値を超えていた場合、最大値での値段を計算する
         let ticket_num = $(this).val();
-        if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+        if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
             if(defaultMaxTicketCount < $(this).val()){
                 ticket_num = defaultMaxTicketCount;
             }
@@ -517,7 +545,7 @@ unset($_SESSION['old_input']);
     });
 
     document.getElementById('ticket').addEventListener('blur', function() {
-        if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+        if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
             if(defaultMaxTicketCount < $(this).val()){
                 $(this).val(defaultMaxTicketCount);
             }
@@ -600,7 +628,7 @@ unset($_SESSION['old_input']);
         $(document).ready(function() {
             $input.each(function() {
                 number = Number($(this).val());
-                if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+                if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                     if (number == defaultMaxTicketCount) {
                         $(this).next($plus).prop("disabled", true);
                     } else if (number == 0) {
@@ -616,7 +644,7 @@ unset($_SESSION['old_input']);
                 
             });
             total();
-            if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner == defaultMaxTicketCount) {
                     $plus.prop("disabled", true);
                 } else {
@@ -647,7 +675,7 @@ unset($_SESSION['old_input']);
                 $(this).prop("disabled", true);
             }
             total();
-            if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner < defaultMaxTicketCount) {
                     $plus.prop("disabled", false);
                 }
@@ -673,7 +701,7 @@ unset($_SESSION['old_input']);
                 $(this).prop("disabled", true);
             }
             total();
-            if(akiTicketCount == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner == defaultMaxTicketCount) {
                     $plus.prop("disabled", true);
                 } else {

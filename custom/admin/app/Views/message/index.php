@@ -196,9 +196,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                         $number = substr($number, 0, 4) . ' ' . substr($number, 4);
                                                         $menu = $tekijuku_commemoration['type_code'] === 1 ? '普通会員' : '賛助会員';
                                                         $created_date = new DateTime($tekijuku_commemoration['created_at']);
-                                                        $paid_date = null;
-                                                        if (!empty($tekijuku_commemoration['paid_date'])) {
-                                                            $paid_date = new DateTime($tekijuku_commemoration['paid_date']);
+                                                        $paid_date = '';
+                                                        if (!empty($tekijuku_commemoration['paid_date_history'])) {
+                                                            $paid_date = new DateTime($tekijuku_commemoration['paid_date_history']);
                                                             $paid_date = $paid_date->format("Y年n月j日");
                                                         }
                                                         ?>
@@ -215,7 +215,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($payment_select_list[$tekijuku_commemoration['payment_method']]) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($paid_date) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($created_date->format("Y年n月j日")) ?></td>
-                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['old_number']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($tekijuku_commemoration['old_number'] ?? '') ?></td>
                                                         </tr>
                                                         <input type="hidden" name="mail_to_list[]" value="<?= $tekijuku_commemoration['email'] ?>">
                                                     <?php endforeach; ?>

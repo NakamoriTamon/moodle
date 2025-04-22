@@ -20,6 +20,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['payment_method_typ
         <section id="form" class="complete">
             <ul id="flow">
                 <li>入力</li>
+                <li>確認</li>
                 <li class="active">完了</li>
             </ul>
             <div class="whitebox form_cont">

@@ -8,6 +8,7 @@ $id = isset($_GET['id']) ? $_GET['id'] : null;
 $customs = $surveyCustomController->edit($id);
 $details = isset($customs['detail']) ? $customs['detail'] : [];
 $detail_count = count($details);
+$answer = isset($customs['detail']) ? $customs['answer'] : false;
 
 // session
 $errors = $_SESSION['errors'] ?? [];
@@ -99,17 +100,21 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['count']);
 												<input type="text" name="selection[]" class="form-control <?php if (!empty($id)) { ?>readonly-select<?php } ?>"
 													value="<?= htmlspecialchars(isSetValue($details[$i]['selection'] ?? '', ($old_input['selection'][$i] ?? ''))) ?>">
 											</div>
+											<?php if(!$answer) { ?>
 											<div class="mb-3 <?= ($i > 0) ? 'd-block' : 'd-none' ?>">
 												<div class="form-label mt-3 d-flex align-items-center">
 													<button type="button" class="delete_btn btn btn-danger ms-auto me-0">削除</button>
 												</div>
 											</div>
+											<?php } ?>
 											<hr>
 											<?php } ?>
 										</div>
-									<div class="d-flex">
-										<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
-									</div>
+									<?php if(!$answer) { ?>
+										<div class="d-flex">
+											<button type="button" id="add_btn" class=" btn btn-primary ms-auto" onclick="addField()">追加</button>
+										</div>
+									<?php } ?>
 									<button id="submit" type="submit" class="mt-5 btn btn-primary ms-auto">登録</button>
 								</form>
 							</div>

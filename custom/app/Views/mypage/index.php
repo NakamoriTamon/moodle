@@ -85,6 +85,8 @@ $user_message_error = $_SESSION['user_message_error'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
 $message_membership_success = $_SESSION['message_membership_success'] ?? [];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
+$event_application_errors = $_SESSION['event_application_error'] ?? []; // バリデーションエラー
+$event_application_success = $_SESSION['event_application_message_success'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
 $startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
@@ -177,7 +179,9 @@ unset(
     $_SESSION['tekijuku_success'],
     $_SESSION['message_'],
     $_SESSION['message_membership_error'],
-    $_SESSION['message_membership_success']
+    $_SESSION['message_membership_success'],
+    $_SESSION['event_application_error'],
+    $_SESSION['event_application_message_success']
 );
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -239,6 +243,8 @@ unset(
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
+        <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
+        <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
         <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
@@ -350,6 +356,7 @@ unset(
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">知の広場 会員情報</h3>
                     <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id='user_edit_form'>
+                        <input type="hidden" name="tekijuku_commemoration_id" value=<?php echo htmlspecialchars($tekijuku_commemoration['id'] ?? 0) ?>>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
                                 <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
@@ -647,19 +654,13 @@ unset(
                                         <li class="list_item03 req">
                                             <p class="list_label">お名前</p>
                                             <div class="list_field f_txt">
-                                                <input type="text" name="tekijuku_name" value="<?= htmlspecialchars($old_input['tekijuku_name'] ?? $tekijuku_commemoration['name']); ?>">
-                                                <?php if (!empty($errors['tekijuku_name'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_name']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ? $tekijuku_commemoration['name'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item04 req">
                                             <p class="list_label">フリガナ</p>
                                             <div class="list_field f_txt">
-                                                <input type="text" name="kana" value="<?= htmlspecialchars($old_input['kana'] ?? $tekijuku_commemoration['kana']) ?>">
-                                                <?php if (!empty($errors['kana'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['kana']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['kana'] ? $tekijuku_commemoration['kana'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item05 req">
@@ -689,27 +690,13 @@ unset(
                                         <li class="list_item07 req">
                                             <p class="list_label">電話番号（ハイフンなし）</p>
                                             <div class="list_field f_txt">
-                                                <div class="phone-input">
-                                                    <input type="text" name="tell_number" maxlength="15"
-                                                        value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
-                                                        pattern="[0-9]*" inputmode="numeric"
-                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                    <?php if (!empty($errors['tell_number'])): ?>
-                                                        <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tell_number']); ?></div>
-                                                    <?php endif; ?>
-                                                </div>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['tell_number'] ? $tekijuku_commemoration['tell_number'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item08 req">
                                             <p class="list_label">メールアドレス</p>
                                             <div class="list_field f_txt">
-                                                <input type="email" name="tekijuku_email" value="<?= htmlspecialchars($old_input['tekijuku_email'] ?? $tekijuku_commemoration['email']) ?>"
-                                                    inputmode="email"
-                                                    autocomplete="email"
-                                                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '');">
-                                                <?php if (!empty($errors['tekijuku_email'])): ?>
-                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['tekijuku_email']); ?></div>
-                                                <?php endif; ?>
+                                                <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['email'] ? $tekijuku_commemoration['email'] : ''); ?></div>
                                             </div>
                                         </li>
                                         <li class="list_item11">
@@ -776,7 +763,6 @@ unset(
                 <div id="form" class="mypage_cont">
                     <h3 class="mypage_head">
                         2025年度 適塾記念会 決済情報
-                        <!-- var_dump($paymentStatus) -->
                         <?php if ($paymentStatus):  ?>
                             <span class="payment-status <?php echo $paymentStatus['status']; ?>">
                                 <?php echo htmlspecialchars($paymentStatus['label']); ?>
@@ -805,21 +791,23 @@ unset(
                                         <p class="list_label">支払方法</p>
                                         <div class="list_field f_txt radio-group">
                                             <?php foreach ($payment_select_list as $key => $value) { ?>
-                                                <input class="radio_input" id="payment_method_<?= $key ?>"
-                                                    style="vertical-align: middle;"
-                                                    type="radio"
-                                                    name="payment_method"
-                                                    value="<?= $key ?>"
-                                                    <?= $disabledAttr ?>
-                                                    <?php
-                                                    // デフォルトの選択
-                                                    if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
-                                                        isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
-                                                    ) {
-                                                        echo 'checked';
-                                                    }
-                                                    ?> />
-                                                <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
+                                                <?php if ($key != PAID_CASH) { ?>
+                                                    <input class="radio_input" id="payment_method_<?= $key ?>"
+                                                        style="vertical-align: middle;"
+                                                        type="radio"
+                                                        name="payment_method"
+                                                        value="<?= $key ?>"
+                                                        <?= $disabledAttr ?>
+                                                        <?php
+                                                        // デフォルトの選択
+                                                        if ((isset($old_input['payment_method']) && !$old_input['payment_method'] && $key == 1) ||
+                                                            isSelected($key, $old_input['payment_method'] ?? $tekijuku_commemoration['payment_method'], null)
+                                                        ) {
+                                                            echo 'checked';
+                                                        }
+                                                        ?> />
+                                                    <label for="payment_method_<?= $key ?>" class="radio_label"><?= $value ?></label>
+                                                <?php } ?>
                                             <?php } ?>
                                             <?php if (!empty($errors['payment_method'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['payment_method']); ?></div>
@@ -905,8 +893,15 @@ unset(
                     $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' . $package_types : '無料';
                     // QR表示判定
                     $qr_class = '';
-                    if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
-                        $qr_class = 'js_pay';
+                    // if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
+                    //     $qr_class = 'js_pay';
+                    // }
+                    if ($application->lecture_format_id != ON_DEMAND) {
+                        if ($application->price == 0) {
+                            $qr_class = 'js_pay';
+                        }elseif (!empty($application->payment_date)) {
+                            $qr_class = 'js_pay';
+                        }
                     }
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">

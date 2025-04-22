@@ -192,7 +192,7 @@ if ($price > 0) {
                                 <p class="list_field"><?= $notification_kbn == 1 ? "希望する" : "希望しない"; ?></p>
                             </li>
                         <?php endif; ?>
-                        <li class="list_item09 long_item req">
+                        <li class="list_item09 long_item">
                             <p class="list_label">
                                 本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
                             </p>

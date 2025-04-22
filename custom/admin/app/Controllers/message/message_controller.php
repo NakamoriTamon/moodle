@@ -60,27 +60,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]
         ]);
 
-        // 1回の送信でのBCC最大数
-        $batch_size = 20;
         $success_count = 0;
-        $total_emails = count($email_addresses);
-        $batches = ceil($total_emails / $batch_size);
+        $failed_emails = [];
 
-        for ($batch = 0; $batch < $batches; $batch++) {
-            $start_index = $batch * $batch_size;
-            $end_index = min($start_index + $batch_size, $total_emails);
-            $bcc_list = array_slice($email_addresses, $start_index, $batch_size);
-
-            // MIME メッセージの作成
-            $boundary = md5(time());
+        foreach ($email_addresses as $key => $to_email) {
+            // テスト用
+            // if($key == 0) {
+            //     $to_email = "test@";
+            // }
+            $boundary = md5(time() . rand());
 
             $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
-            $rawMessage .= "To: {$_ENV['MAIL_FROM_ADDRESS']}\r\n"; // SESの制限回避用
+            $rawMessage .= "To: {$to_email}\r\n";
             $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode($mail_title) . "?=\r\n";
             $rawMessage .= "MIME-Version: 1.0\r\n";
             $rawMessage .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
 
-            // テキスト部分（プレーンテキスト版）
             $textBody = strip_tags(str_replace(["<br>", "<br/>", "<br />"], "\n", $mail_body));
 
             $rawMessage .= "--{$boundary}\r\n";
@@ -88,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
             $rawMessage .= $textBody . "\r\n\r\n";
 
-            // HTML メール部分
             $rawMessage .= "--{$boundary}\r\n";
             $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
             $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
@@ -96,22 +90,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rawMessage .= "--{$boundary}--";
 
             try {
-                $result = $SesClient->sendRawEmail([
+                $SesClient->sendRawEmail([
                     'RawMessage' => [
                         'Data' => $rawMessage
                     ],
                     'Source' => $_ENV['MAIL_FROM_ADDRESS'],
-                    'Destinations' => $bcc_list
+                    'Destinations' => [$to_email]
                 ]);
-                $success_count += count($bcc_list);
+                $success_count++;
             } catch (AwsException $e) {
-                $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getAwsErrorMessage();
-                redirect('/custom/admin/app/Views/message/index.php');
-                exit;
+                $failed_emails[] = [
+                    'email' => $to_email,
+                    'error' => $e->getAwsErrorMessage()
+                ];
+                // 次へ続行
+                continue;
             }
 
             // 負荷軽減のため少し待機
             usleep(500000); // 0.5秒
+        }
+
+        if (!empty($failed_emails)) {
+            $error_summary = count($failed_emails) . '件のバッチで送信エラーが発生しました。';
+            $_SESSION['message_error'] = $error_summary;
+            // 詳細ログを保存しておきたければここでファイル出力も可能
+        } else {
+            $_SESSION['message_error'] = null; // クリア
         }
 
         $_SESSION['message_success'] = $success_count . '件のメールを送信しました。';

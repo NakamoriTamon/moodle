@@ -178,7 +178,7 @@ function validate_int($val, $title, $required)
 
     $limt_32bit = 2147483647;
     if ($val > $limt_32bit) {
-        return $title . 'は21億を超えることはできません。';
+        return $title . 'は制限内の値を超えることはできません。';
     }
     return null;
 }
@@ -199,7 +199,7 @@ function validate_int_zero_ok($val, $title, $required)
 
     $limt_32bit = 2147483647;
     if ($val > $limt_32bit) {
-        return $title . 'は21億を超えることはできません。';
+        return $title . 'は制限内の値を超えることはできません。';
     }
     return null;
 }
@@ -550,7 +550,7 @@ function validate_ticket($input, $limit_num = null)
     if (is_int($input)) {
         return '枚数選択は数字を入力してください。';
     }
-    if(!is_null($limit_num)){
+    if (!is_null($limit_num)) {
         if ($input > $limit_num) {
             return '枚数選択は空き枠を超えることはできません。';
         }

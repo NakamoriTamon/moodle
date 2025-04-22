@@ -229,39 +229,65 @@ if (!empty($event_customfield_category_id)) {
             $params[$tag_name] = $input_data;
             $options = explode(",", $fields['selection']);
 
-            foreach ($options as $i => $option) {
-                if (in_array($option, $input_data)) {
+            foreach ($input_data as $i => $option) {
+                if (in_array($option, $options)) {
                     if ($i == 0) {
                         $input_value = $option;
                         continue;
                     }
                     $input_value .= ',' . $option;
+                } else {
+                    $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+                    break;
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+            if(empty($_SESSION['errors']['passage'][$tag_name])) {
+                $error = validate_array($input_value, $fields['field_name'], false);
+                if($error) {
+                    $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+                }
+            }
         } elseif ($fields['field_type'] == 4) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             $options = explode(",", $fields['selection']);
-            foreach ($options as $i => $option) {
-                if ($option == $input_value) {
-                    $input_value = $option;
-                    break;
+            $radio_flg = false;
+            if(!empty($input_value)) {
+                foreach ($options as $i => $option) {
+                    if ($option == $input_value) {
+                        $input_value = $option;
+                        $radio_flg = true;
+                        break;
+                    }
+                }
+                if(!$radio_flg) {
+                    $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_int($input_value, $fields['name'], false);
         } elseif ($fields['field_type'] == 1) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
-            $_SESSION['errors']['passage'][$tag_name] = validate_text($input_value, $fields['name'], 100, false);
+            
+            $error = validate_text($input_value, $fields['name'], 100, false);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
+            }
         } elseif ($fields['field_type'] == 2) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
-            $_SESSION['errors']['passage'][$tag_name] = validate_textarea($input_value, $fields['name'], false, 500);
+            
+            $error = validate_textarea($input_value, $fields['name'], false, 500);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
+            }
         } elseif ($fields['field_type'] == 5) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
-            $_SESSION['errors']['passage'][$tag_name] = validate_date($input_value, $fields['name'], false);
+            
+            $error = validate_date($input_value, $fields['name'], false);
+            if($error) {
+                $_SESSION['errors']['passage'][$tag_name] = $error;
+            }
         }
     }
 }
@@ -277,7 +303,7 @@ if (
     || $_SESSION['errors']['guardian_name']
     || $_SESSION['errors']['guardian_email']
     || $_SESSION['errors']['guardian_phone']
-    || (!empty($event_customfield_category_id) && empty($_SESSION['errors']['passage']))
+    || (!empty($event_customfield_category_id) && !empty($_SESSION['errors']['passage']))
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if (isset($params)) {

@@ -45,6 +45,7 @@ class MypageUpdateController
         $user_id = $_SESSION['USER']->id;
         $name_size = 50;
         $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
+        $tekijuku_commemoration_id = htmlspecialchars(required_param('tekijuku_commemoration_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['name'] = validate_text($name, 'お名前', $name_size, true);
         $name_kana = htmlspecialchars(required_param('name_kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         if (!empty($name_kana)) {
@@ -188,9 +189,7 @@ class MypageUpdateController
         try {
             if (isloggedin() && isset($_SESSION['USER'])) {
                 // 接続情報取得
-                $baseModel = new BaseModel();
-                $pdo = $baseModel->getPdo();
-                $pdo->beginTransaction();
+                $transaction = $DB->start_delegated_transaction();
 
                 $data = new stdClass();
                 $data->id = (int)$user_id;
@@ -215,15 +214,29 @@ class MypageUpdateController
 
                 $DB->update_record_raw('user', $data);
 
-                $pdo->commit();
+                if(!empty($tekijuku_commemoration_id)) {
+                    $tekijuku_data = new stdClass();
+                    $tekijuku_data->id = $tekijuku_commemoration_id;
+                    $tekijuku_data->name = $name;
+                    $tekijuku_data->kana = $name_kana;
+                    $tekijuku_data->email = $email;
+                    $tekijuku_data->tell_number = $phone;
+
+                    $DB->update_record_raw('tekijuku_commemoration', $tekijuku_data);
+                }
+
+                $transaction->allow_commit();
                 $_SESSION['message_success'] = '登録が完了しました';
                 header('Location: /custom/app/Views/mypage/index.php#user_form');
             }
         } catch (PDOException $e) {
-            $pdo->rollBack();
-            error_log('マイページ情報更新エラー: ' . $e->getMessage());
-            $_SESSION['user_message_error'] = '登録に失敗しました';
-            header('Location: /custom/app/Views/mypage/index.php#user_form');
+            try {
+                $transaction->rollback($e);
+                error_log('マイページ情報更新エラー: ' . $e->getMessage());
+            } catch (Exception $rollbackException) {
+                $_SESSION['user_message_error'] = '登録に失敗しました';
+                header('Location: /custom/app/Views/mypage/index.php#user_form');
+            }
         }
     }
 
@@ -238,13 +251,6 @@ class MypageUpdateController
         $name_size = 50;
         $size = 500;
         $id = htmlspecialchars(required_param('tekijuku_commemoration_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
-        $name = htmlspecialchars(required_param('tekijuku_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        $_SESSION['errors']['tekijuku_name'] = validate_text($name, 'お名前', $name_size, true);
-        $kana = htmlspecialchars(required_param('kana', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        if (!empty($kana)) {
-            $kana = preg_replace('/[\x{3000}\s]/u', '', $kana);
-        }
-        $_SESSION['errors']['kana'] = validate_kana($kana, $name_size);
 
         $post_code = htmlspecialchars(required_param('post_code', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
@@ -260,23 +266,6 @@ class MypageUpdateController
         $address = htmlspecialchars(required_param('address', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 
         $_SESSION['errors']['address'] = validate_max_text($address, '住所', $size, true);
-        $email = required_param('tekijuku_email', PARAM_TEXT);
-        $_SESSION['errors']['tekijuku_email'] = validate_custom_email($email);
-        $techiku_commem_count = $DB->get_records_select(
-            'tekijuku_commemoration',
-            'email = :email AND fk_user_id != :fk_user_id AND is_delete = 0',
-            ['email' => $email, 'fk_user_id' => $user_id]
-        );
-
-        // 結果が空でないかをチェック
-        if (!empty($techiku_commem_count)) {
-            $_SESSION['errors']['email'] = '既に登録されています。';
-        }
-
-        $tell_number = htmlspecialchars(required_param('tell_number', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        $tell_number = str_replace('ー', '-', $tell_number);
-        $_SESSION['errors']['tell_number'] = validate_tel_number($tell_number);
-
         $is_published = htmlspecialchars(required_param('is_published', PARAM_INT), ENT_QUOTES, 'UTF-8');
 
         $is_university_member = optional_param('is_university_member', 0, PARAM_INT);
@@ -305,12 +294,8 @@ class MypageUpdateController
 
                 $data = new stdClass();
                 $data->id = (int)$id;
-                $data->name = $name;
-                $data->kana = $kana;
                 $data->post_code = $post_code;
                 $data->address = $address;
-                $data->tell_number = $tell_number;
-                $data->email = $email;
                 $data->is_published = $is_published;
                 $data->department = $department;
                 $data->major = $major;

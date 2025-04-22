@@ -97,6 +97,8 @@ $free_event = 4;
 define('FREE_EVENT', $free_event);
 $payment_select_list = [1 => 'コンビニ決済', 2 => 'クレジット', 3 => '銀行振込', 5 => '現金払い'];
 define('PAYMENT_SELECT_LIST', $payment_select_list);
+$paid_cash = 5; // 現金支払い
+define('PAID_CASH', $paid_cash);
 $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
 $type_code_list = [1 => '普通会員', 2 => '賛助会員'];

@@ -404,6 +404,8 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 <script>
+    const loginCheckFlg = parseInt($("#login_check_flg").val()) ? true : false;
+
     $(".big").on("click", function() {
         srlpos = $(window).scrollTop();
         let imgSrc = $(this).closest(".desc_img").find(".img img").attr("src");
@@ -465,7 +467,13 @@ if (isloggedin() && isset($_SESSION['USER'])) {
     }
 
     function entryHrefExecution(eventId, courseInfoId) {
-        let hrefWord = "apply.php?id=" + eventId + (courseInfoId ? "&course_info_id=" + courseInfoId : "");
+        let hrefWord = "";
+        if(loginCheckFlg){
+            hrefWord = "apply.php?id=" + eventId + (courseInfoId ? "&course_info_id=" + courseInfoId : "");
+        }else{
+            hrefWord = "/custom/app/Views/login/index.php";
+        }
+        
         window.location.href = hrefWord;
     }
 </script>
