@@ -8,6 +8,11 @@ $errors = $_SESSION['errors'] ?? [];
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 $user_data = $_SESSION['USER'];
 unset($_SESSION['errors'], $_SESSION['old_input']);
+
+// ログインせずに直接URLで移動してきた場合はログイン画面に移動
+if (!$login_check_flg) {
+    header('Location: /custom/app/Views/login/index.php');
+}
 ?>
 
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/form.css" />
