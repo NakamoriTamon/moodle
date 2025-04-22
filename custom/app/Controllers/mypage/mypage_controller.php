@@ -128,13 +128,37 @@ class MypageController
 
             // コースごとのデータを取得するためのクエリ
             // イベント申し込みコース情報を中心に据えた設計
+            // QRチケット表示のため、対面→ライブ配信→オンデマンドの優先順位
             $course_sql = "
-                WITH elf AS (
-                    SELECT *
+                WITH elf_ranked AS (
+                    SELECT *,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY event_id
+                            ORDER BY
+                                CASE lecture_format_id
+                                    WHEN " . LOCAL . " THEN 1
+                                    WHEN " . LIVE . " THEN 2
+                                    WHEN " . ON_DEMAND . " THEN 3
+                                    ELSE 99
+                                END
+                        ) AS rn
                     FROM {event_lecture_format}
+                    WHERE lecture_format_id IN ( " . LOCAL . " , " . LIVE . " , " . ON_DEMAND . " )
+                ),
+                elf AS (
+                    SELECT * FROM elf_ranked WHERE rn = 1
+                ) 
+            ";
+            // 元のSQLも残しておきます
+            // $course_sql = "
+            //     WITH elf AS (
+            //         SELECT *
+            //         FROM {event_lecture_format}
 
-                    WHERE lecture_format_id = " . LOCAL . " OR lecture_format_id = " . LIVE . " OR lecture_format_id = " . ON_DEMAND . "
-                )
+            //         WHERE lecture_format_id = " . LOCAL . " OR lecture_format_id = " . LIVE . " OR lecture_format_id = " . ON_DEMAND . "
+            //     )
+            // ";
+            $course_sql .= " 
                 SELECT DISTINCT
                     eaci.id AS event_application_course_info_id,
                     ea.id AS event_application_id,
@@ -192,7 +216,7 @@ class MypageController
 
             // トータルカウントの取得
             $total = $this->DB->get_records_sql($course_sql, $params);
-            if($total) {
+            if ($total) {
                 $totalCount = count($total);
             } else {
                 $totalCount = 0;
@@ -205,7 +229,10 @@ class MypageController
             $course_sql .= " LIMIT $limit OFFSET $offset";
 
             // データの取得
-            $courses = $this->DB->get_records_sql($course_sql, $params);
+            $records = $this->DB->get_recordset_sql($course_sql, $params);
+            foreach ($records as $record) {
+                $courses[] = $record;
+            }
 
             // IDを暗号化するためのメソッド
             $encrypt = function ($id) use ($url_secret_key) {
