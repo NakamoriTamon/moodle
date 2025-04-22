@@ -64,9 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $failed_emails = [];
 
         foreach ($email_addresses as $key => $to_email) {
-            if($key == 0) {
-                $to_email = "test@";
-            }
+            // テスト用
+            // if($key == 0) {
+            //     $to_email = "test@";
+            // }
             $boundary = md5(time() . rand());
 
             $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
