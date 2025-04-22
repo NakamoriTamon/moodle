@@ -1256,6 +1256,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 
 						// サムネイル画像を完全に削除
 						$('#thumbnail_img_tag').remove();
+						$('.delete-link').remove();
 
 						// モーダルを閉じる
 						var modal = bootstrap.Modal.getInstance($('#delete_confirm_modal'));
