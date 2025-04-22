@@ -16,7 +16,9 @@ $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $targets = $targetModel->getTargets();
 
-$currentPage = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
+$currentPage_num_check = preg_match('/^\d+/', $_GET['page']); // 数値チェック
+$currentPage = $currentPage_num_check ? (int)$_GET['page'] : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
+$_GET['page'] = (string)$currentPage;
 $perPage = 12; // 1ページあたりの件数
 // 検索条件を取得
 $category_id = $_GET['category'] ?? [];
@@ -41,6 +43,12 @@ $events = $eventModel->getEvents([
 
 $now = new DateTime();
 $now = $now->format('Ymd');
+
+// イベントが存在しないページを指定された又は文字列をページに指定された場合は１ページ目を取得する　※リダイレクトでURLを奇麗にする。
+if(empty($events) || !$currentPage_num_check){
+    header('Location: /custom/app/Views/event/index.php?page=1&');
+    exit;
+}
 
 if (!empty($events)) {
     foreach ($events as &$event) {
