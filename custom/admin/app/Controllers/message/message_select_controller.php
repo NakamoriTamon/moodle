@@ -117,7 +117,8 @@ class MessageSelectController
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
         $select_event_list = $this->eventModel->getEvents([
             'userid' => $USER->id,
-            'shortname' => $shortname], 1, 100000); // イベント名選択用
+            'shortname' => $shortname
+        ], 1, 100000); // イベント名選択用
 
         $is_display = false;
         $is_single = false;
@@ -126,26 +127,31 @@ class MessageSelectController
         // イベント情報を特定する
         foreach ($event_list as $event) {
             if (!empty($event_id)) {
-                // 単発イベントの場合
                 if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
                         $course_info_id = $course_info['id'];
+                        $course_list = [];
                         $course_no = 1;
-                        $_SESSION['old_input']['course_no'] = "1";
-                        $is_single = true;
                         $is_display = true;
+                        $is_single = true;
                     }
-                }
-                // 複数回イベントの場合
-                if ($event['event_kbn'] == PLURAL_EVENT) {
-                    $course_list = $event['course_infos'];
-                    if(!empty($course_no)) {
+                } elseif ($event['event_kbn'] == PLURAL_EVENT) {
+                    if (!empty($course_no)) {
                         foreach ($event['course_infos'] as $course_info) {
                             if ($course_info['no'] == $course_no) {
                                 $course_info_id = $course_info['id'];
                                 $is_display = true;
                             }
                         }
+                    }
+                    $course_list = $event['course_infos'];
+                } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                    foreach ($event['course_infos'] as $course_info) {
+                        $course_info_id = $course_info['id'];
+                        $course_list = [];
+                        $course_no = 1;
+                        $is_single = true;
+                        $is_display = true;
                     }
                 }
             }
