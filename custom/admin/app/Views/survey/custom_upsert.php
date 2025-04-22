@@ -8,7 +8,7 @@ $id = isset($_GET['id']) ? $_GET['id'] : null;
 $customs = $surveyCustomController->edit($id);
 $details = isset($customs['detail']) ? $customs['detail'] : [];
 $detail_count = count($details);
-$answer = $customs['answer'];
+$answer = isset($customs['detail']) ? $customs['answer'] : false;
 
 // session
 $errors = $_SESSION['errors'] ?? [];
