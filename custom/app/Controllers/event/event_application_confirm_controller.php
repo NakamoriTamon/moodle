@@ -229,27 +229,38 @@ if (!empty($event_customfield_category_id)) {
             $params[$tag_name] = $input_data;
             $options = explode(",", $fields['selection']);
 
-            foreach ($options as $i => $option) {
-                if (in_array($option, $input_data)) {
+            foreach ($input_data as $i => $option) {
+                if (in_array($option, $options)) {
                     if ($i == 0) {
                         $input_value = $option;
                         continue;
                     }
                     $input_value .= ',' . $option;
+                } else {
+                    $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+                    break;
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+            if(empty($_SESSION['errors']['passage'][$tag_name])) {
+                if(validate_array($input_value, $fields['field_name'], false)) {
+                    $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+                }
+            }
         } elseif ($fields['field_type'] == 4) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             $options = explode(",", $fields['selection']);
+            $radio_flg = false;
             foreach ($options as $i => $option) {
                 if ($option == $input_value) {
                     $input_value = $option;
+                    $radio_flg = true;
                     break;
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_int($input_value, $fields['name'], false);
+            if(!$radio_flg) {
+                $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+            }
         } elseif ($fields['field_type'] == 1) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
@@ -277,7 +288,7 @@ if (
     || $_SESSION['errors']['guardian_name']
     || $_SESSION['errors']['guardian_email']
     || $_SESSION['errors']['guardian_phone']
-    || (!empty($event_customfield_category_id) && empty($_SESSION['errors']['passage']))
+    || (!empty($event_customfield_category_id) && !empty($_SESSION['errors']['passage']))
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if (isset($params)) {
