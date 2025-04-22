@@ -90,6 +90,9 @@
     transform-origin: 0 100%;
   }
 }
+.mv_slider_a{
+  display: initial;
+}
 
 /* mvスライダー */
 .mv-slider .swiper-wrapper {
