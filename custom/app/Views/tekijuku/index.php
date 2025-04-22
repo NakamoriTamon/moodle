@@ -38,7 +38,7 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                             適塾建物は昭和17年(1942)、緒方家より国に寄付されて以来、大阪大学が管理しています。
                         </p>
                     </div>
-                    <img src="/custom/public/assets/common/img/img_juku02.png" alt="" />
+                    <img src="/custom/public/assets/common/img/img_juku03.png" alt="" />
                 </div>
             </div>
             <div class="juku_block prize">
