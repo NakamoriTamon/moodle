@@ -229,16 +229,23 @@ if (!empty($event_customfield_category_id)) {
             $params[$tag_name] = $input_data;
             $options = explode(",", $fields['selection']);
 
-            foreach ($options as $i => $option) {
-                if (in_array($option, $input_data)) {
+            foreach ($input_data as $i => $option) {
+                if (in_array($option, $options)) {
                     if ($i == 0) {
                         $input_value = $option;
                         continue;
                     }
                     $input_value .= ',' . $option;
+                } else {
+                    $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+                    break;
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+            if(empty($_SESSION['errors']['passage'][$tag_name])) {
+                if(validate_array($input_value, $fields['field_name'], false)) {
+                    $_SESSION['errors']['passage'][$tag_name] = validate_array($input_value, $fields['field_name'], false);
+                }
+            }
         } elseif ($fields['field_type'] == 4) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
