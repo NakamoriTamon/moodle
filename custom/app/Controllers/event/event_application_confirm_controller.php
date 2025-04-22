@@ -251,15 +251,17 @@ if (!empty($event_customfield_category_id)) {
             $params[$tag_name] = $input_value;
             $options = explode(",", $fields['selection']);
             $radio_flg = false;
-            foreach ($options as $i => $option) {
-                if ($option == $input_value) {
-                    $input_value = $option;
-                    $radio_flg = true;
-                    break;
+            if(!empty($input_value)) {
+                foreach ($options as $i => $option) {
+                    if ($option == $input_value) {
+                        $input_value = $option;
+                        $radio_flg = true;
+                        break;
+                    }
                 }
-            }
-            if(!$radio_flg) {
-                $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+                if(!$radio_flg) {
+                    $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+                }
             }
         } elseif ($fields['field_type'] == 1) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);

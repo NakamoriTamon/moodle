@@ -61,9 +61,11 @@ class EventSurveyCustomFieldCategoryModel extends BaseModel
                 }
 
                 // 各イベントの詳細を追加
-                foreach ($custom_field_categorys as &$custom_field_category) $custom_field_category['detail']
-                    = $this->getEventSurveyCustomField($custom_field_category['id']);
+                foreach ($custom_field_categorys as &$custom_field_category) {
+                    $custom_field_category['detail'] = $this->getEventSurveyCustomField($custom_field_category['id']);
 
+                     $custom_field_category['event'] = $this->getEventById($custom_field_category['id']);
+                }
                 return $custom_field_category;
             } catch (\PDOException $e) {
                 error_log('アンケートカスタムフィールドカテゴリー取得エラー: ' . $e->getMessage() . ' ID: ' . $id);
