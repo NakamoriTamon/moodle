@@ -243,13 +243,17 @@ if (!empty($event_customfield_category_id)) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
             $options = explode(",", $fields['selection']);
+            $radio_flg = false;
             foreach ($options as $i => $option) {
                 if ($option == $input_value) {
                     $input_value = $option;
+                    $radio_flg = true;
                     break;
                 }
             }
-            $_SESSION['errors']['passage'][$tag_name] = validate_int($input_value, $fields['name'], false);
+            if(!$radio_flg) {
+                $_SESSION['errors']['passage'][$tag_name] = $fields['name'] . "で無効な選択がされていました。もう一度選択し直ししてください。";
+            }
         } elseif ($fields['field_type'] == 1) {
             $input_value = optional_param($tag_name, '', PARAM_TEXT);
             $params[$tag_name] = $input_value;
@@ -277,7 +281,7 @@ if (
     || $_SESSION['errors']['guardian_name']
     || $_SESSION['errors']['guardian_email']
     || $_SESSION['errors']['guardian_phone']
-    || (!empty($event_customfield_category_id) && empty($_SESSION['errors']['passage']))
+    || (!empty($event_customfield_category_id) && !empty($_SESSION['errors']['passage']))
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if (isset($params)) {
