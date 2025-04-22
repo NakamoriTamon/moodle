@@ -8,23 +8,35 @@ require_once('/var/www/html/moodle/custom/app/Models/EventApplicationCourseInfoM
 
 global $DB;
 
-$cancel_event_application_course_info_id = $_POST['cancel_event_application_course_info_id'];
+$cancel_event_application_id = $_POST['cancel_event_application_id'];
 
 // 参加・未参加・キャンセルまたは参加前の状態に更新する
 try {
-    $transaction = $DB->start_delegated_transaction();
-    $event_application_course_info = new stdClass();
-    $event_application_course_info->id = $cancel_event_application_course_info_id;
-    $event_application_course_info->participation_kbn = PARTICIPATION_KBN['CANCEL'];
-    $DB->update_record_raw('event_application_course_info', $event_application_course_info);
-    $transaction->allow_commit();
-    $_SESSION['message_success'] = 'キャンセルが完了しました';
+    // 接続情報取得
+    $baseModel = new BaseModel();
+    $pdo = $baseModel->getPdo();
+    $pdo->beginTransaction();
+    // データベースに保存する場合
+    $stmt = $pdo->prepare("
+        UPDATE mdl_event_application_course_info
+        SET 
+            participation_kbn = :participation_kbn,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE event_application_id = :event_application_id
+    ");
+
+    $stmt->execute([
+        ':participation_kbn' => PARTICIPATION_KBN['CANCEL'], // 3：キャンセル
+        ':event_application_id' => $cancel_event_application_id // キャンセルする申込ID
+    ]);
+    $pdo->commit();
+    $_SESSION['event_application_message_success'] = 'キャンセルが完了しました';
     header('Location: /custom/app/Views/mypage/index.php');
 } catch (Exception $e) {
     try {
-        $transaction->rollback($e);
+        $pdo->rollBack();
     } catch (Exception $rollbackException) {
-        $_SESSION['message_error'] = 'キャンセルに失敗しました';
+        $_SESSION['event_application_error'] = 'キャンセルに失敗しました';
         redirect('/custom/app/Views/mypage/index.php');
         exit;
     }

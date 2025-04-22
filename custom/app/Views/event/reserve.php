@@ -127,7 +127,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
           </div>
         </form>
         <form id="cancel_form" method="POST" action="/custom/app/Controllers/event/event_application_course_info_cancel_controller.php">
-          <input type="hidden" name="cancel_event_application_course_info_id" value="<?= htmlspecialchars($event_application_course_info_id) ?>">
+          <input type="hidden" name="cancel_event_application_id" value="<?= htmlspecialchars($application_id) ?>">
           <a id="cancel_submit" class="btn btn_gray arrow box_bottom_btn">イベント参加キャンセル</a>
         </form>
       </div>

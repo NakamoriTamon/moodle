@@ -85,6 +85,8 @@ $user_message_error = $_SESSION['user_message_error'] ?? [];
 $tekijuku_success = $_SESSION['tekijuku_success'] ?? [];
 $message_membership_success = $_SESSION['message_membership_success'] ?? [];
 $message_membership_error = $_SESSION['message_membership_error'] ?? [];
+$event_application_errors = $_SESSION['event_application_error'] ?? []; // バリデーションエラー
+$event_application_success = $_SESSION['event_application_message_success'] ?? [];
 $currentDate = date('Y-m-d');
 // 今は4/1で固定
 $startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
@@ -177,7 +179,9 @@ unset(
     $_SESSION['tekijuku_success'],
     $_SESSION['message_'],
     $_SESSION['message_membership_error'],
-    $_SESSION['message_membership_success']
+    $_SESSION['message_membership_success'],
+    $_SESSION['event_application_error'],
+    $_SESSION['event_application_message_success']
 );
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -239,6 +243,8 @@ unset(
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
+        <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
+        <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
         <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
