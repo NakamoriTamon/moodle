@@ -249,21 +249,25 @@ $course_id      = $result_list['course_info'] ?? [];
 			});
 
 			$(document).on('change', '.fileUpload', function(e) {
-				var file = this.files[0];
-				if (!file) return;
+				const files = this.files;
+				const $row = $(this).closest('.uploadRow');
+				const $err = $row.find('.fileError').text('').removeClass('duplicate-error d-none');
+				const $info = $row.find('.fileInfo').empty();
 
-				let $fileError = $(this).closest('.uploadRow').find('.fileError');
-				$fileError.text('').removeClass('duplicate-error').addClass('d-none');
-				if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-					$fileError.text('PDFファイルのみアップロード可能です。').removeClass('d-none');
-					$(this).val('');
-					return;
+				if (!files || files.length === 0) return;
+				for (let i = 0; i < files.length; i) {
+					const f = files[i];
+					if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+						$err.removeClass('d-none')
+							.text('PDFファイルのみアップロード可能です。');
+						$(this).val('');
+						return;
+					}
+					var fileName = file.name;
+					const fileURL = URL.createObjectURL(f);
+					const linkElem = createFileLink(fileURL, f.name);
+					$info.append(linkElem).removeClass('d-none');
 				}
-
-				var fileName = file.name;
-				var fileURL = URL.createObjectURL(file);
-				var linkElem = createFileLink(fileURL, fileName);
-				$(this).closest('.uploadRow').find('.fileInfo').html(linkElem).removeClass('d-none');
 				feather.replace();
 			});
 
@@ -278,18 +282,9 @@ $course_id      = $result_list['course_info'] ?? [];
 						occupiedFileNames.delete(oldFileName);
 					}
 				}
-				if ($row.find('.fileError').hasClass('duplicate-error')) {
-					if ($container.find('.uploadRow').length > 1) {
-						$row.remove();
-					} else {
-						$container.find('input[name^="ids"]').remove();
-						$row.find('input[type="file"]').val('');
-						$row.find('.hiddenFileField').val('delete');
-						$row.find('.fileInfo').html('').addClass('d-none');
-						$row.find('.fileError').html('').addClass('d-none');
-					}
-					return;
-				}
+				$row.find('.fileError')
+					.html('')
+					.removeClass('d-none duplicate-error');
 				if ($container.find('.uploadRow').length > 1) {
 					$container.find('input[name^="ids"]').remove();
 					$row.remove();
