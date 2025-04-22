@@ -162,6 +162,11 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
     #university_member_fields {
         display: none;
     }
+
+    #zip {
+        display: inline;
+        width: 95%;
+    }
 </style>
 
 <body id="event" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -292,12 +297,12 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <label class="form-label">郵便番号（ハイフンなし）</label>
                                         <span class="badge bg-danger">必須</span>
                                         <div class="align-items-center">
-                                            <div class="post_code">
-                                                <input type="text" id="zip" name="post_code" maxlength="7" pattern="\d{7}"
+                                            <div class="post_code" style="display: flex;">
+                                                <input type="text" id="zip" name="post_code" class="form-control" maxlength="7" pattern="\d{7}"
                                                     value="<?= htmlspecialchars($old_input['post_code'] ?? $tekijuku_commemoration['post_code']) ?>"
                                                     pattern="[0-9]*" inputmode="numeric"
                                                     oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                                <button id="post_button" type="button" onclick="fetchAddress()">住所検索</button>
+                                                <button id="post_button" type="button" style="margin-right: 0; width: 80px;" onclick="fetchAddress()">住所検索</button>
                                             </div>
                                             <?php if (!empty($errors['post_code'])): ?>
                                                 <div class="text-danger mt-2"><?= htmlspecialchars($errors['post_code']); ?></div>
@@ -318,7 +323,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <label class="form-label">電話番号（ハイフンなし）</label>
                                         <span class="badge bg-danger">必須</span>
                                         <div class="align-items-center">
-                                            <input type="text" name="tell_number" maxlength="15"
+                                            <input type="text" name="tell_number" class="form-control" maxlength="15"
                                                 value="<?= htmlspecialchars($old_input['tell_number'] ?? $tekijuku_commemoration['tell_number']) ?>"
                                                 pattern="[0-9]*" inputmode="numeric"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '');">
@@ -405,8 +410,8 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     </div>
                                     <div class="mb-3">
                                         <input type="hidden" name="is_published" value="0">
-                                        <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
-                                        <label class="checkbox_label">氏名掲載を許可します</label>
+                                        <input class="checkbox_input" type="checkbox" id="is_published" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
+                                        <label class="checkbox_label" for="is_published">氏名掲載を許可します</label>
                                     </div>
                                     <div class="mb-3">
                                         <input type="submit" id="submit_btn" class="btn btn-primary" value="変更を確定する">
