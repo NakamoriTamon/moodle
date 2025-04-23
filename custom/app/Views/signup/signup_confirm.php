@@ -11,7 +11,7 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
 <main id="subpage">
     <section id="heading" class="inner_l">
         <?php if ($result) { ?>
-            <h2 class="head_ttl" data-en="REGISTRATION SUCCESSFUL">本登録完了</h2>
+            <h2 class="head_ttl" data-en="REGISTRATION SUCCESSFUL">本登録<?= $result === 2 ? "済" : "完了" ?></h2>
         <?php } else { ?>
             <h2 class="head_ttl" data-en="REGISTRATION FATAL">本登録失敗</h2>
         <?php } ?>
@@ -25,9 +25,9 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
                 <li class="active">完了</li>
             </ul> -->
             <div class="whitebox form_cont">
-                <p class="cpt_txt"><?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?></p>
+                <p class="cpt_txt"><?= $result ? ($result === 2 ? "既に本登録済みです。" : "本登録が完了いたしました。") : "本登録に失敗しました。" ?></p>
                 <p class="sent">
-                    <?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?><br />
+                    <?= $result ? ($result === 2 ? "既に本登録済みです。" : "本登録が完了いたしました。") : "本登録に失敗しました。" ?><br />
                     <?php if ($result) { ?>
                         ログイン画面からログインして<br class="pc" />システムをご利用ください
                     <?php } else { ?>

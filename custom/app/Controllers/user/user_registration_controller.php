@@ -13,21 +13,27 @@ class userRegistrationController
             $transaction = $DB->start_delegated_transaction();
 
             if (empty($id) || empty($expiration_time)) {
-                return false;
+                return 0;
+            }
+            
+            $id = $this->decrypt_id($id, $url_secret_key);
+            $existing = $DB->get_record('user', ['id' => $id]);
+
+            // すでに認証を終えている場合
+            if ($existing && $existing->confirmed == CONFIRMED['IS_CONFIRMED']) {
+                return 2;
             }
 
             // 有効期限確認
             $expiration_time = (int)$this->decrypt_id($expiration_time, $url_secret_key);
             if (time() > $expiration_time) {
-                $id = $this->decrypt_id($id, $url_secret_key);
+                // $id = $this->decrypt_id($id, $url_secret_key);
                 $user = core_user::get_user($id);
                 $test = user_delete_user($user); // 有効期間切れのためユーザー情報を削除
                 $transaction->allow_commit();
-                return false;
+                return 0;
             }
 
-            $id = $this->decrypt_id($id, $url_secret_key);
-            $existing = $DB->get_record('user', ['id' => $id]);
             if ($existing) {
                 $data = new stdClass();
                 $data->confirmed = 1;
@@ -38,13 +44,13 @@ class userRegistrationController
                 throw new Exception;
             }
             $transaction->allow_commit();
-            return true;
+            return 1;
         } catch (Throwable $e) {
             try {
                 $transaction->rollback($e);
             } catch (Throwable $e) {
                 $_SESSION['message_error'] = '登録に失敗しました';
-                return false;
+                return 0;
             }
         }
     }
