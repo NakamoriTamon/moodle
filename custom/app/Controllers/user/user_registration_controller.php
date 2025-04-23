@@ -15,7 +15,7 @@ class userRegistrationController
             if (empty($id) || empty($expiration_time)) {
                 return 0;
             }
-            
+
             $id = $this->decrypt_id($id, $url_secret_key);
             $existing = $DB->get_record('user', ['id' => $id]);
 
@@ -29,11 +29,21 @@ class userRegistrationController
             if (time() > $expiration_time) {
                 // $id = $this->decrypt_id($id, $url_secret_key);
                 $user = core_user::get_user($id);
+                if ($user->confirmed == CONFIRMED['IS_CONFIRMED']) {
+                    $transaction->allow_commit();
+                    return new moodle_url('/custom/app/Views/signup_error.php');
+                }
                 $test = user_delete_user($user); // 有効期間切れのためユーザー情報を削除
                 $transaction->allow_commit();
                 return 0;
             }
 
+            $id = $this->decrypt_id($id, $url_secret_key);
+            $existing = $DB->get_record('user', ['id' => $id]);
+            if ($existing && $existing->confirmed == CONFIRMED['IS_CONFIRMED']) {
+                $transaction->allow_commit();
+                return new moodle_url('/custom/app/Views/signup_error.php');
+            }
             if ($existing) {
                 $data = new stdClass();
                 $data->confirmed = 1;

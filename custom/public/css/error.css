@@ -1,0 +1,14 @@
+@media only screen and (max-width: 959px) {
+    #footer {
+      padding-bottom: 0px;
+    }
+
+    .inner_s,
+    .inner_m,
+    .inner_l .inner_m,
+    .inner_l .inner_s,
+    .inner_l .inner_m .inner_s {
+      width: 80%;
+      line-height: 1.7;
+    }
+  }

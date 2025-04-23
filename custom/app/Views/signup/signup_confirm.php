@@ -3,6 +3,11 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/user/user_registration_controller.php');
 $user_registration_controller = new userRegistrationController();
 $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_time']);
+
+// 本登録済みのエラー
+if ($result instanceof moodle_url) {
+    redirect($result);
+}
 ?>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
@@ -49,4 +54,5 @@ $result = $user_registration_controller->index($_GET['id'], $_GET['expiration_ti
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 </body>
+
 </html>
