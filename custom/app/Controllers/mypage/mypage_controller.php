@@ -185,6 +185,7 @@ class MypageController
                     {course_info} ci ON ci.id = eaci.course_info_id
                 JOIN 
                     {event_application} ea ON ea.id = eaci.event_application_id
+                    AND ea.payment_kbn != 2
                 JOIN 
                     {event} e ON e.id = ea.event_id
                 JOIN 
