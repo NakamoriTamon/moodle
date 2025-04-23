@@ -453,10 +453,17 @@ if ($result) {
                         ]
                     ]);
 
-                    $recipients = [$_POST['email']];
-                    if (!empty($_POST['other_mail_adress'])) {
-                        $recipients = array_merge($recipients, explode(',', $_POST['other_mail_adress']));
-                    }
+                    // 会員のメールアドレス
+                    $mail_to_list = [$course['participant_mail']];
+                    // 無効なメールアドレスを除外
+                    $recipients = array_filter($mail_to_list, function ($email) {
+                        // ドメイン名が有効かDNSチェック（MXレコード確認）
+                        $domain = substr(strrchr($email, "@"), 1);
+                        // filter_var() 形式チェック
+                        // checkdnsrr() は MX レコードを確認する関数 メールを受信可能なドメインかどうかチェック
+                        return !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX");
+                    });
+                    $recipients = array_values(array_unique($recipients));
 
                     $ymd = "";
                     if($event_kbn == EVERY_DAY_EVENT) {
@@ -487,22 +494,40 @@ if ($result) {
                     $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
 
                     $dear = !empty($user_name) ? '様' : '';
-                    $htmlBody = "
-                        <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                            <p style=\"text-align: left; font-weight:bold;\">" . $user_name . $dear . "</p><br />
-                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申し込みが完了いたしました。</P>
-                            <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
-                            <div>
-                                <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                    if ($event_kbn == PLURAL_EVENT) {
+                        $htmlBody = "
+                            <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                                <p style=\"text-align: left; font-weight:bold;\">" . $user_name . $dear . "</p><br />
+                                <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申し込みが完了いたしました。</P>
+                                <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
+                                <div>
+                                    <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                                </div>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">開催回数：第" . $select_course['no'] . "回</p>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
+                                <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                                あらかじめご了承ください。</p>
                             </div>
-                            <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
-                            <p style=\"margin-top: 20px; font-size: 14px;\">開催回数：第" . $select_course['no'] . "回</p>
-                            <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
-                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
-                            <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
-                            あらかじめご了承ください。</p>
-                        </div>
-                    ";
+                        ";
+                    } else {
+                        $htmlBody = "
+                            <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                                <p style=\"text-align: left; font-weight:bold;\">" . $user_name . $dear . "</p><br />
+                                <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">お申込みありがとうございます。チケットのお申し込みが完了いたしました。</P>
+                                <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
+                                <div>
+                                    <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                                </div>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
+                                <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
+                                <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                                あらかじめご了承ください。</p>
+                            </div>
+                        ";
+                    }
 
                     $rawMessage .= "--{$boundary}\r\n";
                     $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
@@ -531,10 +556,10 @@ if ($result) {
                             'Destinations' => $recipients
                         ]);
                     } catch (AwsException $e) {
-                        error_log('イベント申込確認メール送信エラー: ' . $e->getMessage());
+                        error_log('イベント申込確認メール送信エラー: ' . $recipients);
                         $_SESSION['message_error'] = '送信に失敗しました';
-                        redirect('/custom/app/Views/user/pass_mail.php');
-                        exit;
+                        // 次のループへ continue
+                        continue;
                     }
                 }
 

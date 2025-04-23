@@ -16,8 +16,9 @@ $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $targets = $targetModel->getTargets();
 
-$currentPage_num_check = preg_match('/^\d+/', $_GET['page']); // 数値チェック
-$currentPage = $currentPage_num_check ? (int)$_GET['page'] : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
+$page = $_GET['page'] ?? 1;
+$currentPage_num_check = preg_match('/^\d+/', $page); // 数値チェック
+$currentPage = $currentPage_num_check ? (int)$page : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
 $_GET['page'] = (string)$currentPage;
 $perPage = 12; // 1ページあたりの件数
 // 検索条件を取得

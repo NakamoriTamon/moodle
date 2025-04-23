@@ -311,14 +311,21 @@ try {
         $destinations = [];
 
         foreach ($batch as $recipient) {
-            $destinations[] = [
-                'Destination' => [
-                    'ToAddresses' => [$recipient['email']]
-                ],
-                'ReplacementTemplateData' => json_encode([
-                    'name' => $recipient['name']
-                ])
-            ];
+            $email = $recipient['email'];
+            
+            // ドメイン名が有効かDNSチェック（MXレコード確認）
+            $domain = substr(strrchr($email, "@"), 1);
+
+            if(!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX")) {
+                $destinations[] = [
+                    'Destination' => [
+                        'ToAddresses' => [$recipient['email']]
+                    ],
+                    'ReplacementTemplateData' => json_encode([
+                        'name' => $recipient['name']
+                    ])
+                ];
+            }
         }
 
         try {
