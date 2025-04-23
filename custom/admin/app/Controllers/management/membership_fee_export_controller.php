@@ -11,6 +11,7 @@ try {
     // POSTパラメータの取得
     $year = $_POST['year'] ?? null;
     $keyword = $_POST['keyword'] ?? null;
+    $payment_status = $_POST['payment_status'] ?? null;
     $_SESSION['old_input'] = $_POST;
 
     // フィルター条件の設定
@@ -67,7 +68,7 @@ try {
         }
 
         $name = $result['name'];
-        if($result['is_delete']) {
+        if ($result['is_delete']) {
             $name .= '(退会済)';
         }
         $csv_array = [
@@ -142,4 +143,4 @@ try {
         redirect('/custom/admin/app/Views/management/membership_fee_registration.php');
         exit;
     }
-} 
+}

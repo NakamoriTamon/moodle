@@ -102,6 +102,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                 <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/membership_fee_export_controller.php">
                                     <input type="hidden" name="year" value="<?= $old_input['year'] ?? '' ?>">
                                     <input type="hidden" name="keyword" value="<?= $old_input['keyword'] ?? '' ?>">
+                                    <input type="hidden" name="payment_status" value="<?= $old_input['payment_status'] ?? '' ?>">
                                 </form>
                                 <div class="card m-auto mb-5 w-95">
                                     <table class="table table-responsive table-striped table_list" style="width:100%">
@@ -144,9 +145,11 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     }
                                                     ?>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars(substr_replace($number, ' ', 4, 0)) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['name']) ?><?php if ($result['is_delete']) {
-                                                                                                                                    echo '(退会済)';
-                                                                                                                                } ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['name']) ?>
+                                                        <?php if ($result['is_delete']) {
+                                                            echo '(退会済)';
+                                                        } ?>
+                                                    </td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['email']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['post_code']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['address']) ?></td>

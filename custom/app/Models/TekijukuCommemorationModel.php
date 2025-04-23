@@ -243,6 +243,7 @@ class TekijukuCommemorationModel extends BaseModel
                 $target_deposit = 'is_deposit_' . $year;
                 if ($join_filtered[$target_deposit] == 1) {
                     $join_filtered_list[$key]['payment_status'] = '決済済';
+                    $join_filtered_list[$key]['paid_status'] = PAID_STATUS['COMPLETED'];
                 }
                 // 未決済の場合は支払方法を初期化する
                 if ($join_filtered_list[$key]['payment_status'] == '未決済') {
