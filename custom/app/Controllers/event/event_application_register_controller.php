@@ -108,7 +108,7 @@ class EventRegisterController
             )
             AND eaci.participation_kbn != :participation_kbn 
         ORDER BY 
-            ci.course_date ASC
+            ci.course_date ASC, ea.event_id ASC
         LIMIT $perPage OFFSET $offset";
 
             // パラメータ設定
@@ -173,7 +173,7 @@ class EventRegisterController
             )
             AND eaci.participation_kbn != :participation_kbn 
         ORDER BY 
-            ci.course_date ASC
+            ci.course_date ASC, ea.event_id ASC
         ";
 
             // 総件数取得

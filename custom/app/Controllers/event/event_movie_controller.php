@@ -30,7 +30,11 @@ class EventMovieController
             foreach ($application_list as $application) {
                 if ($USER->id == $application['user_id']) {
                     $is_payment = true;
-                    $path = "/uploads/movie/" . $course_info_id . "/" . $event_application['course_info']['no'] . "/" . $movie['file_name'];
+                    if ($application['event']['event_kbn'] == EVERY_DAY_EVENT) {
+                        $path = "/uploads/movie/" . $course_info_id . "/1/" . $movie['file_name'];
+                    } else {
+                        $path = "/uploads/movie/" . $course_info_id . "/" . $event_application['course_info']['no'] . "/" . $movie['file_name'];
+                    }
                     $event = $DB->get_record('event', ['id' => $application['event_id']]);
                     $is_double_speed = $event->is_double_speed;
                 }

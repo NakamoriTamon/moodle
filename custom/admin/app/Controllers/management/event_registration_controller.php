@@ -162,6 +162,11 @@ class EventRegistrationController
             $note = '';
             $age = null;
 
+            // 支払区分（payment_kbn）が「未払い(期限切れ)（2）」のデータは除外する
+            if($application['payment_kbn'] === 2){
+                continue;
+            }
+
             // お連れ様の場合はユーザー情報は取得しない
             if ($application['user']['email'] ==  $application_course_info['participant_mail']) {
                 $name = $application['user']['name'];
