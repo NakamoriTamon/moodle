@@ -31,6 +31,12 @@ class UserRegistrationController
         // 検索ボタンが押された場合のみ1ページ目を表示
         $is_search = isset($_POST['search']) && $_POST['search'] == 1;
         $current_page = $is_search ? 1 : ($_POST['page'] ?? $_GET['page'] ?? 1);
+
+        // ページ値の数字チェック
+        $currentPage_num_check = preg_match('/^\d+/', $current_page);
+        // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
+        $current_page = $currentPage_num_check ? (int)$current_page : 1;
+
         $current_page = max(1, (int)$current_page);
 
         if ($current_page < 0) {
@@ -40,6 +46,12 @@ class UserRegistrationController
         // ユーザーデータ取得 (UserModel 側で $filters, $current_page, $per_page を考慮)
         $user_list = $this->userModel->getUsers($filters, $current_page, $per_page);
         $user_count_list = $this->userModel->getFilterUserCount($filters);
+
+        // ユーザが存在しないページを指定された又は文字列をページに指定された場合は１ページ目を取得する　※リダイレクトでURLを奇麗にする。
+        if(empty($user_list) || !$currentPage_num_check){
+            header('Location: /custom/admin/app/Views/management/user_registration.php?page=1');
+            exit;
+        }
 
         $data_list = [];
         foreach ($user_list as $key => $user) {

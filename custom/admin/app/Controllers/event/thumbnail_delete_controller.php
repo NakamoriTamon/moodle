@@ -34,7 +34,7 @@ try {
         ");
 
         $stmt->execute([
-            ':thumbnail_img' => null, // ファイルURLを保存
+            ':thumbnail_img' => '', // ファイルURLを保存
             ':id' => $id // イベントID
         ]);
 
@@ -46,13 +46,15 @@ try {
 
         $pdo->commit();
         // 元の画面に戻す
-        return json_encode(['success' => true, 'message' => '画像が削除されました']);
+        echo json_encode(['success' => true, 'message' => '画像が削除されました']);
+        exit;
     }
 
     // 元の画面に戻す
-    return json_encode(['success' => false, 'message' => '削除に失敗しました']);
+    echo json_encode(['success' => false, 'message' => '削除に失敗しました']);
+    exit;
 } catch (Exception $e) {
     $pdo->rollBack();
     // 元の画面に戻す
-    return json_encode(['success' => false, 'message' => '削除に失敗しました']);
+    echo json_encode(['success' => false, 'message' => '削除に失敗しました' . $e->getMessage()]);
 }
