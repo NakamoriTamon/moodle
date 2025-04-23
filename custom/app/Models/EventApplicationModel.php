@@ -40,6 +40,7 @@ class EventApplicationModel extends BaseModel
                             AND (eac.participation_kbn IS NULL 
                             OR eac.participation_kbn = 1
                             OR eac.participation_kbn = 2)
+                            AND ea.payment_kbn != 2
                             GROUP BY eac.course_info_id, eac.event_id
                         )
                         SELECT 
@@ -194,6 +195,7 @@ class EventApplicationModel extends BaseModel
                     AND (eac.participation_kbn IS NULL 
                         OR eac.participation_kbn = 1
                         OR eac.participation_kbn = 2)
+                    AND ea.payment_kbn != 2
                     AND eac.course_info_id = :course_info_id");
                 // パラメータ設定
                 $params = [

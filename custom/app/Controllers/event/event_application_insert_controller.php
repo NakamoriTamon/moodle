@@ -291,6 +291,7 @@ if ($result) {
             SELECT eac.course_info_id
             FROM mdl_event_application_course_info eac
             JOIN mdl_event_application ea ON ea.id = eac.event_application_id
+                AND ea.payment_kbn != 2
             WHERE ea.event_id = ? AND eac.course_info_id IN ($inClause)
             FOR UPDATE
         ");
@@ -301,6 +302,7 @@ if ($result) {
             SELECT eac.course_info_id, COUNT(*) AS ticket_count
             FROM mdl_event_application_course_info eac
             JOIN mdl_event_application ea ON ea.id = eac.event_application_id
+                AND ea.payment_kbn != 2
             WHERE ea.event_id = ? AND eac.course_info_id IN ($inClause)
             AND eac.participation_kbn <> ".PARTICIPATION_KBN['CANCEL']." "
             ."GROUP BY eac.course_info_id
