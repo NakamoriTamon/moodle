@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email_addresses = array_filter($mail_to_list, function ($email) {
             // ドメイン名が有効かDNSチェック（MXレコード確認）
             $domain = substr(strrchr($email, "@"), 1);
+            // filter_var() 形式チェック
+            // checkdnsrr() は MX レコードを確認する関数 メールを受信可能なドメインかどうかチェック
             return !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX");
         });
         $email_addresses = array_values(array_unique($email_addresses));
