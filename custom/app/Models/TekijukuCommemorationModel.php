@@ -47,27 +47,14 @@ class TekijukuCommemorationModel extends BaseModel
                     $where .= " AND (:keyword IS NULL OR c.name LIKE CONCAT('%', :keyword, '%'))";
                     $params[':keyword'] = $filters['keyword'];
                 }
-                if (!empty($filters['payment_status'])) {
-                    $where .= " AND (:payment_status IS NULL
-                                OR (:payment_status = '決済済' AND h.id IS NOT NULL)
-                                OR (:payment_status = '未決済' AND h.id IS NULL)
-                        )";
-                    $params[':payment_status'] = $filters['payment_status'];
-                }
 
-                // ページネーション用のオフセットを計算
-                $offset = ($page - 1) * $perPage;
-                $limit = " LIMIT $perPage OFFSET $offset";
-
-                // 最終SQLの組み立て
                 $sql .= $where;
-                $sql .=  $limit;
 
                 // クエリの実行
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
                 $tekijuku_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+                $tekijuku_list = $this->filter_join_year_and_deposit($tekijuku_list, $filters['year'], $filters['payment_status'], $page, $perPage);
                 return $tekijuku_list;
             } catch (\PDOException $e) {
                 error_log('適塾記念会ユーザー一覧取得エラー: ' . $e->getMessage());
@@ -188,7 +175,7 @@ class TekijukuCommemorationModel extends BaseModel
 
         return [];
     }
-    
+
     // 条件に一致する適塾会員を取得
     public function getTekijukuUserAll()
     {
@@ -216,21 +203,68 @@ class TekijukuCommemorationModel extends BaseModel
         return [];
     }
 
-    private function get_fiscal_year_range(int $fiscalYear): array {
+    private function get_fiscal_year_range(int $fiscalYear): array
+    {
         // 定義されている起算日（月日）
         $startMonthDay = MEMBERSHIP_START_DATE; // 例: '04-01'
-    
+
         // 開始日：たとえば2025-04-01
         $startDate = "{$fiscalYear}-{$startMonthDay}";
-    
+
         // 終了日：開始日の1年後の前日
         $startDateTime = new DateTime($startDate);
         $endDateTime = clone $startDateTime;
         $endDateTime->modify('+1 year')->modify('-1 day');
-    
+
         return [
             'start' => $startDateTime->format('Y-m-d 00:00:00'),
             'end'   => $endDateTime->format('Y-m-d 23:59:59'),
         ];
+    }
+
+    // 決済状況と既に支払い済みか確認
+    private function filter_join_year_and_deposit($tekijuku_commemoration_list, $year, $paid_status, $page, $perPage)
+    {
+        // 入会年度をチェック
+        $join_filtered_list = array_filter($tekijuku_commemoration_list, function ($tekijuku_commemoration) use ($year) {
+            $date = new DateTime($tekijuku_commemoration['created_at']);
+            $join_year = (int)$date->format('Y');
+            $join_month = (int)$date->format('m');
+
+            $join_year = $join_month < MEMBERSHIP_START_MONTH ? $join_year - 1 : $join_year;
+
+            // 指定年度より前に加入していれば表示する。
+            return $join_year <= $year;
+        });
+
+        // 先払いを行っているか確認する( 2024年から2030年まで対応 )
+        if ($year > 2023 && $year < 2031) {
+            foreach ($join_filtered_list as $key => $join_filtered) {
+                $target_deposit = 'is_deposit_' . $year;
+                if ($join_filtered[$target_deposit] == 1) {
+                    $join_filtered_list[$key]['payment_status'] = '決済済';
+                    $join_filtered_list[$key]['paid_status'] = PAID_STATUS['COMPLETED'];
+                }
+                // 未決済の場合は支払方法を初期化する
+                if ($join_filtered_list[$key]['payment_status'] == '未決済') {
+                    $join_filtered_list[$key]['payment_method'] = null;
+                }
+            }
+        }
+
+        // 決済状況で振り分け
+        if (!empty($paid_status)) {
+            $status_filtered_list = array_filter($join_filtered_list, function ($join_filtered) use ($paid_status) {
+                return $join_filtered['payment_status'] == $paid_status;
+            });
+        }
+
+        $filter_list = $status_filtered_list ?? $join_filtered_list;
+
+        // ページネーション
+        $offset = ($page - 1) * $perPage;
+        $filter_list = array_slice($filter_list, $offset, $perPage);
+
+        return $filter_list;
     }
 }
