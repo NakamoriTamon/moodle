@@ -156,7 +156,11 @@ function viewDates($event)
                                     <?php foreach ($event->materials as $pdf): ?>
                                         <li>
                                             <p class="name"><?= htmlspecialchars($pdf) ?></p>
-                                            <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars($event->no) ?>" data-course_info="<?= htmlspecialchars($event->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf) ?>">PDF資料</a>
+                                            <?php if ($event->event_kbn == EVERY_DAY_EVENT): ?>
+                                                <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars(1) ?>" data-course_info="<?= htmlspecialchars($event->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf) ?>">PDF資料</a>
+                                            <?php else: ?>
+                                                <a href="#" class="open-pdf btn btn_navy pdf" data-course_no="<?= htmlspecialchars($event->no) ?>" data-course_info="<?= htmlspecialchars($event->course_info_id) ?>" data-file_name="<?= htmlspecialchars($pdf) ?>">PDF資料</a>
+                                            <?php endif ?>
                                         </li>
                                     <?php endforeach; ?>
                                 <?php else: ?>
