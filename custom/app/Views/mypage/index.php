@@ -814,9 +814,17 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item06">
+                                    <li class="list_item06 payment_annotation_li">
                                         <p class="list_label"></p>
                                         <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
+                                    </li>
+                                    <li class="list_item07 payment_annotation_li">
+                                        <p class="list_label"></p>
+                                        <p class="list_field font-14">コンビニ決済の場合は別途手数料220円が必要になります。</p>
+                                    </li>
+                                    <li class="list_item08 payment_annotation_li">
+                                        <p class="list_label"></p>
+                                        <p class="list_field font-14">銀行振込の手数料が発生する場合、会員様のご負担となります。</p>
                                     </li>
                                     <li class="list_item02 is_subscription_area" style="display: none;">
                                         <div class="area plan">
@@ -899,7 +907,7 @@ unset(
                     if ($application->lecture_format_id != ON_DEMAND) {
                         if ($application->price == 0) {
                             $qr_class = 'js_pay';
-                        }elseif (!empty($application->payment_date)) {
+                        } elseif (!empty($application->payment_date)) {
                             $qr_class = 'js_pay';
                         }
                     }
