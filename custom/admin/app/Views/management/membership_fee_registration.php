@@ -133,7 +133,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     $created_date = new DateTime($result['created_at']);
                                                     $paid_date = '';
 
-                                                    if(empty($subject_ids)) {
+                                                    if (empty($subject_ids)) {
                                                         $subject_ids = $result['id'];
                                                     } else {
                                                         $subject_ids .= "," . $result['id'];
@@ -144,7 +144,9 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     }
                                                     ?>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars(substr_replace($number, ' ', 4, 0)) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['name']) ?><?php if($result['is_delete']){ echo '(退会済)'; } ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['name']) ?><?php if ($result['is_delete']) {
+                                                                                                                                    echo '(退会済)';
+                                                                                                                                } ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['email']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['post_code']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['address']) ?></td>
@@ -208,12 +210,12 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                             <h5 class="card-title mb-0 mt-3">メール送信設定</h5>
                         </div>
                         <form method="POST" id="search-form" action="/custom/admin/app/Controllers/management/membership_fee_upsert_controller.php">
-                            <input type="hidden" id="email_send_setting_id" name="email_send_setting_id" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['id']) ?>" >
-                            <input type="hidden" id="subject_ids" name="subject_ids" value="<?= htmlspecialchars($subject_ids) ?>" >
-                            <input type="hidden" name="select_category_id" value="<?= isset($old_input['category_id']) ? $old_input['category_id'] : '' ?>" >
-                            <input type="hidden" name="select_year" value="<?= isset($old_input['year']) ? $old_input['year'] : '' ?>" >
-                            <input type="hidden" name="select_keyword" value="<?= isset($old_input['keyword']) ? $old_input['keyword'] : '' ?>" >
-                            <input type="hidden" name="select_payment_status" value="<?= isset($old_input['payment_status']) ? $old_input['payment_status'] : '' ?>" >
+                            <input type="hidden" id="email_send_setting_id" name="email_send_setting_id" value="<?= htmlspecialchars(empty($email_send_setting) ? '' : $email_send_setting['id']) ?>">
+                            <input type="hidden" id="subject_ids" name="subject_ids" value="<?= htmlspecialchars($subject_ids) ?>">
+                            <input type="hidden" name="select_category_id" value="<?= isset($old_input['category_id']) ? $old_input['category_id'] : '' ?>">
+                            <input type="hidden" name="select_year" value="<?= isset($old_input['year']) ? $old_input['year'] : '' ?>">
+                            <input type="hidden" name="select_keyword" value="<?= isset($old_input['keyword']) ? $old_input['keyword'] : '' ?>">
+                            <input type="hidden" name="select_payment_status" value="<?= isset($old_input['payment_status']) ? $old_input['payment_status'] : '' ?>">
                             <div class="card-body ml-025">
                                 <div class="mb-3">
                                     <label class="form-label">請求メール送信日時</label>
