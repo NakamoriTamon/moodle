@@ -261,9 +261,6 @@ unset(
                         <p class="card_pres_name">熊ノ郷 淳</p>
                     </div>
                 </div>
-                <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                    <div class="inactive-text-card">退会済み</div>
-                <?php endif; ?>
             </div>
         <?php endif; ?>
         <div id="displayUserContainer">
@@ -555,7 +552,11 @@ unset(
             <div id="displayTekijukuContainer">
                 <div id="tekijuku_form">
                     <div id="form" class="mypage_cont">
-                        <h3 class="mypage_head">適塾記念会 会員情報</h3>
+                        <h3 class="mypage_head">適塾記念会 会員情報
+                            <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                                <div class="inactive-text">退会済</div>
+                            <?php endif; ?>
+                        </h3>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
                                 <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
@@ -633,7 +634,7 @@ unset(
                     <div id="form" class="mypage_cont">
                         <h3 class="mypage_head">適塾記念会 会員情報
                             <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                                <div class="inactive-text">退会済み</div>
+                                <div class="inactive-text">退会済</div>
                             <?php endif; ?>
                         </h3>
                         <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
@@ -647,17 +648,17 @@ unset(
                                             <p class="list_label">会員番号</p>
                                             <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></div>
                                         </li>
-                                        <li class="list_item02 req">
+                                        <li class="list_item02">
                                             <p class="list_label">会員種別</p>
                                             <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration['type_code']) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></div>
                                         </li>
-                                        <li class="list_item03 req">
+                                        <li class="list_item03">
                                             <p class="list_label">お名前</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ? $tekijuku_commemoration['name'] : ''); ?></div>
                                             </div>
                                         </li>
-                                        <li class="list_item04 req">
+                                        <li class="list_item04">
                                             <p class="list_label">フリガナ</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['kana'] ? $tekijuku_commemoration['kana'] : ''); ?></div>
@@ -687,13 +688,13 @@ unset(
                                                 <?php endif; ?>
                                             </div>
                                         </li>
-                                        <li class="list_item07 req">
+                                        <li class="list_item07">
                                             <p class="list_label">電話番号（ハイフンなし）</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['tell_number'] ? $tekijuku_commemoration['tell_number'] : ''); ?></div>
                                             </div>
                                         </li>
-                                        <li class="list_item08 req">
+                                        <li class="list_item08">
                                             <p class="list_label">メールアドレス</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['email'] ? $tekijuku_commemoration['email'] : ''); ?></div>

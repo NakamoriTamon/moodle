@@ -13,7 +13,7 @@ include('/var/www/html/moodle/custom/admin/app/Views/common/logon_header.php');
                 <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto d-table h-100">
                     <div class="d-table-cell align-middle">
                         <div class="text-center mt-4 mb-3">
-                            <h1 class="h2"><?= $result ? "本登録が完了いたしました。" : "本登録に失敗しました。" ?></h1>
+                            <h1 class="h2"><?= $result ? ($result === 2 ? "既に本登録されています。" : "本登録が完了いたしました。") : "本登録に失敗しました。" ?></h1>
                         </div>
                         <div class="card">
                             <div class="card-body">
