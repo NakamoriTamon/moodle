@@ -385,6 +385,7 @@ class MessageSelectController
     {
         // 検索項目取得
         $page = $_POST['page'] ?? null;
+        $keyword = $_POST['keyword'] ?? null;
         $_SESSION['old_input'] = $_POST;
 
         // ページネーション
@@ -401,8 +402,23 @@ class MessageSelectController
             $current_page  = 1;
         }
 
-        $user_list = $this->userModel->getUser($current_page, $per_page);
-        $user_count_list = $this->userModel->getUserCount();
+        $filters = [];
+        if (!empty($keyword)) {
+            $filters['keyword'] = $keyword;
+        }
+
+        $total_count = 0;
+        $user_list = $this->userModel->getUsers($filters, $current_page, $per_page);
+        $user_count_list = $this->userModel->getUsers($filters, 1, 1000000);
+        if (!empty($user_count_list)) {
+            $total_count = count($user_count_list);
+        }
+
+        // メール送信先を取得する
+        $mail_to_list = [];
+        foreach ($user_count_list as $user_count) {
+            $mail_to_list[] = $user_count['email'];
+        }
 
         $data_list = [];
         foreach ($user_list as $Key => $user) {
@@ -460,7 +476,6 @@ class MessageSelectController
             ];
         }
 
-        $total_count = count($user_count_list);
         $data = [
             'user_list' => $data_list,
             'total_count' => $total_count,
@@ -468,6 +483,7 @@ class MessageSelectController
             'current_page' => $current_page,
             'page' => $current_page,
             'header_list' => $header_list,
+            'mail_to_list' => $mail_to_list,
         ];
 
         return $data;

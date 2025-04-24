@@ -139,7 +139,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                 </div>
                                 <div id="keyword_div" class="mb-4 w-100">
                                     <label class="form-label" for="notyf-message">フリーワード</label>
-                                    <input id="keyword" name="keyword" type="text" class="form-control" placeholder="田中 翔太">
+                                    <input id="keyword" name="keyword" type="text" class="form-control" value="<?= $old_input['keyword']  ?>" placeholder="田中 翔太">
                                 </div>
                                 <!-- <hr> -->
                                 <div class="d-flex w-100">
