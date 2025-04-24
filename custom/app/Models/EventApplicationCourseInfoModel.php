@@ -35,6 +35,39 @@ class EventApplicationCourseInfoModel extends BaseModel
 
         return [];
     }
+    
+    // コース情報IDより申し込みの総件数を取得
+    public function getCountByCourseInfoId($id, $keyword)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT id, event_application_id, course_info_id, participant_mail, participation_kbn 
+                    FROM mdl_event_application_course_info 
+                    WHERE course_info_id = ?"
+                );
+
+                $stmt->execute([$id]);
+                $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // 各イベントの詳細を追加
+                foreach ($result_list as &$result) {
+                    $result['application'] = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                    $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
+                }
+
+                return $result_list;
+            } catch (\PDOException $e) {
+                error_log('コース情報別イベント申込取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $id);
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 
     // コース情報IDより申し込み状況を取得
     public function getByEventEventId($id, $keyword, int $page = 1, int $perPage = 15)
@@ -60,6 +93,40 @@ class EventApplicationCourseInfoModel extends BaseModel
                 }
 
                 return $result_list;
+            } catch (\PDOException $e) {
+                error_log('イベント別申込取得エラー: ' . $e->getMessage() . ' EventID: ' . $id);
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
+
+    // コース情報IDより申し込み状況の総件数を取得
+    public function getCountByEventEventId($id, $keyword)
+    {
+        if ($this->pdo) {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, e.event_kbn 
+                    FROM mdl_event_application_course_info eaci
+                    LEFT JOIN mdl_event e ON event_id = e.id
+                    WHERE event_id = ?"
+                );
+
+                $stmt->execute([$id]);
+                $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // 各イベントの詳細を追加
+                foreach ($result_list as &$result) {
+                    $result['application'] = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                    $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
+                }
+
+                return count($result_list);
             } catch (\PDOException $e) {
                 error_log('イベント別申込取得エラー: ' . $e->getMessage() . ' EventID: ' . $id);
                 echo 'データの取得に失敗しました';
