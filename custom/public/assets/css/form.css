@@ -274,7 +274,11 @@ input[type="password"] {
   font-weight: 700;
 }
 #form.complete .form_cont .red {
-  margin-top: 10px;
+  margin-top: 16px;
+}
+#form .form_reg_comp {
+  padding-left: 3%;
+  padding-right: 3%;
 }
 
 /*-------------------------------------
@@ -655,6 +659,7 @@ reserve
     color: #a1a1a1;
     line-height: 1.8;
     text-indent: -1em;
+    letter-spacing: 0.1rem;
   }
   #form .form_cont .list li .list_field.f_txt input {
     /* flex-grow: 1; 
@@ -682,12 +687,12 @@ reserve
  complete
  -------------------------------------*/
   #form.complete .form_cont {
-    padding-right: 5%;
-    padding-left: 5%;
+    padding-right: 6%;
+    padding-left: 6%;
   }
   #form.complete .form_cont .cpt_txt {
     margin-bottom: 20px;
-    font-size: 22px;
+    font-size: clamp( 16px, 4.6vw, 24px);
     font-weight: 700;
   }
 
