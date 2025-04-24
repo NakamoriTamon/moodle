@@ -128,12 +128,14 @@ if (!$login_check_flg) {
                             <p class="list_label">支払方法</p>
                             <div id="tekijuku-registration" class="list_field f_txt radio-group">
                                 <?php foreach ($payment_select_list as $key => $value) { ?>
-                                    <input class="radio_input" type="radio" id="payment_<?= $key ?>" name="payment_method" value=<?= $key ?>
-                                        <?php if (!$old_input['payment_method'] && $key === 1) { ?> checked
-                                        <?php } else { ?>
-                                        <?= isSelected($key, $old_input['payment_method'] ?? null, null) ? 'checked' : '';
-                                        } ?> />
-                                    <label for="payment_<?= $key ?>" class="radio_label" for="convenience"><?= $value ?></label>
+                                    <?php if ($key != PAID_CASH) { ?>
+                                        <input class="radio_input" type="radio" id="payment_<?= $key ?>" name="payment_method" value=<?= $key ?>
+                                            <?php if (!$old_input['payment_method'] && $key === 1) { ?> checked
+                                            <?php } else { ?>
+                                            <?= isSelected($key, $old_input['payment_method'] ?? null, null) ? 'checked' : '';
+                                            } ?> />
+                                        <label for="payment_<?= $key ?>" class="radio_label" for="convenience"><?= $value ?></label>
+                                    <?php } ?>
                                 <?php } ?>
                             </div>
                         </li>
@@ -332,4 +334,5 @@ if (!$login_check_flg) {
     });
 </script>
 </body>
+
 </html>
