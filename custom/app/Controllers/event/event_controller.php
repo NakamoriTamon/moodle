@@ -16,9 +16,15 @@ $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $targets = $targetModel->getTargets();
 
-$currentPage_num_check = preg_match('/^\d+/', $_GET['page']); // 数値チェック
-$currentPage = $currentPage_num_check ? (int)$_GET['page'] : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
-$_GET['page'] = (string)$currentPage;
+// ページ数の値が数字か確認
+$currentPage_num_check = 1;
+$currentPage = 1;
+if(isset($_GET['page'])){
+    $currentPage_num_check = preg_match('/^\d+/', $_GET['page']); // 数値チェック
+    $currentPage = $currentPage_num_check ? (int)$_GET['page'] : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
+    $_GET['page'] = (string)$currentPage;
+}
+
 $perPage = 12; // 1ページあたりの件数
 // 検索条件を取得
 $category_id = $_GET['category'] ?? [];
@@ -45,8 +51,31 @@ $now = new DateTime();
 $now = $now->format('Ymd');
 
 // イベントが存在しないページを指定された又は文字列をページに指定された場合は１ページ目を取得する　※リダイレクトでURLを奇麗にする。
-if(empty($events) || !$currentPage_num_check){
-    header('Location: /custom/app/Views/event/index.php?page=1&');
+$url_violation = true;
+if(isset($_GET['page']) && !$currentPage_num_check){ // GETパラメータにpageが存在するが、そのpageが数値以外の場合
+    $url_violation = false;
+}
+if(isset($_GET['page']) && $currentPage_num_check && empty($events)
+){ // GETパラメータにpageが存在しかつ数値だが存在しないページ数が指定されている場合
+    $url_violation = false;
+}
+if(!$url_violation){
+    preg_match('/(^[^\?]+)/', $_SERVER['REQUEST_URI'], $naked_url_arr);
+    $naked_url = optional_param('action', '', PARAM_ALPHA) ? $naked_url_arr[0] : '/custom/app/Views/event/index.php';
+    $naked_url .= preg_match('/\?[^\?]+/', $_SERVER['REQUEST_URI']) ? '?' : '';
+    
+    $naked_url .= optional_param('action', '', PARAM_ALPHA) ? 'action='.optional_param('action', '', PARAM_ALPHA).'&' : '';
+
+    $naked_url .= isset($_GET['category']) ? 'category='.$_GET['category'].'&' : '';
+    $naked_url .= isset($_GET['event_status']) ? 'event_status='.$_GET['event_status'].'&' : '';
+    $naked_url .= isset($_GET['deadline_status']) ? 'deadline_status='.$_GET['deadline_status'].'&' : '';
+    $naked_url .= isset($_GET['lecture_format_id']) ? 'lecture_format_id='.$_GET['lecture_format_id'].'&' : '';
+    $naked_url .= isset($_GET['target']) ? 'target='.$_GET['target'].'&' : '';
+    $naked_url .= isset($_GET['keyword']) ? 'keyword='.$_GET['keyword'].'&' : '';
+    $naked_url .= isset($_GET['event_start_date']) ? 'event_start_date='.$_GET['event_start_date'].'&' : '';
+    $naked_url .= isset($_GET['event_end_date']) ? 'event_end_date='.$_GET['event_end_date'].'&' : '';
+
+    header('Location: '.rtrim($naked_url, '&?'));
     exit;
 }
 
