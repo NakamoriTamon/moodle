@@ -74,7 +74,7 @@ class MessageSelectController
         $course_list = [];
 
         // ページネーション
-        $per_page = 1;
+        $per_page = 15;
         $current_page = $get_page;
 
         if (empty($current_page)) {
@@ -162,19 +162,28 @@ class MessageSelectController
             $keyword = ltrim($keyword, '0');
         }
         $application_course_info_list = [];
-        $application_course_info_list_count = 0;
         // 講義回数まで絞り込んだ場合
         if (!empty($course_info_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page, $per_page);
-            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, 1, 1000000);
+            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, 1, 100000);
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page, $per_page);
             $application_course_info_list_count = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, 1, 1000000);
         }
+
+        $total_count = 0;
+        $mail_to_list = [];
         if (!empty($application_course_info_list_count)) {
-            $total_count = count($application_course_info_list_count);
+            foreach ($application_course_info_list_count as $value) {
+                // キーワード検索ではお連れ様は検索から省く
+                if ($value['ticket_type'] != TICKET_TYPE['SELF'] && !empty($keyword)) {
+                    continue;
+                }
+                $total_count = $total_count + 1;
+                $mail_to_list[] = $value['participant_mail'];
+            }
         }
 
         // 講座回数でソートする
@@ -196,11 +205,8 @@ class MessageSelectController
             $payment_type = '';
             $payment_date = '';
 
-            // var_dump($application['user']);
-            // var_dump($application_course_info['participant_mail']);
-
             // お連れ様の場合はユーザー情報は取得しない
-            if ($application['user']['email'] == $application_course_info['participant_mail']) {
+            if ($application_course_info['ticket_type'] == TICKET_TYPE['SELF']) {
                 $name = $application['user']['name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
@@ -245,11 +251,6 @@ class MessageSelectController
             ];
         }
 
-        $mail_to_list = [];
-        // foreach ($application_list as $application) {
-        //     var_dump($application);
-        // }
-
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
 
@@ -267,6 +268,7 @@ class MessageSelectController
             'page' => $current_page,
             'header_list' => $header_list,
             'course_list' => $course_list,
+            'mail_to_list' => $mail_to_list,
         ];
 
         return $data;
