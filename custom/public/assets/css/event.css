@@ -477,13 +477,14 @@
     margin: 20px auto 40px;
   }
   #detail .speaker {
-    flex-direction: column;
     gap: 20px;
     margin-bottom: 40px;
   }
-  #detail .speaker .speaker_img,
+  #detail .speaker .speaker_img {
+    width: 25%;
+  }
   #detail .speaker .speaker_desc {
-    width: 100%;
+    width: 75%;
   }
   #detail .speaker .speaker_desc .sub_ttl {
     margin: 0 0 10px;
