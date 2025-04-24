@@ -11,7 +11,7 @@ if (empty($_SESSION['csrf_token'])) {
 // ログインユーザーID(会員番号)
 $login_id = $_SESSION['user_id'] ?? null;
 // ログイン済みチェックフラグ
-$login_check_flg = $_SESSION['user_id'] ? 1: 0;
+$login_check_flg = $login_id ? 1: 0;
 
 $tekijuku_index_controller = new TekijukuIndexController;
 $footre_tekijuku_commemoration = $tekijuku_index_controller->getTekijukuCommemoration();

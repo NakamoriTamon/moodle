@@ -17,6 +17,9 @@ $header_list = $result_list['header_list'] ?? [];
 $course_list = $result_list['course_list'] ?? [];
 $application_list = $result_list['application_list'] ?? [];
 $tekijuku_commemoration_list = $result_list['tekijuku_commemoration_list'] ?? [];
+$mail_to_list = $result_list['mail_to_list'] ?? [];
+
+var_dump($mail_to_list);
 
 // ページネーション
 $total_count = $result_list['total_count'] ?? 0;
@@ -140,7 +143,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                 </div>
                                 <!-- <hr> -->
                                 <div class="d-flex w-100">
-                                    <button class="btn btn-primary mb-3 me-0 ms-auto">検索</button>
+                                    <button id="search-button" class=" btn btn-primary mb-3 me-0 ms-auto">検索</button>
                                 </div>
                             </form>
                         </div>
@@ -246,7 +249,6 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['is_tekijuku']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['pay_method']) ?></td>
                                                         </tr>
-                                                        <input type="hidden" name="mail_to_list[]" value="<?= $user['email'] ?>">
                                                     <?php endforeach; ?>
                                                 </tbody>
                                             </table>
@@ -330,6 +332,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                     </div>
                                 </div>
                             </div>
+                            <?php foreach ($mail_to_list as $mail): ?>
+                                <input type="hidden" name="mail_to_list[]" value="<?= htmlspecialchars($mail, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php endforeach; ?>
                         </form>
                     <?php } ?>
                 </div>
@@ -365,6 +370,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
 
         // 検索
         $('select[name="kbn_id"], select[name="category_id"], select[name="event_status_id"], select[name="event_id"], select[name="course_no"]').change(function() {
+            $('input[name="page"]').val(1);
             $("#form").submit();
         });
         $('#search-button').on('click', function(event) {

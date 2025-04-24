@@ -306,16 +306,20 @@ unset($_SESSION['old_input']);
                             <li class="list_item04 req">
                                 <p class="list_label">枚数選択</p>
                                 <div class="list_field f_num">
-                                    <button type="button" class="num_min">ー</button>
-                                    <input type="number" min="1" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
-                                    <button type="button" class="num_plus">＋</button>
-                                    <?php if (!$capacity == 0): ?>
-                                        <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
-                                            (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
-                                        <?php else: ?>
-                                            (空き枠：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                    <div class="num_box">
+                                        <button type="button" class="num_min">ー</button>
+                                        <input type="number" min="1" id="ticket" name="ticket" value="<?= htmlspecialchars($ticket) ?>" class="num_txt" />
+                                        <button type="button" class="num_plus">＋</button>
+                                    </div>
+                                    <div style="width: fit-content">
+                                        <?php if (!$capacity == 0): ?>
+                                            <?php if ($event_kbn == EVERY_DAY_EVENT): ?>
+                                                (申込できる枚数：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                            <?php else: ?>
+                                                (空き枠：<?= htmlspecialchars(number_format($aki_ticket)) ?>)
+                                            <?php endif; ?>
                                         <?php endif; ?>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
                             </li>
 
@@ -350,8 +354,11 @@ unset($_SESSION['old_input']);
                                 <?php endif; ?>
                             </span>
                             <li class="list_item09 long_item">
-                                <p class="list_label">
-                                    本イベントはどのようにお知りになりましたか？<span>※複数選択可</span>
+                                <p>
+                                    <span class="list_label">
+                                        本イベントはどのようにお知りになりましたか？
+                                    </span>
+                                    <span>※複数選択可</span>
                                 </p>
                                 <div class="list_field list_col">
                                     <?php foreach ($responce['cognitions'] as $cognition): ?>
@@ -525,12 +532,12 @@ unset($_SESSION['old_input']);
     $('input[name="ticket"]').on('change', function() {
         // 枚数選択の値変更時に最大値を超えていた場合、最大値での値段を計算する
         let ticket_num = $(this).val();
-        if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
-            if(defaultMaxTicketCount < $(this).val()){
+        if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if (defaultMaxTicketCount < $(this).val()) {
                 ticket_num = defaultMaxTicketCount;
             }
-        }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
-            if(akiTicketCount < $(this).val()){
+        } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
+            if (akiTicketCount < $(this).val()) {
                 ticket_num = akiTicketCount;
             }
         }
@@ -545,12 +552,12 @@ unset($_SESSION['old_input']);
     });
 
     document.getElementById('ticket').addEventListener('blur', function() {
-        if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
-            if(defaultMaxTicketCount < $(this).val()){
+        if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if (defaultMaxTicketCount < $(this).val()) {
                 $(this).val(defaultMaxTicketCount);
             }
-        }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
-            if(akiTicketCount < $(this).val()){
+        } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
+            if (akiTicketCount < $(this).val()) {
                 $(this).val(akiTicketCount);
             }
         }
@@ -628,36 +635,36 @@ unset($_SESSION['old_input']);
         $(document).ready(function() {
             $input.each(function() {
                 number = Number($(this).val());
-                if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+                if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                     if (number == defaultMaxTicketCount) {
                         $(this).next($plus).prop("disabled", true);
                     } else if (number == 0) {
                         $(this).prev($minus).prop("disabled", true);
                     }
-                }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
+                } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
                     if (number == max) {
                         $(this).next($plus).prop("disabled", true);
                     } else if (number == 0) {
                         $(this).prev($minus).prop("disabled", true);
                     }
                 }
-                
+
             });
             total();
-            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner == defaultMaxTicketCount) {
                     $plus.prop("disabled", true);
                 } else {
                     $plus.prop("disabled", false);
                 }
-            }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
+            } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
                 if (total_numner == max) {
                     $plus.prop("disabled", true);
                 } else {
                     $plus.prop("disabled", false);
                 }
             }
-            
+
         });
         //ダウンボタンクリック時
         $minus.on("click", function() {
@@ -675,16 +682,16 @@ unset($_SESSION['old_input']);
                 $(this).prop("disabled", true);
             }
             total();
-            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner < defaultMaxTicketCount) {
                     $plus.prop("disabled", false);
                 }
-            }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
+            } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
                 if (total_numner < max) {
                     $plus.prop("disabled", false);
                 }
             }
-            
+
         });
         //アップボタンクリック時
         $plus.on("click", function() {
@@ -701,20 +708,20 @@ unset($_SESSION['old_input']);
                 $(this).prop("disabled", true);
             }
             total();
-            if(constCapacity == 0){ // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
+            if (constCapacity == 0) { // 無制限の場合はconfig.phpのDEFAULT_MAX_TICKETを上限とする（極端に大きな値を入力されるとメールアドレスの入力欄の生成で画面が固まる現象が発生してしまう為）
                 if (total_numner == defaultMaxTicketCount) {
                     $plus.prop("disabled", true);
                 } else {
                     $plus.prop("disabled", false);
                 }
-            }else{ // 定員数が決まっている場合は現在の空きチケットを上限とする
+            } else { // 定員数が決まっている場合は現在の空きチケットを上限とする
                 if (total_numner == max) {
                     $plus.prop("disabled", true);
                 } else {
                     $plus.prop("disabled", false);
                 }
             }
-            
+
         });
     });
 </script>

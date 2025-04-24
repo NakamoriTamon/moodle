@@ -16,6 +16,8 @@ $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
 $targets = $targetModel->getTargets();
 
+$page = $_GET['page'] ?? 1;
+
 // ページ数の値が数字か確認
 $currentPage_num_check = 1;
 $currentPage = 1;
@@ -24,7 +26,6 @@ if(isset($_GET['page'])){
     $currentPage = $currentPage_num_check ? (int)$_GET['page'] : 1; // 現在のページ番号（デフォルト: 1）※数値でないまたは０の場合は１
     $_GET['page'] = (string)$currentPage;
 }
-
 $perPage = 12; // 1ページあたりの件数
 // 検索条件を取得
 $category_id = $_GET['category'] ?? [];
