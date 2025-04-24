@@ -85,7 +85,8 @@ class EventRegistrationController
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
         $select_event_list = $this->eventModel->getEvents([
             'userid' => $USER->id,
-            'shortname' => $shortname], 1, 100000); // イベント名選択用
+            'shortname' => $shortname
+        ], 1, 100000); // イベント名選択用
         $course_list = [];
 
         $is_display = false;
@@ -108,7 +109,7 @@ class EventRegistrationController
                 // 複数回イベントの場合
                 elseif ($event['event_kbn'] == PLURAL_EVENT) {
                     $course_list = $event['course_infos'];
-                    if(!empty($course_no)) {
+                    if (!empty($course_no)) {
                         foreach ($event['course_infos'] as $course_info) {
                             if ($course_info['no'] == $course_no) {
                                 $course_info_id = $course_info['id'];
@@ -141,7 +142,7 @@ class EventRegistrationController
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page, $per_page);
-            $total_count = $this->eventApplicationCourseInfo->getCountByEventEventId($event_id, $keyword, $current_page);
+            $total_count = $this->eventApplicationCourseInfo->getCountByEventEventId($event_id, $keyword);
         }
 
         // 講座回数でソートする
@@ -166,7 +167,7 @@ class EventRegistrationController
             $age = null;
 
             // 支払区分（payment_kbn）が「未払い(期限切れ)（2）」のデータは除外する
-            if($application['payment_kbn'] === 2){
+            if ($application['payment_kbn'] === 2) {
                 continue;
             }
 

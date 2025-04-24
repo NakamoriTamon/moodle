@@ -35,7 +35,7 @@ class EventApplicationCourseInfoModel extends BaseModel
 
         return [];
     }
-    
+
     // コース情報IDより申し込みの総件数を取得
     public function getCountByCourseInfoId($id, $keyword)
     {
@@ -56,7 +56,7 @@ class EventApplicationCourseInfoModel extends BaseModel
                     $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
                 }
 
-                return $result_list;
+                return count($result_list);
             } catch (\PDOException $e) {
                 error_log('コース情報別イベント申込取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $id);
                 echo 'データの取得に失敗しました';
@@ -66,7 +66,7 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
 
-        return [];
+        return 0;
     }
 
     // コース情報IDより申し込み状況を取得
@@ -136,7 +136,7 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
 
-        return [];
+        return 0;
     }
 
     // イベント申し込み情報を取得
