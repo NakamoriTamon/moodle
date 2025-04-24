@@ -18,8 +18,7 @@ $course_list = $result_list['course_list'] ?? [];
 $application_list = $result_list['application_list'] ?? [];
 $tekijuku_commemoration_list = $result_list['tekijuku_commemoration_list'] ?? [];
 $mail_to_list = $result_list['mail_to_list'] ?? [];
-
-var_dump($mail_to_list);
+$event_kbn = $result_list['event_kbn'];
 
 // ページネーション
 $total_count = $result_list['total_count'] ?? 0;
@@ -170,7 +169,9 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                         <tr>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= $application['id'] ?></td>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['event_name']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($application['no']) ?></td>
+                                                            <?php if ($event_kbn == PLURAL_EVENT) { ?>
+                                                                <td class="ps-4 pe-4"><?= htmlspecialchars($application['no']) ?></td>
+                                                            <?php } ?>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['user_id']) ?></td>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['name']) ?></td>
                                                             <td class="ps-4 pe-4"><?= htmlspecialchars($application['email']) ?></td>

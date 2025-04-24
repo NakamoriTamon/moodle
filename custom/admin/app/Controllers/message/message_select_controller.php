@@ -237,18 +237,32 @@ class MessageSelectController
                 'participation_kbn' => $application_course_info['participation_kbn'],
             ];
 
-            $header_list = [
-                "ID",
-                "イベント名",
-                "講座回数",
-                "会員番号",
-                "ユーザー名",
-                "メールアドレス",
-                "決済方法",
-                "決済状況",
-                "決済日",
-                "申込日"
-            ];
+            if ($event['event_kbn'] == PLURAL_EVENT) {
+                $header_list = [
+                    "ID",
+                    "イベント名",
+                    "講座回数",
+                    "会員番号",
+                    "ユーザー名",
+                    "メールアドレス",
+                    "決済方法",
+                    "決済状況",
+                    "決済日",
+                    "申込日"
+                ];
+            } else {
+                $header_list = [
+                    "ID",
+                    "イベント名",
+                    "会員番号",
+                    "ユーザー名",
+                    "メールアドレス",
+                    "決済方法",
+                    "決済状況",
+                    "決済日",
+                    "申込日"
+                ];
+            }
         }
 
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
@@ -269,6 +283,7 @@ class MessageSelectController
             'header_list' => $header_list,
             'course_list' => $course_list,
             'mail_to_list' => $mail_to_list,
+            'event_kbn' => $event['event_kbn'] ?? null,
         ];
 
         return $data;
