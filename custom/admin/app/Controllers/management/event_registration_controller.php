@@ -134,15 +134,27 @@ class EventRegistrationController
             $keyword = ltrim($keyword, '0');
         }
         $application_course_info_list = [];
+        $application_course_info_list_count = [];
         // 講義回数まで絞り込んだ場合
         if (!empty($course_info_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page, $per_page);
-            $total_count = $this->eventApplicationCourseInfo->getCountByCourseInfoId($course_info_id, $keyword);
+            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, 1, 100000);
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
             $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page, $per_page);
-            $total_count = $this->eventApplicationCourseInfo->getCountByEventEventId($event_id, $keyword);
+            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, 1, 1000000);
+        }
+
+        $total_count = 0;
+        if (!empty($application_course_info_list_count)) {
+            foreach ($application_course_info_list_count as $value) {
+                // キーワード検索ではお連れ様は検索から省く
+                if ($value['ticket_type'] != TICKET_TYPE['SELF'] && !empty($keyword)) {
+                    continue;
+                }
+                $total_count = $total_count + 1;
+            }
         }
 
         // 講座回数でソートする
@@ -172,7 +184,7 @@ class EventRegistrationController
             }
 
             // お連れ様の場合はユーザー情報は取得しない
-            if ($application['user']['email'] ==  $application_course_info['participant_mail']) {
+            if ($application_course_info['ticket_type'] == TICKET_TYPE['SELF']) {
                 $name = $application['user']['name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
