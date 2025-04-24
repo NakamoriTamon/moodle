@@ -243,8 +243,6 @@ unset(
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
-        <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
-        <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
         <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
@@ -861,6 +859,8 @@ unset(
 
         <div class="mypage_cont reserve">
             <h3 id="event_application" class="mypage_head">予約情報</h3>
+            <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
+            <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
             <?php $allCourseDateNull = true; ?>
             <?php if (!empty($event_applications['data'])): ?>
                 <?php foreach ($event_applications['data'] as $application): ?>
