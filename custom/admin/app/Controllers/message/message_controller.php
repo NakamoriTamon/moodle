@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mail_body = $_POST['mail_body'] ?? '';
     $mail_to_list = $_POST['mail_to_list'] ?? []; // 配列として受け取る
 
+    // var_dump($mail_to_list);
+    // die();
+
     // エラー配列を初期化
     $_SESSION['errors'] = [];
 
@@ -74,28 +77,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         for ($batch = 0; $batch < $batches; $batch++) {
             $start_index = $batch * $batch_size;
             $bcc_list = array_slice($email_addresses, $start_index, $batch_size);
-        
+
             $boundary = md5(time());
-        
+
             $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
             $rawMessage .= "To: {$_ENV['MAIL_FROM_ADDRESS']}\r\n";
             $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode($mail_title) . "?=\r\n";
             $rawMessage .= "MIME-Version: 1.0\r\n";
             $rawMessage .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
-        
+
             $textBody = strip_tags(str_replace(["<br>", "<br/>", "<br />"], "\n", $mail_body));
-        
+
             $rawMessage .= "--{$boundary}\r\n";
             $rawMessage .= "Content-Type: text/plain; charset=UTF-8\r\n";
             $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
             $rawMessage .= $textBody . "\r\n\r\n";
-        
+
             $rawMessage .= "--{$boundary}\r\n";
             $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
             $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
             $rawMessage .= $htmlBody . "\r\n\r\n";
             $rawMessage .= "--{$boundary}--";
-        
+
             try {
                 $result = $SesClient->sendRawEmail([
                     'RawMessage' => [
@@ -113,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // 次のループへ continue
                 continue;
             }
-        
+
             usleep(500000); // 0.5秒待機
         }
 
@@ -124,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['message_error'] = null; // クリア
         }
-        
+
         $_SESSION['message_success'] = $success_count . '件のメールを送信しました。';
         header('Location: /custom/admin/app/Views/message/index.php');
         exit;
