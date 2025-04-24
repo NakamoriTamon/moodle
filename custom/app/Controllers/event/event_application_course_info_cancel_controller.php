@@ -31,13 +31,13 @@ try {
     ]);
     $pdo->commit();
     $_SESSION['event_application_message_success'] = 'キャンセルが完了しました';
-    header('Location: /custom/app/Views/mypage/index.php');
+    header('Location: /custom/app/Views/mypage/index.php#event_application');
 } catch (Exception $e) {
     try {
         $pdo->rollBack();
     } catch (Exception $rollbackException) {
         $_SESSION['event_application_error'] = 'キャンセルに失敗しました';
-        redirect('/custom/app/Views/mypage/index.php');
+        redirect('/custom/app/Views/mypage/index.php#event_application');
         exit;
     }
 }

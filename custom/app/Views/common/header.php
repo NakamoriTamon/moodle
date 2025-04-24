@@ -11,7 +11,7 @@ if (empty($_SESSION['csrf_token'])) {
 // ログインユーザーID(会員番号)
 $login_id = $_SESSION['user_id'] ?? null;
 // ログイン済みチェックフラグ
-$login_check_flg = $_SESSION['user_id'] ? 1: 0;
+$login_check_flg = $login_id ? 1: 0;
 
 $tekijuku_index_controller = new TekijukuIndexController;
 $footre_tekijuku_commemoration = $tekijuku_index_controller->getTekijukuCommemoration();
@@ -220,7 +220,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                 <?php endif; ?>
                 <form method="" action="/custom/app/Controllers/event/event_controller.php" class="search">
                     <input type="hidden" name="action" value="index">
-                    <input type="hidden" id="login_check_flg" name="login_check_flg" value="<?= htmlspecialchars($login_check_flg) ?>">
+                    <input type="hidden" id="login_check_flg" value="<?= htmlspecialchars($login_check_flg) ?>">
                     <button type="submit" aria-label="検索"></button>
                     <label>
                         <input type="text" name="keyword" placeholder="イベントを検索する" />
