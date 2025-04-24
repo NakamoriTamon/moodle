@@ -74,7 +74,7 @@ class MessageSelectController
         $course_list = [];
 
         // ページネーション
-        $per_page = 15;
+        $per_page = 1;
         $current_page = $get_page;
 
         if (empty($current_page)) {
@@ -162,13 +162,19 @@ class MessageSelectController
             $keyword = ltrim($keyword, '0');
         }
         $application_course_info_list = [];
+        $application_course_info_list_count = 0;
         // 講義回数まで絞り込んだ場合
         if (!empty($course_info_id)) {
-            $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page);
+            $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page, $per_page);
+            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, 1, 1000000);
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
-            $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page);
+            $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page, $per_page);
+            $application_course_info_list_count = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, 1, 1000000);
+        }
+        if (!empty($application_course_info_list_count)) {
+            $total_count = count($application_course_info_list_count);
         }
 
         // 講座回数でソートする
@@ -190,8 +196,11 @@ class MessageSelectController
             $payment_type = '';
             $payment_date = '';
 
+            // var_dump($application['user']);
+            // var_dump($application_course_info['participant_mail']);
+
             // お連れ様の場合はユーザー情報は取得しない
-            if ($application['user']['email'] ==  $application_course_info['participant_mail']) {
+            if ($application['user']['email'] == $application_course_info['participant_mail']) {
                 $name = $application['user']['name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
@@ -236,7 +245,11 @@ class MessageSelectController
             ];
         }
 
-        $total_count = count($application_list);
+        $mail_to_list = [];
+        // foreach ($application_list as $application) {
+        //     var_dump($application);
+        // }
+
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
 
@@ -304,8 +317,12 @@ class MessageSelectController
             $filters['keyword'] = $keyword;
         }
 
-        $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
-        $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
+        $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page, $per_page);
+        $tekijuku_commemoration_count = $this->TekijukuCommemorationModel->getTekijukuUser($filters, 1, 1000000);
+        $total_count = 0;
+        if (!empty($tekijuku_commemoration_count)) {
+            $total_count = count($tekijuku_commemoration_count);
+        }
 
         // 決済状況を組み込む 
         foreach ($tekijuku_commemoration_list as $key => $tekijuku_commemoration) {
@@ -330,6 +347,12 @@ class MessageSelectController
             }
         }
 
+        // メール送信先を取得する
+        $mail_to_list = [];
+        foreach ($tekijuku_commemoration_count as $tekijuku_commemoration) {
+            $mail_to_list[] = $tekijuku_commemoration['email'];
+        }
+
         $header_list = [
             "会員番号",
             "ユーザー名",
@@ -349,14 +372,15 @@ class MessageSelectController
         $data = [
             'tekijuku_commemoration_list' => $tekijuku_commemoration_list,
             'header_list' => $header_list,
-            'total_count' => $total_count['total'],
+            'total_count' => $total_count,
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
+            'mail_to_list' => $mail_to_list,
         ];
         return $data;
     }
-    // 適塾単位で取得
+    // ユーザー単位で取得
     private function getUser($USER, $DB, $get_page)
     {
         // 検索項目取得
