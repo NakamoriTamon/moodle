@@ -24,6 +24,7 @@ if (!$is_general_user) {
 // $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 $tekijukuCommemorationModel = new TekijukuCommemorationModel();
 $tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
+
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
@@ -419,9 +420,7 @@ unset(
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
-                                            <p class="note">
-                                                8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
-                                            </p>
+                                            <p class="note">8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。</p>
                                             <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
                                         </div>
                                     </li>
@@ -523,7 +522,7 @@ unset(
                                                     この会員登録は保護者の同意を得ています 。
                                                 </p>
                                                 <label for="parent_agree">
-                                                    <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
+                                                    <input type="checkbox" name="parent_agree" id="parent_agree" checked />同意する
                                                 </label>
                                             </div>
                                         </li>
@@ -771,7 +770,7 @@ unset(
 
                     <!-- 決済状態データ (JavaScript用) -->
                     <div id="payment-status-data"
-                        data-has-paid-date="<?php echo !empty($tekijuku_commemoration['paid_date']) ? '1' : '0'; ?>"
+                        data-has-paid-date="<?php echo $is_disply_tekijuku_commemoration ? '1' : '0'; ?>"
                         data-is-deposit="<?php echo (isset($deposit_column) && array_key_exists($deposit_column, $tekijuku_commemoration) && $tekijuku_commemoration[$deposit_column] == '1') ? '1' : '0'; ?>"
                         data-has-paid-status="<?php echo $tekijuku_commemoration['paid_status'] ?>"
                         style="display: none;"></div>
@@ -1199,18 +1198,18 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                } else if (age < 18) {
-                    $('#parents_check_area').css('display', 'block');
-                    $('#edit_parents_check_area').css('display', 'block');
-                    if ($('#parent_agree').is(':checked')) {
-                        $('#user_form_button').prop('disabled', false);
-                        $('#user_form_button').addClass('btn_red');
-                        $('#user_form_button').removeClass('btn_gray');
-                    } else {
-                        $('#user_form_button').prop('disabled', true);
-                        $('#user_form_button').addClass('btn_gray');
-                        $('#user_form_button').removeClass('btn_red');
-                    }
+                // } else if (age < 18) {
+                //     $('#parents_check_area').css('display', 'block');
+                //     $('#edit_parents_check_area').css('display', 'block');
+                //     if ($('#parent_agree').is(':checked')) {
+                //         $('#user_form_button').prop('disabled', false);
+                //         $('#user_form_button').addClass('btn_red');
+                //         $('#user_form_button').removeClass('btn_gray');
+                //     } else {
+                //         $('#user_form_button').prop('disabled', true);
+                //         $('#user_form_button').addClass('btn_gray');
+                //         $('#user_form_button').removeClass('btn_red');
+                //     }
                 }
             }
             // 同意チェック
@@ -1360,7 +1359,7 @@ unset(
 
         function toggleFields() {
             fields.forEach(field => {
-                if (checkbox.checked) {
+                if (checkbox?.checked) {
                     field.classList.remove("hidden");
                 } else {
                     field.classList.add("hidden");
@@ -1374,7 +1373,7 @@ unset(
         toggleFields();
 
         // チェック状態が変更されたら切り替え
-        checkbox.addEventListener("change", toggleFields);
+        checkbox && checkbox.addEventListener("change", toggleFields);
     });
 
     document.addEventListener('DOMContentLoaded', function() {

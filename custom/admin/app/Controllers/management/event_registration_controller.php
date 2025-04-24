@@ -41,6 +41,7 @@ class EventRegistrationController
         // ページネーション
         $per_page = 15;
         $current_page = $page;
+        $total_count = 0;
 
         if (empty($current_page) && !empty($page)) {
             $current_page  = $page;
@@ -134,11 +135,13 @@ class EventRegistrationController
         $application_course_info_list = [];
         // 講義回数まで絞り込んだ場合
         if (!empty($course_info_id)) {
-            $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page);
+            $application_course_info_list = $this->eventApplicationCourseInfo->getByCourseInfoId($course_info_id, $keyword, $current_page, $per_page);
+            $total_count = $this->eventApplicationCourseInfo->getCountByCourseInfoId($course_info_id, $keyword);
         }
         // イベント単位まで絞り込んだ場合
         if (empty($course_info_id) && !empty($event_id)) {
-            $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page);
+            $application_course_info_list = $this->eventApplicationCourseInfo->getByEventEventId($event_id, $keyword, $current_page, $per_page);
+            $total_count = $this->eventApplicationCourseInfo->getCountByEventEventId($event_id, $keyword, $current_page);
         }
 
         // 講座回数でソートする
@@ -204,7 +207,6 @@ class EventRegistrationController
             ];
         }
 
-        $total_count = count($application_list);
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
 
