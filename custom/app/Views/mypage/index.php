@@ -421,9 +421,7 @@ unset(
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
-                                            <p class="note">
-                                                8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
-                                            </p>
+                                            <p class="note">8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。</p>
                                             <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
                                         </div>
                                     </li>
@@ -1360,7 +1358,7 @@ unset(
 
         function toggleFields() {
             fields.forEach(field => {
-                if (checkbox.checked) {
+                if (checkbox?.checked) {
                     field.classList.remove("hidden");
                 } else {
                     field.classList.add("hidden");
@@ -1374,7 +1372,7 @@ unset(
         toggleFields();
 
         // チェック状態が変更されたら切り替え
-        checkbox.addEventListener("change", toggleFields);
+        checkbox && checkbox.addEventListener("change", toggleFields);
     });
 
     document.addEventListener('DOMContentLoaded', function() {

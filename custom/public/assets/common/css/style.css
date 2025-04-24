@@ -1210,10 +1210,12 @@ select {
     padding: 150px 0 100px;
   }
   #heading .head_ttl {
-    font-size: 36px;
+    /* font-size: 36px; */
+    font-size: clamp(24px, 7vw, 36px);
   }
   #heading .head_ttl::after {
-    font-size: 18px;
+    /* font-size: 18px; */
+    font-size: clamp(16px, 4vw, 24px);
   }
   .sub_ttl {
     font-size: 16px;
