@@ -523,7 +523,7 @@ unset(
                                                     この会員登録は保護者の同意を得ています 。
                                                 </p>
                                                 <label for="parent_agree">
-                                                    <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
+                                                    <input type="checkbox" name="parent_agree" id="parent_agree" checked />同意する
                                                 </label>
                                             </div>
                                         </li>
@@ -1199,18 +1199,18 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                } else if (age < 18) {
-                    $('#parents_check_area').css('display', 'block');
-                    $('#edit_parents_check_area').css('display', 'block');
-                    if ($('#parent_agree').is(':checked')) {
-                        $('#user_form_button').prop('disabled', false);
-                        $('#user_form_button').addClass('btn_red');
-                        $('#user_form_button').removeClass('btn_gray');
-                    } else {
-                        $('#user_form_button').prop('disabled', true);
-                        $('#user_form_button').addClass('btn_gray');
-                        $('#user_form_button').removeClass('btn_red');
-                    }
+                // } else if (age < 18) {
+                //     $('#parents_check_area').css('display', 'block');
+                //     $('#edit_parents_check_area').css('display', 'block');
+                //     if ($('#parent_agree').is(':checked')) {
+                //         $('#user_form_button').prop('disabled', false);
+                //         $('#user_form_button').addClass('btn_red');
+                //         $('#user_form_button').removeClass('btn_gray');
+                //     } else {
+                //         $('#user_form_button').prop('disabled', true);
+                //         $('#user_form_button').addClass('btn_gray');
+                //         $('#user_form_button').removeClass('btn_red');
+                //     }
                 }
             }
             // 同意チェック
