@@ -24,6 +24,7 @@ if (!$is_general_user) {
 // $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 $tekijukuCommemorationModel = new TekijukuCommemorationModel();
 $tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
+
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
@@ -769,7 +770,7 @@ unset(
 
                     <!-- 決済状態データ (JavaScript用) -->
                     <div id="payment-status-data"
-                        data-has-paid-date="<?php echo !empty($tekijuku_commemoration['paid_date']) ? '1' : '0'; ?>"
+                        data-has-paid-date="<?php echo $is_disply_tekijuku_commemoration ? '1' : '0'; ?>"
                         data-is-deposit="<?php echo (isset($deposit_column) && array_key_exists($deposit_column, $tekijuku_commemoration) && $tekijuku_commemoration[$deposit_column] == '1') ? '1' : '0'; ?>"
                         data-has-paid-status="<?php echo $tekijuku_commemoration['paid_status'] ?>"
                         style="display: none;"></div>
