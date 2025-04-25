@@ -411,7 +411,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     <div class="mb-3">
                                         <input type="hidden" name="is_published" value="0">
                                         <input class="checkbox_input" type="checkbox" id="is_published" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
-                                        <label class="checkbox_label" for="is_published">氏名掲載を許可します</label>
+                                        <label class="checkbox_label" for="is_published">会誌『適塾』誌面会員名簿への氏名掲載を許可します</label>
                                     </div>
                                     <div class="mb-3">
                                         <input type="submit" id="submit_btn" class="btn btn-primary" value="変更を確定する">
