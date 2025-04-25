@@ -15,9 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mail_body = $_POST['mail_body'] ?? '';
     $mail_to_list = $_POST['mail_to_list'] ?? []; // 配列として受け取る
 
-    // var_dump($mail_to_list);
-    // die();
-
     // エラー配列を初期化
     $_SESSION['errors'] = [];
 
