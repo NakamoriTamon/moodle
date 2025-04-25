@@ -379,8 +379,8 @@ if ($result) {
 
             // 申し込み～コース中間テーブル　mdl_event_application_course_info
             $itmt3 = $pdo->prepare("
-                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail, ticket_type) 
-                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail, :ticket_type)
+                    INSERT INTO mdl_event_application_course_info (created_at, updated_at, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, ticket_type) 
+                    VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :event_application_id, :course_info_id, :participant_mail, :participation_kbn, :ticket_type)
                 ");
             foreach ($mails as $mail) {
                 $ticket_type = TICKET_TYPE['SELF'];
@@ -393,6 +393,7 @@ if ($result) {
                         ':event_application_id' => $eventApplicationId,
                         ':course_info_id' => $courses['id'], // 空白を除去
                         ':participant_mail' => $mail,
+                        ':participation_kbn' => PARTICIPATION_KBN['NON_PARTICIPATION'],
                         ':ticket_type' => $ticket_type
                     ]);
                 }
