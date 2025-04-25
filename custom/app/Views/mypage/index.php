@@ -24,6 +24,7 @@ if (!$is_general_user) {
 // $tekijuku_commemoration = $mypage_controller->getTekijukuCommemoration(); // 適塾の情報を引っ張ってくる
 $tekijukuCommemorationModel = new TekijukuCommemorationModel();
 $tekijuku_commemoration = $tekijukuCommemorationModel->getTekijukuUserByPaid($user->id); // 適塾の情報を引っ張ってくる
+
 // 適塾表示フラグ
 $is_disply_tekijuku_commemoration = false;
 if ($tekijuku_commemoration !== false) {
@@ -243,8 +244,6 @@ unset(
 
     <!-- heading -->
     <section id="mypage" class="inner_l">
-        <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
-        <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
         <?php if ($is_disply_tekijuku_commemoration): ?>
             <div class="card-wrapper">
                 <div id="card">
@@ -261,9 +260,6 @@ unset(
                         <p class="card_pres_name">熊ノ郷 淳</p>
                     </div>
                 </div>
-                <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                    <div class="inactive-text-card">退会済み</div>
-                <?php endif; ?>
             </div>
         <?php endif; ?>
         <div id="displayUserContainer">
@@ -424,9 +420,7 @@ unset(
                                             <?php if (!empty($errors['password'])): ?>
                                                 <div class=" text-danger mt-2"><?= htmlspecialchars($errors['password']); ?></div>
                                             <?php endif; ?>
-                                            <p class="note">
-                                                8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。
-                                            </p>
+                                            <p class="note">8文字以上20文字以内、数字・アルファベットを組み合わせてご入力ください。</p>
                                             <p class="note">使用できる記号!"#$%'()*+,-./:;<=>?@[¥]^_{|}~</p>
                                         </div>
                                     </li>
@@ -528,7 +522,7 @@ unset(
                                                     この会員登録は保護者の同意を得ています 。
                                                 </p>
                                                 <label for="parent_agree">
-                                                    <input type="checkbox" name="parent_agree" id="parent_agree" <?= !empty($old_input['parent_agree']) ? "checked" : ''; ?> />同意する
+                                                    <input type="checkbox" name="parent_agree" id="parent_agree" checked />同意する
                                                 </label>
                                             </div>
                                         </li>
@@ -555,7 +549,11 @@ unset(
             <div id="displayTekijukuContainer">
                 <div id="tekijuku_form">
                     <div id="form" class="mypage_cont">
-                        <h3 class="mypage_head">適塾記念会 会員情報</h3>
+                        <h3 class="mypage_head">適塾記念会 会員情報
+                            <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
+                                <div class="inactive-text">退会済</div>
+                            <?php endif; ?>
+                        </h3>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
                                 <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
@@ -633,7 +631,7 @@ unset(
                     <div id="form" class="mypage_cont">
                         <h3 class="mypage_head">適塾記念会 会員情報
                             <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                                <div class="inactive-text">退会済み</div>
+                                <div class="inactive-text">退会済</div>
                             <?php endif; ?>
                         </h3>
                         <form method="POST" action="/custom/app/Controllers/mypage/mypage_update_controller.php" id="tekijuku_edit_form">
@@ -647,17 +645,17 @@ unset(
                                             <p class="list_label">会員番号</p>
                                             <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></div>
                                         </li>
-                                        <li class="list_item02 req">
+                                        <li class="list_item02">
                                             <p class="list_label">会員種別</p>
                                             <div class="list_field f_txt" id="type_code" data-type-code="<?= htmlspecialchars($tekijuku_commemoration['type_code']) ?>"><?php echo TYPE_CODE_LIST[$tekijuku_commemoration['type_code']] ?></div>
                                         </li>
-                                        <li class="list_item03 req">
+                                        <li class="list_item03">
                                             <p class="list_label">お名前</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ? $tekijuku_commemoration['name'] : ''); ?></div>
                                             </div>
                                         </li>
-                                        <li class="list_item04 req">
+                                        <li class="list_item04">
                                             <p class="list_label">フリガナ</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['kana'] ? $tekijuku_commemoration['kana'] : ''); ?></div>
@@ -687,13 +685,13 @@ unset(
                                                 <?php endif; ?>
                                             </div>
                                         </li>
-                                        <li class="list_item07 req">
+                                        <li class="list_item07">
                                             <p class="list_label">電話番号（ハイフンなし）</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['tell_number'] ? $tekijuku_commemoration['tell_number'] : ''); ?></div>
                                             </div>
                                         </li>
-                                        <li class="list_item08 req">
+                                        <li class="list_item08">
                                             <p class="list_label">メールアドレス</p>
                                             <div class="list_field f_txt">
                                                 <div class="list_field f_txt"><?php echo htmlspecialchars($tekijuku_commemoration['email'] ? $tekijuku_commemoration['email'] : ''); ?></div>
@@ -772,7 +770,7 @@ unset(
 
                     <!-- 決済状態データ (JavaScript用) -->
                     <div id="payment-status-data"
-                        data-has-paid-date="<?php echo !empty($tekijuku_commemoration['paid_date']) ? '1' : '0'; ?>"
+                        data-has-paid-date="<?php echo $is_disply_tekijuku_commemoration ? '1' : '0'; ?>"
                         data-is-deposit="<?php echo (isset($deposit_column) && array_key_exists($deposit_column, $tekijuku_commemoration) && $tekijuku_commemoration[$deposit_column] == '1') ? '1' : '0'; ?>"
                         data-has-paid-status="<?php echo $tekijuku_commemoration['paid_status'] ?>"
                         style="display: none;"></div>
@@ -814,9 +812,17 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item06">
+                                    <li class="list_item06 payment_annotation_li">
                                         <p class="list_label"></p>
                                         <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
+                                    </li>
+                                    <li class="list_item07 payment_annotation_li">
+                                        <p class="list_label"></p>
+                                        <p class="list_field font-14">コンビニ決済の場合は別途手数料220円が必要になります。</p>
+                                    </li>
+                                    <li class="list_item08 payment_annotation_li">
+                                        <p class="list_label"></p>
+                                        <p class="list_field font-14">銀行振込の手数料が発生する場合、会員様のご負担となります。</p>
                                     </li>
                                     <li class="list_item02 is_subscription_area" style="display: none;">
                                         <div class="area plan">
@@ -852,6 +858,8 @@ unset(
 
         <div class="mypage_cont reserve">
             <h3 id="event_application" class="mypage_head">予約情報</h3>
+            <?php if (!empty($event_application_error)) { ?><p class="error"> <?= $event_application_error ?></p><?php } ?>
+            <?php if (!empty($event_application_success)) { ?><p id="main_success_message"> <?= $event_application_success ?></p><?php } ?>
             <?php $allCourseDateNull = true; ?>
             <?php if (!empty($event_applications['data'])): ?>
                 <?php foreach ($event_applications['data'] as $application): ?>
@@ -899,7 +907,7 @@ unset(
                     if ($application->lecture_format_id != ON_DEMAND) {
                         if ($application->price == 0) {
                             $qr_class = 'js_pay';
-                        }elseif (!empty($application->payment_date)) {
+                        } elseif (!empty($application->payment_date)) {
                             $qr_class = 'js_pay';
                         }
                     }
@@ -1190,18 +1198,18 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                } else if (age < 18) {
-                    $('#parents_check_area').css('display', 'block');
-                    $('#edit_parents_check_area').css('display', 'block');
-                    if ($('#parent_agree').is(':checked')) {
-                        $('#user_form_button').prop('disabled', false);
-                        $('#user_form_button').addClass('btn_red');
-                        $('#user_form_button').removeClass('btn_gray');
-                    } else {
-                        $('#user_form_button').prop('disabled', true);
-                        $('#user_form_button').addClass('btn_gray');
-                        $('#user_form_button').removeClass('btn_red');
-                    }
+                // } else if (age < 18) {
+                //     $('#parents_check_area').css('display', 'block');
+                //     $('#edit_parents_check_area').css('display', 'block');
+                //     if ($('#parent_agree').is(':checked')) {
+                //         $('#user_form_button').prop('disabled', false);
+                //         $('#user_form_button').addClass('btn_red');
+                //         $('#user_form_button').removeClass('btn_gray');
+                //     } else {
+                //         $('#user_form_button').prop('disabled', true);
+                //         $('#user_form_button').addClass('btn_gray');
+                //         $('#user_form_button').removeClass('btn_red');
+                //     }
                 }
             }
             // 同意チェック
@@ -1351,7 +1359,7 @@ unset(
 
         function toggleFields() {
             fields.forEach(field => {
-                if (checkbox.checked) {
+                if (checkbox?.checked) {
                     field.classList.remove("hidden");
                 } else {
                     field.classList.add("hidden");
@@ -1365,7 +1373,7 @@ unset(
         toggleFields();
 
         // チェック状態が変更されたら切り替え
-        checkbox.addEventListener("change", toggleFields);
+        checkbox && checkbox.addEventListener("change", toggleFields);
     });
 
     document.addEventListener('DOMContentLoaded', function() {

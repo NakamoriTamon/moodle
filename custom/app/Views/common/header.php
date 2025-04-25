@@ -220,7 +220,7 @@ unset($_SESSION['errors'], $_SESSION['message_error']);
                 <?php endif; ?>
                 <form method="" action="/custom/app/Controllers/event/event_controller.php" class="search">
                     <input type="hidden" name="action" value="index">
-                    <input type="hidden" id="login_check_flg" name="login_check_flg" value="<?= htmlspecialchars($login_check_flg) ?>">
+                    <input type="hidden" id="login_check_flg" value="<?= htmlspecialchars($login_check_flg) ?>">
                     <button type="submit" aria-label="検索"></button>
                     <label>
                         <input type="text" name="keyword" placeholder="イベントを検索する" />

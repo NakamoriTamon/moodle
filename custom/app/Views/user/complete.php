@@ -16,15 +16,13 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
                 <li>入力</li>
                 <li class="active">完了</li>
             </ul>
-            <div class="whitebox form_cont">
+            <div class="whitebox form_cont form_reg_comp">
                 <p class="cpt_txt">仮登録が完了いたしました。</p>
                 <p class="sent">
-                    ご入力いただきましたメールアドレス宛に本登録を行う為のURLを送信しております。<br />
-                    メールのURLより本登録画面へお進み頂き、<br class="pc" />本登録をお願いいたします。
+                    ご入力いただきましたメールアドレス宛に本登録を行う為のURLを送信しております。メールのURLより本登録画面へお進み頂き、本登録をお願いいたします。
                 </p>
                 <p class="sent red">
-                    ※仮登録受付完了メールが届かない場合、ご入力いただきましたメールアドレスが間違っている可能性があります。<br />
-                    再度、お手数ですがユーザー情報入力を行ってください。
+                    ※仮登録受付完了メールが届かない場合、ご入力いただきましたメールアドレスが間違っている可能性があります。再度、お手数ですがユーザー情報入力を行ってください。
                 </p>
             </div>
             <a href="../index.php" class="btn btn_blue arrow box_bottom_btn">TOPへ戻る</a>
@@ -40,4 +38,5 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 </body>
+
 </html>

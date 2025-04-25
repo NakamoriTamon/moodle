@@ -281,6 +281,9 @@
 #modal.modal_ticket .modal_cont .ticket_txt {
   font-size: 1.4rem;
 }
+.payment_annotation_li{
+  margin-bottom: 20px !important;
+}
 
 /*  mobile & smart phone
 ---------------------------------------------- */

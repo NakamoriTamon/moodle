@@ -4,6 +4,13 @@ require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_re
 
 /** 動画を見たら、オンデマンド配信イベントは参加済みにする */
 $user_id = $_SESSION['user_id'] ?? null;
+
+// 未ログインのページ遷移
+if (empty($user_id)) {
+    redirect(new moodle_url('/custom/app/Views/login/index.php'));
+    exit;
+}
+
 // URLから "file" パラメータを取得
 $file = isset($_GET['file']) ? $_GET['file'] : null;
 if ($file) {

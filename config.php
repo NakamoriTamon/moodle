@@ -101,6 +101,8 @@ $paid_cash = 5; // 現金支払い
 define('PAID_CASH', $paid_cash);
 $membership_start_date = '04-01'; // 4/1を起算日とする　※一旦固定
 define('MEMBERSHIP_START_DATE', $membership_start_date);
+$membership_start_month = '4'; // 4/1を起算日とする　※一旦固定
+define('MEMBERSHIP_START_MONTH', $membership_start_month);
 $type_code_list = [1 => '普通会員', 2 => '賛助会員'];
 define('TYPE_CODE_LIST', $type_code_list);
 define('TEKIJUKU_PAID_DEADLINE', '04-01'); // 適塾支払期限(年度切替日：mm-dd形式)

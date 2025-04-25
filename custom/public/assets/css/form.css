@@ -274,7 +274,11 @@ input[type="password"] {
   font-weight: 700;
 }
 #form.complete .form_cont .red {
-  margin-top: 10px;
+  margin-top: 16px;
+}
+#form .form_reg_comp {
+  padding-left: 3%;
+  padding-right: 3%;
 }
 
 /*-------------------------------------
@@ -321,6 +325,7 @@ input[type="password"] {
  -------------------------------------*/
 #form.event .form_cont .list li .f_num {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
 }
@@ -335,8 +340,13 @@ input[type="password"] {
   background: #cccccc;
   color: #fff;
 }
-#form.event .form_cont .list li .f_num input[type="text"] {
+#form.event .form_cont .list li .f_num input[type="number"] {
   width: 90px;
+}
+#form.event .form_cont .list li .f_num .num_box {
+  display: flex; 
+  gap: 10px; 
+  width: fit-content;
 }
 
 /*-------------------------------------
@@ -529,10 +539,12 @@ reserve
 .inactive-text {
   content: "退会済み";
   display: inline-block;
+  margin-top: 10px;
   margin-left: 10px;
+  text-align: center;
   padding: 2px 8px;
   color: #cc0000;
-  font-size: 0.85em;
+  font-size: 17px;
   line-height: 1.5;
 }
 
@@ -609,7 +621,7 @@ reserve
     gap: 10px;
   }
   #form .form_cont .list li .list_col .f_check .comment {
-    margin-top: 5px;
+    margin-top: 3px;
   }
   #form .form_cont .list li .list_col .f_other {
     gap: 10px;
@@ -637,7 +649,9 @@ reserve
   #form .form_cont .list li .list_col .f_check .comment {
     display: block;
     margin-top: 0px;
+    margin-left: 28px;
     font-size: 12px;
+    letter-spacing: 0;
   }
   #form .form_cont .list li .list_field .note {
     padding-left: 1em;
@@ -645,6 +659,7 @@ reserve
     color: #a1a1a1;
     line-height: 1.8;
     text-indent: -1em;
+    letter-spacing: 0.1rem;
   }
   #form .form_cont .list li .list_field.f_txt input {
     /* flex-grow: 1; 
@@ -654,6 +669,10 @@ reserve
   #form .form_cont .list li .list_field.f_txt .post_code button {
     height: 40px;
     font-size: 1.1em;
+  }
+  #form.event .form_cont .list li .f_num {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
 
@@ -668,12 +687,12 @@ reserve
  complete
  -------------------------------------*/
   #form.complete .form_cont {
-    padding-right: 5%;
-    padding-left: 5%;
+    padding-right: 6%;
+    padding-left: 6%;
   }
   #form.complete .form_cont .cpt_txt {
     margin-bottom: 20px;
-    font-size: 22px;
+    font-size: clamp( 16px, 4.6vw, 24px);
     font-weight: 700;
   }
 

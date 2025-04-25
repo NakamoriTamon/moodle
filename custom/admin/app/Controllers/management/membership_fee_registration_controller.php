@@ -20,21 +20,25 @@ class MembershipFeeRegistrationController
         $old_input = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : [];
         $_SESSION['old_input'] = $_POST;
         $year = $_POST['year'] ?? null;
-        if(is_null($year) && isset($old_input['select_year'])) {
+        if (is_null($year) && isset($old_input['select_year'])) {
             $year = $old_input['select_year'];
             $_SESSION['old_input']['year'] = $year;
         }
         $keyword = $_POST['keyword'] ?? null;
-        if(is_null($keyword) && isset($old_input['select_keyword'])) {
+        if (is_null($keyword) && isset($old_input['select_keyword'])) {
             $keyword = $old_input['select_keyword'];
             $_SESSION['old_input']['keyword'] = $keyword;
         }
         $payment_status = $_POST['payment_status'] ?? null;
-        if(is_null($keyword) && isset($old_input['select_payment_status'])) {
+        if (is_null($keyword) && isset($old_input['select_payment_status'])) {
             $payment_status = $old_input['select_payment_status'];
             $_SESSION['old_input']['payment_status'] = $payment_status;
         }
-        $page = $_POST['page'] ?? 1;
+
+        $page = $_POST['page'];
+        if (!empty($page) && $page < 0) {
+            $page = 1;
+        }
         $email_send_setting = [];
 
         // ページネーション
@@ -71,19 +75,23 @@ class MembershipFeeRegistrationController
             $filters['payment_status'] = $payment_status;
         }
 
-        $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page);
-        $total_count = $this->TekijukuCommemorationModel->getTekijukuUserCount($filters, $current_page);
+        $tekijuku_commemoration_list = $this->TekijukuCommemorationModel->getTekijukuUser($filters, $current_page, $per_page);
+        $tekijuku_commemoration_count = $this->TekijukuCommemorationModel->getTekijukuUser($filters, 1, 1000000);
+        $total_count = 0;
+        if (!empty($tekijuku_commemoration_count)) {
+            $total_count = count($tekijuku_commemoration_count);
+        }
 
         $filters = [];
         if (!empty($keyword)) {
             $filters['keyword'] = $keyword;
         }
         $filters['year'] = $year;
-        $email_send_setting = $this->EmailSendSettingModel->getEmailSendSetting($filters);
+        $email_send_setting = $this->EmailSendSettingModel->getEmailSendSetting($filters); // メール送信器のは後ほど変える
 
         $data = [
             'tekijuku_commemoration_list' => $tekijuku_commemoration_list,
-            'total_count' => $total_count['total'],
+            'total_count' => $total_count,
             'per_page' => $per_page,
             'current_page' => $current_page,
             'page' => $current_page,
