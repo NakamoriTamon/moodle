@@ -98,7 +98,8 @@ global $old_input;
                             <div class="list_field">
                                 <label class="checkbox_label">
                                     <input class="checkbox_input" type="checkbox" disabled name="is_university_member" <?php if ($old_input['is_university_member'] === '1') { ?>checked <?php } ?>>
-                                    大阪大学教職員・学生の方はこちらにチェックしてください。
+                                    大阪大学教職員の方はこちらにチェックしてください。
+                                    <!-- 大阪大学教職員・学生の方はこちらにチェックしてください。 -->
                                 </label>
                             </div>
                         </li>
@@ -127,7 +128,7 @@ global $old_input;
                             <div class="list_field">
                                 <label class="checkbox_label">
                                     <input class="checkbox_input" type="checkbox" disabled name="is_published" <?php if ($old_input['is_published'] === '1') { ?>checked <?php } ?>>
-                                    氏名掲載を許可します
+                                    会誌『適塾』誌面会員名簿への氏名掲載を許可します
                                 </label>
                             </div>
                         </li>

@@ -1181,6 +1181,7 @@ select {
   input[type="checkbox"] {
     width: 18px;
     height: 18px;
+    min-width: 18px;
   }
   input[type="checkbox"]:checked:before {
     width: 5px;
