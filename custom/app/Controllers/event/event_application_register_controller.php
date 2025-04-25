@@ -155,18 +155,13 @@ class EventRegisterController
                 OR (
                     (ci.release_date IS NOT NULL OR ci.material_release_date IS NOT NULL)
                     AND GREATEST(
-                        CASE 
-                            WHEN ci.release_date IS NOT NULL THEN DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY)
-                            ELSE '1970-01-01'
-                        END,
-                        CASE
-                            WHEN ci.material_release_date IS NOT NULL THEN DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY)
-                            ELSE '1970-01-01'
-                        END
+                        IF(ci.release_date IS NOT NULL, DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY), '1970-01-01'),
+                        IF(ci.material_release_date IS NOT NULL, DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY), '1970-01-01'),
+                        ci.course_date
                     ) >= '$now_time'
                 )
             )
-            AND eaci.participation_kbn != :participation_kbn 
+            AND (eaci.participation_kbn IS NULL OR eaci.participation_kbn != :participation_kbn) 
         ORDER BY 
             ci.course_date ASC, ea.event_id ASC
         ";
