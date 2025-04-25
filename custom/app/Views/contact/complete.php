@@ -17,10 +17,9 @@
             <div class="whitebox form_cont">
                 <p class="cpt_txt">お問い合わせありがとうございます</p>
                 <p class="sent">
-                    いただいた内容を確認後、返信いたします。<br />
-                    返信が無い場合は、メールが不着になっている<br class="pc" />可能性があります。<br />
-                    お心当たりの方はお手数ですが直接お電話 <br class="pc" />(代表:
-                    06-6850-5016)までご連絡を頂けますと幸いです。
+                    いただいた内容を確認後、返信いたします。<br class="sp-none" />
+                    返信が無い場合は、メールが不着になっている可能性があります。<br class="sp-none" />
+                    お心当たりの方はお手数ですが直接お電話(代表:06-6850-5016)までご連絡を頂けますと幸いです。
                 </p>
             </div>
             <a href="../index.php" class="btn btn_blue arrow box_bottom_btn">TOPへ戻る</a>
