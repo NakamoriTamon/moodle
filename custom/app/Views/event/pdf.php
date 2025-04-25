@@ -3,7 +3,7 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
 
 /** 動画を見たら、オンデマンド配信イベントは参加済みにする */
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['user_id'] ?? $USER->id;
 
 // 未ログインのページ遷移
 if (empty($user_id)) {
