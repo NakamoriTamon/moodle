@@ -21,7 +21,7 @@ $_SESSION['reserve']['event_application_course_info_id'] = $event_application_co
 $_SESSION['old_input'] = $_POST;
 
 $name_size = 50;
-$companion_name_error  = validate_max_text($companion_name, 'お連れ様の氏名', $name_size, true);
+$companion_name_error  = validate_max_text($companion_name, 'お子様の氏名', $name_size, true);
 if (!empty($companion_name_error)) {
     $_SESSION['message_error'] = '登録に失敗しました';
     $_SESSION['errors']['companion_name'] = $companion_name_error;
