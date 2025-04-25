@@ -93,9 +93,9 @@ $currentDate = date('Y-m-d');
 $startDate = date('Y') . '-' . MEMBERSHIP_START_DATE;
 if ($currentDate < $startDate) {
     // 4/1以前なら去年
-    $currentYear = date('y') - 1;
+    $currentYear = date('Y') - 1;
 } else {
-    $currentYear = date('y');
+    $currentYear = date('Y');
 }
 
 // 決済状態を判定する関数
@@ -248,7 +248,7 @@ unset(
             <div class="card-wrapper">
                 <div id="card">
                     <p class="card_head">適塾記念会デジタル会員証</p>
-                    <p class="card_year"><?php echo htmlspecialchars($currentYear); ?>年度の<br class="nopc" />本会会員ということを証明する</p>
+                    <p class="card_year"><?php echo htmlspecialchars($currentYear); ?>年度の<br class="nopc" />本会会員であることを証明する</p>
                     <p class="card_name"><?php echo htmlspecialchars($tekijuku_commemoration['name'] ?? ''); ?></p>
                     <p class="card_id"><?php echo htmlspecialchars($tekijuku_commemoration['number'] ? sprintf('%08d', $tekijuku_commemoration['number']) : ''); ?></p>
                     <ul class="card_desc">
@@ -315,10 +315,12 @@ unset(
                                         <?php endif; ?>
                                     </div>
                                 </li>
-                                <li class="list_item08">
-                                    <p class="list_label">お子様の氏名</p>
-                                    <div class="list_field f_txt"><?php echo htmlspecialchars($user->child_name ?? null); ?></div>
-                                </li>
+                                <?php if (!empty($user->child_name)): ?>
+                                    <li class="list_item08">
+                                        <p class="list_label">お子様の氏名</p>
+                                        <div class="list_field f_txt"><?php echo htmlspecialchars($user->child_name ?? null); ?></div>
+                                    </li>
+                                <?php endif; ?>
                                 <li class="list_item09 long_item">
                                     <p class="list_label">備考</p>
                                     <div class="list_field f_txtarea"><?php echo htmlspecialchars($user->description ?? null); ?></div>
@@ -459,18 +461,21 @@ unset(
                                             <?php endif; ?>
                                         </div>
                                     </li>
-                                    <li class="list_item09">
-                                        <p class="list_label">お子様の氏名</p>
-                                        <div class="list_field f_txt">
-                                            <input type="text" name="child_name" value="<?php echo htmlspecialchars($old_input['child_name'] ?? $user->child_name); ?>" />
-                                            <?php if (!empty($errors['child_name'])): ?>
-                                                <div class=" text-danger mt-2"><?= htmlspecialchars($errors['child_name']); ?></div>
-                                            <?php endif; ?>
-                                            <p class="note">
-                                                保護者が代理入力している場合記入してください。
-                                            </p>
-                                        </div>
-                                    </li>
+                                    <input type="hidden" name="exist_child" value="<?php echo $user->child_name ? 1 : 0; ?>">
+                                    <?php if (!empty($user->child_name)): ?>
+                                        <li class="list_item09 req">
+                                            <p class="list_label">お子様の氏名</p>
+                                            <div class="list_field f_txt">
+                                                <input type="text" name="child_name" value="<?php echo htmlspecialchars($old_input['child_name'] ?? $user->child_name); ?>" />
+                                                <?php if (!empty($errors['child_name'])): ?>
+                                                    <div class=" text-danger mt-2"><?= htmlspecialchars($errors['child_name']); ?></div>
+                                                <?php endif; ?>
+                                                <p class="note">
+                                                    保護者が代理入力している場合記入してください。
+                                                </p>
+                                            </div>
+                                        </li>
+                                    <?php endif; ?>
                                     <li class="list_item10 long_item">
                                         <p class="list_label">備考</p>
                                         <div class="list_field f_txtarea">
@@ -599,7 +604,8 @@ unset(
                                                 ?>
                                                 <input class="checkbox_input" type="checkbox"
                                                     <?= $isPublished ? 'checked' : '' ?> disabled>
-                                                <p class="checkbox_label">大阪大学教職員・学生の方</p>
+                                                <p class="checkbox_label">大阪大学教職員の方</p>
+                                                <!-- <p class="checkbox_label">大阪大学教職員・学生の方</p> -->
                                             </div>
                                         </div>
                                     </li>
@@ -611,7 +617,7 @@ unset(
                                                 ?>
                                                 <input class="checkbox_input" type="checkbox"
                                                     <?= $isPublished ? 'checked' : '' ?> disabled>
-                                                <p class="checkbox_label">氏名掲載を許可します</p>
+                                                <p class="checkbox_label">会誌『適塾』誌面会員名簿への氏名掲載を許可します</p>
                                             </div>
                                         </div>
                                     </li>
@@ -701,7 +707,8 @@ unset(
                                             <div class="list_field">
                                                 <label class="checkbox_label">
                                                     <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
-                                                    <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                                    <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員の方はこちらにチェックしてください。</label>
+                                                    <!-- <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label> -->
                                                 </label>
                                             </div>
                                         </li>
@@ -737,7 +744,7 @@ unset(
                                                 <label class="checkbox_label" for="">
                                                     <input type="hidden" name="is_published" value="0">
                                                     <input class="checkbox_input" type="checkbox" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
-                                                    <label class="checkbox_label">氏名掲載を許可します</label>
+                                                    <label class="checkbox_label">会誌『適塾』誌面会員名簿への氏名掲載を許可します</label>
                                                 </label>
                                             </div>
                                         </li>
