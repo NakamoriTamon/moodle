@@ -156,7 +156,8 @@ if (!$login_check_flg) {
                             <div class="list_field">
                                 <label class="checkbox_label">
                                     <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php if ($old_input['is_university_member'] == '1') { ?>checked <?php } ?>>
-                                    <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                    <label class="checkbox_label" for="is_university_member">大阪大学教職員の方はこちらにチェックしてください。</label>
+                                    <!-- <label class="checkbox_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label> -->
                                 </label>
                             </div>
                         </li>
@@ -191,7 +192,7 @@ if (!$login_check_flg) {
                             <div class="list_field">
                                 <label class="checkbox_label">
                                     <input class="checkbox_input" id="is_published" type="checkbox" name="is_published" value=1 <?php if ($old_input['is_published'] == '1') { ?>checked <?php } ?>>
-                                    <label class="checkbox_label" for="is_published">氏名掲載を許可します</label>
+                                    <label class="checkbox_label" for="is_published">会誌『適塾』誌面会員名簿への氏名掲載を許可します</label>
                                 </label>
                             </div>
                         </li>
