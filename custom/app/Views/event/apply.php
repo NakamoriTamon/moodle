@@ -354,8 +354,8 @@ unset($_SESSION['old_input']);
                                 <?php endif; ?>
                             </span>
                             <li class="list_item09 long_item">
-                                <p>
-                                    <span class="list_label">
+                                <p class="list_label">
+                                    <span class="title">
                                         本イベントはどのようにお知りになりましたか？
                                     </span>
                                     <span>※複数選択可</span>
