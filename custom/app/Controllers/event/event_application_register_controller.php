@@ -106,7 +106,7 @@ class EventRegisterController
                     ) >= '$now_time'
                 )
             )
-            AND eaci.participation_kbn != :participation_kbn 
+            AND (eaci.participation_kbn IS NULL OR eaci.participation_kbn != :participation_kbn) 
         ORDER BY 
             ci.course_date ASC, ea.event_id ASC
         LIMIT $perPage OFFSET $offset";

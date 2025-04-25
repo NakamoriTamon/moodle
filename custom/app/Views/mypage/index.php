@@ -936,7 +936,7 @@ unset(
                                         <?php endif; ?>
                                     </p>
                                     <ul class="txt_other">
-                                        <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li>
+                                        <?php if($application->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li><?php endif; ?>
                                         <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($price) ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo htmlspecialchars($application->ticket_count) ?> 枚</span></li>
                                         <?php if ($application->price != 0) : ?>
@@ -1002,7 +1002,7 @@ unset(
                                             <?php endif; ?>
                                         </p>
                                         <ul class="txt_other">
-                                            <li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li>
+                                            <?php if($history->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li><?php endif ?>
                                             <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($history_price) ?></span></li>
                                         </ul>
                                     </div>
