@@ -92,6 +92,7 @@ input[type="password"] {
 }
 #form .form_cont .list li .list_label .title {
   font-weight: 700;
+  margin-top: 0;
 }
 #form .form_cont .list li .list_label span {
   display: block;
