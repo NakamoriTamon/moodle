@@ -89,20 +89,15 @@ class EventRegisterController
             AND eaci.ticket_type = :self_ticket_type
             AND (
                 -- リリース日がNULLの場合: 開催日+23:59:59 を公開終了とする
-                (ci.release_date IS NULL AND ci.course_date >= '$day_end_time')
+                (ci.release_date IS NULL AND ci.material_release_date IS NULL AND ci.course_date >= '$day_end_time')
 
                 -- リリース日がある場合: `release_date + archive_streaming_period` で公開終了を計算
                 OR (
                     (ci.release_date IS NOT NULL OR ci.material_release_date IS NOT NULL)
                     AND GREATEST(
-                        CASE 
-                            WHEN ci.release_date IS NOT NULL THEN DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY)
-                            ELSE '1970-01-01'
-                        END,
-                        CASE
-                            WHEN ci.material_release_date IS NOT NULL THEN DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY)
-                            ELSE '1970-01-01'
-                        END
+                        IF(ci.release_date IS NOT NULL, DATE_ADD(ci.release_date, INTERVAL e.archive_streaming_period DAY), '1970-01-01'),
+                        IF(ci.material_release_date IS NOT NULL, DATE_ADD(ci.material_release_date, INTERVAL e.material_release_period DAY), '1970-01-01'),
+                        ci.course_date
                     ) >= '$now_time'
                 )
             )
