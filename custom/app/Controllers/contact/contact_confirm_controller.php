@@ -18,10 +18,11 @@ $_SESSION['errors']['email_confirm'] = validate_custom_email($email_confirm);
 $_SESSION['errors']['email_confirm'] = confirm_validation($email_confirm, $email, 'メールアドレス', $_SESSION['errors']['email_confirm']);
 $event_id = $_POST['event_id'];
 $_SESSION['errors']['event_id'] = validate_select($event_id, 'お問い合わせの項目', true);
-$inquiry_details =$_POST['inquiry_details'];
+$inquiry_details = $_POST['inquiry_details'];
 $_SESSION['errors']['inquiry_details'] = validate_textarea($inquiry_details, 'お問い合わせ内容', true, 300);
 
-if ($_SESSION['errors']['name']
+if (
+    $_SESSION['errors']['name']
     || $_SESSION['errors']['email']
     || $_SESSION['errors']['event_id']
     || $_SESSION['errors']['inquiry_details']
@@ -31,12 +32,12 @@ if ($_SESSION['errors']['name']
     exit;
 } else {
     $event_name = "";
-    if(is_numeric($event_id)) {
+    if (is_numeric($event_id)) {
         $eventModel = new EventModel();
         $event = $eventModel->getEventById($event_id);
         $event_name = '【' . $event['name'] . '】について';
     } else {
-        $event_name = "その他「『阪大知の広場』に関しての一般的なお問い合わせ";
+        $event_name = "その他『阪大知の広場』に関しての一般的なお問い合わせ";
     }
 
     $SESSION->formdata = [
