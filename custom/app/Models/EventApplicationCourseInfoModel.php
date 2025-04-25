@@ -6,22 +6,30 @@ class EventApplicationCourseInfoModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $offset = ($page - 1) * $perPage;
                 $stmt = $this->pdo->prepare(
-                    "SELECT id, event_application_id, course_info_id, participant_mail, participation_kbn 
+                    "SELECT id, event_application_id, course_info_id, participant_mail, participation_kbn, ticket_type
                     FROM mdl_event_application_course_info 
-                    WHERE course_info_id = ? 
-                    LIMIT $perPage OFFSET $offset"
+                    WHERE course_info_id = ? "
                 );
 
                 $stmt->execute([$id]);
                 $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // 各イベントの詳細を追加
-                foreach ($result_list as &$result) {
-                    $result['application'] = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                $filtered = [];
+                foreach ($result_list as $result) {
+                    $application = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                    if (!empty(reset($application)['user'])) {
+                        $result['application'] = $application;
+                        $filtered[] = $result;
+                    }
+                }
+                foreach ($filtered as &$result) {
                     $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
                 }
+
+                $result_list = $filtered;
+                $offset = ($page - 1) * $perPage;
+                $result_list = array_slice($result_list, $offset, $perPage);
 
                 return $result_list;
             } catch (\PDOException $e) {
@@ -35,7 +43,7 @@ class EventApplicationCourseInfoModel extends BaseModel
 
         return [];
     }
-    
+
     // コース情報IDより申し込みの総件数を取得
     public function getCountByCourseInfoId($id, $keyword)
     {
@@ -56,7 +64,7 @@ class EventApplicationCourseInfoModel extends BaseModel
                     $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
                 }
 
-                return $result_list;
+                return count($result_list);
             } catch (\PDOException $e) {
                 error_log('コース情報別イベント申込取得エラー: ' . $e->getMessage() . ' CourseInfoID: ' . $id);
                 echo 'データの取得に失敗しました';
@@ -66,7 +74,7 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
 
-        return [];
+        return 0;
     }
 
     // コース情報IDより申し込み状況を取得
@@ -74,23 +82,31 @@ class EventApplicationCourseInfoModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $offset = ($page - 1) * $perPage;
                 $stmt = $this->pdo->prepare(
-                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, e.event_kbn 
+                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, ticket_type, e.event_kbn 
                     FROM mdl_event_application_course_info eaci
                     LEFT JOIN mdl_event e ON event_id = e.id
-                    WHERE event_id = ? 
-                    LIMIT $perPage OFFSET $offset"
+                    WHERE event_id = ? "
                 );
 
                 $stmt->execute([$id]);
                 $result_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // 各イベントの詳細を追加
-                foreach ($result_list as &$result) {
-                    $result['application'] = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                $filtered = [];
+                foreach ($result_list as $result) {
+                    $application = $this->getEventApplicationByApplicationId($result['event_application_id'], $keyword);
+                    if (!empty(reset($application)['user'])) {
+                        $result['application'] = $application;
+                        $filtered[] = $result;
+                    }
+                }
+                foreach ($filtered as &$result) {
                     $result['course_info'] = $this->getCourseInfoById($result['course_info_id']);
                 }
+
+                $result_list = $filtered;
+                $offset = ($page - 1) * $perPage;
+                $result_list = array_slice($result_list, $offset, $perPage);
 
                 return $result_list;
             } catch (\PDOException $e) {
@@ -136,7 +152,7 @@ class EventApplicationCourseInfoModel extends BaseModel
             echo "データの取得に失敗しました";
         }
 
-        return [];
+        return 0;
     }
 
     // イベント申し込み情報を取得
