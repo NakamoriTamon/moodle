@@ -27,7 +27,9 @@ $is_hidden_withdraw = !$is_general_user;
                     <li><a href="/custom/app/Views/contact/index.php">お問い合わせ</a></li>
                     <!-- <li><a href="quest/index.html">アンケート</a></li> -->
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
+                    <?php if (!isloggedin() || !isset($_SESSION['USER'])): ?>
                     <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
+                    <?php endif; ?>
                     <?php if (!$is_hidden_withdraw): ?>
                         <li><a href="javascript:void(0);" id="user-withdrawal-button">ユーザー退会</a></li>
                     <?php endif; ?>

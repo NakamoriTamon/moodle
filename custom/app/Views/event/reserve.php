@@ -91,7 +91,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               <?php } ?>
               <?php if (!empty($child_name)) { ?>
                 <li class="list_item08  <?= !empty($errors['companion_name']) ? 'flex-wrap' : '' ?>">
-                  <p class="list_label">お連れ様の氏名</p>
+                  <p class="list_label">お子様の氏名</p>
                   <input class="list_field" type="text" name="companion_name" value="<?= htmlspecialchars(isSetValue($child_name ?? '', $old_input['companion_name'] ?? '')) ?>">
                   <?php if (!empty($errors['companion_name'])): ?>
                     <div class="error-msg mt-2">

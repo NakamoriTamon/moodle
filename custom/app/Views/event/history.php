@@ -65,7 +65,7 @@ $child_name = $result_list['child_name'];
             <?php } ?>
             <?php if (!empty($child_name)) { ?>
               <li class="list_item08">
-                <p class="list_label">お連れ様の氏名</p>
+                <p class="list_label">お子様の氏名</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($child_name) ?></p>
               </li>
             <?php } ?>
