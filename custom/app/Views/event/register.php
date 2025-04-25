@@ -77,7 +77,14 @@ function viewDates($event)
     $surveyEndDate = ($videoReleaseEndDate > $materialReleaseEndDate) ? clone $videoReleaseEndDate : clone $materialReleaseEndDate;
 
     // 表示する終了日時は動画と資料の公開終了日時のうち遅い方
+    $formatted_date = ($videoReleaseEndDate > $materialReleaseEndDate) ? $videoReleaseEndDate : $materialReleaseEndDate;
     $formattedDate = ($videoReleaseEndDate > $materialReleaseEndDate) ? $videoFormattedDate : $materialFormattedDate;
+
+    // 開催日の方が大きかった場合
+    $course_date = new DateTime($event->course_date);
+    if($course_date > $formatted_date) {
+        $formattedDate = $course_date->format('Y年m月d日'); // 表示用終了日時
+    }
 
     return [
         'videoReleaseDate' => $videoReleaseDate,
