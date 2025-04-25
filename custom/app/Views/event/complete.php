@@ -25,7 +25,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['payment_method_typ
             </ul>
             <div class="whitebox form_cont">
                 <p class="cpt_txt"><?= htmlspecialchars($message_title) ?></p>
-                <p class="sent">この度は、イベントにお申し込みいただき、誠にありがとうございます。<?= htmlspecialchars($message) ?></p>
+                <p class="sent">この度は、イベントにお申し込みいただき、誠にありがとうございます。<br class="sp-none" /><?= htmlspecialchars($message) ?></p>
             </div>
             <a href="/custom/app/Views/event/register.php" class="btn btn_blue arrow box_bottom_btn">申し込みイベント一覧</a>
         </section>

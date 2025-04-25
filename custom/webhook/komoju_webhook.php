@@ -237,6 +237,7 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
 {
     global $CFG, $url_secret_key;
 
+    $event_kbn = $event['event_kbn'];
     foreach ($eventApplication['course_infos'] as $course) {
         global $url_secret_key;
         $encrypt_event_application_course_info_id = encrypt($course['id'], $url_secret_key);
@@ -251,88 +252,112 @@ function sendQRCodeEmails($eventApplication, $event, $user_email, $name)
             ]
         ]);
 
-        $recipients = [$course['participant_mail']];
+        $participant_mail = $course['participant_mail'];
+        
+        // ドメイン名が有効かDNSチェック（MXレコード確認）
+        $domain = substr(strrchr($participant_mail, "@"), 1);
 
-        $ymd = "";
-        if($event['event_kbn'] == EVERY_DAY_EVENT) {
-            $ymd = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
-        } else {
-            $day = new DateTime($course["course_date"]);
-            $course_date = $day->format('Ymd');
-            $ymd = $day->format('Y/m/d');
-        }
-        $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
-        $start_hour = $dateTime->format('H:i'); // "00:00"
-        $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
-        $end_hour = $dateTime->format('H:i'); // "00:00"
+        if(!empty($participant_mail) && filter_var($participant_mail, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX")) {
+            $recipients = [$course['participant_mail']];
+            $ymd = "";
+            if($event['event_kbn'] == EVERY_DAY_EVENT) {
+                $ymd = (new DateTime($event['start_event_date']))->format('Y年m月d日') . "～" . (new DateTime($event['end_event_date']))->format('Y年m月d日');
+            } else {
+                $day = new DateTime($course["course_date"]);
+                $course_date = $day->format('Ymd');
+                $ymd = $day->format('Y/m/d');
+            }
+            $dateTime = DateTime::createFromFormat('H:i:s', $event['start_hour']);
+            $start_hour = $dateTime->format('H:i'); // "00:00"
+            $dateTime = DateTime::createFromFormat('H:i:s', $event['end_hour']);
+            $end_hour = $dateTime->format('H:i'); // "00:00"
 
-        // ✅ QRコードを生成（バイナリデータ）
-        $qrCode = new QrCode($encrypt_event_application_course_info_id);
-        $writer = new PngWriter();
-        $qrCodeImage = $writer->write($qrCode)->getString();
-        $qr_base64 = base64_encode($qrCodeImage);
+            // ✅ QRコードを生成（バイナリデータ）
+            $qrCode = new QrCode($encrypt_event_application_course_info_id);
+            $writer = new PngWriter();
+            $qrCodeImage = $writer->write($qrCode)->getString();
+            $qr_base64 = base64_encode($qrCodeImage);
 
-        // ✅ MIME メッセージの作成
-        $boundary = md5(time());
+            // ✅ MIME メッセージの作成
+            $boundary = md5(time());
 
-        $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
-        $rawMessage .= "To: " . implode(',', $recipients) . "\r\n";
-        $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode("チケットの購入が完了しました") . "?=\r\n";
-        $rawMessage .= "MIME-Version: 1.0\r\n";
-        $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
+            $rawMessage = "From: 知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>\r\n";
+            $rawMessage .= "To: " . implode(',', $recipients) . "\r\n";
+            $rawMessage .= "Subject: =?UTF-8?B?" . base64_encode("チケットの購入が完了しました") . "?=\r\n";
+            $rawMessage .= "MIME-Version: 1.0\r\n";
+            $rawMessage .= "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n\r\n";
 
-        $ticket_type = TICKET_TYPE['SELF'];
-        if ($user_email !== $course['participant_mail']) {
-            $ticket_type = TICKET_TYPE['ADDITIONAL'];
-        }
+            $ticket_type = TICKET_TYPE['SELF'];
+            if ($user_email !== $course['participant_mail']) {
+                $ticket_type = TICKET_TYPE['ADDITIONAL'];
+            }
 
-        $dear = !empty($name) ? '様' : '';
-        $htmlBody = "
-                <div style=\"text-align: center; font-family: Arial, sans-serif;\">
-                    <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p><br />
-                    <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
-                    <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
-                    <div>
-                        <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
-                    </div>
-                    <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
-                    <p style=\"margin-top: 20px; font-size: 14px;\">開催回数：第" . $course['no'] . "回</p>
-                    <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
-                    <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
-                    <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
-                    あらかじめご了承ください。</p>
-                </div>";
+            $dear = !empty($name) ? '様' : '';
+            if ($event_kbn == PLURAL_EVENT) {
+                $htmlBody = "
+                        <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                            <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p><br />
+                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
+                            <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
+                            <div>
+                                <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                            </div>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">開催回数：第" . $course['no'] . "回</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
+                            <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                            あらかじめご了承ください。</p>
+                        </div>";
+            } else {
+                $htmlBody = "
+                        <div style=\"text-align: center; font-family: Arial, sans-serif;\">
+                            <p style=\"text-align: left; font-weight:bold;\">" . $name . $dear . "</p><br />
+                            <P style=\"text-align: left; font-size: 13px; margin:0; padding:0;\">ご購入ありがとうございます。チケットのご購入が完了いたしました。</P>
+                            <P style=\"text-align: left;  font-size: 13px; margin:0; margin-bottom: 30px; \">QRはマイページでも確認できます。</P>
+                            <div>
+                                <img src=\"cid:qr_code_cid\" alt=\"QR Code\" style=\"width: 150px; height: 150px; display: block; margin: 0 auto;\" />
+                            </div>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">" . $event["name"] . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">開催日：" . $ymd . "</p>
+                            <p style=\"margin-top: 20px; font-size: 14px;\">時間　：" . $start_hour . "～" . $end_hour . "</p><br />
+                            <p style=\"margin-top: 30px; font-size: 13px; text-align: left;\">このメールは、配信専用アドレスで配信されています。<br>このメールに返信いただいても、返信内容の確認及びご返信ができません。
+                            あらかじめご了承ください。</p>
+                        </div>";
+            }
 
-        $rawMessage .= "--{$boundary}\r\n";
-        $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-        $rawMessage .= $htmlBody . "\r\n\r\n";
+            $rawMessage .= "--{$boundary}\r\n";
+            $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $rawMessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+            $rawMessage .= $htmlBody . "\r\n\r\n";
 
-        // ✅ QRコード画像の添付（インライン）
-        $rawMessage .= "--{$boundary}\r\n";
-        $rawMessage .= "Content-Type: image/png; name=\"qr_code.png\"\r\n";
-        $rawMessage .= "Content-Description: QR Code\r\n";
-        $rawMessage .= "Content-Disposition: inline; filename=\"qr_code.png\"\r\n";
-        $rawMessage .= "Content-ID: <qr_code_cid>\r\n";
-        $rawMessage .= "Content-Transfer-Encoding: base64\r\n\r\n";
-        $rawMessage .= chunk_split($qr_base64) . "\r\n\r\n";
+            // ✅ QRコード画像の添付（インライン）
+            $rawMessage .= "--{$boundary}\r\n";
+            $rawMessage .= "Content-Type: image/png; name=\"qr_code.png\"\r\n";
+            $rawMessage .= "Content-Description: QR Code\r\n";
+            $rawMessage .= "Content-Disposition: inline; filename=\"qr_code.png\"\r\n";
+            $rawMessage .= "Content-ID: <qr_code_cid>\r\n";
+            $rawMessage .= "Content-Transfer-Encoding: base64\r\n\r\n";
+            $rawMessage .= chunk_split($qr_base64) . "\r\n\r\n";
 
-        $rawMessage .= "--{$boundary}--";
+            $rawMessage .= "--{$boundary}--";
 
-        // ✅ SES で送信
-        try {
-            $result = $SesClient->sendRawEmail([
-                'RawMessage' => [
-                    'Data' => $rawMessage
-                ],
-                'ReplyToAddresses' => ['no-reply@example.com'],
-                'Source' => $_ENV['MAIL_FROM_ADDRESS'],
-                'Destinations' => $recipients
-            ]);
-        } catch (AwsException $e) {
-            $_SESSION['message_error'] = '送信に失敗しました: ' . $e->getMessage();
-            redirect('/custom/app/Views/user/pass_mail.php');
-            exit;
+            // ✅ SES で送信
+            try {
+                $result = $SesClient->sendRawEmail([
+                    'RawMessage' => [
+                        'Data' => $rawMessage
+                    ],
+                    'ReplyToAddresses' => ['no-reply@example.com'],
+                    'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                    'Destinations' => $recipients
+                ]);
+            } catch (AwsException $e) {
+                error_log('購入完了メール送信エラー: ' . $recipients);
+                // 次のループへ continue
+                continue;
+            }
+            
         }
     }
 }
