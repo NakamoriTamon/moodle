@@ -120,6 +120,24 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                   <a id="realtime_path" href="<?= htmlspecialchars($realtime_path) ?>" target="_blank" rel="noopener noreferrer" class=" list_field f_txt"><?= htmlspecialchars($realtime_path) ?></a>
                 </li>
               <?php } ?>
+              <?php if (!empty($common_application['guardian_name'])) { ?>
+                <li class="list_item11">
+                  <p class="list_label">保護者氏名</p>
+                  <p><?= htmlspecialchars($common_application['guardian_name']) ?></p>
+                </li>
+              <?php } ?>
+              <?php if (!empty($common_application['guardian_email'])) { ?>
+                <li class="list_item12">
+                  <p class="list_label">保護者メールアドレス</p>
+                  <p><?= htmlspecialchars($common_application['guardian_email']) ?></p>
+                </li>
+              <?php } ?>
+              <?php if (!empty($common_application['guardian_phone'])) { ?>
+                <li class="list_item13">
+                  <p class="list_label">保護者電話番号</p>
+                  <p><?= htmlspecialchars($common_application['guardian_phone']) ?></p>
+                </li>
+              <?php } ?>
               <?php if (!empty($child_name)) { ?>
                 <a id="submit" class="btn btn_red arrow box_bottom_btn">更新する</a>
               <?php } ?>
