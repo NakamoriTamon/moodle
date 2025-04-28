@@ -63,9 +63,11 @@ $custom_list = $custom_upsert_controller->index();
 													<a href='/custom/admin/app/Views/event/custom_upsert.php?id=<?= htmlspecialchars($custom['id']) ?>' class="me-3">
 														<i class="align-middle" data-feather="edit-2"></i>
 													</a>
+													<?php if(!$custom['input_flg']) { ?>
 													<a class="delete-link" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?= htmlspecialchars($custom['id']) ?>">
 														<i class="align-middle" data-feather="trash"></i>
 													</a>
+													<?php } ?>
 												</td>
 											</tr>
 

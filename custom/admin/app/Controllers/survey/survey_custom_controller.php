@@ -3,7 +3,6 @@ require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldCategoryModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
-require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationCustomfieldModel.php');
 
 class SurveyCustomController
 {
@@ -16,13 +15,25 @@ class SurveyCustomController
     {
         $this->surveyCustomFieldCategoryModel = new EventSurveyCustomFieldCategoryModel();
         $this->surveyApplicationModel = new SurveyApplicationModel();
-        $this->surveyApplicationCustomfieldModel = new SurveyApplicationCustomfieldModel();
     }
 
     public function index()
     {
         $survey_application_list = $this->surveyCustomFieldCategoryModel->getSurveyCustomFieldCategory();
 
+        foreach($survey_application_list as &$surveyCustomFields) {
+            // アンケートがあるか確認
+            $surveyCustomFields['answer'] = false;
+            $events = $surveyCustomFields['event'];
+            foreach ($events as $event) {
+                $event_id = $event['id'];
+                $surveyApplication = $this->surveyApplicationModel->getSurveyApplications(null, $event_id, 1 ,1);
+
+                if(!empty($surveyApplication)) {
+                    $surveyCustomFields['answer'] = true;
+                }
+            }
+        }
         return $survey_application_list;
     }
 
@@ -48,11 +59,8 @@ class SurveyCustomController
             $surveyApplication = $this->surveyApplicationModel->getSurveyApplications(null, $event_id, 1 ,1);
 
             if(!empty($surveyApplication)) {
-                $answer = $this->surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($surveyApplication[0]['id']);
-                if(!empty($answer)) {
-                    $surveyCustomFields['answer'] = true;
-                    break;
-                }
+                $surveyCustomFields['answer'] = true;
+                break;
             }
         }
         return $surveyCustomFields;

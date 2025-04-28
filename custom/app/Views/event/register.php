@@ -19,7 +19,15 @@ $now = new DateTime();
 function viewDates($event)
 {
     $start_hour = $event->start_hour;
-    $survey_date = new DateTime($event->course_date);
+    $event_kbn =  $event->event_kbn;
+    $course_date = new DateTime($event->course_date);
+    if($event_kbn == EVERY_DAY_EVENT) {
+        $survey_date = new DateTime($event->start_event_date);
+    } else if($event_kbn == PLURAL_EVENT) {
+        $survey_date = new DateTime($event->event_date);
+    } else {
+        $survey_date = $course_date;
+    }
     $survey_date_part = $survey_date->format('Y-m-d');
     $surveyReleaseDate = new DateTime("$survey_date_part $start_hour");
 
@@ -75,6 +83,8 @@ function viewDates($event)
 
     // アンケート終了日時は動画と資料の公開終了日時のうち遅い方
     $surveyEndDate = ($videoReleaseEndDate > $materialReleaseEndDate) ? clone $videoReleaseEndDate : clone $materialReleaseEndDate;
+    // アンケート終了日時が開催日時が遅い場合
+    $surveyEndDate = ($course_date > $surveyEndDate) ? clone $course_date : clone $surveyEndDate;
 
     // 表示する終了日時は動画と資料の公開終了日時のうち遅い方
     $formatted_date = ($videoReleaseEndDate > $materialReleaseEndDate) ? $videoReleaseEndDate : $materialReleaseEndDate;
