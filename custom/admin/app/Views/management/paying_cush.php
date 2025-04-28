@@ -399,7 +399,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">職名・学年</label>
+                                            <label class="form-label">職名</label>
                                             <div class="align-items-center">
                                                 <input type="text" name="official" class="form-control" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
                                                 <?php if (!empty($errors['official'])): ?>

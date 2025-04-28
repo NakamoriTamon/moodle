@@ -117,7 +117,7 @@ global $old_input;
                                 </div>
                             </li>
                             <li class="list_item02">
-                                <p class="list_label">職名・学年</p>
+                                <p class="list_label">職名</p>
                                 <div class="list_field">
                                     <p><?= htmlspecialchars($old_input['official']) ?></p>
                                 </div>
@@ -160,8 +160,8 @@ global $old_input;
     <li>会員登録確認</li>
 </ul>
 </body>
+
 </html>
 
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
-

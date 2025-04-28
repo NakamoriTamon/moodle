@@ -41,7 +41,7 @@ class MypageUpdateController
     {
         global $DB;
         global $USER;
-    
+
         $user_id = $_SESSION['USER']->id;
         $name_size = 50;
         $name = htmlspecialchars(required_param('name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
@@ -276,7 +276,7 @@ class MypageUpdateController
         $major = htmlspecialchars(required_param('major', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
         $_SESSION['errors']['major'] = validate_text($major, '講座/部課/専攻名', $name_size, false);
         $official = htmlspecialchars(required_param('official', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-        $_SESSION['errors']['official'] = validate_text($official, '職名・学年', $name_size, $is_university_member === 0 ? false : true);
+        $_SESSION['errors']['official'] = validate_text($official, '職名', $name_size, $is_university_member === 0 ? false : true);
 
         foreach ($_SESSION['errors'] as $error) {
             if (!empty($error)) {

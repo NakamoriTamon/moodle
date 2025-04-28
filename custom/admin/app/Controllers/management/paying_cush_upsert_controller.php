@@ -76,7 +76,7 @@ $_SESSION['errors']['department'] = validate_text($department, '所属部局（�
 $major = htmlspecialchars(required_param('major', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
 $_SESSION['errors']['major'] = validate_text($major, '講座/部課/専攻名', $name_size, false);
 $official = htmlspecialchars(required_param('official', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
-$_SESSION['errors']['official'] = validate_text($official, '職名・学年', $name_size, $is_university_member === 0 ? false : true);
+$_SESSION['errors']['official'] = validate_text($official, '職名', $name_size, $is_university_member === 0 ? false : true);
 
 foreach ($_SESSION['errors'] as $error) {
     if (!empty($error)) {
@@ -122,7 +122,7 @@ try {
         $tekijuku_commemoration->note = $note;
         $tekijuku_commemoration->is_published = $is_published;
         $tekijuku_commemoration->fk_user_id = $fk_user_id;
-    
+
         $tekijuku_commemoration->department = $department;
         $tekijuku_commemoration->major = $major;
         $tekijuku_commemoration->official = $official;
@@ -136,7 +136,7 @@ try {
         $id = $DB->insert_record_raw('tekijuku_commemoration', $tekijuku_commemoration, true);
     }
 
-    if($old_paid_status != PAID_STATUS['COMPLETED'] && $paid_status == PAID_STATUS['COMPLETED']) {
+    if ($old_paid_status != PAID_STATUS['COMPLETED'] && $paid_status == PAID_STATUS['COMPLETED']) {
         // UTC → 日本時間に変換
         $capturedAtJP = (new DateTime())
             ->setTimezone(new DateTimeZone('Asia/Tokyo'))
@@ -155,7 +155,6 @@ try {
         $history->fk_tekijuku_commemoration_id = $id;
         $history->payment_method = 5; // 現金払い
         $DB->insert_record_raw('tekijuku_commemoration_history', $history, true);
-
     }
     $transaction->allow_commit();
     header('Location: /custom/admin/app/Views/management/paying_cush.php');

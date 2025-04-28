@@ -38,7 +38,7 @@ $price_error = validate_int($price, '金額', true);
 $note_error = validate_note($note, '備考', $size, false);
 $department_error = validate_max_text($department, '所属部局（学部・研究科）', $name_size, $is_university_member === 0 ? false : true);
 $major_error = validate_max_text($major, '講座/部課/専攻名', $name_size, false);
-$official_error = validate_max_text($official, '職名・学年', $name_size, $is_university_member === 0 ? false : true);
+$official_error = validate_max_text($official, '職名', $name_size, $is_university_member === 0 ? false : true);
 $tell_number_error = validate_tel_number($tell_number);
 $tekijuku_commem_count = $DB->count_records('tekijuku_commemoration', ['is_delete' => false, 'email' => $email]);
 if ($tekijuku_commem_count > 0) {

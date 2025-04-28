@@ -180,7 +180,7 @@ if (!$login_check_flg) {
                             </div>
                         </li>
                         <li class="list_item15 req" id="official_field">
-                            <p class="list_label">職名・学年</p>
+                            <p class="list_label">職名</p>
                             <div class="list_field f_txt">
                                 <input type="text" name="official" value="<?= htmlspecialchars($old_input['official']); ?>">
                                 <?php if (!empty($errors['official'])): ?>

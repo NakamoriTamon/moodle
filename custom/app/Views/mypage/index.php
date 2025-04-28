@@ -731,7 +731,7 @@ unset(
                                             </div>
                                         </li>
                                         <li class="list_item14 req" id="official_field">
-                                            <p class="list_label">職名・学年</p>
+                                            <p class="list_label">職名</p>
                                             <div class="list_field f_txt">
                                                 <input type="text" name="official" value="<?= htmlspecialchars($old_input['official'] ?? $tekijuku_commemoration['official']); ?>">
                                                 <?php if (!empty($errors['official'])): ?>

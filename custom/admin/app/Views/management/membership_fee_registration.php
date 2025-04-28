@@ -117,7 +117,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                 <th class="ps-4 pe-4 text-nowrap">口数</th>
                                                 <th class="ps-4 pe-4 text-nowrap">所属部局</th>
                                                 <th class="ps-4 pe-4 text-nowrap">部課・専攻名</th>
-                                                <th class="ps-4 pe-4 text-nowrap">職名・学年</th>
+                                                <th class="ps-4 pe-4 text-nowrap">職名</th>
                                                 <th class="ps-4 pe-4 text-nowrap">決済状況</th>
                                                 <th class="ps-4 pe-4 text-nowrap">決済方法</th>
                                                 <th class="ps-4 pe-4 text-nowrap">支払日</th>
