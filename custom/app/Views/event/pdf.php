@@ -2,21 +2,17 @@
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/app/Controllers/event/event_application_register_controller.php');
 
-/** 動画を見たら、オンデマンド配信イベントは参加済みにする */
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['user_id'] ?? $USER->id;
 
-// 未ログインのページ遷移
 if (empty($user_id)) {
     redirect(new moodle_url('/custom/app/Views/login/index.php'));
     exit;
 }
 
-// URLから "file" パラメータを取得
 $file = isset($_GET['file']) ? $_GET['file'] : null;
 if ($file) {
-    // ファイルパスを分割して、materialCourseIdを取得
-    $pathParts = explode('/', $file); // '/'で分割
-    $materialCourseId = isset($pathParts[3]) ? $pathParts[3] : null; // 3番目の部分がmaterialCourseId
+    $pathParts = explode('/', $file);
+    $materialCourseId = isset($pathParts[3]) ? $pathParts[3] : null;
 }
 if ($user_id && $materialCourseId) {
     $event_application_register_controller = new EventRegisterController();
@@ -36,7 +32,6 @@ if ($user_id && $materialCourseId) {
         const params = new URLSearchParams(window.location.search);
         const pdfUrl = params.get('file');
         if (pdfUrl) {
-            // URLを / で分割して、最後の部分をファイル名として取得
             const parts = pdfUrl.split('/');
             const fileName = parts[parts.length - 1];
             document.title = fileName;
@@ -45,14 +40,16 @@ if ($user_id && $materialCourseId) {
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+    </script>
     <style>
         canvas {
             display: block;
             margin: auto;
             user-select: none;
-            /* テキスト選択禁止 */
             pointer-events: none;
-            /* 右クリックメニュー防止 */
         }
 
         body {
@@ -92,81 +89,88 @@ if ($user_id && $materialCourseId) {
             border-radius: 5px;
         }
     </style>
+
+    <div id="pdf-container"></div>
     <script>
-        let pdfDoc = null;
-        let currentPage = 1;
-        let scale = 1.5;
-        let pageCache = [];
-
-        if (!pdfUrl) {
-            document.body.innerHTML = "<p>PDFファイルが指定されていません。</p>";
-        } else {
-            // PDFを読み込む
-            pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-                pdfDoc = pdf;
-                for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-                    renderPage(pageNum);
-                }
-            }).catch(err => {
-                console.error(err);
-                document.getElementById('pdf-container').innerHTML = "<p>PDFの読み込みに失敗しました。</p>";
-            });
-        }
-
-        function renderPage(pageNum) {
-            if (pageCache[pageNum]) {
+        document.addEventListener("DOMContentLoaded", () => {
+            const pdfUrl = new URLSearchParams(location.search).get("file");
+            if (!pdfUrl) {
+                document.getElementById("pdf-container").textContent = "PDFファイルが指定されていません。";
                 return;
             }
-            pdfDoc.getPage(pageNum).then(page => {
-                const viewport = page.getViewport({
-                    scale
-                });
-                const canvas = document.createElement('canvas');
-                const container = document.getElementById('pdf-container');
-                container.appendChild(canvas);
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+            document.title = pdfUrl.split("/").pop();
 
-                page.render({
-                    canvasContext: context,
-                    viewport
-                }).promise.then(() => {
-                    const fontSize = Math.max(12, Math.round(viewport.height * 0.03));
-                    context.font = `${fontSize}px Arial`;
-                    context.fillStyle = "black";
-                    context.textAlign = "center";;
+            const CMAP_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/cmaps/";
+            const FONT_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/standard_fonts/";
 
-                    context.strokeStyle = "#000";
-                    context.lineWidth = 2;
-                    context.strokeRect(0, 0, canvas.width, canvas.height);
-                });
-                document.getElementById('pdf-container').appendChild(canvas);
-                pageCache[pageNum] = true;
+            const container = document.getElementById("pdf-container");
+            const pageCache = new Map();
+            const scale = 1.5;
+            let pdfDoc = null;
+            let lastRendered = 0;
+
+            pdfjsLib.getDocument({
+                url: pdfUrl,
+                cMapUrl: CMAP_URL,
+                cMapPacked: true,
+                standardFontDataUrl: FONT_URL,
+                useWorkerFetch: true
+            }).promise.then(doc => {
+                pdfDoc = doc;
+                renderPage(1);
+            }).catch(err => {
+                console.error(err);
+                container.textContent = "PDF の読み込みに失敗しました。";
             });
-        }
 
-        window.addEventListener('scroll', () => {
-            const scrollPosition = window.scrollY + window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const pageHeight = document.querySelector('canvas')?.height || 0;
-            const newPage = Math.ceil(scrollPosition / pageHeight);
+            function renderPage(num) {
+                if (num > pdfDoc.numPages || pageCache.has(num)) return;
+                pageCache.set(num, true);
 
-            if (newPage !== currentPage && newPage <= pdfDoc.numPages) {
-                currentPage = newPage;
-                renderPage(currentPage);
+                pdfDoc.getPage(num).then(page => {
+                    const viewport = page.getViewport({
+                        scale
+                    });
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    container.appendChild(canvas);
+
+                    page.render({
+                        canvasContext: ctx,
+                        viewport
+                    }).promise.then(() => {
+                        ctx.strokeStyle = "#000";
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+                        lastRendered = num;
+                        observeLastCanvas();
+                    });
+                });
             }
-        });
 
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.addEventListener('keydown', event => {
-            if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
-                event.preventDefault();
+            let observer = null;
+
+            function observeLastCanvas() {
+                if (observer) observer.disconnect();
+                const target = container.lastElementChild;
+                if (!target) return;
+
+                observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            renderPage(lastRendered + 1);
+                        }
+                    });
+                }, {
+                    rootMargin: "200px 0px"
+                });
+                observer.observe(target);
             }
         });
     </script>
 
-    <div id="pdf-container"></div>
 </body>
 
 </html>

@@ -119,11 +119,13 @@ if ($price > 0) {
                 <input type="hidden" name="companion_mails" value="<?= htmlspecialchars($companionMailsString); ?>">
                 <input type="hidden" name="note" value="<?= htmlspecialchars($note); ?>">
                 <input type="hidden" name="event_kbn" value="<?= htmlspecialchars($event_kbn) ?>">
-                <?php if ($guardian_kbn == 1): ?>
-                    <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
+                <?php if ($age < TEENAGER_AGE): ?>
                     <input type="hidden" name="guardian_name" value="<?= htmlspecialchars($guardian_name); ?>">
                     <input type="hidden" name="guardian_email" value="<?= htmlspecialchars($guardian_email); ?>">
                     <input type="hidden" name="guardian_phone" value="<?= htmlspecialchars($guardian_phone); ?>">
+                <?php endif; ?>
+                <?php if ($guardian_kbn == 1): ?>
+                    <input type="hidden" name="applicant_kbn" value="<?= htmlspecialchars($applicant_kbn); ?>">
                 <?php endif ?>
                 <input type="hidden" name="event_customfield_category_id" value="<?= htmlspecialchars($event_customfield_category_id); ?>">
                 <?php echo $hiddens ?>

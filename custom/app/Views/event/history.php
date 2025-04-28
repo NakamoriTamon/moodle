@@ -65,7 +65,7 @@ $child_name = $result_list['child_name'];
             <?php } ?>
             <?php if (!empty($child_name)) { ?>
               <li class="list_item08">
-                <p class="list_label">お連れ様の氏名</p>
+                <p class="list_label">お子様の氏名</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($child_name) ?></p>
               </li>
             <?php } ?>
@@ -79,6 +79,24 @@ $child_name = $result_list['child_name'];
                   <?php } ?>
               </li>
             <?php } ?>
+            <?php if (!empty($common_application['guardian_name'])) { ?>
+                <li class="list_item10">
+                  <p class="list_label">保護者氏名</p>
+                  <p><?= htmlspecialchars($common_application['guardian_name']) ?></p>
+                </li>
+              <?php } ?>
+              <?php if (!empty($common_application['guardian_email'])) { ?>
+                <li class="list_item11">
+                  <p class="list_label">保護者メールアドレス</p>
+                  <p><?= htmlspecialchars($common_application['guardian_email']) ?></p>
+                </li>
+              <?php } ?>
+              <?php if (!empty($common_application['guardian_phone'])) { ?>
+                <li class="list_item12">
+                  <p class="list_label">保護者電話番号</p>
+                  <p><?= htmlspecialchars($common_application['guardian_phone']) ?></p>
+                </li>
+              <?php } ?>
           </ul>
         </div>
       </div>
