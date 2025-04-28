@@ -567,6 +567,9 @@ if ($result) {
                 }
 
                 $_SESSION['payment_method_type'] = $pay_method;
+                
+                // セッションをクリア
+                unset($SESSION->formdata);
 
                 header('Location: /custom/app/Views/event/complete.php');
                 exit;
