@@ -281,7 +281,7 @@ class MypageUpdateController
         foreach ($_SESSION['errors'] as $error) {
             if (!empty($error)) {
                 $_SESSION['old_input'] = $_POST;
-
+                $_SESSION['message_error'] = '登録に失敗しました';
                 header('Location: /custom/app/Views/mypage/index.php#tekijuku_form');
                 exit;
             }
