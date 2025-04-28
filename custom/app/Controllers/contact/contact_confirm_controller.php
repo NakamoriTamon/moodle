@@ -46,7 +46,8 @@ if (
         'email' => $email,
         'email_confirm' => $email_confirm,
         'event_name' => $event_name,
-        'inquiry_details' => $inquiry_details
+        'inquiry_details' => $inquiry_details,
+        'agree' => $_POST['agree']
     ];
     redirect(new moodle_url('/custom/app/Views/contact/confirm.php'));
     exit;
