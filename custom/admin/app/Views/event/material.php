@@ -255,7 +255,7 @@ $course_id      = $result_list['course_info'] ?? [];
 				const $info = $row.find('.fileInfo').empty();
 
 				if (!files || files.length === 0) return;
-				for (let i = 0; i < files.length; i) {
+				for (let i = 0; i < files.length; i++) {
 					const f = files[i];
 					if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
 						$err.removeClass('d-none')
@@ -263,10 +263,11 @@ $course_id      = $result_list['course_info'] ?? [];
 						$(this).val('');
 						return;
 					}
-					var fileName = file.name;
+					const fileName = f.name;
 					const fileURL = URL.createObjectURL(f);
 					const linkElem = createFileLink(fileURL, f.name);
 					$info.append(linkElem).removeClass('d-none');
+
 				}
 				feather.replace();
 			});
