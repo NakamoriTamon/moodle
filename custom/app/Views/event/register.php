@@ -124,6 +124,7 @@ function viewDates($event)
                 <?php foreach ($events as $event): ?>
                     <?php
                     $view_date = viewDates($event);
+                    $event_kbn =  $event->event_kbn;
                     ?>
                     <li class="event_item">
                         <figure class="img">
@@ -131,7 +132,11 @@ function viewDates($event)
                         </figure>
                         <div class="event_info">
                             <p class="event_ttl">
-                                <?php if ($event_kbn == PLURAL_EVENT) { ?>【第<?= htmlspecialchars($event->no); ?>回】<?php } ?> <?= htmlspecialchars($event->name); ?></p>
+                                <?php if ($event->event_kbn == EVERY_DAY_EVENT) : ?>
+                                    <?php echo htmlspecialchars($event->event_name) ?>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars('【第' . $event->no . '回】' . $event->event_name) ?>
+                                <?php endif; ?>
                             </p>
                             <div class="event_btns">
                                 <?php
