@@ -561,7 +561,7 @@ unset(
                         </h3>
                         <div class="whitebox form_cont">
                             <div class="inner_m">
-                                <?php if (!empty($user_message_error)) { ?><p class="error"> <?= $user_message_error ?></p><?php } ?>
+                                <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
                                 <?php if (!empty($tekijuku_success)) { ?><p id="main_success_message"> <?= $tekijuku_success ?></p><?php } ?>
                                 <ul class="list">
                                     <li class="list_item01">
