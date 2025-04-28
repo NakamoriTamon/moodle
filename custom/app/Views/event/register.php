@@ -124,7 +124,6 @@ function viewDates($event)
                 <?php foreach ($events as $event): ?>
                     <?php
                     $view_date = viewDates($event);
-                    $event_kbn =  $event->event_kbn;
                     ?>
                     <li class="event_item">
                         <figure class="img">
