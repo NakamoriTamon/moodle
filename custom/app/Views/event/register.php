@@ -131,10 +131,10 @@ function viewDates($event)
                         </figure>
                         <div class="event_info">
                             <p class="event_ttl">
-                                <?php if ($event->event_kbn == EVERY_DAY_EVENT) : ?>
-                                    <?php echo htmlspecialchars($event->event_name) ?>
-                                <?php else: ?>
+                                <?php if ($event->event_kbn == PLURAL_EVENT) : ?>
                                     <?php echo htmlspecialchars('【第' . $event->no . '回】' . $event->event_name) ?>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($event->event_name) ?>
                                 <?php endif; ?>
                             </p>
                             <div class="event_btns">
