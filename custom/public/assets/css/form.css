@@ -564,6 +564,9 @@ reserve
 #cancel_submit{
   cursor: pointer;
 }
+#submit{
+  cursor: pointer;
+}
 
 /*  mobile & smart phone
 ---------------------------------------------- */
