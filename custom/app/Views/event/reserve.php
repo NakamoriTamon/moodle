@@ -64,6 +64,18 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                   <?php endif; ?></p>
               </li>
               <li class="list_item04">
+                <p class="list_label">開催日</p>
+                <p class="list_field f_txt">2025年04月30日</p>
+              </li>
+              <li class="list_item04">
+                <p class="list_label">開催日時</p>
+                <p class="list_field f_txt">09:30 ~ 12:00</p>
+              </li>
+              <li class="list_item04">
+                <p class="list_label">会場</p>
+                <p class="list_field f_txt">大阪城ホール</p>
+              </li>
+              <li class="list_item04">
                 <p class="list_label">枚数選択</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($common_application['ticket_count']) ?>枚</p>
               </li>
@@ -92,7 +104,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               <?php if (!empty($child_name)) { ?>
                 <li class="list_item08  <?= !empty($errors['companion_name']) ? 'flex-wrap' : '' ?>">
                   <p class="list_label">お子様の氏名</p>
-                  <input class="list_field" type="text" name="companion_name" value="<?= htmlspecialchars(isSetValue($child_name ?? '', $old_input['companion_name'] ?? '')) ?>">
+                  <div id="companion_flex">
+                    <input id="companion_name_input" class=" list_field" type="text" name="companion_name" value="<?= htmlspecialchars(isSetValue($child_name ?? '', $old_input['companion_name'] ?? '')) ?>">
+                    <button id="companion_name_btn">更新</button>
+                  </div>
                   <?php if (!empty($errors['companion_name'])): ?>
                     <div class="error-msg mt-2">
                       <p class="list_label"></p>
@@ -138,12 +153,10 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
                   <p><?= htmlspecialchars($common_application['guardian_phone']) ?></p>
                 </li>
               <?php } ?>
-              <?php if (!empty($child_name)) { ?>
-                <a id="submit" class="btn btn_red arrow box_bottom_btn">更新する</a>
-              <?php } ?>
             </ul>
           </div>
         </form>
+        <a id="button" class="btn btn_red arrow box_bottom_btn btn_login">デジタルチケットを表示する</a>
         <form id="cancel_form" method="POST" action="/custom/app/Controllers/event/event_application_course_info_cancel_controller.php">
           <input type="hidden" name="cancel_event_application_id" value="<?= htmlspecialchars($application_id) ?>">
           <a id="cancel_submit" class="btn btn_gray arrow box_bottom_btn">イベント参加キャンセル</a>

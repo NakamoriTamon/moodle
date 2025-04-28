@@ -539,7 +539,9 @@ reserve
 {
   vertical-align: middle !important;
 }
-
+.btn_login{
+  background: #002880;
+}
 .inactive-text {
   content: "退会済み";
   display: inline-block;
@@ -563,6 +565,29 @@ reserve
 }
 #cancel_submit{
   cursor: pointer;
+}
+
+
+  /*-------------------------------------
+ reserve
+ -------------------------------------*/
+#companion_name_btn{
+  margin-left: 10px;
+  padding: 2px 7px;
+  background: #ef7454;
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 5px;
+  text-wrap: nowrap;
+  min-width: 70px;
+}
+#companion_name_input{
+  width: 80% !important;
+}
+#companion_flex{
+  display:flex; 
+  width: calc(95% - 260px);
 }
 
 /*  mobile & smart phone
@@ -682,7 +707,9 @@ reserve
     flex-direction: column;
     align-items: flex-start;
   }
-
+  #main_success_message{
+    width: 100% !important;
+  }
 
   /*-------------------------------------
  confirm
@@ -736,10 +763,7 @@ reserve
   /*-------------------------------------
  history
  -------------------------------------*/
-  
- .flex-wrap .ano_f_txt,
- .flex-wrap .ano_list_label {
-    padding-top: 0px;
+  #companion_flex{ 
+    width: initial;
   }
-
 }

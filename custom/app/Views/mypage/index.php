@@ -920,8 +920,7 @@ unset(
                     }
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
-                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
-
+                        <form id="event_reserve_form" action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
                             <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($application->event_id) ?>">
                             <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($application->course_id) ?>">
                             <input type="hidden" name="event_application_course_info_id" value="<?php echo htmlspecialchars($application->event_application_course_info_id) ?>">
@@ -931,7 +930,7 @@ unset(
                                     <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
                                         <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->start_event_date))); ?>～<?php echo htmlspecialchars(date('Y/m/d', strtotime($application->end_event_date))); ?>
                                     <?php else: ?>
-                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?><span class="mypage_reserve_time">09:30 ~ 12:00</span>
                                     <?php endif; ?>
                                 </p>
                                 <div class="txt">
@@ -953,6 +952,10 @@ unset(
                                 </div>
                             </button>
                         </form>
+                        <a href="#" class="reservrd_click_a info_wrap_detail info_event_detail">
+                            <div class="emp_qr_area"></div>
+                            <p class="txt reserve_trans_form">詳細画面へ<br />詳細・キャンセル<br class="nosp">はこちら</p>
+                        </a>
                         <a href="#" class="info_wrap_qr" data-event-application-course-info-id="<?= $application->encrypted_eaci_id ?>" data-name="<?= $event_name ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
@@ -1205,18 +1208,6 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                    // } else if (age < 18) {
-                    //     $('#parents_check_area').css('display', 'block');
-                    //     $('#edit_parents_check_area').css('display', 'block');
-                    //     if ($('#parent_agree').is(':checked')) {
-                    //         $('#user_form_button').prop('disabled', false);
-                    //         $('#user_form_button').addClass('btn_red');
-                    //         $('#user_form_button').removeClass('btn_gray');
-                    //     } else {
-                    //         $('#user_form_button').prop('disabled', true);
-                    //         $('#user_form_button').addClass('btn_gray');
-                    //         $('#user_form_button').removeClass('btn_red');
-                    //     }
                 }
             }
             // 同意チェック
@@ -1604,6 +1595,13 @@ unset(
             e.preventDefault();
             $('#editTekijukuContainer').hide();
             $('#displayTekijukuContainer').show();
+        });
+    });
+
+    $(document).ready(function() {
+        $('.reservrd_click_a').on('click', function(e) {
+            e.preventDefault();
+            $('#event_reserve_form').submit();
         });
     });
 </script>
