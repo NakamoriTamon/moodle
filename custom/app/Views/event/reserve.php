@@ -57,7 +57,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               <li class="list_item03 long_item">
                 <p class="list_label">チケット名称</p>
                 <p class="list_field f_txt">
-                  <?php if ($event_kbn == PLURAL_EVENT) { ?>【第<?= htmlspecialchars($event_name); ?>回】<?php } ?> <?= htmlspecialchars($event_name); ?></p>
+                  <?php if ($event_kbn == PLURAL_EVENT) { ?><?= htmlspecialchars($course_number); ?><?php } ?> <?= htmlspecialchars($event_name); ?></p>
               </li>
               <li class="list_item04">
                 <p class="list_label">枚数選択</p>
