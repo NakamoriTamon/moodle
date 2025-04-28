@@ -150,7 +150,14 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                     </ul>
                     <div class="agree">
                         <a href="https://www.osaka-u.ac.jp/ja/guide/disclosure/kojinjoho" target="_blank" rel="noopener noreferrer">個人情報の取扱いについて</a>
-                        <label for="agree"><input type="checkbox" id="agree" />同意する</label>
+                        <label for="agree">
+                            <?php if ($old_input['agree'] === 'true' || $formdata['agree'] === 'true'): ?>
+                                <input type="checkbox" id="agree" name="agree" value="true" checked />
+                            <?php else: ?>
+                                <input type="checkbox" id="agree" name="agree" value="true" />
+                            <?php endif ?>
+                            同意する
+                        </label>
                     </div>
                     <div class="form_btn">
                         <input type="submit" class="btn btn_gray" id="submitBtn" value="入力内容の確認" disabled />
@@ -181,6 +188,19 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                 submitBtn.removeClass('btn_red');
             }
         });
+    });
+    // ページキャッシュ復元時(ブラウザバック対策)
+    $(window).on('pageshow', function() {
+        let submitBtn = $('#submitBtn');
+        if ($('#agree').is(':checked')) {
+            submitBtn.prop('disabled', false); // 有効化
+            submitBtn.addClass('btn_red');
+            submitBtn.removeClass('btn_gray');
+        } else {
+            submitBtn.prop('disabled', true); // 無効化
+            submitBtn.addClass('btn_gray');
+            submitBtn.removeClass('btn_red');
+        }
     });
 </script>
 </body>
