@@ -9,6 +9,7 @@ require_once($CFG->dirroot . '/custom/app/Models/EventCustomFieldCategoryModel.p
 require_once($CFG->dirroot . '/custom/app/Models/TargetModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventSurveyCustomFieldCategoryModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/RoleAssignmentsModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/SurveyApplicationModel.php');
 
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
@@ -34,11 +35,13 @@ class EventEditController {
 
     private $eventModel;
     private $eventApplicationModel;
+    private $surveyApplicationModel;
 
     public function __construct()
     {
         $this->eventModel = new EventModel();
         $this->eventApplicationModel = new EventApplicationModel();
+        $this->surveyApplicationModel = new SurveyApplicationModel();
     }
     
     public function getEventData($id) {
@@ -70,6 +73,15 @@ class EventEditController {
 
             foreach($events['course_infos'] as $select_course) {
                 $events['select_course'][$select_course['no']] = $select_course;
+            }
+
+            $event_id = $events['id'];
+            $surveyApplication = $this->surveyApplicationModel->getSurveyApplications(null, $event_id, 1 ,1);
+
+            // アンケートカスタムフィールドの入力があるか確認
+            $events['survey_answer'] = false;
+            if(!empty($surveyApplication)) {
+                $events['survey_answer'] = true;
             }
             
         } else {

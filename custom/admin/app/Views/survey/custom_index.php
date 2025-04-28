@@ -63,9 +63,11 @@ $survey_custom_list = $survey_custom_controller->index();
 												<a href='/custom/admin/app/Views/survey/custom_upsert.php?id=<?= htmlspecialchars($survey_custom['id']) ?>' class="me-3">
 													<i class="align-middle" data-feather="edit-2"></i>
 												</a>
+												<?php if(!$survey_custom['answer']) { ?>
 												<a class="delete-link" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?= htmlspecialchars($survey_custom['id']) ?>">
 													<i class="align-middle" data-feather="trash"></i>
 												</a>
+												<?php } ?>
 											</td>
 										</tr>
 										<!-- 削除確認モーダル -->

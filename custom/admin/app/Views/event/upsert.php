@@ -822,10 +822,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">イベントカスタム区分</label>
-										<select id="event_customfield_category_id" class=" form-control mb-3" name="event_customfield_category_id">
+										<select id="event_customfield_category_id" class=" form-control mb-3" name="event_customfield_category_id" <?php if (count($tickets) > 0) { ?>style="pointer-events: none; background-color: #e6e6e6;"<?php } ?>>
 											<option value="">未選択</option>
 											<?php foreach ($event_category_list as $key => $event_category): ?>
-												<option value="<?= htmlspecialchars($event_category['id']) ?>"  <?php if(isset($eventData['event_customfield_category_id']) && $event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
+												<option value="<?= htmlspecialchars($event_category['id']) ?>" <?php if(isset($eventData['event_customfield_category_id']) && $event_category['id'] == $eventData['event_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($event_category['name']) ?></option>
 											<?php endforeach ?>
 										</select>
 										<?php if (!empty($errors['event_customfield_category_id'])): ?>
@@ -834,7 +834,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<label class="form-label">アンケートカスタム区分</label>
-										<select id="event_survey_customfield_category_id" class=" form-control  mb-3" name="event_survey_customfield_category_id">
+										<select id="event_survey_customfield_category_id" class=" form-control  mb-3" name="event_survey_customfield_category_id" <?php if(isset($eventData['survey_answer']) && $eventData['survey_answer']) { ?>style="pointer-events: none; background-color: #e6e6e6;"<?php } ?>>
 											<option value="">未選択</option>
 											<?php foreach ($curvey_custom_list as $key => $curvey_custom): ?>
 												<option value="<?= htmlspecialchars($curvey_custom['id']) ?>"  <?php if(isset($eventData['event_survey_customfield_category_id']) && $curvey_custom['id'] == $eventData['event_survey_customfield_category_id']): ?> selected <?php endif; ?>><?= htmlspecialchars($curvey_custom['name']) ?></option>
