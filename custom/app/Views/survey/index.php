@@ -42,7 +42,7 @@ if ($surveys['exist']) {
           </script>';
     exit;
 }
-
+$event_kbn = $event->event_kbn;
 
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/survey.css" />
@@ -53,7 +53,7 @@ if ($surveys['exist']) {
     </section>
     <!-- heading -->
     <section id="quest" class="inner_l">
-        <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->course_date))); ?> / 【第<?= htmlspecialchars($event->no); ?>回】 <?= htmlspecialchars($event->name); ?></p>
+        <p class="quest_head"><?= htmlspecialchars(date("Y年m月d日", strtotime($event->course_date))); ?> / <?php if($event_kbn == PLURAL_EVENT) { ?>【第<?= htmlspecialchars($event->no); ?>回】<?php } ?> <?= htmlspecialchars($event->name); ?></p>
         <form method="POST" action="/custom/app/Views/survey/survey-upsert.php" class="whitebox quest_form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="event_id" value="<?php echo $event->event_id ?>">

@@ -27,6 +27,7 @@ class SurveyApplicationController
                 ci.course_date, 
                 e.id AS event_id, 
                 e.name,
+                e.event_kbn,
                 e.start_hour,
                 e.end_hour
             FROM mdl_course_info ci
