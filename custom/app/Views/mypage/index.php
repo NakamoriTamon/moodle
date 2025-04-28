@@ -604,7 +604,7 @@ unset(
                                                 ?>
                                                 <input class="checkbox_input" type="checkbox"
                                                     <?= $isPublished ? 'checked' : '' ?> disabled>
-                                                <p class="checkbox_label">大阪大学教職員の方</p>
+                                                <p class="checkbox_label">大阪大学教職員の方はこちらにチェックしてください。</p>
                                                 <!-- <p class="checkbox_label">大阪大学教職員・学生の方</p> -->
                                             </div>
                                         </div>
@@ -943,7 +943,7 @@ unset(
                                         <?php endif; ?>
                                     </p>
                                     <ul class="txt_other">
-                                        <?php if($application->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li><?php endif; ?>
+                                        <?php if ($application->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($application->venue_name) ?></span></li><?php endif; ?>
                                         <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($price) ?></span></li>
                                         <li>【購入枚数】<span class="txt_other_num"><?php echo htmlspecialchars($application->ticket_count) ?> 枚</span></li>
                                         <?php if ($application->price != 0) : ?>
@@ -1009,7 +1009,7 @@ unset(
                                             <?php endif; ?>
                                         </p>
                                         <ul class="txt_other">
-                                            <?php if($history->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li><?php endif ?>
+                                            <?php if ($history->venue_name): ?><li>【会場】<span class="txt_other_place"><?php echo htmlspecialchars($history->venue_name) ?></span></li><?php endif ?>
                                             <li>【受講料】<span class="txt_other_money"><?php echo htmlspecialchars($history_price) ?></span></li>
                                         </ul>
                                     </div>
@@ -1205,18 +1205,18 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                // } else if (age < 18) {
-                //     $('#parents_check_area').css('display', 'block');
-                //     $('#edit_parents_check_area').css('display', 'block');
-                //     if ($('#parent_agree').is(':checked')) {
-                //         $('#user_form_button').prop('disabled', false);
-                //         $('#user_form_button').addClass('btn_red');
-                //         $('#user_form_button').removeClass('btn_gray');
-                //     } else {
-                //         $('#user_form_button').prop('disabled', true);
-                //         $('#user_form_button').addClass('btn_gray');
-                //         $('#user_form_button').removeClass('btn_red');
-                //     }
+                    // } else if (age < 18) {
+                    //     $('#parents_check_area').css('display', 'block');
+                    //     $('#edit_parents_check_area').css('display', 'block');
+                    //     if ($('#parent_agree').is(':checked')) {
+                    //         $('#user_form_button').prop('disabled', false);
+                    //         $('#user_form_button').addClass('btn_red');
+                    //         $('#user_form_button').removeClass('btn_gray');
+                    //     } else {
+                    //         $('#user_form_button').prop('disabled', true);
+                    //         $('#user_form_button').addClass('btn_gray');
+                    //         $('#user_form_button').removeClass('btn_red');
+                    //     }
                 }
             }
             // 同意チェック

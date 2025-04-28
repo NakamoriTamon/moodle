@@ -377,7 +377,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     </div>
                                     <div class="mb-3">
                                         <input class="checkbox_input" type="checkbox" name="is_university_member" id="is_university_member" value="1" <?php echo ($old_input['is_university_member'] ?? $tekijuku_commemoration['is_university_member']) == '1' ? 'checked' : ''; ?>>
-                                        <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員・学生の方はこちらにチェックしてください。</label>
+                                        <label class="checkbox_label" id="is_university_member_label" for="is_university_member">大阪大学教職員の方はこちらにチェックしてください。</label>
                                     </div>
                                     <div id="university_member_fields">
                                         <div class="mb-3">
@@ -411,7 +411,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                     <div class="mb-3">
                                         <input type="hidden" name="is_published" value="0">
                                         <input class="checkbox_input" type="checkbox" id="is_published" name="is_published" value="1" <?php echo ($old_input['is_published'] ?? $tekijuku_commemoration['is_published']) == '1' ? 'checked' : ''; ?>>
-                                        <label class="checkbox_label" for="is_published">氏名掲載を許可します</label>
+                                        <label class="checkbox_label" for="is_published">会誌『適塾』誌面会員名簿への氏名掲載を許可します</label>
                                     </div>
                                     <div class="mb-3">
                                         <input type="submit" id="submit_btn" class="btn btn-primary" value="変更を確定する">
