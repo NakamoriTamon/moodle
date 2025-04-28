@@ -21,9 +21,9 @@ function viewDates($event)
     $start_hour = $event->start_hour;
     $event_kbn =  $event->event_kbn;
     $course_date = new DateTime($event->course_date);
-    if($event_kbn == EVERY_DAY_EVENT) {
+    if ($event_kbn == EVERY_DAY_EVENT) {
         $survey_date = new DateTime($event->start_event_date);
-    } else if($event_kbn == PLURAL_EVENT) {
+    } else if ($event_kbn == PLURAL_EVENT) {
         $survey_date = new DateTime($event->event_date);
     } else {
         $survey_date = $course_date;
@@ -92,7 +92,7 @@ function viewDates($event)
 
     // 開催日の方が大きかった場合
     $course_date = new DateTime($event->course_date);
-    if($course_date > $formatted_date) {
+    if ($course_date > $formatted_date) {
         $formattedDate = $course_date->format('Y年m月d日'); // 表示用終了日時
     }
 
@@ -131,11 +131,7 @@ function viewDates($event)
                         </figure>
                         <div class="event_info">
                             <p class="event_ttl">
-                                <?php if ($event->event_kbn == EVERY_DAY_EVENT) : ?>
-                                    <?php echo htmlspecialchars($event->event_name) ?>
-                                <?php else: ?>
-                                    <?php echo htmlspecialchars('【第' . $event->no . '回】' . $event->event_name) ?>
-                                <?php endif; ?>
+                                <?php if ($event_kbn == PLURAL_EVENT) { ?>【第<?= htmlspecialchars($event->no); ?>回】<?php } ?> <?= htmlspecialchars($event->name); ?></p>
                             </p>
                             <div class="event_btns">
                                 <?php
