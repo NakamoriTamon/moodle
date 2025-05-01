@@ -45,7 +45,7 @@ class EventHistoryController
         $no = '【第' . $common_array['course_info']['no'] . '回】';
         $event_name =  $no . $common_application['event']['name'];
         $price = $common_application['price'] != 0 ? number_format($common_application['price']) . '円' : '無料';
-        $pay_method = PAYMENT_SELECT_LIST[$common_application['pay_method']];
+        $pay_method = $common_application['pay_method'] == 4 ? '' : PAYMENT_SELECT_LIST[$common_application['pay_method']];
         $is_payment = empty($common_applicationt['payment_date']) ? '未決済' : '決済済';
         $child_name = $common_application['user']['child_name'];
 

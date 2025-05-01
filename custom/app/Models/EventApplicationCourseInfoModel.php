@@ -236,7 +236,7 @@ class EventApplicationCourseInfoModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT no FROM mdl_course_info WHERE id = :id");
+                $stmt = $this->pdo->prepare("SELECT no, course_date FROM mdl_course_info WHERE id = :id");
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 $user_result_list = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -259,7 +259,15 @@ class EventApplicationCourseInfoModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT name, real_time_distribution_url,event_kbn FROM mdl_event WHERE id = :id");
+                $stmt = $this->pdo->prepare("SELECT 
+                name, 
+                real_time_distribution_url, 
+                event_kbn,
+                venue_name,
+                start_event_date,
+                end_event_date,
+                start_hour,
+                end_hour FROM mdl_event WHERE id = :id");
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 $event_result_list = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -875,6 +875,9 @@ unset(
                         continue;
                     }
                     $allCourseDateNull = false;
+                    $start_hour = date('H:i', strtotime($application->start_hour));
+                    $end_hour = date('H:i', strtotime($application->end_hour));
+                    $format_hour = $start_hour . ' ~ ' . $end_hour;
                     if ($application->event_kbn == EVERY_DAY_EVENT) {
                         // 毎日開催の場合、開始日から終了日までの期間をフォーマット
                         $event_name = $application->event_name;
@@ -905,7 +908,7 @@ unset(
                             break;
                     }
 
-                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' . $package_types : '無料';
+                    $price = $application->price > 0 ? number_format($application->price) . '円' . $package_types : '無料';
                     // QR表示判定
                     $qr_class = '';
                     // if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
@@ -920,18 +923,18 @@ unset(
                     }
                     ?>
                     <div class="info_wrap <?= $qr_class ?>">
-                        <form action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
-
+                        <form id="event_reserve_form_<?php echo htmlspecialchars($application->event_application_id) ?>" action="/custom/app/Views/event/reserve.php" method="POST" class="info_wrap_cont">
                             <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($application->event_id) ?>">
                             <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($application->course_id) ?>">
                             <input type="hidden" name="event_application_course_info_id" value="<?php echo htmlspecialchars($application->event_application_course_info_id) ?>">
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($application->event_application_id) ?>">
+                            <input type="hidden" name="lecture_format_id" value="<?php echo htmlspecialchars($application->lecture_format_id) ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
                                     <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
-                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->start_event_date))); ?>～<?php echo htmlspecialchars(date('Y/m/d', strtotime($application->end_event_date))); ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->start_event_date))); ?>～<?php echo htmlspecialchars(date('Y/m/d', strtotime($application->end_event_date))); ?><span class="mypage_reserve_time"><?= htmlspecialchars($format_hour) ?></span>
                                     <?php else: ?>
-                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?>
+                                        <?php echo htmlspecialchars(date('Y/m/d', strtotime($application->course_date))); ?><span class="mypage_reserve_time"><?= htmlspecialchars($format_hour) ?></span>
                                     <?php endif; ?>
                                 </p>
                                 <div class="txt">
@@ -953,6 +956,10 @@ unset(
                                 </div>
                             </button>
                         </form>
+                        <a href="#" id="reservrd_click_<?php echo htmlspecialchars($application->event_application_id) ?>" class="reservrd_click_a info_wrap_detail info_event_detail">
+                            <div class="emp_qr_area"></div>
+                            <p class="txt reserve_trans_form">詳細画面へ<br />詳細・キャンセル<br class="nosp">はこちら</p>
+                        </a>
                         <a href="#" class="info_wrap_qr" data-event-application-course-info-id="<?= $application->encrypted_eaci_id ?>" data-name="<?= $event_name ?>" data-date="<?= $format_date ?>">
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr_pay.svg" class="obj obj_pay"></object>
                             <object type="image/svg+xml" data="/custom/public/assets/common/img/icon_qr.svg" class="obj obj_no"></object>
@@ -988,7 +995,7 @@ unset(
                             continue;
                         }
                         $allHistoryCourseDateNull = false;
-                        $history_price = $history->price > 0 ? '￥' . number_format($history->price) . '円' : '無料';
+                        $history_price = $history->price > 0 ? number_format($history->price) . '円' : '無料';
                         ?>
 
                         <div class="info_wrap js_pay">
@@ -1079,6 +1086,18 @@ unset(
                 input.attr('type', 'password');
                 $(this).removeClass('fa-eye').addClass('fa-eye-slash');
             }
+        });
+
+        // 予約情報の"詳細画面へ詳細・キャンセルはこちら"をクリックした時formをサブミット
+        $('a[id^="reservrd_click_"]').on('click', function(e) {
+            e.preventDefault();
+
+            // クリックされたaのidから数字を取り出す
+            var id = $(this).attr('id'); // 例: reservrd_click_5
+            var num = id.replace('reservrd_click_', ''); // "5"
+
+            // 対応するformのidを構築してsubmit
+            $('#event_reserve_form_' + num).submit();
         });
     });
 
@@ -1205,18 +1224,6 @@ unset(
                 if (age < 13) {
                     $('#parents_input_area').css('display', 'block');
                     $('#edit_parents_input_area').css('display', 'block');
-                    // } else if (age < 18) {
-                    //     $('#parents_check_area').css('display', 'block');
-                    //     $('#edit_parents_check_area').css('display', 'block');
-                    //     if ($('#parent_agree').is(':checked')) {
-                    //         $('#user_form_button').prop('disabled', false);
-                    //         $('#user_form_button').addClass('btn_red');
-                    //         $('#user_form_button').removeClass('btn_gray');
-                    //     } else {
-                    //         $('#user_form_button').prop('disabled', true);
-                    //         $('#user_form_button').addClass('btn_gray');
-                    //         $('#user_form_button').removeClass('btn_red');
-                    //     }
                 }
             }
             // 同意チェック
@@ -1604,6 +1611,13 @@ unset(
             e.preventDefault();
             $('#editTekijukuContainer').hide();
             $('#displayTekijukuContainer').show();
+        });
+    });
+
+    $(document).ready(function() {
+        $('.reservrd_click_a').on('click', function(e) {
+            e.preventDefault();
+            $('#event_reserve_form').submit();
         });
     });
 </script>

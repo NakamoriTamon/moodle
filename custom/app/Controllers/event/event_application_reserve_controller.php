@@ -39,9 +39,25 @@ class EventReserveController
         $common_array = reset($histry_list);
         $common_application = $common_array['application'][0];
         $no = '【第' . $common_array['course_info']['no'] . '回】';
-        $realtime_path = $common_application['event']['real_time_distribution_url'];
-        $event_kbn = $common_application['event']['event_kbn'];
-        $event_name =  $common_application['event']['name'];
+        $event = $common_application['event'];
+        $realtime_path = $event['real_time_distribution_url'];
+        $event_kbn = $event['event_kbn'];
+        $event_name =  $event['name'];
+        
+        // 会場名
+        $venue_name = empty($event['venue_name']) ? "" : $event['venue_name'];
+        //　開催時間
+        $start_hour = date('H:i', strtotime($event['start_hour']));
+        $end_hour = date('H:i', strtotime($event['end_hour']));
+        $format_hour = $start_hour . ' ~ ' . $end_hour;
+        $format_date = "";
+        if ($event_kbn == EVERY_DAY_EVENT) {
+            $start_date = date('Y年m月d日', strtotime($event['start_event_date']));
+            $end_date = date('Y年m月d日', strtotime($event['end_event_date']));
+            $format_date = $start_date . ' ～ ' . $end_date;
+        } else {
+            $format_date = date('Y年m月d日', strtotime($common_array['course_info']['course_date']));
+        }
         $price = $common_application['price'] != 0 ? number_format($common_application['price']) . '円' : '無料';
 
         if ($common_application['price'] != 0) {
@@ -84,6 +100,9 @@ class EventReserveController
             'companion_array' => $companion_array,
             'child_name' => $child_name,
             'realtime_path' => $realtime_path,
+            'format_date' => $format_date,
+            'format_hour' => $format_hour,
+            'venue_name' => $venue_name
         ];
 
         return $data;

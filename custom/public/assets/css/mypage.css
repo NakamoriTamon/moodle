@@ -50,6 +50,21 @@
   margin-right: .3rem;
 }
 
+/* 予約詳細画面へ遷移するボタン */
+.info_event_detail{
+  background: #81bfda !important;
+  border-radius: initial !important;
+}
+.emp_qr_area{
+  display: none;
+}
+.mypage_reserve_time{
+  margin-left: 15px;
+}
+.reserve_trans_form{
+  padding: 0.5rem;
+}
+
 /*-------------------------------------
  card
  -------------------------------------*/
@@ -168,7 +183,7 @@
 .info_wrap.js_pay .txt_other .txt_other_pay {
   color: #373737;
 }
-.info_wrap .info_wrap_qr {
+.info_wrap .info_wrap_qr,.info_wrap .info_wrap_detail {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -181,14 +196,16 @@
 .info_wrap.js_pay .info_wrap_qr {
   background: #002880;
 }
-.info_wrap .info_wrap_qr .txt {
+.info_wrap .info_wrap_qr .txt,
+.info_wrap .info_wrap_detail .txt{
   text-align: center;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.6;
   color: #e6e6e6;
 }
-.info_wrap.js_pay .info_wrap_qr .txt {
+.info_wrap.js_pay .info_wrap_qr .txt,
+.info_wrap .info_wrap_detail .txt {
   color: #fff;
 }
 .info_wrap .info_wrap_qr .obj {
@@ -309,6 +326,13 @@
   #is_university_member_label{
     width: 90%;
   }
+  .emp_qr_area{
+    width:35px !important; 
+    height:35px !important;
+  }
+  #main_success_message{
+    width: 100% !important;
+  }
 
   /*-------------------------------------
    card
@@ -378,13 +402,15 @@
     gap: 5px 1em;
     font-size: 12px;
   }
-  .info_wrap .info_wrap_qr {
+  .info_wrap .info_wrap_qr,
+  .info_wrap .info_wrap_detail {
     flex-direction: row;
     width: 100%;
     padding: 10px 0;
     border-radius: 0 0 8px 8px;
-  }
-  .info_wrap .info_wrap_qr .txt {
+  } 
+  .info_wrap .info_wrap_qr .txt,
+  .info_wrap .info_wrap_detail .txt {
     font-size: 12px;
   }
   .info_wrap.js_pay .info_wrap_qr .txt {
