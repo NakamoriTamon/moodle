@@ -908,7 +908,7 @@ unset(
                             break;
                     }
 
-                    $price = $application->price > 0 ? '￥' . number_format($application->price) . '円' . $package_types : '無料';
+                    $price = $application->price > 0 ? number_format($application->price) . '円' . $package_types : '無料';
                     // QR表示判定
                     $qr_class = '';
                     // if (($application->lecture_format_id == 1 && !empty($application->payment_date)) || $application->price == 0) {
@@ -928,6 +928,7 @@ unset(
                             <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($application->course_id) ?>">
                             <input type="hidden" name="event_application_course_info_id" value="<?php echo htmlspecialchars($application->event_application_course_info_id) ?>">
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($application->event_application_id) ?>">
+                            <input type="hidden" name="lecture_format_id" value="<?php echo htmlspecialchars($application->lecture_format_id) ?>">
                             <button type="submit" class="info_wrap_cont_btn">
                                 <p class="date">
                                     <?php if ($application->event_kbn == EVERY_DAY_EVENT) : ?>
@@ -994,7 +995,7 @@ unset(
                             continue;
                         }
                         $allHistoryCourseDateNull = false;
-                        $history_price = $history->price > 0 ? '￥' . number_format($history->price) . '円' : '無料';
+                        $history_price = $history->price > 0 ? number_format($history->price) . '円' : '無料';
                         ?>
 
                         <div class="info_wrap js_pay">
