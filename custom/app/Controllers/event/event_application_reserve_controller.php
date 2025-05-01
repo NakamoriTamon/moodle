@@ -18,7 +18,7 @@ class EventReserveController
     {
         global $USER, $url_secret_key;
 
-        $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
+        $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null, 1, 1000000);
 
         // 自身のユーザーのみ取得する
         foreach ($histry_list as $key => $histry) {
@@ -43,7 +43,7 @@ class EventReserveController
         $realtime_path = $event['real_time_distribution_url'];
         $event_kbn = $event['event_kbn'];
         $event_name =  $event['name'];
-        
+
         // 会場名
         $venue_name = empty($event['venue_name']) ? "" : $event['venue_name'];
         //　開催時間

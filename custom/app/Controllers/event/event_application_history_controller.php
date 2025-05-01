@@ -21,7 +21,7 @@ class EventHistoryController
         $application_id = $data['id'];
 
         // var_dump($application_id); // デバッグ用の出力を削除
-        $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
+        $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null, 1, 1000000);
 
         // 自身のユーザーのみ取得する
         foreach ($histry_list as $key => $histry) {
