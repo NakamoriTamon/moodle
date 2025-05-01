@@ -14,9 +14,9 @@ class EventReserveController
     }
 
 
-    public function index($course_id, $id)
+    public function index($course_id, $id, $event_application_course_info_id)
     {
-        global $USER;
+        global $USER, $url_secret_key;
 
         $histry_list = $this->eventApplicationCourseInfoModel->getByCourseInfoId($course_id, null);
 
@@ -88,6 +88,12 @@ class EventReserveController
             return $item['participant_mail'] !== $email;
         });
 
+        // IDを暗号化するためのメソッド
+        $encrypt = function ($id) use ($url_secret_key) {
+            $iv = substr(hash('sha256', $url_secret_key), 0, 16);
+            return urlencode(base64_encode(openssl_encrypt((string)$id, 'AES-256-CBC', $url_secret_key, 0, $iv)));
+        };
+        $encrypted_eaci_id = $encrypt($event_application_course_info_id);
         $data = [
             'common_array' => $common_array,
             'common_application' => $common_application,
@@ -102,7 +108,8 @@ class EventReserveController
             'realtime_path' => $realtime_path,
             'format_date' => $format_date,
             'format_hour' => $format_hour,
-            'venue_name' => $venue_name
+            'venue_name' => $venue_name,
+            'encrypted_eaci_id' => $encrypted_eaci_id
         ];
 
         return $data;

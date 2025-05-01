@@ -10,7 +10,7 @@ $session_event_application_course_info_id = isset($_SESSION['reserve']['event_ap
 $course_id = $_POST['course_id'] ?? $session_course_id;
 $application_id =  $_POST['id'] ?? $session_application_id;
 $event_application_course_info_id =  $_POST['event_application_course_info_id'] ?? $session_event_application_course_info_id;
-$result_list = $event_application_reserve_controller->index($course_id, $application_id);
+$result_list = $event_application_reserve_controller->index($course_id, $application_id, $event_application_course_info_id);
 $success = isset($_SESSION['message_success']) ? $_SESSION['message_success'] : null;
 $common_array = $result_list['common_array'];
 $common_application = $result_list['common_application'];
@@ -30,11 +30,14 @@ $venue_name = $result_list['venue_name'];
 $lecture_format_id = $_POST['lecture_format_id'] ?? "";
 // QR表示判定
 $qr_class = '';
+$encrypted_eaci_id = "";
 if ($lecture_format_id != ON_DEMAND) {
     if ($price == '無料') {
         $qr_class = 'js_pay';
+        $encrypted_eaci_id = $result_list['encrypted_eaci_id'];
     } elseif (!empty($common_application['payment_date'])) {
         $qr_class = 'js_pay';
+        $encrypted_eaci_id = $result_list['encrypted_eaci_id'];
     }
 }
 
@@ -169,7 +172,7 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
           </div>
         </form>
         <?php if(!empty($qr_class)) { ?>
-          <a href="#" class="info_wrap_qr btn btn_red arrow box_bottom_btn btn_login" data-event-application-course-info-id="<?= $application_id ?>" data-name="<?= $event_name ?>" data-date="<?= $format_date ?>">
+          <a href="#" class="info_wrap_qr btn btn_red arrow box_bottom_btn btn_login" data-event-application-course-info-id="<?= $encrypted_eaci_id ?>" data-name="<?= $event_name ?>" data-date="<?= $format_date ?>">
             デジタルチケットを表示する
           </a>
         <?php } ?>
