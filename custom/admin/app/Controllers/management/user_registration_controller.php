@@ -48,10 +48,10 @@ class UserRegistrationController
         $user_count_list = $this->userModel->getFilterUserCount($filters);
 
         // ユーザが存在しないページを指定された又は文字列をページに指定された場合は１ページ目を取得する　※リダイレクトでURLを奇麗にする。
-        if(empty($user_list) || !$currentPage_num_check){
-            header('Location: /custom/admin/app/Views/management/user_registration.php?page=1');
-            exit;
-        }
+        // if(empty($user_list) || !$currentPage_num_check){
+        //     header('Location: /custom/admin/app/Views/management/user_registration.php?page=1');
+        //     exit;
+        // }
 
         $data_list = [];
         foreach ($user_list as $key => $user) {

@@ -105,11 +105,32 @@ class QrController
 
         // イベント検索
         $event_list = $this->eventModel->getEvents($filters, 1, 100000);
+        
+        $is_single = false;
+
+        if ($event_id !== null) {
+            // イベント情報を特定する
+            foreach ($event_list as &$event) {
+                if (!empty($event_id)) {
+                    // 単発イベントの場合
+                    if ($event['event_kbn'] == SINGLE_EVENT) {
+                        $is_single = true;
+                    }
+                    // 複数回イベントの場合
+                    elseif ($event['event_kbn'] == PLURAL_EVENT && !empty($course_no)) {
+                        $is_single = false;
+                    } elseif ($event['event_kbn'] == EVERY_DAY_EVENT) {
+                        $is_single = true;
+                    }
+                }
+            }
+        }
         $category_list = $this->categoryModel->getCategories();
 
         $data = [
             'category_list' => $category_list,
             'event_list' => $event_list,
+            'is_single' => $is_single
         ];
 
         return $data;
@@ -189,10 +210,11 @@ class QrController
         // 開催回数を取得
         $course_numbers = [];
         $event_kbn = $event['event_kbn'];
-        if($event_kbn == EVERY_DAY_EVENT) {
+        if($event_kbn != PLURAL_EVENT) {
             $total_courses = 0;
         } else {
-            $total_courses = $event['total_courses'] ?? 1; // イベントの総回数
+            $course_infos = $event['course_infos'];
+            $total_courses = count($course_infos); // イベントの総回数
     
             for ($i = 1; $i <= $total_courses; $i++) {
                 $course_numbers[] = $i;

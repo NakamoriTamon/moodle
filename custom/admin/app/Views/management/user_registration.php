@@ -14,8 +14,8 @@ $old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 
 // ページネーション
-$total_count = $result_list['total_count'];
-$per_page = $result_list['per_page'];
+$total_count = $result_list['total_count'] ?? 0;
+$per_page = $result_list['per_page'] ?? 1;
 $current_page = $_POST['page'] ?? $_GET['page'] ?? 1;
 $page = $result_list['page'];
 ?>

@@ -245,6 +245,23 @@ $event_list = $result_list['event_list']  ?? [];
 										startQrScanner();
 									}, 500);
 								});
+							} else if (response.status === 'success' && response.event_kbn == 1) {
+								// 回数選択をリセット
+								courseSelect.html('<option value="" selected>回数を選択</option>');
+								$("#course_no").val('1');
+								// 回数選択を無効化
+								courseSelect.prop('disabled', true);
+								$("#event_kbn").val(response.event_kbn);
+								// QRスキャナーを表示
+								$("#qr_card").show();
+
+								// QrScannerモジュールを先に読み込む
+								loadQrScannerModule().then(() => {
+									// 少し遅延させてからスキャナーを起動（DOMが完全に表示された後）
+									setTimeout(() => {
+										startQrScanner();
+									}, 500);
+								});
 							} else {
 								// QRスキャナーを非表示
 								$("#qr_card").hide();
