@@ -173,6 +173,8 @@ class MypageController
                     e.event_kbn,
                     e.start_event_date,
                     e.end_event_date,
+                    e.start_hour,
+                    e.end_hour,
                     ci.id AS course_id,
                     ci.no,
                     ci.course_date,

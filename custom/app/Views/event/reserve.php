@@ -24,6 +24,9 @@ $companion_array = $result_list['companion_array'];
 $child_name = $result_list['child_name'];
 $realtime_path = $result_list['realtime_path'];
 $old_input = isset($_SESSION['old_input']) ? $_SESSION['old_input'] : null;
+$format_date = $result_list['format_date'];
+$format_hour = $result_list['format_hour'];
+$venue_name = $result_list['venue_name'];
 
 unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors']);
 ?>
@@ -65,16 +68,18 @@ unset($_SESSION['old_input'], $_SESSION['message_success'], $_SESSION['errors'])
               </li>
               <li class="list_item04">
                 <p class="list_label">開催日</p>
-                <p class="list_field f_txt">2025年04月30日</p>
+                <p class="list_field f_txt"><?php echo htmlspecialchars($format_date) ?></p>
               </li>
               <li class="list_item04">
-                <p class="list_label">開催日時</p>
-                <p class="list_field f_txt">09:30 ~ 12:00</p>
+                <p class="list_label">開催時間</p>
+                <p class="list_field f_txt"><?php echo htmlspecialchars($format_hour) ?></p>
               </li>
+              <?php if(!empty($venue_name)) { ?>
               <li class="list_item04">
                 <p class="list_label">会場</p>
-                <p class="list_field f_txt">大阪城ホール</p>
+                <p class="list_field f_txt"><?php echo htmlspecialchars($venue_name) ?></p>
               </li>
+              <?php } ?>
               <li class="list_item04">
                 <p class="list_label">枚数選択</p>
                 <p class="list_field f_txt"><?= htmlspecialchars($common_application['ticket_count']) ?>枚</p>
