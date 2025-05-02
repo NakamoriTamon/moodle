@@ -28,7 +28,7 @@ $is_hidden_withdraw = !$is_general_user;
                     <!-- <li><a href="quest/index.html">アンケート</a></li> -->
                     <li><a href="/custom/app/Views/user/index.php">ユーザー登録</a></li>
                     <?php if (!isloggedin() || !isset($_SESSION['USER'])): ?>
-                    <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
+                        <li><a href=<?= empty($login_id) ? "/custom/app/Views/login/index.php" : "/custom/app/Views/mypage/index.php" ?>>ログイン</a></li>
                     <?php endif; ?>
                     <?php if (!$is_hidden_withdraw): ?>
                         <li><a href="javascript:void(0);" id="user-withdrawal-button">ユーザー退会</a></li>
@@ -54,6 +54,7 @@ $is_hidden_withdraw = !$is_general_user;
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script src="/custom/public/assets/common/js/common.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
@@ -109,6 +110,10 @@ $is_hidden_withdraw = !$is_general_user;
 
         });
     });
+
+    function onSubmit(token) {
+        $('#contact_form').submit();
+    }
 
     // モーダル表示
     function showModalInactive(title, message, withdrawalClass) {

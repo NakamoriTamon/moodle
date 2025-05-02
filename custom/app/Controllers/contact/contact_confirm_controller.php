@@ -5,6 +5,27 @@ require_once('/var/www/html/moodle/local/commonlib/lib.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 
+$secretKey = RECAPCHA_SEC_KEY;
+$token = $_POST['g-recaptcha-response'] ?? '';
+
+if (!$token) {
+    $_SESSION['message_error'] = '送信に失敗しました';
+    header('Location: /custom/app/Views/contact/index.php?event_id=' . $event_id);
+    exit;
+}
+
+$verify = file_get_contents(
+    "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$token}&remoteip=" . $_SERVER['REMOTE_ADDR']
+);
+
+$result = json_decode($verify, true);
+
+if (!$result['success']) {
+    $_SESSION['message_error'] = '送信に失敗しました';
+    header('Location: /custom/app/Views/contact/index.php?event_id=' . $event_id);
+    exit;
+}
+
 // セッションをクリア
 unset($SESSION->formdata);
 

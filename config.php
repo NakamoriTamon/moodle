@@ -426,5 +426,11 @@ define('EVENT_TEKIJUKU_ONLY', $kbn_is_tekijuku_only);
 $max_ticket = 50;
 define('DEFAULT_MAX_TICKET', $max_ticket);
 
+// reCAPTCHA 
+$site_key = '6Lf7lisrAAAAAIpr1UrfDVK3zIUlLr4n_BoZaNh8';
+define('SITE_KEY', $site_key);
+$recaptcha_sec_key = '6Lf7lisrAAAAAOBAT759EFcyGWgSqJPi3-jDg3kX';
+define('RECAPCHA_SEC_KEY', $recaptcha_sec_key);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

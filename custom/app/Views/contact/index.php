@@ -77,9 +77,10 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                 <li>確認</li>
                 <li>完了</li>
             </ul>
-            <form method="POST" action="/custom/app/Controllers/contact/contact_confirm_controller.php" class="whitebox form_cont">
+            <form id="contact_form" method="POST" action="/custom/app/Controllers/contact/contact_confirm_controller.php" class="whitebox form_cont">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="inner_m">
+                    <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
                     <ul class="list">
                         <p class="error-msg">
                             <?php if (!empty($message_error)): ?>
@@ -160,7 +161,8 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $SESSION->formdata, $_SESSION
                         </label>
                     </div>
                     <div class="form_btn">
-                        <input type="submit" class="btn btn_gray" id="submitBtn" value="入力内容の確認" disabled />
+                        <input type="button" class="btn btn_gray g-recaptcha" id="submitBtn"
+                            data-sitekey="<?= SITE_KEY ?>" data-callback="onSubmit" data-action="submit" value="入力内容の確認" disabled />
                     </div>
                 </div>
             </form>
