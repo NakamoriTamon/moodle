@@ -273,6 +273,17 @@ video#qr-video {
     right: 10px;
 }
 
+/* 講師マスタ */
+#tutor-image-preview > img,
+#tutor-fit-picture {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+}
+#tutor-delete-btn{
+    display: none;
+}
+
 /* レスポンシブ  QR*/
 @media (min-width: 600px) {
     video#qr-video {

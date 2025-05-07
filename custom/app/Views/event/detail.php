@@ -344,7 +344,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                             <h2 class="block_ttl">登壇者</h2>
                             <?php foreach ($select_tutor as $turor): ?>
                                 <div class="speaker">
-                                    <div class="speaker_img"><img src="<?= htmlspecialchars(empty($turor['path']) ? DEFAULT_THUMBNAIL_2 : $turor['path']) ?>" alt="<?= htmlspecialchars($turor['name']) ?>" /></div>
+                                    <div class="speaker_img"><img src="<?= '/uploads/tutor/' . htmlspecialchars(empty($turor['path']) ? DEFAULT_THUMBNAIL_2 : $turor['path']) ?>" alt="<?= htmlspecialchars($turor['name']) ?>" /></div>
                                     <div class="speaker_desc">
                                         <h4 class="sub_ttl"><?= htmlspecialchars($turor['name']) ?></h4>
                                         <p class="sent">
@@ -468,12 +468,12 @@ if (isloggedin() && isset($_SESSION['USER'])) {
 
     function entryHrefExecution(eventId, courseInfoId) {
         let hrefWord = "";
-        if(loginCheckFlg){
+        if (loginCheckFlg) {
             hrefWord = "apply.php?id=" + eventId + (courseInfoId ? "&course_info_id=" + courseInfoId : "");
-        }else{
+        } else {
             hrefWord = "/custom/app/Views/login/index.php";
         }
-        
+
         window.location.href = hrefWord;
     }
 </script>
