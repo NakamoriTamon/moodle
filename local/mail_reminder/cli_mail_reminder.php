@@ -2,7 +2,8 @@
 define('CLI_SCRIPT', true);
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/CourseInfoModel.php');
-require(__DIR__.'/../../config.php');
+require(__DIR__ . '/../../config.php');
+
 use Dotenv\Dotenv;
 use core\context\system;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -14,6 +15,10 @@ $dotenv->load();
 // Moodleのメーラーオブジェクトを使用
 global $DB, $CFG;
 $targets = $model->getReminderTargets();
+
+if (empty($targets)) {
+    echo "メール送信対象なし: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
+}
 
 foreach ($targets as $index => $target) {
     $email = $target->participant_mail;
@@ -68,11 +73,13 @@ foreach ($targets as $index => $target) {
             'allow_self_signed' => true
         )
     );
-    
+
     // メール送信の試行
     try {
         $mail->send();
+        echo "メール送信成功: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
     } catch (Exception $e) {
+        echo "メール送信失敗: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
         error_log("メール送信失敗: " . $e->getMessage());
         continue;
     }
