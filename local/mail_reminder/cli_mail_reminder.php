@@ -17,7 +17,7 @@ global $DB, $CFG;
 $targets = $model->getReminderTargets();
 
 if (empty($targets)) {
-    echo "メール送信対象なし: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
+    echo "メール送信対象なし: " . date('Y-m-d H:i:s') . "\n";
 }
 
 foreach ($targets as $index => $target) {
@@ -77,7 +77,7 @@ foreach ($targets as $index => $target) {
     // メール送信の試行
     try {
         $mail->send();
-        echo "メール送信成功: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
+        echo "メール送信成功: " . date('Y-m-d H:i:s') . "\n";
     } catch (Exception $e) {
         echo "メール送信失敗: " . $e->getMessage() . date('Y-m-d H:i:s') . "\n";
         error_log("メール送信失敗: " . $e->getMessage());
