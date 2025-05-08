@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $htmlBody = "
         <div style=\"text-align: center; font-family: Arial, sans-serif;\">
             <p style=\"text-align: left; font-size: 14px; margin:0; padding:0;\">" . nl2br($mail_body) . "</p>
+            <p style=\"margin-top: 3.5rem; font-size: 13px; text-align: left;\">※ このメールは送信専用アドレスから送信しています。返信はしていただけませんので、ご質問のある方は、「知の広場」のお問い合わせフォームから問い合わせてください。</p>
             <p style=\"font-size: 13px; text-align: left;\">大阪大学 知の広場 ハンダイ市民講座事務局</p>
         </div>
         ";
