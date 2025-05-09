@@ -1,8 +1,11 @@
 <?php
 header('Content-Type: application/json');
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
+
+use Aws\S3\S3Client;
 
 global $DB;
 
@@ -24,44 +27,76 @@ if (!empty($_SESSION['message_error'])) {
     exit;
 }
 
-$upload_dir = '/var/www/html/moodle/uploads/movie/' . $course_info_id . '/' . $course_no . '/';
-$file_name = $_POST['file_name'];
+$s3 = new S3Client([
+    'version' => 'latest',
+    'region'  => 'ap-northeast-1',
+    'credentials' => [
+        'key'    => $_ENV['S3_AWS_ACCESS_KEY_ID'],
+        'secret' => $_ENV['S3_AWS_SECRET_ACCESS_KEY_ID'],
+    ]
+]);
+
+$bucket = 'osakauniv-movie-uploads';
+
+$file_name = basename($_POST['file_name']);
 $chunk_index = $_POST['chunk_index'];
 $total_chunks = $_POST['total_chunks'];
-
-// チャンクファイルの保存
-$tmpFilePath = $_FILES['file']['tmp_name'];
-$targetPath = $upload_dir . $file_name . '.part' . $chunk_index;
-
-if (!file_exists($upload_dir)) {
-    mkdir($upload_dir, 0755, true);
-}
-
-// チェックするディレクトリ
-$storage_upload_dir = '/var/www/html/moodle/uploads/movie/';
 $total_file_size = $_POST['total_file_size'] ?? 0;
-if (!check_storage_limit($storage_upload_dir, $total_file_size)) {
-    $_SESSION['message_error'] = 'ストレージ容量が不足しています';
-    echo json_encode(['status' => 'error']);
+$tmpFilePath = $_FILES['file']['tmp_name'];
+
+$key_prefix = "videos/{$course_info_id}/{$course_no}/";
+$chunk_key = $key_prefix . $file_name . '.part' . $chunk_index;
+
+try {
+    $s3->putObject([
+        'Bucket' => $bucket,
+        'Key' => $chunk_key,
+        'SourceFile' => $tmpFilePath,
+        'ACL' => 'private',
+    ]);
+} catch (Exception $e) {
+    echo json_encode(['status' => 'error', 'message' => '登録に失敗しました']);
     exit;
 }
 
-// チャンクを保存
-move_uploaded_file($tmpFilePath, $targetPath);
-
 // すべてのチャンクがアップロードされたら結合
 if ($chunk_index == $total_chunks - 1) {
-    $finalFilePath = $upload_dir . $file_name;
-    $outputFile = fopen($finalFilePath, 'wb');
+    $final_data = '';
 
-    // チャンクの結合
+    // 各チャンクをS3から読み込み
     for ($i = 0; $i < $total_chunks; $i++) {
-        $chunk_file = $upload_dir . $file_name . '.part' . $i;
-        fwrite($outputFile, file_get_contents($chunk_file));
-        unlink($chunk_file); // チャンク削除
+        $part_key = $key_prefix . $file_name . '.part' . $i;
+        try {
+            $result = $s3->getObject([
+                'Bucket' => $bucket,
+                'Key'    => $part_key
+            ]);
+            // バイナリとして結合
+            $final_data .= $result['Body'];
+            // チャンクを削除
+            $s3->deleteObject([
+                'Bucket' => $bucket,
+                'Key'    => $part_key
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => '登録に失敗しました']);
+            exit;
+        }
     }
 
-    fclose($outputFile);
+    // 完成した動画ファイルを S3 に保存
+    try {
+        $s3->putObject([
+            'Bucket'      => $bucket,
+            'Key'         => $key_prefix . $file_name,
+            'Body'        => $final_data,
+            'ACL'         => 'private',
+            'ContentType' => 'video/mp4',
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => '登録に失敗しました']);
+        exit;
+    }
 
     // DBへの登録処理
     $data = new stdClass();
@@ -87,8 +122,6 @@ if ($chunk_index == $total_chunks - 1) {
 
             foreach ($files as $file) {
                 $file_path = $upload_dir . $file;
-
-                // 「.」「..」はスキップ & AAA.mp4 は削除しない
                 if ($file === '.' || $file === '..' || $file === $file_name) {
                     continue;
                 }

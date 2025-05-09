@@ -344,7 +344,8 @@ $course_list = $result_list['course_list'] ?? [];
 							if (response.status === 'success') {
 								location.href = "/custom/admin/app/Views/event/movie.php";
 							} else {
-								location.href = "/custom/admin/app/Views/event/movie.php";
+								// location.href = "/custom/admin/app/Views/event/movie.php";
+								console.log(response);
 							}
 						},
 						error: function(jqXHR, textStatus, errorThrown) {
@@ -396,7 +397,10 @@ $course_list = $result_list['course_list'] ?? [];
 						upload_chunk(); // 次のチャンクをアップロード
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						location.href = "/custom/admin/app/Views/event/movie.php";
+						console.log(jqXHR);
+						console.log(textStatus);
+						console.log(errorThrown);
+						// location.href = "/custom/admin/app/Views/event/movie.php";
 					}
 				});
 			}
