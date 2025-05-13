@@ -136,7 +136,7 @@ try {
         return $a['course_info']['no'] <=> $b['course_info']['no'];
     });
 
-    if($is_single) {
+    if ($is_single) {
         // CSVヘッダー
         $csv_list[0] = [
             'ID',
@@ -145,6 +145,7 @@ try {
             'ユーザー名',
             'メールアドレス',
             '年齢',
+            'その他',
             '備考',
             '決済方法',
             '決済状況',
@@ -162,6 +163,7 @@ try {
             'ユーザー名',
             'メールアドレス',
             '年齢',
+            'その他',
             '備考',
             '決済方法',
             '決済状況',
@@ -211,18 +213,26 @@ try {
                 }
             }
 
-            if($application['note']){
-                $note = str_replace(",", "、", $application['note']);
+            if ($application['note']) {
+                $note = str_replace(",", " | ", $application['note']);
             }
 
             $age = getAge($application['user']['birthday']);
-
         } elseif (!empty($keyword)) {
             // キーワード検索時はお連れ様の情報も取得する
             continue;
         }
 
-        if($is_single) {
+        $application_congnition = $DB->get_record('event_application_cognition', [
+            'event_application_id' => $application_course_info['event_application_id']
+        ]);
+
+        $congnition_note = "";
+        if ($application_congnition->note) {
+            $congnition_note = str_replace(",", " | ", $application_congnition->note);
+        }
+
+        if ($is_single) {
             $csv_array = [
                 $application_course_info['id'],
                 $event['name'],
@@ -230,6 +240,7 @@ try {
                 $name,
                 $application_course_info['participant_mail'],
                 $age,
+                $congnition_note,
                 $note,
                 $payment_type,
                 $is_paid,
@@ -246,6 +257,7 @@ try {
                 $name,
                 $application_course_info['participant_mail'],
                 $age,
+                $congnition_note,
                 $note,
                 $payment_type,
                 $is_paid,

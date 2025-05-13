@@ -137,18 +137,19 @@ $page = $result_list['page'];
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="card m-auto mb-5 w-95">
                                             <table class="table table-responsive table-striped table_list">
                                                 <thead>
                                                     <tr>
                                                         <th class="ps-4 pe-4">ID</th>
                                                         <th class="ps-4 pe-4">イベント名</th>
-                                                        <?php if(!$result_list['is_single']): ?><th class="ps-4 pe-4">講座回数</th><?php endif; ?>
+                                                        <?php if (!$result_list['is_single']): ?><th class="ps-4 pe-4">講座回数</th><?php endif; ?>
                                                         <th class="ps-4 pe-4">会員番号</th>
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
                                                         <th class="ps-4 pe-4">年齢</th>
+                                                        <th class="ps-4 pe-4">その他</th>
                                                         <th class="ps-4 pe-4">備考</th>
                                                         <th class="ps-4 pe-4">決済方法</th>
                                                         <th class="ps-4 pe-4">決済状況</th>
@@ -162,11 +163,12 @@ $page = $result_list['page'];
                                                         <tr>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['event_name']) ?></td>
-                                                            <?php if(!$result_list['is_single']): ?><td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td><?php endif; ?>
+                                                            <?php if (!$result_list['is_single']): ?><td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td><?php endif; ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['user_id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
+                                                            <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['other']) ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['note']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_type']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap <?= $application['is_paid'] == '未決済' ? 'text-danger' : '' ?>">
@@ -191,7 +193,7 @@ $page = $result_list['page'];
                                             </table>
                                         </div>
                                     </form>
-                                    
+
                                     <!-- 非表示のform（CSV出力用） -->
                                     <form id="csvExportForm" method="POST" action="/custom/admin/app/Controllers/management/event_registration_export_controller.php">
                                         <input type="hidden" name="keyword" value="<?= htmlspecialchars(isset($old_input['keyword']) ? $old_input['keyword'] : '', ENT_QUOTES, 'UTF-8') ?>">
@@ -267,7 +269,7 @@ $page = $result_list['page'];
             $('input[name="page"]').val(nextPage);
             $('#form').submit();
         });
-        
+
         // CSV出力ボタン押下時
         $('#csv_button').on('click', function(event) {
             $('#csvExportForm').submit();

@@ -28,6 +28,7 @@ class EventRegistrationController
         global $USER;
         global $DB;
 
+
         // 検索項目取得
         $keyword = $_POST['keyword'] ?? null;
         $page = $_POST['page'] ?? null;
@@ -203,6 +204,10 @@ class EventRegistrationController
                 continue;
             }
 
+            $application_congnition = $DB->get_record('event_application_cognition', [
+                'event_application_id' => $application_course_info['event_application_id']
+            ]);
+
             $application_list[$key] = [
                 'id' => $application_course_info['id'],
                 'event_name' => $event['name'],
@@ -217,6 +222,7 @@ class EventRegistrationController
                 'participation_kbn' => $application_course_info['participation_kbn'],
                 'age' => $age,
                 'note' => $note,
+                'other' => $application_congnition->note,
             ];
         }
 
