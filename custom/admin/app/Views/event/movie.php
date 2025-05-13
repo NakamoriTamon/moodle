@@ -1,8 +1,11 @@
 <?php
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once($CFG->dirroot . '/custom/admin/app/Controllers/movie/movie_controller.php');
 include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+use Dotenv\Dotenv;
 
 $movie_conroller = new MovieController();
 $result_list = $movie_conroller->index();
@@ -18,6 +21,66 @@ $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
 $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 $course_list = $result_list['course_list'] ?? [];
+
+// 講義動画取得
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
+
+$cloud_front_domain =  $_ENV['CLOUD_FRONT_DOMAIN'];
+$expires = time() + 3600;
+$key_pair_id = $_ENV['KEY_PAIR_ID'];
+$private_key_path = $_ENV['PRIVATE_KEY_PATH'];
+
+// カスタムポリシーJSON
+$policy = json_encode([
+	"Statement" => [[
+		"Resource" => "$cloud_front_domain/*",
+		"Condition" => [
+			"DateLessThan" => ["AWS:EpochTime" => $expires]
+		]
+	]]
+]);
+
+// Base64-URLエンコード関数
+function base64url_encode($input)
+{
+	return strtr(rtrim(base64_encode($input), '='), '+/', '-_');
+}
+
+// 秘密鍵読み込み
+$privateKey = file_get_contents($private_key_path);
+
+// 署名生成
+openssl_sign($policy, $signature, $privateKey, OPENSSL_ALGO_SHA1);
+
+// Cookie用の値にエンコード
+$encodedPolicy = base64url_encode($policy);
+$encodedSignature = base64url_encode($signature);
+
+// Cookieを発行
+setcookie('CloudFront-Policy', $encodedPolicy, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
+
+setcookie('CloudFront-Signature', $encodedSignature, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
+
+setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -122,6 +185,7 @@ $course_list = $result_list['course_list'] ?? [];
 									</div>
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="s3_file_name" value="<?= htmlspecialchars($file_name ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="course_no" value="<?= htmlspecialchars($result_list['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<div class="movie-container mb-4">
@@ -140,13 +204,14 @@ $course_list = $result_list['course_list'] ?? [];
 												</div>
 
 												<!-- 動画タグ -->
-												<div id="movie-wrapper" class="w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
-													<video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
-														<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>>
-														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $result_list['course_info_id'] . '/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
-														<p>動画再生をサポートしていないブラウザです。</p>
-													</video>
-												</div>
+												<video id="movie_video"
+													controls
+													oncontextmenu="return false;"
+													disablePictureInPicture
+													<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>
+													style="width: 100%; max-width: 800px;">
+													<p>動画再生をサポートしていないブラウザです。</p>
+												</video>
 												<?php if (!empty($file_name)) { ?>
 													<button type="button" id="delete_video_btn" class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#delete_confirm_modal">
 														削除
@@ -210,21 +275,49 @@ $course_list = $result_list['course_list'] ?? [];
 <script>
 	$(document).ready(function() {
 		// PHPから動画ファイル名を取得
-		let video_file_name = null;
-		<?php if (isset($movie['course_info_id']) && isset($file_name) && isset($result_list['course_no'])): ?>
-			video_file_name = "<?php echo htmlspecialchars($movie['course_info_id'] . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8'); ?>";
-		<?php endif; ?>
+		const s3_file_name = $('input[name="s3_file_name"]').val();
 		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
-		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
-		if (video_file_name) {
-			let video_path = "/uploads/movie/" + video_file_name;
-			$('#movie_video_source').attr('src', video_path);
+		const video = document.getElementById('movie_video');
+		const controls_area = document.getElementById('controls_area');
+		if (s3_file_name) {
+			const m3u8Url = "https://d1q5pewnweivby.cloudfront.net/" + s3_file_name;
+			if (Hls.isSupported()) {
+				const hls = new Hls();
+				hls.loadSource(m3u8Url);
+				hls.attachMedia(video);
+				hls.on(Hls.Events.MANIFEST_PARSED, function() {
+					$('#movie_video').css('display', 'block');
+					// 倍速再生ボタン
+					if (is_double_speed == 1) {
+						const speedBtn = document.createElement('button');
+						speedBtn.textContent = "1x";
+						let speeds = [1, 1.25, 1.5, 2];
+						let index = 0;
+						speedBtn.addEventListener('click', () => {
+							index = (index + 1) % speeds.length;
+							video.playbackRate = speeds[index];
+							speedBtn.textContent = speeds[index] + 'x';
+						});
+						speedBtn.style.marginLeft = '10px';
+						controls_area.appendChild(speedBtn);
+					}
 
-			// 動画をロードして再生
-			$('#movie_video')[0].load();
-			$('#movie_video')[0].oncanplay = function() {
-				$('#movie_video').show();
-				$('#movie_img').hide();
+				});
+			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+				video.src = m3u8Url;
+				if (is_double_speed == 1) {
+					const speedBtn = document.createElement('button');
+					speedBtn.textContent = "1x";
+					let speeds = [1, 1.25, 1.5, 2];
+					let index = 0;
+					speedBtn.addEventListener('click', () => {
+						index = (index + 1) % speeds.length;
+						video.playbackRate = speeds[index];
+						speedBtn.textContent = speeds[index] + 'x';
+					});
+					document.getElementById('controls_area').appendChild(speedBtn);
+				}
+				$('#movie_video').css('display', 'block');
 			}
 		}
 		$('#movie_video').on('contextmenu', function(event) {
@@ -416,7 +509,8 @@ $course_list = $result_list['course_list'] ?? [];
 					csrf_token,
 					course_info_id,
 					course_no,
-					id
+					id,
+					file_name: file.name.replace(/\.[^/.]+$/, ''),
 				},
 				dataType: 'json'
 			});
