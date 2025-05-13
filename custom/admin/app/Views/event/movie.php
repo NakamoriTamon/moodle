@@ -166,7 +166,13 @@ $course_list = $result_list['course_list'] ?? [];
 					<div class="modal-dialog modal-dialog-centered">
 						<div class="modal-content">
 							<div class="modal-body text-center p-5 fs-4">
-								講義動画をアップロード中です<p id="percent" class="mt-1 me-2 fs-4 fw-bold">100%</p>
+								<div class="d-flex flex-column align-items-center">
+									<div>講義動画をアップロード中です</div>
+									<div class="spinner-border text-primary mt-4 mb-3 me-1" role="status" style="width: 3rem; height: 3rem;">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+									<p id="percent" class="mt-2 fs-4 fw-bold">0%</p>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -309,8 +315,8 @@ $course_list = $result_list['course_list'] ?? [];
 			$("#form").submit();
 		});
 
-		// 講義動画をChunkして登録
-		$('#upload_button').on('click', function() {
+		// ▼ S3へ講義動画をアップロード
+		$('#upload_button').on('click', async function() {
 			const file_input = $('#video_input')[0];
 			if (!file_input.files.length) {
 				alert('動画を選択してください');
@@ -321,95 +327,103 @@ $course_list = $result_list['course_list'] ?? [];
 			modal.show();
 
 			const file = file_input.files[0];
-			const chunk_size = 10 * 1024 * 1024; // 10MBずつ送信
+			const chunk_size = 20 * 1024 * 1024; // 20MBでチャンク
 			const total_chunks = Math.ceil(file.size / chunk_size);
-			let current_chunk = 0;
 
-			// ファイルをチャンクごとに送信
-			function upload_chunk() {
-				if (current_chunk >= total_chunks) {
-					// チャンク送信完了後の最終処理
-					$.ajax({
-						url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
-						type: 'POST',
-						data: {
-							file_name: file.name,
-							csrf_token: $('#upsert_form').find('[name="csrf_token"]').val(),
-							course_info_id: $('#upsert_form').find('[name="course_info_id"]').val(),
-							course_no: $('#upsert_form').find('[name="course_no"]').val(),
-							id: $('#upsert_form').find('[name="id"]').val()
-						},
-						dataType: 'json',
-						success: function(response) {
-							if (response.status === 'success') {
-								location.href = "/custom/admin/app/Views/event/movie.php";
-							} else {
-								// location.href = "/custom/admin/app/Views/event/movie.php";
-								console.log(response);
-							}
-						},
-						error: function(jqXHR, textStatus, errorThrown) {
-							location.href = "/custom/admin/app/Views/event/movie.php";
-						}
-					});
+			// フォーム情報取得
+			const course_info_id = $('#upsert_form').find('[name="course_info_id"]').val();
+			const course_no = $('#upsert_form').find('[name="course_no"]').val();
+			const csrf_token = $('#upsert_form').find('[name="csrf_token"]').val();
+			const id = $('#upsert_form').find('[name="id"]').val();
+
+			// アップロード初期化
+			const initRes = await $.ajax({
+				url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
+				method: 'POST',
+				data: {
+					mode: 'init',
+					file_name: file.name,
+					csrf_token: csrf_token,
+					course_info_id: course_info_id,
+					course_no: course_no,
+				},
+				dataType: 'json'
+			});
+			if (initRes.status == 'error') {
+				location.href = "/custom/admin/app/Views/event/movie.php";
+				return;
+			}
+
+			// 2つのプロパティを、別々の変数として一度に取り出す
+			const {
+				uploadId,
+				key
+			} = initRes;
+			const parts = [];
+			for (let i = 0; i < total_chunks; i++) {
+				const start = i * chunk_size;
+				const end = Math.min(start + chunk_size, file.size);
+				const chunk = file.slice(start, end);
+				// Presigned URL取得
+				const presignRes = await $.post('/custom/admin/app/Controllers/movie/movie_upsert_controller.php', {
+					mode: 'presign',
+					uploadId,
+					key,
+					partNumber: i + 1
+				});
+				if (presignRes.status == 'error') {
+					location.href = "/custom/admin/app/Views/event/movie.php";
 					return;
 				}
 
-				const start = current_chunk * chunk_size;
-				const end = Math.min(start + chunk_size, file.size);
-				const chunk = file.slice(start, end);
+				// S3が発行した署名付きURLに対して、チャンクデータをPUT
+				const res = await fetch(presignRes.url, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/octet-stream' // 明示的に付与
+					},
+					body: chunk
+				});
+				const eTag = res.headers.get('ETag');
 
-				// 新しいFormDataオブジェクトを作成
-				const form_data = new FormData();
-				form_data.append('id', $('#upsert_form').find('[name="id"]').val());
-				form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
-				form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
-				form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
-				form_data.append('file', chunk); // チャンクを追加
-				form_data.append('chunk_index', current_chunk); // チャンク番号
-				form_data.append('total_chunks', total_chunks); // チャンクの総数
-				form_data.append('file_name', file.name); // ファイル名
-				form_data.append('total_file_size', file.size);
-
-				function wait(ms) {
-					return new Promise(resolve => setTimeout(resolve, ms));
+				// エラー処理
+				if (!res.ok) {
+					location.href = "/custom/admin/app/Views/event/movie.php";
+					return;
 				}
 
-				$.ajax({
-					url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // チャンクを送信
-					type: 'POST',
-					data: form_data,
-					processData: false,
-					contentType: false,
-					dataType: 'json',
-					success: async function(response) {
-						if (response.status === 'error') {
-							location.href = "/custom/admin/app/Views/event/movie.php";
-							return;
-						}
-
-						// アップロード進捗を表示
-						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
-						$('#percent').text(`${percentage}%`);
-
-						current_chunk++;
-						await wait(1000); // 少し待機してから次のチャンクをアップロード
-						upload_chunk(); // 次のチャンクをアップロード
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						console.log(jqXHR);
-						console.log(textStatus);
-						console.log(errorThrown);
-						// location.href = "/custom/admin/app/Views/event/movie.php";
-					}
+				// 正常なら配列に追加
+				parts.push({
+					PartNumber: i + 1,
+					ETag: eTag
 				});
+
+				// プログレスバー更新
+				const percentage = Math.round(((i + 1) / total_chunks) * 100);
+				$('#percent').text(`${percentage}%`);
+
 			}
 
-			// チャンクのアップロードを開始
-			upload_chunk();
+			// 完了通知
+			const completeRes = await $.ajax({
+				url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
+				method: 'POST',
+				data: {
+					mode: 'complete',
+					uploadId,
+					key,
+					parts: JSON.stringify(parts),
+					csrf_token,
+					course_info_id,
+					course_no,
+					id
+				},
+				dataType: 'json'
+			});
+
+			location.href = '/custom/admin/app/Views/event/movie.php';
 		});
 	});
 </script>
-
 
 </html>
