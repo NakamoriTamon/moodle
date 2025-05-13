@@ -24,6 +24,25 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         $tekijuku_user_flg = true;
     }
 }
+// リンクのみ押下できるようにする
+function escapeWithLink(string $text): string
+{
+
+    $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    // URL検出 → aタグに変換（aタグだけ戻す）
+    $escaped = preg_replace_callback(
+        '/(https?:\/\/[^\s<>"\'\(\)]+)/i',
+        function ($matches) {
+            $url = $matches[0];
+            return '<a class="detail_page_a" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+        },
+        $escaped
+    );
+
+    // 改行コードを<br>に変換
+    return nl2br($escaped);
+}
+
 ?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
@@ -259,7 +278,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                                         <?= htmlspecialchars($detail['name']) ?>
                                     </p>
                                     <p class="sent" <?php if (count($course['details']) != $key + 1): ?>style="margin-bottom: 40px;" <?php endif; ?>>
-                                        <?= nl2br(htmlspecialchars($detail['program'], ENT_QUOTES, 'UTF-8')); ?>
+                                        <?= escapeWithLink($detail['program']); ?>
                                     </p>
                                 <?php endforeach; ?>
                                 <div class="program">
@@ -305,7 +324,7 @@ if (isloggedin() && isset($_SESSION['USER'])) {
                                         <?= htmlspecialchars($detail['name']) ?>
                                     </p>
                                     <p class="sent" <?php if (count($course['details']) != $key + 1): ?>style="margin-bottom: 40px;" <?php endif; ?>>
-                                        <?= nl2br(htmlspecialchars($detail['program'], ENT_QUOTES, 'UTF-8')); ?>
+                                        <?= escapeWithLink($detail['program']); ?>
                                     </p>
                                 <?php endforeach; ?>
                                 <div class="program">
