@@ -24,23 +24,36 @@ if (isloggedin() && isset($_SESSION['USER'])) {
         $tekijuku_user_flg = true;
     }
 }
+
 // リンクのみ押下できるようにする
 function escapeWithLink(string $text): string
 {
-
     $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-    // URL検出 → aタグに変換（aタグだけ戻す）
-    $escaped = preg_replace_callback(
-        '/(https?:\/\/[^\s<>"\'\(\)]+)/i',
+    return nl2br(preg_replace_callback(
+        '/(https?:\/\/[^\s<>"\'））」】。、．・，!?！？]+)/u',
         function ($matches) {
-            $url = $matches[0];
-            return '<a class="detail_page_a" href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>';
+            $full = $matches[0];
+            $url = $full;
+            $trail = '';
+
+            // URLの正当な終端文字かどうかで判定し、末尾の「不正」記号のみ取り除く
+            while (preg_match('/[））」】。、．・，!?！？\s]$/u', mb_substr($url, -1))) {
+                $trail = mb_substr($url, -1) . $trail;
+                $url = mb_substr($url, 0, -1);
+            }
+
+            // 万一URLに不正なトリミングが起きないよう、再度validate
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                return htmlspecialchars($full, ENT_QUOTES, 'UTF-8'); // フォールバック（リンク化せず）
+            }
+
+            $safeUrl = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+            $safeTrail = htmlspecialchars($trail, ENT_QUOTES, 'UTF-8');
+
+            return '<a class="detail_page_a" href="' . $safeUrl . '" target="_blank" rel="noopener noreferrer">' . $safeUrl . '</a>' . $safeTrail;
         },
         $escaped
-    );
-
-    // 改行コードを<br>に変換
-    return nl2br($escaped);
+    ));
 }
 
 ?>
