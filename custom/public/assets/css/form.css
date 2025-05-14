@@ -569,6 +569,14 @@ reserve
 #submit{
   cursor: pointer;
 }
+#contact_href{
+  display: inline;
+  text-decoration: underline;
+}
+#contact_href:hover{
+  display: inline;
+  text-decoration: none;
+}
 
 
   /*-------------------------------------

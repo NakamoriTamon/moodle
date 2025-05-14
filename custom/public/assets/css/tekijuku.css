@@ -78,6 +78,14 @@
   margin: auto;
   margin-top: 30px;
 }
+#contact_href{
+  display: inline;
+  text-decoration: underline;
+}
+#contact_href:hover{
+  display: inline;
+  text-decoration: none;
+}
 
 /* 親要素にテキストを中央揃え */
 /* .juku_block {

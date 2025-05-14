@@ -392,7 +392,7 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                         <div class="mb-3">
                                             <label class="form-label">講座/部課/専攻名</label>
                                             <div class="align-items-center">
-                                                <input type="text" name="major" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
+                                                <input type="text" name="major" class="form-control" value="<?= htmlspecialchars($old_input['major'] ?? $tekijuku_commemoration['major']); ?>">
                                                 <?php if (!empty($errors['major'])): ?>
                                                     <div class="text-danger mt-2"><?= htmlspecialchars($errors['major']); ?></div>
                                                 <?php endif; ?>

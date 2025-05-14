@@ -145,7 +145,7 @@ if (!$login_check_flg) {
                         </li>
                         <li class="list_item07">
                             <p class="list_label"></p>
-                            <p id="credit_ano" class="list_field font-14"> 適塾記念会会員の名義とクレジットカード名義人が異なる場合は、事務局までメールでご連絡ください<br />（ chinohiroba-ml@21c-kaitokudo.osaka-u.ac.jp ）</p>
+                            <p id="credit_ano" class="list_field font-14"> 適塾記念会会員の名義とクレジットカード名義人が異なる場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php?event_id=other">事務局</a> までメールでご連絡ください<br /></p>
                         </li>
                         <li class="list_item11">
                             <p class="list_label">備考</p>

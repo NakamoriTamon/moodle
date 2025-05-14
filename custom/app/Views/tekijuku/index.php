@@ -76,8 +76,7 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                         なお、一度に複数年度分の年会費のお支払いはできなくなりましたので、クレジットカードによる自動引落をご利用ください。
                     </li>
                     <li>
-                        適塾記念会会員の名義とクレジットカード名義人が異なる場合は、事務局までメールでご連絡ください<br />
-                        （ chinohiroba-ml@21c-kaitokudo.osaka-u.ac.jp ）
+                        適塾記念会会員の名義とクレジットカード名義人が異なる場合は、<a id="contact_href" href="/custom/app/Views/contact/index.php?event_id=other">事務局</a> までメールでご連絡ください<br />
                     </li>
                 </ul>
             </div>
