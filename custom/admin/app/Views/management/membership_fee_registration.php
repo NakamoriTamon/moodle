@@ -111,6 +111,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                 <th class="ps-4 pe-4 text-nowrap">会員番号</th>
                                                 <th class="ps-4 pe-4 text-nowrap">ユーザー名</th>
                                                 <th class="ps-4 pe-4 text-nowrap">メールアドレス</th>
+                                                <th class="ps-4 pe-4 text-nowrap">電話番号</th>
                                                 <th class="ps-4 pe-4 text-nowrap">郵便番号</th>
                                                 <th class="ps-4 pe-4 text-nowrap">住所</th>
                                                 <th class="ps-4 pe-4 text-nowrap">メニュー</th>
@@ -146,11 +147,10 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
                                                     ?>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars(substr_replace($number, ' ', 4, 0)) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['name']) ?>
-                                                        <?php if ($result['is_delete']) {
-                                                            echo '(退会済)';
-                                                        } ?>
+                                                        <?= $result['is_delete'] ? '(退会済)' : '' ?>
                                                     </td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['email']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['tell_number']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['post_code']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($result['address']) ?></td>
                                                     <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($menu) ?></td>
