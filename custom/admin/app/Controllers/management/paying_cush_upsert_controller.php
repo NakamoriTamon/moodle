@@ -170,6 +170,7 @@ try {
     header('Location: /custom/admin/app/Views/management/paying_cush.php');
 } catch (Exception $e) {
     try {
+        error_log('適塾会費情報管理登録エラー :' . $e);
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';
