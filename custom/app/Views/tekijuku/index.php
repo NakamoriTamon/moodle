@@ -75,6 +75,10 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                         口数は、普通会員、賛助会員とも年間何口でもお申込みいただけます。<br />
                         なお、一度に複数年度分の年会費のお支払いはできなくなりましたので、クレジットカードによる自動引落をご利用ください。
                     </li>
+                    <li>
+                        適塾記念会会員の名義とクレジットカード名義人が異なる場合は、事務局までメールでご連絡ください<br />
+                        （ chinohiroba-ml@21c-kaitokudo.osaka-u.ac.jp ）
+                    </li>
                 </ul>
             </div>
             <div class="juku_block membership">
