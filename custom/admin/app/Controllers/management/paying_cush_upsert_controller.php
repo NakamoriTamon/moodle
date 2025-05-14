@@ -156,9 +156,19 @@ try {
         $history->payment_method = 5; // 現金払い
         $DB->insert_record_raw('tekijuku_commemoration_history', $history, true);
     }
+
+    // 知の広場と連動しているデータを更新
+    $user = new stdClass();
+    $user->id = $fk_user_id;
+    $user->name = $name;
+    $user->name_kana = $kana;
+    $user->phone1 = $tell_number;
+    $user->email = $email;
+    $DB->update_record_raw('user', $user);
+
     $transaction->allow_commit();
     header('Location: /custom/admin/app/Views/management/paying_cush.php');
-} catch (PDOException $e) {
+} catch (Exception $e) {
     try {
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
