@@ -323,7 +323,7 @@ unset(
                                 <?php endif; ?>
                                 <li class="list_item09 long_item">
                                     <p class="list_label">備考</p>
-                                    <div class="list_field f_txtarea"><?php echo htmlspecialchars($user->description ?? null); ?></div>
+                                    <div class="list_field f_txtarea"><?php echo nl2br(htmlspecialchars($user->description ?? null)); ?></div>
                                 </li>
                                 <div id="parents_input_area">
                                     <li class="list_item10">

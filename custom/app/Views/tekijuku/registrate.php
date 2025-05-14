@@ -143,6 +143,10 @@ if (!$login_check_flg) {
                             <p class="list_label"></p>
                             <p class="list_field font-14">コンビニ決済の場合、セブンイレブンでの決済は当面の間お選びいただけません。ご了承ください。</p>
                         </li>
+                        <li class="list_item07">
+                            <p class="list_label"></p>
+                            <p id="credit_ano" class="list_field font-14"> 適塾記念会会員の名義とクレジットカード名義人が異なる場合は、事務局までメールでご連絡ください<br />（ chinohiroba-ml@21c-kaitokudo.osaka-u.ac.jp ）</p>
+                        </li>
                         <li class="list_item11">
                             <p class="list_label">備考</p>
                             <div class="list_field f_txt">
@@ -254,8 +258,10 @@ if (!$login_check_flg) {
         function paymentMethod(val) {
             console.log(val);
             if (val === "2") {
+                $('#credit_ano').css('display', 'block');
                 $('.is_subscription_area').css('display', 'block');
             } else {
+                $('#credit_ano').css('display', 'none');
                 $('.is_subscription_area').css('display', 'none');
                 $('#is_subscription').prop('checked', false);
             }
