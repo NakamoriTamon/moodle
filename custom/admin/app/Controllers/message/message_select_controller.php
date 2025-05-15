@@ -1,4 +1,5 @@
 <?php
+require_once('/var/www/html/moodle/config.php');
 require_once('/var/www/html/moodle/custom/app/Models/BaseModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/UserModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
@@ -34,6 +35,15 @@ class MessageSelectController
 
         $data = [];
 
+        $role = $this->roleAssignmentsModel->getShortname($USER->id);
+        $shortname = $role['shortname'];
+
+        // システム管理者以外は自身のイベントのみ表示する
+        $kbn_id_list = KBN_ID_LIST;
+        if ($shortname !== ROLE_ADMIN && $USER->id != MEMBERSHIP_ACCESS_ACOUNT) {
+            unset($kbn_id_list[2]);
+        }
+
         $kbn_id = $_POST['kbn_id'] ?? 0;
         $page = $_POST['page'] ?? 1;
 
@@ -54,7 +64,9 @@ class MessageSelectController
             default:
         }
 
-        return $data;
+        $dataList = ['kbn_id_list' => $kbn_id_list, 'data' => $data];
+
+        return $dataList;
     }
 
 
