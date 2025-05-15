@@ -240,15 +240,15 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                                     <?php foreach ($user_list as $user): ?>
                                                         <tr>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= $user['user_id'] ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['name']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['kana']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['birthday']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['city']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['email']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['phone']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_name']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_email']) ?></td>
-                                                            <td class="ps-4 pe-4"><?= htmlspecialchars($user['gurdian_phone']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['name']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['kana']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['birthday']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['city']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['email']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['phone']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['gurdian_name']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['gurdian_email']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['gurdian_phone']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['is_tekijuku']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($user['pay_method']) ?></td>
                                                         </tr>
