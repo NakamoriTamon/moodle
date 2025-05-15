@@ -31,7 +31,7 @@ class EventCustomFieldCategoryModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT id, name FROM mdl_event WHERE event_customfield_category_id = :id");
+                $stmt = $this->pdo->prepare("SELECT id, name, userid FROM mdl_event WHERE event_customfield_category_id = :id");
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -56,7 +56,7 @@ class EventCustomFieldCategoryModel extends BaseModel
                 $stmt->execute();
                 $custom_field_category = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if(empty($custom_field_category)) {
+                if (empty($custom_field_category)) {
                     return [];
                 }
 

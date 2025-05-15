@@ -17,10 +17,10 @@ $item_names = $_POST['item_name'] ?? null;
 $field_types = $_POST['field_type'] ?? null;
 $event_customfield_ids = $_POST['event_customfield_id'] ?? [];
 
-global $DB, $CFG;
+global $DB, $CFG, $USER;
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']) || empty($USER->id)) {
             $_SESSION['message_error'] = '登録に失敗しました';
             if ($id) {
                 header('Location: /custom/admin/app/Views/event/custom_upsert.php?id=' . $id);
@@ -55,12 +55,13 @@ try {
         $customfield_category->name = $name;
         $customfield_category->created_at = date('Y-m-d H:i:s');
         $customfield_category->updated_at = date('Y-m-d H:i:s');
-        $id = $DB->insert_record('event_customfield_category', $customfield_category);
+        $customfield_category->fk_user_id = $USER->id;
+        $id = $DB->insert_record_raw('event_customfield_category', $customfield_category);
     } else {
         $customfield_category->id = $id;
         $customfield_category->name = $name;
         $customfield_category->updated_at = date('Y-m-d H:i:s');
-        $DB->update_record('event_customfield_category', $customfield_category);
+        $DB->update_record_raw('event_customfield_category', $customfield_category);
     }
 
     $customfield_list = $DB->get_records(
