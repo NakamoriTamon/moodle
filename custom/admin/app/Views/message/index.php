@@ -5,8 +5,10 @@ require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once('/var/www/html/moodle/custom/admin/app/Controllers/message/message_select_controller.php');
 
 $message_select_controller = new MessageSelectController();
-$result_list = $message_select_controller->index();
+$all_result_list = $message_select_controller->index();
 
+$result_list = $all_result_list['data'] ?? [];
+$select_kbn_list = $all_result_list['kbn_id_list'] ?? [];
 $kbn_id = $result_list['kbn_id'] ?? '';
 
 // 情報取得
@@ -79,7 +81,7 @@ unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['message_error']);
                                     <label class="form-label" for="notyf-message">対象区分</label>
                                     <select id="kbn_id" name="kbn_id" class="form-control">
                                         <option value=''>未選択</option>
-                                        <?php foreach ($kbn_id_list as $key => $kbn) { ?>
+                                        <?php foreach ($select_kbn_list as $key => $kbn) { ?>
                                             <option value=<?= $key ?> <?= isSelected($key, $old_input['kbn_id'] ?? null, null) ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($kbn) ?></option>
                                         <?php } ?>
