@@ -31,7 +31,7 @@ class EventSurveyCustomFieldCategoryModel extends BaseModel
     {
         if ($this->pdo) {
             try {
-                $stmt = $this->pdo->prepare("SELECT id, name FROM mdl_event WHERE event_survey_customfield_category_id = :id");
+                $stmt = $this->pdo->prepare("SELECT id, name, userid FROM mdl_event WHERE event_survey_customfield_category_id = :id");
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -56,7 +56,7 @@ class EventSurveyCustomFieldCategoryModel extends BaseModel
                 $stmt->execute();
                 $custom_field_categorys = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if(empty($custom_field_categorys)) {
+                if (empty($custom_field_categorys)) {
                     return $custom_field_categorys;
                 }
 
@@ -64,7 +64,7 @@ class EventSurveyCustomFieldCategoryModel extends BaseModel
                 foreach ($custom_field_categorys as &$custom_field_category) {
                     $custom_field_category['detail'] = $this->getEventSurveyCustomField($custom_field_category['id']);
 
-                     $custom_field_category['event'] = $this->getEventById($custom_field_category['id']);
+                    $custom_field_category['event'] = $this->getEventById($custom_field_category['id']);
                 }
                 return $custom_field_category;
             } catch (\PDOException $e) {
@@ -100,7 +100,7 @@ class EventSurveyCustomFieldCategoryModel extends BaseModel
 
         return [];
     }
-    
+
 
     // カスタムフィールドカテゴリ区分IDに基づいてフィールド情報を取得
     private function getEventSurveyCustomField($id)

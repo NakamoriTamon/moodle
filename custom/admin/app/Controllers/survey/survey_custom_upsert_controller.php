@@ -15,10 +15,10 @@ $item_names = $_POST['item_name'] ?? null;
 $field_types = $_POST['field_type'] ?? null;
 $event_survey_customfield_ids = $_POST['event_survey_customfield_id'] ?? [];
 
-global $DB, $CFG;
+global $DB, $CFG, $USER;
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']) || empty($USER->id)) {
             $_SESSION['message_error'] = '登録に失敗しました';
             if ($id) {
                 header('Location: /custom/admin/app/Views/survey/custom_upsert.php?id=' . $id);
@@ -53,12 +53,13 @@ try {
         $survey_customfield_category->name = $name;
         $survey_customfield_category->created_at = date('Y-m-d H:i:s');
         $survey_customfield_category->updated_at = date('Y-m-d H:i:s');
-        $id = $DB->insert_record('event_survey_customfield_category', $survey_customfield_category);
+        $survey_customfield_category->fk_user_id = $USER->id;
+        $id = $DB->insert_record_raw('event_survey_customfield_category', $survey_customfield_category);
     } else {
         $survey_customfield_category->id = $id;
         $survey_customfield_category->name = $name;
         $survey_customfield_category->updated_at = date('Y-m-d H:i:s');
-        $DB->update_record('event_survey_customfield_category', $survey_customfield_category);
+        $DB->update_record_raw('event_survey_customfield_category', $survey_customfield_category);
     }
 
     $survey_customfield_list = $DB->get_records(
