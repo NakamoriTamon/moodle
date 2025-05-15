@@ -54,6 +54,7 @@ class SurveyApplicationController
         $event_id = $event_application->event_id;
         $event = $this->eventModel->getEventById($event_id);
         $event_survey_customfield_category_id = $event['event_survey_customfield_category_id'];
+        $department = $event['department'];
 
         $passage = '';
         if(!empty($event_survey_customfield_category_id)) {
@@ -123,7 +124,8 @@ class SurveyApplicationController
             'passage' => $passage,
             'data' => $event_application,
             'exist' => $survey_application,
-            'event_survey_customfield_category_id' => $event_survey_customfield_category_id
+            'event_survey_customfield_category_id' => $event_survey_customfield_category_id,
+            'department' => $department
         ];
     }
 }

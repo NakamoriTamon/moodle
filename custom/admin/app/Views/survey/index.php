@@ -25,6 +25,8 @@ $total_count = $result_list['total_count'];
 $per_page = $result_list['per_page'];
 $current_page = $result_list['current_page'];
 $page = $result_list['page'];
+$department = $result_list['department'];
+$is_single = $result_list['is_single'];
 
 $current_page = max(1, (int)$current_page);
 $page         = max(1, (int)$page);
@@ -97,7 +99,7 @@ $page         = max(1, (int)$page);
 								<div class="sp-ms-0 ms-3 mb-3 w-100">
 									<label class="form-label" for="notyf-message">回数</label>
 									<div class="d-flex align-items-center">
-										<select name="course_no" class="form-control w-100" <?= $result_list['is_single'] ? 'disabled' : '' ?>>
+										<select name="course_no" class="form-control w-100" <?= $is_single ? 'disabled' : '' ?>>
 											<option value="">未選択</option>
 											<?php foreach ($course_list as $course) { ?>
 												<option value=<?= $course['no'] ?>
@@ -140,32 +142,30 @@ $page         = max(1, (int)$page);
 										<tr>
 											<th class="w-25 p-4">回答時間</th>
 											<th class="w-25 p-4">回数</th>
-											<th class="w-25 p-4">本日の講義内容について、ご意見・ご感想をお書きください</th>
-											<th class="w-25 p-4">今までに大阪大学公開講座のプログラムに参加されたことはありますか </th>
-											<th class="w-25 p-4">本日のプログラムをどのようにしてお知りになりましたか</th>
+											<th class="w-25 p-4">本日のイベントについて、ご意見・ご感想をお書きください</th>
+											<th class="w-25 p-4">今までに大阪大学<?php echo htmlspecialchars($department) ?>主催のイベントに参加されたことはありますか </th>
+											<th class="w-25 p-4">本日のイベントをどのようにしてお知りになりましたか</th>
 											<th class="w-25 p-4">その他 </th>
-											<th class="w-25 p-4">本日のテーマを受講した理由は何ですか </th>
+											<th class="w-25 p-4">本日のイベントに参加した理由は何ですか </th>
 											<th class="w-25 p-4">その他</th>
-											<th class="w-25 p-4">本日のプログラムの満足度について、あてはまるもの1つをお選びください</th>
-											<th class="w-25 p-4">本日のプログラムの理解度について、あてはまるもの1つをお選びください </th>
+											<th class="w-25 p-4">本日のイベントの満足度について、あてはまるもの1つをお選びください</th>
 											<th class="w-25 p-4">
-												本日のプログラムで特に良かった点について教えてください。いかに当てはまるもの
+												本日のイベントで特に良かった点について教えてください。以下に当てはまるもの
 												があれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述し
 												てください
 											</th>
 											<th class="w-25 p-4">その他</th>
-											<th class="w-25 p-4">本日のプログラムの開催時間<?= !empty($survey_period) ? '(' . $survey_period . '分)' : '' ?>についてあてはまるものを1つお選びください </th>
 											<th class="w-25 p-4">
-												本日のプログラムの開催環境について、あてはまるものを１つお選びください。
+												（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。
 												※「あまり快適ではなかった」「全く快適ではなかった」と回答された方は次の
 												質問にその理由を教えてください
 											</th>
 											<th class="w-25 p-4">「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。</th>
-											<th class="w-25 p-4">今後の大阪大学公開講座で、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
-											<th class="w-25 p-4">話を聞いてみたい大阪大学の教員や研究者がいれば、具体的にご提案ください</th>
-											<th class="w-25 p-4">ご職業等を教えてください</th>
-											<th class="w-25 p-4">性別をご回答ください</th>
-											<th class="w-25 p-4">お住いの地域を教えてください（〇〇県△△市のようにご回答ください</th>
+											<th class="w-25 p-4">今後の大阪大学<?php echo htmlspecialchars($department) ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
+											<th class="w-25 p-4">年代を教えて下さい</th>
+											<th class="w-25 p-4">ご職業や学生区分を教えてください</th>
+											<th class="w-25 p-4">性別を教えてください</th>
+											<th class="w-25 p-4">お住いの地域を教えてください</th>
 											<?php foreach ($survey_field_list as $survey_field): ?>
 												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
 											<?php endforeach; ?>
@@ -209,19 +209,15 @@ $page         = max(1, (int)$page);
 													<?= htmlspecialchars(SATISFACTION_LIST[$survey['satisfaction']] ?? '') ?>
 												</td>
 												<td class="p-4">
-													<?= htmlspecialchars(UNDERSTANDING_LIST[$survey['understanding']] ?? '') ?>
-												</td>
-												<td class="p-4">
 													<?= htmlspecialchars(GOOD_POINT_LIST[$survey['good_point']] ?? '') ?>
 												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['other_good_point'] ?? '') ?></td>
-												<td class="p-4"><?= htmlspecialchars(TIME_LIST[$survey['time']] ?? '') ?></td>
 												<td class="p-4">
 													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] ?? '') ?>
 												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['no_good_environment_reason'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions'] ?? '') ?></td>
-												<td class="p-4"><?= htmlspecialchars($survey['speaker_suggestions'] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars(AGE_LIST[$survey['age']] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']] ?? '') ?></td>
 												<td class="p-4">

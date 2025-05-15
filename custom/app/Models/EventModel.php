@@ -101,12 +101,14 @@ class EventModel extends BaseModel
                                 ) THEN 3 -- 受付終了
 
                                 ELSE 0
-                            END AS deadline_status
+                            END AS deadline_status,
+                            user.department
                         FROM mdl_event e
                         LEFT JOIN event_dates ed ON e.id = ed.event_id
                     LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
                     LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
-                    LEFT JOIN mdl_event_application ea ON ea.event_id = e.id';
+                    LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
+                    LEFT JOIN mdl_user user ON user.id = e.userid';
 
                 $where = ' WHERE e.visible = 1';
                 $groupBy = ' GROUP BY e.id';
@@ -799,12 +801,14 @@ class EventModel extends BaseModel
                                 ) THEN 3 -- 受付終了
 
                                 ELSE 0
-                            END AS deadline_status
+                            END AS deadline_status,
+                            user.department
                         FROM mdl_event e
                         LEFT JOIN event_dates ed ON e.id = ed.event_id
                     LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
                     LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
                     LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
+                    LEFT JOIN mdl_user user ON user.id = e.userid
                     WHERE e.visible = 1 AND e.id = :id
                     GROUP BY e.id
                     ORDER BY MIN(ci.course_date) ASC';

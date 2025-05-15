@@ -44,6 +44,8 @@ class SurveyController
         $_SESSION['old_input'] = $_POST;
         $userid = $USER->id;
 
+        $department = "";
+
         // ページネーション
         $per_page = 15;
         if (!empty($page) && is_numeric($page) && (int)$page > 0) {
@@ -103,6 +105,7 @@ class SurveyController
         if (!empty($event_id)) {
             foreach ($event_list as $event) {
                 $event_survey_customfield_category_id = $event['event_survey_customfield_category_id'];
+                $department = $event['department'];
                 // 単発イベントの場合
                 if ($event['event_kbn'] == SINGLE_EVENT) {
                     foreach ($event['course_infos'] as $course_info) {
@@ -178,7 +181,8 @@ class SurveyController
             'page' => $current_page,
             'survey_period' => $survey_period,
             'survey_field_list' => $survey_field_list,
-            'course_list' => $course_list
+            'course_list' => $course_list,
+            'department' => $department
         ];
 
         return $data;

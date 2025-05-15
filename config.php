@@ -304,7 +304,7 @@ $found_method_list = [
 define('FOUND_METHOD_LIST', $found_method_list);
 // 本日のテーマを受講した理由は何ですか
 $reason_list = [
-  1 => 'テーマに関心があったから',
+  1 => 'テーマに講師があったから',
   2 => '本日のプログラム内容に関心があったから',
   3 => '本日のゲストに関心があったから',
   4 => '大阪大学のプログラムに参加したかったから',
@@ -358,6 +358,13 @@ $holding_environment_list = [
   5 => '全く快適ではなかった',
 ];
 define('HOLDING_ENVIRONMENT_LIST', $holding_environment_list);
+// 年代を教えて下さい
+$age_list = [
+  1 => '20歳未満',
+  2 => '20歳台',
+  3 => '30歳以上'
+];
+define('AGE_LIST', $age_list);
 // ご職業等を教えてください
 $work_list = [
   1 => '高校生以下',

@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $time            = sanitize_post_int('time');
     $holdingEnviroment = sanitize_post_int('holding_enviroment');
     $sex             = sanitize_post_int('sex');
+    $age             = sanitize_post_int('age');
 
     $otherGoodPoint      = sanitize_post('other_good_point');
     $noGoodEnviromentReason  = sanitize_post('no_good_enviroment_reason');
@@ -204,6 +205,7 @@ try {
     $record->speaker_suggestions = $speakerSuggestions;
     $record->work = $work;
     $record->sex = $sex;
+    $record->age = $age;
     $record->address = $address;
     $record->prefectures = $prefectures;
 

@@ -53,24 +53,22 @@ try {
     $csv_list[] = [
         '回答時間',
         '回数',
-        '本日の講義内容について、ご意見・ご感想をお書きください',
-        '今までに大阪大学公開講座のプログラムに参加されたことはありますか',
-        '本日のプログラムをどのようにしてお知りになりましたか',
+        '本日のイベントについて、ご意見・ご感想をお書きください',
+        '今までに大阪大学' . $event['department'] . '主催のイベントに参加されたことはありますか',
+        '本日のイベントをどのようにしてお知りになりましたか',
         'その他',
-        '本日のテーマを受講した理由は何ですか',
+        '本日のイベントに参加した理由は何ですか',
         'その他',
-        '本日のプログラムの満足度について、あてはまるもの1つをお選びください',
-        '本日のプログラムの理解度について、あてはまるもの1つをお選びください',
-        '本日のプログラムで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
+        '本日のイベントの満足度について、あてはまるもの1つをお選びください',
+        '本日のイベントで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
         'その他',
-        '本日のプログラムの開催時間(' . $survey_period . '分)についてあてはまるものを1つお選びください',
-        '本日のプログラムの開催環境について、あてはまるものを１つお選びください。',
+        '（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。',
         '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
-        '今後の大阪大学公開講座で、希望するジャンルやテーマ、話題があれば、ご提案ください',
-        '話を聞いてみたい大阪大学の教員や研究者がいれば、具体的にご提案ください',
+        '今後の大阪大学' . $event['department'] . '主催で、希望するジャンルやテーマ、話題があれば、ご提案ください',
+        '年代を教えて下さい',
         'ご職業等を教えてください',
         '性別をご回答ください',
-        'お住いの地域を教えてください（〇〇県△△市のようにご回答ください'
+        'お住いの地域を教えてください'
     ];
 
     foreach ($survey_field_list as $field) {
@@ -101,10 +99,9 @@ try {
         }
 
         $satisfaction           = !empty(SATISFACTION_LIST[$survey['satisfaction']]) ? SATISFACTION_LIST[$survey['satisfaction']] : '';
-        $understanding          = !empty(UNDERSTANDING_LIST[$survey['understanding']]) ? UNDERSTANDING_LIST[$survey['understanding']] : '';
         $good_point             = !empty(GOOD_POINT_LIST[$survey['good_point']]) ? GOOD_POINT_LIST[$survey['good_point']] : '';
-        $time                   = !empty(TIME_LIST[$survey['time']]) ? TIME_LIST[$survey['time']] : '';
         $holding_environment    = !empty(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]) ? HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] : '';
+        $age                    = !empty(AGE_LIST[$survey['age']]) ? AGE_LIST[$survey['age']] : '';
         $work                   = !empty(WORK_LIST[$survey['work']]) ? WORK_LIST[$survey['work']] : '';
         $sex                    = !empty(SEX_LIST[$survey['sex']]) ? SEX_LIST[$survey['sex']] : '';
         $address_combined       = ($survey['prefectures'] ?? '') . ($survey['address'] ?? '');
@@ -131,14 +128,12 @@ try {
             $reason,
             $survey['other_reason'] ?? '',
             $satisfaction,
-            $understanding,
             $good_point,
             $survey['other_good_point'] ?? '',
-            $time,
             $holding_environment,
             $survey['no_good_environment_reason'] ?? '',
             $survey['lecture_suggestions'] ?? '',
-            $survey['speaker_suggestions'] ?? '',
+            $age,
             $work,
             $sex,
             $address_combined

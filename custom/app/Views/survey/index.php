@@ -24,6 +24,7 @@ $formdata = isset($old_input['survey_params']) ? $old_input['survey_params'] : n
 $surveyApplicationController = new SurveyApplicationController();
 $surveys = $surveyApplicationController->surveys($course_info_id, $formdata);
 $event = $surveys['data'];
+$department = $surveys['department'];
 $passage = $surveys['passage'];
 $event_survey_customfield_category_id = $surveys['event_survey_customfield_category_id'];
 
@@ -65,14 +66,14 @@ $event_kbn = $event->event_kbn;
                 <div class="form_block form01">
                     <ul class="list">
                         <li>
-                            <h4 class="sub_ttl">本日の講義内容について、ご意見・ご感想をお書きください。</h4>
+                            <h4 class="sub_ttl">本日のイベントについて、ご意見・ご感想をお書きください。</h4>
                             <div class="list_field f_txtarea">
                                 <textarea name="impression"><?php echo htmlspecialchars($old_input['impression'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                今までに大阪大学公開講座のプログラムに参加されたことはありますか
+                                今までに大阪大学<?php echo htmlspecialchars($department ?? '', ENT_QUOTES, 'UTF-8'); ?>主催のイベントに参加されたことはありますか
                             </h4>
                             <div class="list_field f_radio">
                                 <label>
@@ -98,7 +99,7 @@ $event_kbn = $event->event_kbn;
                     <ul class="list">
                         <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムをどのようにしてお知りになりましたか。
+                                本日のイベントをどのようにしてお知りになりましたか。
                                 <span class="comment">※複数回答可</span>
                             </h4>
                             <div class="list_field f_check">
@@ -119,7 +120,8 @@ $event_kbn = $event->event_kbn;
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="3" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('3', $old_input['found_method'])) echo 'checked'; ?>>
-                                        大阪大学公開講座「知の広場」からのメール
+                                        メールマガジン
+                                        <span class="comment">※「その他」の欄にどこでご覧になったか具体的にご記載ください</span>
                                     </label>
                                 </div>
                                 <div class="check_item">
@@ -128,12 +130,12 @@ $event_kbn = $event->event_kbn;
                                         SNS（X, Instagram, Facebookなど）
                                     </label>
                                 </div>
-                                <div class="check_item">
+                                <!-- <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="5" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('5', $old_input['found_method'])) echo 'checked'; ?>>
                                         21世紀懐徳堂からのメールマガジン
                                     </label>
-                                </div>
+                                </div> -->
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="6" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('6', $old_input['found_method'])) echo 'checked'; ?>>
@@ -146,12 +148,12 @@ $event_kbn = $event->event_kbn;
                                         大阪大学入試課からのメール
                                     </label>
                                 </div>
-                                <div class="check_item">
+                                <!-- <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="8" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('8', $old_input['found_method'])) echo 'checked'; ?>>
                                         Peatixからのメール
                                     </label>
-                                </div>
+                                </div> -->
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="9" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('9', $old_input['found_method'])) echo 'checked'; ?>>
@@ -170,12 +172,12 @@ $event_kbn = $event->event_kbn;
                                         自治体の広報・掲示
                                     </label>
                                 </div>
-                                <div class="check_item">
+                                <!-- <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="found_method[]" value="12" <?php if (isset($old_input['found_method']) && is_array($old_input['found_method']) && in_array('12', $old_input['found_method'])) echo 'checked'; ?>>
                                         スマートニュース広告
                                     </label>
-                                </div>
+                                </div> -->
                                 <div class="other_item">
                                     <label> その他 </label>
                                     <input type="text" name="other_found_method" value="<?php echo htmlspecialchars($old_input['other_found_method'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
@@ -189,11 +191,11 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                本日のテーマを受講した理由は何ですか？
+                                本日のイベントに参加した理由は何ですか？
                                 <span class="comment">※複数回答可</span>
                             </h4>
                             <div class="list_field f_check">
-                                <div class="check_item">
+                                <!-- <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="reason[]" value="1" <?php if (isset($old_input['reason']) && is_array($old_input['reason']) && in_array('1', $old_input['reason'])) echo 'checked'; ?>>
                                         テーマに関心があったから
@@ -202,19 +204,19 @@ $event_kbn = $event->event_kbn;
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="reason[]" value="2" <?php if (isset($old_input['reason']) && is_array($old_input['reason']) && in_array('2', $old_input['reason'])) echo 'checked'; ?>>
-                                        本日のプログラム内容に関心があったから
+                                        本日のイベント内容に関心があったから
                                     </label>
-                                </div>
+                                </div> -->
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="reason[]" value="3" <?php if (isset($old_input['reason']) && is_array($old_input['reason']) && in_array('3', $old_input['reason'])) echo 'checked'; ?>>
-                                        本日のゲストに関心があったから
+                                        本日の講師に関心があったから
                                     </label>
                                 </div>
                                 <div class="check_item">
                                     <label>
                                         <input type="checkbox" name="reason[]" value="4" <?php if (isset($old_input['reason']) && is_array($old_input['reason']) && in_array('4', $old_input['reason'])) echo 'checked'; ?>>
-                                        大阪大学のプログラムに参加したかったから
+                                        大阪大学のイベントに参加したかったから
                                     </label>
                                 </div>
                                 <div class="check_item">
@@ -254,7 +256,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムの満足度について、あてはまるもの1つをお選びください。
+                                本日のイベントの満足度について、あてはまるもの1つをお選びください。
                             </h4>
                             <div class="list_field f_radio">
                                 <label>
@@ -284,9 +286,9 @@ $event_kbn = $event->event_kbn;
                                 </div>
                             <?php endif; ?>
                         </li>
-                        <li>
+                        <!-- <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムの理解度について、あてはまるもの1つをお選びください。
+                                本日のイベントの理解度について、あてはまるもの1つをお選びください。
                             </h4>
                             <div class="list_field f_radio">
                                 <label>
@@ -315,19 +317,19 @@ $event_kbn = $event->event_kbn;
                                     <?= htmlspecialchars($errors['understanding']); ?>
                                 </div>
                             <?php endif; ?>
-                        </li>
+                        </li> -->
                         <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムで特に良かった点について教えてください。<br />
+                                本日のイベントで特に良かった点について教えてください。<br />
                                 以下にあてはまるものがあれば、一つお選びください。あてはまるものがなければ、「その他」の欄に記述してください。
                             </h4>
                             <div class="list_field f_check">
-                                <div class="check_item">
+                                <!-- <div class="check_item">
                                     <label>
                                         <input type="radio" name="good_point" value="1" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '1') echo 'checked'; ?>>
                                         テーマについて考えを深めることができた
                                     </label>
-                                </div>
+                                </div> -->
                                 <div class="check_item">
                                     <label>
                                         <input type="radio" name="good_point" value="2" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '2') echo 'checked'; ?>>
@@ -369,9 +371,9 @@ $event_kbn = $event->event_kbn;
                                 </div>
                             <?php endif; ?>
                         </li>
-                        <li>
+                        <!-- <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムの開催時間(<?= htmlspecialchars($diffMinutes); ?>分)について、あてはまるもの1つをお選びください。
+                                本日のイベントの開催時間(<?= htmlspecialchars($diffMinutes); ?>分)について、あてはまるもの1つをお選びください。
                             </h4>
                             <div class="list_field f_radio">
                                 <label>
@@ -392,10 +394,10 @@ $event_kbn = $event->event_kbn;
                                     <?= htmlspecialchars($errors['time']); ?>
                                 </div>
                             <?php endif; ?>
-                        </li>
+                        </li> -->
                         <li>
                             <h4 class="sub_ttl">
-                                本日のプログラムの開催環境について、あてはまるものを１つお選びください。
+                                （会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。
                                 <span class="comment">※「あまり快適ではなかった」「全く快適ではなかった」と回答された方は次の質問にその理由を教えてください。</span>
                             </h4>
                             <div class="list_field f_radio">
@@ -428,7 +430,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                【問9】で「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。
+                                【問7】で「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。
                             </h4>
                             <div class="list_field f_txtarea">
                                 <textarea name="no_good_enviroment_reason" row="20px"><?php echo htmlspecialchars($old_input['no_good_enviroment_reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
@@ -441,7 +443,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                今後の大阪大学公開講座で希望するジャンルやテーマや話題があればご提案ください。
+                                今後の大阪大学<?php echo htmlspecialchars($department ?? '', ENT_QUOTES, 'UTF-8'); ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください。
                             </h4>
                             <div class="list_field f_txtarea">
                                 <textarea name="lecture_suggestions" row="20px"><?php echo htmlspecialchars($old_input['lecture_suggestions'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
@@ -452,7 +454,7 @@ $event_kbn = $event->event_kbn;
                                 </div>
                             <?php endif; ?>
                         </li>
-                        <li>
+                        <!-- <li>
                             <h4 class="sub_ttl">
                                 話を聞いてみたい大阪大学の教員や研究者がいれば、具体的にご提案ください。
                             </h4>
@@ -464,16 +466,33 @@ $event_kbn = $event->event_kbn;
                                     <?= htmlspecialchars($errors['speaker_suggestions']); ?>
                                 </div>
                             <?php endif; ?>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
                 <div class="form_block form03">
                     <p class="red">
-                        <span>以下、差し支えなければご回答ください。</span>
+                        <span>以下の質問について、差し支えない範囲でご回答ください。(任意)</span>
                     </p>
                     <ul class="list">
                         <li>
-                            <h4 class="sub_ttl">ご職業等を教えてください。</h4>
+                            <h4 class="sub_ttl">年代を教えて下さい。</h4>
+                            <div class="list_field f_radio">
+                                <label>
+                                    <input type="radio" name="age" value="1" <?php if (isset($old_input['age']) && $old_input['age'] === '1') echo 'checked'; ?>>
+                                    20歳未満
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="2" <?php if (isset($old_input['age']) && $old_input['age'] === '2') echo 'checked'; ?>>
+                                    20歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="3" <?php if (isset($old_input['age']) && $old_input['age'] === '3') echo 'checked'; ?>>
+                                    30歳以上
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <h4 class="sub_ttl">ご職業や学生区分を教えてください。</h4>
                             <div class="list_field f_radio">
                                 <label>
                                     <input type="radio" name="work" value="1" <?php if (isset($old_input['work']) && $old_input['work'] === '1') echo 'checked'; ?>>
@@ -518,7 +537,7 @@ $event_kbn = $event->event_kbn;
                             </div>
                         </li>
                         <li>
-                            <h4 class="sub_ttl">性別をご回答ください。</h4>
+                            <h4 class="sub_ttl">性別を教えてください。</h4>
                             <div class="list_field f_radio">
                                 <label>
                                     <input type="radio" name="sex" value="1" <?php if (isset($old_input['sex']) && $old_input['sex'] === '1') echo 'checked'; ?>>
@@ -537,7 +556,7 @@ $event_kbn = $event->event_kbn;
                         <li>
                             <h4 class="sub_ttl">
                                 お住いの地域を教えてください。
-                                <span class="comment">※〇〇県△△市のようにご回答ください</span>
+                                <span class="comment">※〇〇県△△市のようにご回答ください（例：大阪府豊中市）。</span>
                             </h4>
                             <div class="list_field f_area">
                                 <div class="area_item01">
