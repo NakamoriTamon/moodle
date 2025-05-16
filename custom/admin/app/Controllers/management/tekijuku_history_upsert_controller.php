@@ -46,11 +46,8 @@ try {
     echo 'OK';
 } catch (Exception $e) {
     try {
-        var_dump($e);
-        die();
+        error_log($e);
         $transaction->rollback($e);
-        var_dump($e);
-        die();
     } catch (Exception $rollbackException) {
         echo 'NG';
         exit;

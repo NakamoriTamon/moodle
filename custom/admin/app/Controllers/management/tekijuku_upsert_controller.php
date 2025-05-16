@@ -249,8 +249,6 @@ try {
     exit;
 } catch (Exception $e) {
     try {
-        var_dump($e);
-        die();
         $transaction->rollback($e);
     } catch (Exception $rollbackException) {
         $_SESSION['message_error'] = '登録に失敗しました';
