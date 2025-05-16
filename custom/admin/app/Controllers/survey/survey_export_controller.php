@@ -30,7 +30,6 @@ try {
             if (!empty($course_info_id)) {
                 $name      = $survey['event']['name'];
                 $no        = $survey['course_info']['no'];
-                $path_name = '第' . $no . '回_' . $name;
             } else {
                 $path_name = $survey['event']['name'];
             }
@@ -49,34 +48,47 @@ try {
         );
     }
 
-    $csv_list   = [];
-    $csv_list[] = [
-        '回答時間',
-        '回数',
-        '本日のイベントについて、ご意見・ご感想をお書きください',
-        '今までに大阪大学' . $event['department'] . '主催のイベントに参加されたことはありますか',
-        '本日のイベントをどのようにしてお知りになりましたか',
-        'その他',
-        '本日のイベントに参加した理由は何ですか',
-        'その他',
-        '本日のイベントの満足度について、あてはまるもの1つをお選びください',
-        '本日のイベントで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
-        'その他',
-        '（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。',
-        '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
-        '今後の大阪大学' . $event['department'] . '主催で、希望するジャンルやテーマ、話題があれば、ご提案ください',
-        '年代を教えて下さい',
-        'ご職業等を教えてください',
-        '性別をご回答ください',
-        'お住いの地域を教えてください'
-    ];
+    $is_disp_no = false;
+    if (!empty($event['event_kbn']) && $event['event_kbn'] == PLURAL_EVENT) {
+        $is_disp_no = true;
+        $path_name = '第' . $no . '回_' . $name;
+    } else {
+        $path_name = $name;
+    }
 
+    $header[] = '回答時間';
+    if ($is_disp_count) {
+        $header[] = '回数';
+    }
+
+    $header = array_merge(
+        $header,
+        [
+            '本日のイベントについて、ご意見・ご感想をお書きください',
+            '今までに大阪大学 [ ' . $event['department'] . ' ]主催のイベントに参加されたことはありますか',
+            '本日のイベントをどのようにしてお知りになりましたか',
+            'その他',
+            '本日のイベントに参加した理由は何ですか',
+            'その他',
+            '本日のイベントの満足度について、あてはまるもの1つをお選びください',
+            '本日のイベントで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
+            'その他',
+            '（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。',
+            '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
+            '今後の大阪大学 [ ' . $event['department'] . ' ] 主催で、希望するジャンルやテーマ、話題があれば、ご提案ください',
+            '年代を教えて下さい',
+            'ご職業や学生区分を教えてください',
+            '性別を教えてください',
+            'お住まいの地域を教えてください'
+        ]
+    );
+
+    $csv_list[] = $header;
     foreach ($survey_field_list as $field) {
         $csv_list[0][] = $field['name'];
     }
 
     $count = 1;
-
     foreach ($survey_list as $survey) {
         $start         = strtotime($survey['event']["start_hour"]);
         $end           = strtotime($survey['event']["end_hour"]);
@@ -118,9 +130,17 @@ try {
             }
         }
 
-        $csv_array = [
-            $survey['created_at'],
-            '第' . $survey['course_info']['no'] . '回' ?? '',
+        $dt = new DateTime($survey['created_at']);
+        $dt->modify('+9 hours');
+        $created_at = $dt->format('Y-m-d H:i:s');
+
+        $csv_array = [];
+        $csv_array[] = $created_at;
+        if ($is_disp_count && isset($survey['course_info']['no'])) {
+            $csv_array[] = '第' . $survey['course_info']['no'] . '回';
+        }
+
+        $csv_array = array_merge($csv_array, [
             $survey['thoughts'] ?? '',
             $attend,
             $found_method,
@@ -137,12 +157,11 @@ try {
             $work,
             $sex,
             $address_combined
-        ];
+        ]);
 
         foreach ($survey_field_list as $field) {
             $fieldId   = $field['id'];
             $fieldData = '';
-
             if (isset($customValueMap[$fieldId])) {
                 $fieldType = $customValueMap[$fieldId]['field_type'];
                 $inputData = $customValueMap[$fieldId]['input_data'];

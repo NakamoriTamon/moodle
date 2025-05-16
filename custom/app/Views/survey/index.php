@@ -430,7 +430,7 @@ $event_kbn = $event->event_kbn;
                                     教職員
                                 </label>
                                 <label>
-                                    <input type="radio" name="work" value="10" <?php if (isset($old_input['work']) && $old_input['work'] === '7') echo 'checked'; ?>>
+                                    <input type="radio" name="work" value="7" <?php if (isset($old_input['work']) && $old_input['work'] === '7') echo 'checked'; ?>>
                                     無職
                                 </label>
                             </div>
@@ -454,7 +454,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                お住いの地域を教えてください。
+                                お住まいの地域を教えてください。
                                 <span class="comment">※〇〇県△△市のようにご回答ください（例：大阪府豊中市）。</span>
                             </h4>
                             <div class="list_field f_area">

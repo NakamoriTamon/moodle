@@ -27,6 +27,7 @@ $current_page = $result_list['current_page'];
 $page = $result_list['page'];
 $department = $result_list['department'];
 $is_single = $result_list['is_single'];
+$is_disp_no = $result_list['is_disp_no'];
 
 $current_page = max(1, (int)$current_page);
 $page         = max(1, (int)$page);
@@ -141,9 +142,9 @@ $page         = max(1, (int)$page);
 									<thead>
 										<tr>
 											<th class="w-25 p-4">回答時間</th>
-											<th class="w-25 p-4">回数</th>
+											<?php if ($is_disp_no) { ?><th class="w-25 p-4">回数</th><?php } ?>
 											<th class="w-25 p-4">本日のイベントについて、ご意見・ご感想をお書きください</th>
-											<th class="w-25 p-4">今までに大阪大学<?php echo htmlspecialchars($department) ?>主催のイベントに参加されたことはありますか </th>
+											<th class="w-25 p-4">今までに大阪大学<?php echo htmlspecialchars(' [ ' . $department . ' ] ') ?>主催のイベントに参加されたことはありますか </th>
 											<th class="w-25 p-4">本日のイベントをどのようにしてお知りになりましたか</th>
 											<th class="w-25 p-4">その他 </th>
 											<th class="w-25 p-4">本日のイベントに参加した理由は何ですか </th>
@@ -161,11 +162,11 @@ $page         = max(1, (int)$page);
 												質問にその理由を教えてください
 											</th>
 											<th class="w-25 p-4">「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。</th>
-											<th class="w-25 p-4">今後の大阪大学<?php echo htmlspecialchars($department) ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
+											<th class="w-25 p-4">今後の大阪大学<?php echo htmlspecialchars(' [ ' . $department . ' ] ') ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
 											<th class="w-25 p-4">年代を教えて下さい</th>
 											<th class="w-25 p-4">ご職業や学生区分を教えてください</th>
 											<th class="w-25 p-4">性別を教えてください</th>
-											<th class="w-25 p-4">お住いの地域を教えてください</th>
+											<th class="w-25 p-4">お住まいの地域を教えてください</th>
 											<?php foreach ($survey_field_list as $survey_field): ?>
 												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
 											<?php endforeach; ?>
@@ -179,8 +180,10 @@ $page         = max(1, (int)$page);
 											$satisfaction_num_list = array_map('trim', explode(",", $survey['satisfaction'] ?? ""));
 											?>
 											<tr>
-												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime($survey['created_at'] ?? ''))) ?></td>
-												<td class="p-4"><?= '第' . htmlspecialchars($survey['course_info']['no'] ?? '') . '回' ?></td>
+												<td class="p-4"><?= htmlspecialchars(date("Y/n/j H:i", strtotime('+9 hours', strtotime($survey['created_at'] ?? '')))) ?></td>
+												<?php if ($is_disp_no) { ?>
+													<td class="p-4"><?= '第' . htmlspecialchars($survey['course_info']['no'] ?? '') . '回' ?></td>
+												<?php } ?>
 												<td class="p-4"><?= htmlspecialchars($survey['thoughts'] ?? '') ?></td>
 												<td class="p-4">
 													<?= htmlspecialchars(DECISION_LIST[$survey['attend']] ?? '') ?>

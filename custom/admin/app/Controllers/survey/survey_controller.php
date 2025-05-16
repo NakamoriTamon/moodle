@@ -93,7 +93,8 @@ class SurveyController
         $event_list = $this->eventModel->getEvents($filters, 1, 100000); // イベント名選択用
         $select_event_list = $this->eventModel->getEvents([
             'userid' => $userid,
-            'shortname' => $shortname], 1, 100000); // イベント名選択用
+            'shortname' => $shortname
+        ], 1, 100000); // イベント名選択用
 
         $is_display = false;
         $is_single = false;
@@ -102,6 +103,7 @@ class SurveyController
         $course_list = [];
 
         // イベント情報を特定する
+        $is_disp_no = false;
         if (!empty($event_id)) {
             foreach ($event_list as $event) {
                 $event_survey_customfield_category_id = $event['event_survey_customfield_category_id'];
@@ -119,7 +121,8 @@ class SurveyController
                 // 複数回イベントの場合
                 if ($event['event_kbn'] == PLURAL_EVENT) {
                     $course_list = $event['course_infos'];
-                    if(!empty($course_no)) {
+                    $is_disp_no = true;
+                    if (!empty($course_no)) {
                         foreach ($event['course_infos'] as $course_info) {
                             if ($course_info['no'] == $course_no) {
                                 $course_info_id = $course_info['id'];
@@ -182,7 +185,8 @@ class SurveyController
             'survey_period' => $survey_period,
             'survey_field_list' => $survey_field_list,
             'course_list' => $course_list,
-            'department' => $department
+            'department' => $department,
+            'is_disp_no' => $is_disp_no
         ];
 
         return $data;
