@@ -85,7 +85,7 @@ $isTekijukuCommemorationMember = $tekijuku_index_controller->isTekijukuCommemora
                 <p class="sent">
                     入会いただいた方には、デジタル会員証を発行いたします（紙での発行はございません）。<br />
                     入会された当該年度（３月末まで）有効で、適塾の受付でご提示いただくと、適塾（「適塾特別展示」を含む）を何度でもご参観いただけます。<br />
-                    なお、デジタル会員証は、紙に印刷したものやスクリーンショットでもご参観いただけます。
+                    なお、デジタル会員証は、紙に印刷したものやスクリーンショットをご提示いただいてもご参観いただけます。
                 </p>
             </div>
             <div class="juku_block membership">
