@@ -137,29 +137,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $found_method_error              = validate_other_input($foundMethod, $otherFoundMethod);
         $reason_error                    = validate_other_input($reason, $otherReason);
         $satisfaction_error              = validate_input($satisfaction);
-        $understanding_error             = validate_input($understanding);
         $good_point_error                = validate_other_input($goodPoint, $otherGoodPoint);
-        $time_error                      = validate_input($time);
         $holding_enviroment_error        = validate_input($holdingEnviroment);
         $no_good_enviroment_reason_error = validate_other_input($holdingEnviroment, $noGoodEnviromentReason);
         $lecture_suggestions_error       = validate_text_input($lectureSuggestions);
-        $speaker_suggestions_error       = validate_text_input($speakerSuggestions);
 
         if (
-            $found_method_error || $reason_error || $satisfaction_error || $understanding_error || $good_point_error ||
-            $time_error || $holding_enviroment_error || $no_good_enviroment_reason_error || $lecture_suggestions_error || $speaker_suggestions_error
+            $found_method_error || $reason_error || $satisfaction_error || $good_point_error ||
+            $time_error || $holding_enviroment_error || $no_good_enviroment_reason_error || $lecture_suggestions_error
         ) {
             $_SESSION['errors'] = [
                 'found_method'              => $found_method_error,
                 'reason'                    => $reason_error,
                 'satisfaction'              => $satisfaction_error,
-                'understanding'             => $understanding_error,
                 'good_point'                => $good_point_error,
-                'time'                      => $time_error,
                 'holding_enviroment'        => $holding_enviroment_error,
                 'no_good_enviroment_reason' => $no_good_enviroment_reason_error,
                 'lecture_suggestions'       => $lecture_suggestions_error,
-                'speaker_suggestions'       => $speaker_suggestions_error,
             ];
             $_SESSION['old_input'] = $_POST;
             $_SESSION['old_input']['survey_params'] = $params;
@@ -211,7 +205,7 @@ try {
 
     $surveyApplicationId = $DB->insert_record_raw('survey_application', $record, true);
 
-    
+
     // アンケートカスタムフィールドがある場合
     if (!empty($eventSurveyCustomfieldCategoryId)) {
         foreach ($fieldInputDataList as $fieldInputData) {
@@ -230,10 +224,8 @@ try {
     header("Location: /custom/app/Views/survey/complete.php");
     exit;
 } catch (Exception $e) {
-    // トランザクションが開始されていればロールバック
-    if (isset($transaction)) {
-        $transaction->rollback($e);
-    }
+    error_log('アンケート回答エラー :' . $e);
+    $transaction->rollback($e);
     $_SESSION['old_input'] = $_POST;
     $_SESSION['message_error'] = '登録に失敗しました';
     header("Location: /custom/app/Views/survey/index.php");
