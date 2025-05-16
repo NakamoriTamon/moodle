@@ -163,9 +163,27 @@ class EventRegistrationController
             return $a['course_info']['no'] <=> $b['course_info']['no'];
         });
 
+        // カスタムフィールド情報取得
+        $customfield_header_list = [];
+        if ($event_id) {
+            $curstom_list = $DB->get_record('event', ['id' => $event_id]);
+            $custom_id = $curstom_list->event_customfield_category_id;
+            if (!empty($custom_id) && $custom_id > 0) {
+                $custom_field_list = $DB->get_records('event_customfield', ['event_customfield_category_id' => $custom_id, 'is_delete' => 0]);
+                usort($custom_field_list, function ($a, $b) {
+                    return (int)$a->sort - (int)$b->sort;
+                });
+                foreach ($custom_field_list as $custom_field) {
+                    $customfield_header_list[$custom_field->id] = $custom_field->name;
+                }
+            }
+        }
+
         // 表示データを取得・整形する
         $application_list = [];
+        $application_customfield_list = [];
         foreach ($application_course_info_list as $key => $application_course_info) {
+            $application_customfield_list = [];
             $application = reset($application_course_info['application']);
             $event = $application['event'];
             $application_date = new DateTime($application['application_date']);
@@ -208,6 +226,15 @@ class EventRegistrationController
                 'event_application_id' => $application_course_info['event_application_id']
             ]);
 
+            // カスタムフィールド回答結果を収集
+            foreach (array_keys($customfield_header_list) as $index) {
+                $event_customfield_list = $DB->get_record('event_application_customfield', [
+                    'event_application_id' => $application_course_info['event_application_id'],
+                    'event_customfield_id' => $index
+                ]);
+                $application_customfield_list[$application_course_info['event_application_id']][$index] = $event_customfield_list->input_data;
+            }
+
             $application_list[$key] = [
                 'id' => $application_course_info['id'],
                 'event_name' => $event['name'],
@@ -223,6 +250,7 @@ class EventRegistrationController
                 'age' => $age,
                 'note' => $note,
                 'other' => $application_congnition->note,
+                'application_customfield_list' => $application_customfield_list
             ];
         }
 
@@ -242,6 +270,7 @@ class EventRegistrationController
             'current_page' => $current_page,
             'page' => $current_page,
             'course_list' => $course_list,
+            'customfield_header_list' => $customfield_header_list
         ];
 
         return $data;

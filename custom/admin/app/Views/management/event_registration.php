@@ -18,6 +18,7 @@ $category_list = $result_list['category_list'] ?? [];
 $event_list = $result_list['event_list']  ?? [];
 $application_list = $result_list['application_list'];
 $course_list = $result_list['course_list'] ?? [];
+$customfield_header_list = $result_list['customfield_header_list'] ?? [];
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -151,6 +152,9 @@ $page = $result_list['page'];
                                                         <th class="ps-4 pe-4">年齢</th>
                                                         <th class="ps-4 pe-4">その他</th>
                                                         <th class="ps-4 pe-4">備考</th>
+                                                        <?php foreach ($customfield_header_list as $customfield_header) { ?>
+                                                            <th class="text-norap ps-4 pe-4"><?= $customfield_header ?></th>
+                                                        <?php } ?>
                                                         <th class="ps-4 pe-4">決済方法</th>
                                                         <th class="ps-4 pe-4">決済状況</th>
                                                         <th class="ps-4 pe-4">決済日</th>
@@ -170,6 +174,11 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['other']) ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['note']) ?></td>
+                                                            <?php foreach ($application['application_customfield_list'] as $array) { ?>
+                                                                <?php foreach ($array as $ans) { ?>
+                                                                    <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($ans) ?></td>
+                                                                <?php } ?>
+                                                            <?php } ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['payment_type']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap <?= $application['is_paid'] == '未決済' ? 'text-danger' : '' ?>">
                                                                 <?= htmlspecialchars($application['is_paid']) ?>

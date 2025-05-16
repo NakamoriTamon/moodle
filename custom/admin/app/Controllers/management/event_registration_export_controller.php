@@ -136,6 +136,22 @@ try {
         return $a['course_info']['no'] <=> $b['course_info']['no'];
     });
 
+    // カスタムフィールド情報取得
+    $customfield_header_list = [];
+    if ($event_id) {
+        $curstom_list = $DB->get_record('event', ['id' => $event_id]);
+        $custom_id = $curstom_list->event_customfield_category_id;
+        if (!empty($custom_id) && $custom_id > 0) {
+            $custom_field_list = $DB->get_records('event_customfield', ['event_customfield_category_id' => $custom_id, 'is_delete' => 0]);
+            usort($custom_field_list, function ($a, $b) {
+                return (int)$a->sort - (int)$b->sort;
+            });
+            foreach ($custom_field_list as $custom_field) {
+                $customfield_header_list[$custom_field->id] = $custom_field->name;
+            }
+        }
+    }
+
     if ($is_single) {
         // CSVヘッダー
         $csv_list[0] = [
@@ -172,6 +188,10 @@ try {
             '参加状態'
         ];
     }
+
+    $insert_index = array_search('備考', $csv_list[0]);
+    $insert_index++;
+    array_splice($csv_list[0], $insert_index, 0, $customfield_header_list);
 
     // データの書き込み
     $count = 1;
@@ -266,6 +286,28 @@ try {
                 IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
             ];
         }
+
+        // カスタムフィールド回答結果を収集
+        $application_customfield_list = [];
+        foreach (array_keys($customfield_header_list) as $index) {
+            $event_customfield_list = $DB->get_record('event_application_customfield', [
+                'event_application_id' => $application_course_info['event_application_id'],
+                'event_customfield_id' => $index
+            ]);
+            $application_customfield_list[$application_course_info['event_application_id']][$index] = $event_customfield_list->input_data;
+        }
+
+        $flattened_values = [];
+        foreach ($application_customfield_list as $item) {
+            if (is_array($item)) {
+                foreach ($item as $v) {
+                    $flattened_values[] = $v === null ? '' : $v;
+                }
+            } else {
+                $flattened_values[] = $item === null ? '' : $item;
+            }
+        }
+        array_splice($csv_array, $insert_index, 0, $flattened_values);
 
         $csv_list[$count] = $csv_array;
         $count++;
