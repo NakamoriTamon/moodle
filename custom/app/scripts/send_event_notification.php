@@ -168,7 +168,7 @@ try {
                 <p>平素より格別のご高配を賜り、誠にありがとうございます。<br>
                 このたび、新たなイベント 「{{eventName}}」 を開催する運びとなりましたので、ご案内申し上げます。</p>
 
-                <h2 style=\"margin-top: 0; color: #3366cc;\">■ 開催概要</h2>
+                <h2 style=\"margin-top: 0; color: #3366cc; font-size: 18px;\">■ 開催概要</h2>
                 
                 <p><strong>開催日時:</strong> {{eventDateText}}</p>
                 
@@ -237,7 +237,7 @@ try {
         $SesClient->createTemplate([
             'Template' => [
                 'TemplateName' => $templateName,
-                'SubjectPart' => '大阪大学イベント開催のご案内',
+                'SubjectPart' => '【大阪大学知の広場】イベント開催のご案内',
                 'HtmlPart' => $htmlTemplate,
                 'TextPart' => $textTemplate,
             ]
@@ -312,11 +312,11 @@ try {
 
         foreach ($batch as $recipient) {
             $email = $recipient['email'];
-            
+
             // ドメイン名が有効かDNSチェック（MXレコード確認）
             $domain = substr(strrchr($email, "@"), 1);
 
-            if(!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX")) {
+            if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $domain && checkdnsrr($domain, "MX")) {
                 $destinations[] = [
                     'Destination' => [
                         'ToAddresses' => [$recipient['email']]
@@ -330,7 +330,7 @@ try {
 
         try {
             $result = $SesClient->sendBulkTemplatedEmail([
-                'Source' => $_ENV['MAIL_FROM_ADDRESS'],
+                'Source' => "大阪大学知の広場事務局 <{$_ENV['MAIL_FROM_ADDRESS']}>",
                 'ReplyToAddresses' => ['no-reply@example.com'],
                 'DefaultTemplateData' => json_encode($templateData),
                 'Template' => $templateName,
