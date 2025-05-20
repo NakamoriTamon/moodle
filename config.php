@@ -443,5 +443,20 @@ define('SITE_KEY', $site_key);
 $recaptcha_sec_key = '6Lf7lisrAAAAAOBAT759EFcyGWgSqJPi3-jDg3kX';
 define('RECAPCHA_SEC_KEY', $recaptcha_sec_key);
 
+// イベント申し込み 本イベントはどのようにお知りになりましたか？
+$event_trigger_list = [
+  1 => 'チラシ',
+  2 => 'ウェブサイト',
+  3 => '本プラットフォームからのメール',
+  4 => 'SNS(X,Instagram,Facebookなど)',
+  5 => '21世紀懐徳堂からのメールマガジン',
+  6 => '大阪大学卒業生メールマガジン',
+  7 => 'Peatixからのメール',
+  8 => '知人からの紹介',
+  9 => '講師・スタッフからの紹介',
+  10 => 'その他',
+];
+define('EVENT_TRIGGER_LIST', $event_trigger_list);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

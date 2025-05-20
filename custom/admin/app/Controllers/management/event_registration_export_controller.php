@@ -161,6 +161,7 @@ try {
             'ユーザー名',
             'メールアドレス',
             '年齢',
+            '本イベントはどのようにお知りになりましたか',
             'その他',
             '備考',
             '決済方法',
@@ -179,6 +180,7 @@ try {
             'ユーザー名',
             'メールアドレス',
             '年齢',
+            '本イベントはどのようにお知りになりましたか',
             'その他',
             '備考',
             '決済方法',
@@ -243,9 +245,18 @@ try {
             continue;
         }
 
-        $application_congnition = $DB->get_record('event_application_cognition', [
+        $application_congnitions = $DB->get_records('event_application_cognition', [
             'event_application_id' => $application_course_info['event_application_id']
         ]);
+
+        $other = '';
+        $trigger_txt = [];
+        foreach ($application_congnitions as $application_congnition) {
+            $other = $application_congnition->note;
+            $trigger_txt[] = EVENT_TRIGGER_LIST[$application_congnition->cognition_id];
+        }
+        $trigger_txt_str = implode(', ', $trigger_txt);
+        $trigger_txt_str = str_replace(",", " | ", $trigger_txt_str);
 
         $congnition_note = "";
         if ($application_congnition->note) {
@@ -260,6 +271,7 @@ try {
                 $name,
                 $application_course_info['participant_mail'],
                 $age,
+                $trigger_txt_str,
                 $congnition_note,
                 $note,
                 $payment_type,
@@ -277,6 +289,7 @@ try {
                 $name,
                 $application_course_info['participant_mail'],
                 $age,
+                $trigger_txt_str,
                 $congnition_note,
                 $note,
                 $payment_type,

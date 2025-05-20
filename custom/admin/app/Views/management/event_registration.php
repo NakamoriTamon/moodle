@@ -150,6 +150,7 @@ $page = $result_list['page'];
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
                                                         <th class="ps-4 pe-4">年齢</th>
+                                                        <th class="ps-4 pe-4">本イベントはどのようにお知りになりましたか</th>
                                                         <th class="ps-4 pe-4">その他</th>
                                                         <th class="ps-4 pe-4">備考</th>
                                                         <?php foreach ($customfield_header_list as $customfield_header) { ?>
@@ -172,6 +173,7 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
+                                                            <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['trigger_txt_str']) ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['other']) ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['note']) ?></td>
                                                             <?php foreach ($application['application_customfield_list'] as $array) { ?>

@@ -222,9 +222,17 @@ class EventRegistrationController
                 continue;
             }
 
-            $application_congnition = $DB->get_record('event_application_cognition', [
+            $application_congnitions = $DB->get_records('event_application_cognition', [
                 'event_application_id' => $application_course_info['event_application_id']
             ]);
+
+            $other = '';
+            $trigger_txt = [];
+            foreach ($application_congnitions as $application_congnition) {
+                $other = $application_congnition->note;
+                $trigger_txt[] = EVENT_TRIGGER_LIST[$application_congnition->cognition_id];
+            }
+            $trigger_txt_str = implode(', ', $trigger_txt);
 
             // カスタムフィールド回答結果を収集
             foreach (array_keys($customfield_header_list) as $index) {
@@ -249,7 +257,8 @@ class EventRegistrationController
                 'participation_kbn' => $application_course_info['participation_kbn'],
                 'age' => $age,
                 'note' => $note,
-                'other' => $application_congnition->note,
+                'other' => $other,
+                'trigger_txt_str' => $trigger_txt_str,
                 'application_customfield_list' => $application_customfield_list
             ];
         }
