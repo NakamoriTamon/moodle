@@ -44,7 +44,7 @@ class TekijukuCommemorationModel extends BaseModel
                 $params[':end_paid_date'] = $range['end'];
                 $where = "";
                 if (!empty($filters['keyword'])) {
-                    $where .= " AND (:keyword IS NULL OR c.name LIKE CONCAT('%', :keyword, '%'))";
+                    $where .= " AND (:keyword IS NULL OR c.name LIKE CONCAT('%', :keyword, '%') OR c.kana LIKE CONCAT('%', :keyword, '%'))";
                     $params[':keyword'] = $filters['keyword'];
                 }
 

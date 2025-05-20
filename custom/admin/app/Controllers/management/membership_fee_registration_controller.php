@@ -69,7 +69,7 @@ class MembershipFeeRegistrationController
         // 年度末までにアカウントが作成されたか確認
         $filters['year'] = $year;
         if (!empty($keyword)) {
-            $filters['keyword'] = $keyword;
+            $filters['keyword'] = htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8');
         }
         if (!empty($payment_status)) {
             $filters['payment_status'] = $payment_status;
