@@ -197,7 +197,7 @@ setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
 													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
-											<div class="d-flex flex-wrap align-items-end gap-3">
+											<div class="d-flex flex-wrap align-items-end gap-3 w-100">
 												<!-- サムネイル用画像 -->
 												<div class="w-100">
 													<img id="movie_img" src="" alt="サムネイル">
@@ -420,7 +420,7 @@ setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
 			modal.show();
 
 			const file = file_input.files[0];
-			const chunk_size = 20 * 1024 * 1024; // 20MBでチャンク
+			const chunk_size = 50 * 1024 * 1024; // 50MBでチャンク
 			const total_chunks = Math.ceil(file.size / chunk_size);
 
 			// フォーム情報取得
