@@ -143,14 +143,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lecture_suggestions_error       = validate_text_input($lectureSuggestions);
 
         if (
-            $found_method_error || $reason_error || $satisfaction_error || $good_point_error ||
+            $found_method_error || $reason_error || $satisfaction_error ||
             $time_error || $holding_enviroment_error || $no_good_enviroment_reason_error || $lecture_suggestions_error
         ) {
             $_SESSION['errors'] = [
                 'found_method'              => $found_method_error,
                 'reason'                    => $reason_error,
                 'satisfaction'              => $satisfaction_error,
-                'good_point'                => $good_point_error,
                 'holding_enviroment'        => $holding_enviroment_error,
                 'no_good_enviroment_reason' => $no_good_enviroment_reason_error,
                 'lecture_suggestions'       => $lecture_suggestions_error,
