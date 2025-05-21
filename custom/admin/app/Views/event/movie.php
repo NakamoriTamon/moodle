@@ -61,9 +61,9 @@ $encodedSignature = base64url_encode($signature);
 setcookie('CloudFront-Policy', $encodedPolicy, [
 	'expires' => $expires,
 	'path' => '/',
-	'secure' => false,
+	'secure' => true,
 	'httponly' => true,
-	'samesite' => 'Lax'
+	'samesite' => 'None'
 ]);
 
 setcookie('CloudFront-Signature', $encodedSignature, [
