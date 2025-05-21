@@ -31,7 +31,7 @@ try {
                 $name      = $survey['event']['name'];
                 $no        = $survey['course_info']['no'];
             } else {
-                $path_name = $survey['event']['name'];
+                $name = $survey['event']['name'];
             }
         }
     }
@@ -71,14 +71,11 @@ try {
             '本日のイベントに参加した理由は何ですか',
             'その他',
             '本日のイベントの満足度について、あてはまるもの1つをお選びください',
-            '本日のイベントで特に良かった点について教えてください。いかに当てはまるものがあれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述してください',
-            'その他',
             '（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。',
             '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
             '今後の大阪大学 [ ' . $event['department'] . ' ] 主催で、希望するジャンルやテーマ、話題があれば、ご提案ください',
             '年代を教えて下さい',
             'ご職業や学生区分を教えてください',
-            '性別を教えてください',
             'お住まいの地域を教えてください'
         ]
     );
@@ -111,11 +108,9 @@ try {
         }
 
         $satisfaction           = !empty(SATISFACTION_LIST[$survey['satisfaction']]) ? SATISFACTION_LIST[$survey['satisfaction']] : '';
-        $good_point             = !empty(GOOD_POINT_LIST[$survey['good_point']]) ? GOOD_POINT_LIST[$survey['good_point']] : '';
         $holding_environment    = !empty(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']]) ? HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] : '';
         $age                    = !empty(AGE_LIST[$survey['age']]) ? AGE_LIST[$survey['age']] : '';
         $work                   = !empty(WORK_LIST[$survey['work']]) ? WORK_LIST[$survey['work']] : '';
-        $sex                    = !empty(SEX_LIST[$survey['sex']]) ? SEX_LIST[$survey['sex']] : '';
         $address_combined       = ($survey['prefectures'] ?? '') . ($survey['address'] ?? '');
 
         $list = $surveyApplicationCustomfieldModel->getESurveyApplicationCustomfieldBySurveyApplicationId($survey['id']);
@@ -148,14 +143,11 @@ try {
             $reason,
             $survey['other_reason'] ?? '',
             $satisfaction,
-            $good_point,
-            $survey['other_good_point'] ?? '',
             $holding_environment,
             $survey['no_good_environment_reason'] ?? '',
             $survey['lecture_suggestions'] ?? '',
             $age,
             $work,
-            $sex,
             $address_combined
         ]);
 

@@ -92,10 +92,9 @@ $event_kbn = $event->event_kbn;
                     </ul>
                 </div>
                 <div class="form_block form02">
-                    <p class="red">
+                    <!-- <p class="red">
                         <span>今回が初回受講の方は、以下の質問にすべてご回答ください。</span>
-                    </p>
-                    <p class="comment">※「その他」の欄にどこでご覧になったか具体的にご記載ください</p>
+                    </p> -->
                     <ul class="list">
                         <li>
                             <h4 class="sub_ttl">
@@ -258,53 +257,6 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                本日のイベントで特に良かった点について教えてください。<br />
-                                以下にあてはまるものがあれば、一つお選びください。あてはまるものがなければ、「その他」の欄に記述してください。
-                            </h4>
-                            <div class="list_field f_check">
-                                <div class="check_item">
-                                    <label>
-                                        <input type="radio" name="good_point" value="2" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '2') echo 'checked'; ?>>
-                                        最先端の研究について学べた
-                                    </label>
-                                </div>
-                                <div class="check_item">
-                                    <label>
-                                        <input type="radio" name="good_point" value="3" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '3') echo 'checked'; ?>>
-                                        大学の研究者と対話ができた
-                                    </label>
-                                </div>
-                                <div class="check_item">
-                                    <label>
-                                        <input type="radio" name="good_point" value="4" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '4') echo 'checked'; ?>>
-                                        大学の講義の雰囲気を味わえた
-                                    </label>
-                                </div>
-                                <div class="check_item">
-                                    <label>
-                                        <input type="radio" name="good_point" value="5" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '5') echo 'checked'; ?>>
-                                        大阪大学について知ることができた
-                                    </label>
-                                </div>
-                                <div class="check_item">
-                                    <label>
-                                        <input type="radio" name="good_point" value="6" <?php if (isset($old_input['good_point']) && $old_input['good_point'] === '6') echo 'checked'; ?>>
-                                        身の周りの社会課題に対する解決のヒントが得られた
-                                    </label>
-                                </div>
-                                <div class="other_item">
-                                    <label> その他 </label>
-                                    <input type="text" name="other_good_point" value="<?php echo htmlspecialchars($old_input['other_good_point'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                </div>
-                            </div>
-                            <?php if (!empty($errors['good_point'])): ?>
-                                <div class="error-msg">
-                                    <?= htmlspecialchars($errors['good_point']); ?>
-                                </div>
-                            <?php endif; ?>
-                        </li>
-                        <li>
-                            <h4 class="sub_ttl">
                                 （会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。
                                 <span class="comment">※「あまり快適ではなかった」「全く快適ではなかった」と回答された方は次の質問にその理由を教えてください。</span>
                             </h4>
@@ -432,23 +384,6 @@ $event_kbn = $event->event_kbn;
                                 <label>
                                     <input type="radio" name="work" value="7" <?php if (isset($old_input['work']) && $old_input['work'] === '7') echo 'checked'; ?>>
                                     無職
-                                </label>
-                            </div>
-                        </li>
-                        <li>
-                            <h4 class="sub_ttl">性別を教えてください。</h4>
-                            <div class="list_field f_radio">
-                                <label>
-                                    <input type="radio" name="sex" value="1" <?php if (isset($old_input['sex']) && $old_input['sex'] === '1') echo 'checked'; ?>>
-                                    男性
-                                </label>
-                                <label>
-                                    <input type="radio" name="sex" value="2" <?php if (isset($old_input['sex']) && $old_input['sex'] === '2') echo 'checked'; ?>>
-                                    女性
-                                </label>
-                                <label>
-                                    <input type="radio" name="sex" value="3" <?php if (isset($old_input['sex']) && $old_input['sex'] === '3') echo 'checked'; ?>>
-                                    その他
                                 </label>
                             </div>
                         </li>

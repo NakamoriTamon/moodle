@@ -151,19 +151,12 @@ $page         = max(1, (int)$page);
 											<th class="w-25 p-4">その他</th>
 											<th class="w-25 p-4">本日のイベントの満足度について、あてはまるもの1つをお選びください</th>
 											<th class="w-25 p-4">
-												本日のイベントで特に良かった点について教えてください。以下に当てはまるもの
-												があれば、1つお選びください。あてはまるものがなければ「その他」の欄に記述し
-												てください
-											</th>
-											<th class="w-25 p-4">その他</th>
-											<th class="w-25 p-4">
 												（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。
 											</th>
 											<th class="w-25 p-4">「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。</th>
 											<th class="w-25 p-4">今後の大阪大学<?= !empty($department) ? htmlspecialchars(' [ ' . $department . ' ] ') : '' ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
 											<th class="w-25 p-4">年代を教えて下さい</th>
 											<th class="w-25 p-4">ご職業や学生区分を教えてください</th>
-											<th class="w-25 p-4">性別を教えてください</th>
 											<th class="w-25 p-4">お住まいの地域を教えてください</th>
 											<?php foreach ($survey_field_list as $survey_field): ?>
 												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
@@ -210,17 +203,12 @@ $page         = max(1, (int)$page);
 													<?= htmlspecialchars(SATISFACTION_LIST[$survey['satisfaction']] ?? '') ?>
 												</td>
 												<td class="p-4">
-													<?= htmlspecialchars(GOOD_POINT_LIST[$survey['good_point']] ?? '') ?>
-												</td>
-												<td class="p-4"><?= htmlspecialchars($survey['other_good_point'] ?? '') ?></td>
-												<td class="p-4">
 													<?= htmlspecialchars(HOLDING_ENVIRONMENT_LIST[$survey['holding_environment']] ?? '') ?>
 												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['no_good_environment_reason'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(AGE_LIST[$survey['age']] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
-												<td class="p-4"><?= htmlspecialchars(SEX_LIST[$survey['sex']] ?? '') ?></td>
 												<td class="p-4">
 													<?= htmlspecialchars(($survey['prefectures'] ?? '') . ($survey['address'] ?? '')) ?>
 												</td>
