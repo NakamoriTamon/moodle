@@ -69,17 +69,17 @@ setcookie('CloudFront-Policy', $encodedPolicy, [
 setcookie('CloudFront-Signature', $encodedSignature, [
 	'expires' => $expires,
 	'path' => '/',
-	'secure' => false,
+	'secure' => true,
 	'httponly' => true,
-	'samesite' => 'Lax'
+	'samesite' => 'None'
 ]);
 
 setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
 	'expires' => $expires,
 	'path' => '/',
-	'secure' => false,
+	'secure' => true,
 	'httponly' => true,
-	'samesite' => 'Lax'
+	'samesite' => 'None'
 ]);
 ?>
 
@@ -282,7 +282,11 @@ setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
 		if (s3_file_name) {
 			const m3u8Url = "https://d1q5pewnweivby.cloudfront.net/" + s3_file_name;
 			if (Hls.isSupported()) {
-				const hls = new Hls();
+				const hls = new Hls({
+					xhrSetup: function(xhr) {
+						xhr.withCredentials = true;
+					}
+				});
 				hls.loadSource(m3u8Url);
 				hls.attachMedia(video);
 				hls.on(Hls.Events.MANIFEST_PARSED, function() {
