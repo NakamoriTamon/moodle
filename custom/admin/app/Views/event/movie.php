@@ -6,6 +6,7 @@ require_once($CFG->dirroot . '/custom/admin/app/Controllers/movie/movie_controll
 include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
 
 use Dotenv\Dotenv;
+use Aws\CloudFront\UrlSigner;
 
 $movie_conroller = new MovieController();
 $result_list = $movie_conroller->index();
@@ -30,57 +31,15 @@ $cloud_front_domain =  $_ENV['CLOUD_FRONT_DOMAIN'];
 $expires = time() + 3600;
 $key_pair_id = $_ENV['KEY_PAIR_ID'];
 $private_key_path = $_ENV['PRIVATE_KEY_PATH'];
+$path = '/' . $movie['file_name'];
 
-// カスタムポリシーJSON
-$policy = json_encode([
-	"Statement" => [[
-		"Resource" => "$cloud_front_domain/*",
-		"Condition" => [
-			"DateLessThan" => ["AWS:EpochTime" => $expires]
-		]
-	]]
-]);
-
-// Base64-URLエンコード関数
-function base64url_encode($input)
-{
-	return strtr(rtrim(base64_encode($input), '='), '+/', '-_');
+// 署名付きURL生成
+$signedUrl = '';
+if (!empty($path)) {
+	$urlSigner = new UrlSigner($key_pair_id, $private_key_path);
+	$signedUrl = $urlSigner->getSignedUrl("$cloud_front_domain$path", $expires);
 }
 
-// 秘密鍵読み込み
-$privateKey = file_get_contents($private_key_path);
-
-// 署名生成
-openssl_sign($policy, $signature, $privateKey, OPENSSL_ALGO_SHA1);
-
-// Cookie用の値にエンコード
-$encodedPolicy = base64url_encode($policy);
-$encodedSignature = base64url_encode($signature);
-
-// Cookieを発行
-setcookie('CloudFront-Policy', $encodedPolicy, [
-	'expires' => $expires,
-	'path' => '/',
-	'secure' => true,
-	'httponly' => true,
-	'samesite' => 'None'
-]);
-
-setcookie('CloudFront-Signature', $encodedSignature, [
-	'expires' => $expires,
-	'path' => '/',
-	'secure' => true,
-	'httponly' => true,
-	'samesite' => 'None'
-]);
-
-setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
-	'expires' => $expires,
-	'path' => '/',
-	'secure' => true,
-	'httponly' => true,
-	'samesite' => 'None'
-]);
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -273,21 +232,16 @@ setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
 
 <script src="/custom/admin/public/js/app.js"></script>
 <script>
-	$(document).ready(function() {
+	$(window).on('load', function() {
 		// PHPから動画ファイル名を取得
-		const s3_file_name = $('input[name="s3_file_name"]').val();
 		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
 		const video = document.getElementById('movie_video');
 		const controls_area = document.getElementById('controls_area');
-		if (s3_file_name) {
-			const m3u8Url = "https://d1q5pewnweivby.cloudfront.net/" + s3_file_name;
+		const signedUrl = <?= json_encode($signedUrl) ?>;
+		if (signedUrl !== '') {
 			if (Hls.isSupported()) {
-				const hls = new Hls({
-					xhrSetup: function(xhr) {
-						xhr.withCredentials = true;
-					}
-				});
-				hls.loadSource(m3u8Url);
+				const hls = new Hls();
+				hls.loadSource(signedUrl);
 				hls.attachMedia(video);
 				hls.on(Hls.Events.MANIFEST_PARSED, function() {
 					$('#movie_video').css('display', 'block');
