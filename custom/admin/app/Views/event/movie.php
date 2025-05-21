@@ -1,8 +1,11 @@
 <?php
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 require_once($CFG->dirroot . '/custom/admin/app/Controllers/movie/movie_controller.php');
 include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
+
+use Dotenv\Dotenv;
 
 $movie_conroller = new MovieController();
 $result_list = $movie_conroller->index();
@@ -18,6 +21,66 @@ $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
 $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 $course_list = $result_list['course_list'] ?? [];
+
+// 講義動画取得
+$dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
+$dotenv->load();
+
+$cloud_front_domain =  $_ENV['CLOUD_FRONT_DOMAIN'];
+$expires = time() + 3600;
+$key_pair_id = $_ENV['KEY_PAIR_ID'];
+$private_key_path = $_ENV['PRIVATE_KEY_PATH'];
+
+// カスタムポリシーJSON
+$policy = json_encode([
+	"Statement" => [[
+		"Resource" => "$cloud_front_domain/*",
+		"Condition" => [
+			"DateLessThan" => ["AWS:EpochTime" => $expires]
+		]
+	]]
+]);
+
+// Base64-URLエンコード関数
+function base64url_encode($input)
+{
+	return strtr(rtrim(base64_encode($input), '='), '+/', '-_');
+}
+
+// 秘密鍵読み込み
+$privateKey = file_get_contents($private_key_path);
+
+// 署名生成
+openssl_sign($policy, $signature, $privateKey, OPENSSL_ALGO_SHA1);
+
+// Cookie用の値にエンコード
+$encodedPolicy = base64url_encode($policy);
+$encodedSignature = base64url_encode($signature);
+
+// Cookieを発行
+setcookie('CloudFront-Policy', $encodedPolicy, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
+
+setcookie('CloudFront-Signature', $encodedSignature, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
+
+setcookie('CloudFront-Key-Pair-Id', $key_pair_id, [
+	'expires' => $expires,
+	'path' => '/',
+	'secure' => false,
+	'httponly' => true,
+	'samesite' => 'Lax'
+]);
 ?>
 
 <body id="upload" data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default" class="position-relative">
@@ -122,6 +185,7 @@ $course_list = $result_list['course_list'] ?? [];
 									</div>
 									<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="id" value="<?= htmlspecialchars($movie['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+									<input type="hidden" name="s3_file_name" value="<?= htmlspecialchars($file_name ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="course_info_id" value="<?= htmlspecialchars($result_list['course_info_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<input type="hidden" name="course_no" value="<?= htmlspecialchars($result_list['course_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 									<div class="movie-container mb-4">
@@ -133,20 +197,21 @@ $course_list = $result_list['course_list'] ?? [];
 													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
-											<div class="d-flex flex-wrap align-items-end gap-3">
+											<div class="d-flex flex-wrap align-items-end gap-3 w-100">
 												<!-- サムネイル用画像 -->
 												<div class="w-100">
 													<img id="movie_img" src="" alt="サムネイル">
 												</div>
 
 												<!-- 動画タグ -->
-												<div id="movie-wrapper" class="w-100" data-is-double-speed="<?= $result_list['is_double_speed']; ?>">
-													<video id="movie_video" controls oncontextmenu="return false;" disablePictureInPicture
-														<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>>
-														<source id="movie_video_source" src="<?= htmlspecialchars('/uploads/movie/' . $result_list['course_info_id'] . '/' . $file_name, ENT_QUOTES, 'UTF-8') ?>" type="video/mp4">
-														<p>動画再生をサポートしていないブラウザです。</p>
-													</video>
-												</div>
+												<video id="movie_video"
+													controls
+													oncontextmenu="return false;"
+													disablePictureInPicture
+													<?= $result_list["is_double_speed"] != 1 ? 'controlsList="nodownload, noplaybackrate"' : 'controlsList="nodownload"'; ?>
+													style="width: 100%; max-width: 800px;">
+													<p>動画再生をサポートしていないブラウザです。</p>
+												</video>
 												<?php if (!empty($file_name)) { ?>
 													<button type="button" id="delete_video_btn" class="btn btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#delete_confirm_modal">
 														削除
@@ -166,7 +231,13 @@ $course_list = $result_list['course_list'] ?? [];
 					<div class="modal-dialog modal-dialog-centered">
 						<div class="modal-content">
 							<div class="modal-body text-center p-5 fs-4">
-								講義動画をアップロード中です<p id="percent" class="mt-1 me-2 fs-4 fw-bold">100%</p>
+								<div class="d-flex flex-column align-items-center">
+									<div>講義動画をアップロード中です</div>
+									<div class="spinner-border text-primary mt-4 mb-3 me-1" role="status" style="width: 3rem; height: 3rem;">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+									<p id="percent" class="mt-2 fs-4 fw-bold">0%</p>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -204,21 +275,49 @@ $course_list = $result_list['course_list'] ?? [];
 <script>
 	$(document).ready(function() {
 		// PHPから動画ファイル名を取得
-		let video_file_name = null;
-		<?php if (isset($movie['course_info_id']) && isset($file_name) && isset($result_list['course_no'])): ?>
-			video_file_name = "<?php echo htmlspecialchars($movie['course_info_id'] . '/' . $result_list['course_no'] . '/' . $file_name, ENT_QUOTES, 'UTF-8'); ?>";
-		<?php endif; ?>
+		const s3_file_name = $('input[name="s3_file_name"]').val();
 		const is_double_speed = $('#movie-wrapper').data('is-double-speed');
-		// 初期遷移時に動画が設定されている場合、動画を表示し、サムネイルは非表示
-		if (video_file_name) {
-			let video_path = "/uploads/movie/" + video_file_name;
-			$('#movie_video_source').attr('src', video_path);
+		const video = document.getElementById('movie_video');
+		const controls_area = document.getElementById('controls_area');
+		if (s3_file_name) {
+			const m3u8Url = "https://d1q5pewnweivby.cloudfront.net/" + s3_file_name;
+			if (Hls.isSupported()) {
+				const hls = new Hls();
+				hls.loadSource(m3u8Url);
+				hls.attachMedia(video);
+				hls.on(Hls.Events.MANIFEST_PARSED, function() {
+					$('#movie_video').css('display', 'block');
+					// 倍速再生ボタン
+					if (is_double_speed == 1) {
+						const speedBtn = document.createElement('button');
+						speedBtn.textContent = "1x";
+						let speeds = [1, 1.25, 1.5, 2];
+						let index = 0;
+						speedBtn.addEventListener('click', () => {
+							index = (index + 1) % speeds.length;
+							video.playbackRate = speeds[index];
+							speedBtn.textContent = speeds[index] + 'x';
+						});
+						speedBtn.style.marginLeft = '10px';
+						controls_area.appendChild(speedBtn);
+					}
 
-			// 動画をロードして再生
-			$('#movie_video')[0].load();
-			$('#movie_video')[0].oncanplay = function() {
-				$('#movie_video').show();
-				$('#movie_img').hide();
+				});
+			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+				video.src = m3u8Url;
+				if (is_double_speed == 1) {
+					const speedBtn = document.createElement('button');
+					speedBtn.textContent = "1x";
+					let speeds = [1, 1.25, 1.5, 2];
+					let index = 0;
+					speedBtn.addEventListener('click', () => {
+						index = (index + 1) % speeds.length;
+						video.playbackRate = speeds[index];
+						speedBtn.textContent = speeds[index] + 'x';
+					});
+					document.getElementById('controls_area').appendChild(speedBtn);
+				}
+				$('#movie_video').css('display', 'block');
 			}
 		}
 		$('#movie_video').on('contextmenu', function(event) {
@@ -309,8 +408,8 @@ $course_list = $result_list['course_list'] ?? [];
 			$("#form").submit();
 		});
 
-		// 講義動画をChunkして登録
-		$('#upload_button').on('click', function() {
+		// ▼ S3へ講義動画をアップロード
+		$('#upload_button').on('click', async function() {
 			const file_input = $('#video_input')[0];
 			if (!file_input.files.length) {
 				alert('動画を選択してください');
@@ -321,91 +420,104 @@ $course_list = $result_list['course_list'] ?? [];
 			modal.show();
 
 			const file = file_input.files[0];
-			const chunk_size = 10 * 1024 * 1024; // 10MBずつ送信
+			const chunk_size = 50 * 1024 * 1024; // 50MBでチャンク
 			const total_chunks = Math.ceil(file.size / chunk_size);
-			let current_chunk = 0;
 
-			// ファイルをチャンクごとに送信
-			function upload_chunk() {
-				if (current_chunk >= total_chunks) {
-					// チャンク送信完了後の最終処理
-					$.ajax({
-						url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
-						type: 'POST',
-						data: {
-							file_name: file.name,
-							csrf_token: $('#upsert_form').find('[name="csrf_token"]').val(),
-							course_info_id: $('#upsert_form').find('[name="course_info_id"]').val(),
-							course_no: $('#upsert_form').find('[name="course_no"]').val(),
-							id: $('#upsert_form').find('[name="id"]').val()
-						},
-						dataType: 'json',
-						success: function(response) {
-							if (response.status === 'success') {
-								location.href = "/custom/admin/app/Views/event/movie.php";
-							} else {
-								location.href = "/custom/admin/app/Views/event/movie.php";
-							}
-						},
-						error: function(jqXHR, textStatus, errorThrown) {
-							location.href = "/custom/admin/app/Views/event/movie.php";
-						}
-					});
+			// フォーム情報取得
+			const course_info_id = $('#upsert_form').find('[name="course_info_id"]').val();
+			const course_no = $('#upsert_form').find('[name="course_no"]').val();
+			const csrf_token = $('#upsert_form').find('[name="csrf_token"]').val();
+			const id = $('#upsert_form').find('[name="id"]').val();
+
+			// アップロード初期化
+			const initRes = await $.ajax({
+				url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
+				method: 'POST',
+				data: {
+					mode: 'init',
+					file_name: file.name,
+					csrf_token: csrf_token,
+					course_info_id: course_info_id,
+					course_no: course_no,
+				},
+				dataType: 'json'
+			});
+			if (initRes.status == 'error') {
+				location.href = "/custom/admin/app/Views/event/movie.php";
+				return;
+			}
+
+			// 2つのプロパティを、別々の変数として一度に取り出す
+			const {
+				uploadId,
+				key
+			} = initRes;
+			const parts = [];
+			for (let i = 0; i < total_chunks; i++) {
+				const start = i * chunk_size;
+				const end = Math.min(start + chunk_size, file.size);
+				const chunk = file.slice(start, end);
+				// Presigned URL取得
+				const presignRes = await $.post('/custom/admin/app/Controllers/movie/movie_upsert_controller.php', {
+					mode: 'presign',
+					uploadId,
+					key,
+					partNumber: i + 1
+				});
+				if (presignRes.status == 'error') {
+					location.href = "/custom/admin/app/Views/event/movie.php";
 					return;
 				}
 
-				const start = current_chunk * chunk_size;
-				const end = Math.min(start + chunk_size, file.size);
-				const chunk = file.slice(start, end);
+				// S3が発行した署名付きURLに対して、チャンクデータをPUT
+				const res = await fetch(presignRes.url, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/octet-stream' // 明示的に付与
+					},
+					body: chunk
+				});
+				const eTag = res.headers.get('ETag');
 
-				// 新しいFormDataオブジェクトを作成
-				const form_data = new FormData();
-				form_data.append('id', $('#upsert_form').find('[name="id"]').val());
-				form_data.append('course_info_id', $('#upsert_form').find('[name="course_info_id"]').val());
-				form_data.append('course_no', $('#upsert_form').find('[name="course_no"]').val());
-				form_data.append('csrf_token', $('#upsert_form').find('[name="csrf_token"]').val());
-				form_data.append('file', chunk); // チャンクを追加
-				form_data.append('chunk_index', current_chunk); // チャンク番号
-				form_data.append('total_chunks', total_chunks); // チャンクの総数
-				form_data.append('file_name', file.name); // ファイル名
-				form_data.append('total_file_size', file.size);
-
-				function wait(ms) {
-					return new Promise(resolve => setTimeout(resolve, ms));
+				// エラー処理
+				if (!res.ok) {
+					location.href = "/custom/admin/app/Views/event/movie.php";
+					return;
 				}
 
-				$.ajax({
-					url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php', // チャンクを送信
-					type: 'POST',
-					data: form_data,
-					processData: false,
-					contentType: false,
-					dataType: 'json',
-					success: async function(response) {
-						if (response.status === 'error') {
-							location.href = "/custom/admin/app/Views/event/movie.php";
-							return;
-						}
-
-						// アップロード進捗を表示
-						const percentage = Math.round(((current_chunk + 1) / total_chunks) * 100);
-						$('#percent').text(`${percentage}%`);
-
-						current_chunk++;
-						await wait(1000); // 少し待機してから次のチャンクをアップロード
-						upload_chunk(); // 次のチャンクをアップロード
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						location.href = "/custom/admin/app/Views/event/movie.php";
-					}
+				// 正常なら配列に追加
+				parts.push({
+					PartNumber: i + 1,
+					ETag: eTag
 				});
+
+				// プログレスバー更新
+				const percentage = Math.round(((i + 1) / total_chunks) * 100);
+				$('#percent').text(`${percentage}%`);
+
 			}
 
-			// チャンクのアップロードを開始
-			upload_chunk();
+			// 完了通知
+			const completeRes = await $.ajax({
+				url: '/custom/admin/app/Controllers/movie/movie_upsert_controller.php',
+				method: 'POST',
+				data: {
+					mode: 'complete',
+					uploadId,
+					key,
+					parts: JSON.stringify(parts),
+					csrf_token,
+					course_info_id,
+					course_no,
+					id,
+					file_name: file.name.replace(/\.[^/.]+$/, ''),
+				},
+				dataType: 'json'
+			});
+
+			location.href = '/custom/admin/app/Views/event/movie.php';
 		});
 	});
 </script>
-
 
 </html>

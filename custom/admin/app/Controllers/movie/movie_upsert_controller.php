@@ -1,144 +1,160 @@
 <?php
 header('Content-Type: application/json');
+require '/var/www/vendor/autoload.php';
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 
+use Aws\S3\S3Client;
+
 global $DB;
 
-// CSRFチェック
-if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    $_SESSION['message_error'] = '登録に失敗しました。';
-}
+// AWS SDK でS3操作用の接続ハンドラ作成
+$s3 = new S3Client([
+    'version' => 'latest',
+    'region'  => 'ap-northeast-1',
+    'credentials' => [
+        'key'    => $_ENV['S3_AWS_ACCESS_KEY_ID'],
+        'secret' => $_ENV['S3_AWS_SECRET_ACCESS_KEY_ID'],
+    ]
+]);
 
-// 情報チェック
-$course_info_id = (int)$_POST['course_info_id'] ?? null;
-$course_no = (int)$_POST['course_no'] ?? null;
+$bucket = 'osakauniv-movie-uploads';
+$mode = $_POST['mode'] ?? null;
+$course_info_id = $_POST['course_info_id'] ?? null;
+$course_no = $_POST['course_no'] ?? null;
 
-if (empty($course_info_id) || empty($course_no)) {
-    $_SESSION['message_error'] = 'コース情報が不足しています';
-}
+// デフォルト設定
+$_SESSION['message_error'] = '登録に失敗しました';
 
-if (!empty($_SESSION['message_error'])) {
-    echo json_encode(['status' => 'error']);
-    exit;
-}
-
-$upload_dir = '/var/www/html/moodle/uploads/movie/' . $course_info_id . '/' . $course_no . '/';
-$file_name = $_POST['file_name'];
-$chunk_index = $_POST['chunk_index'];
-$total_chunks = $_POST['total_chunks'];
-
-// チャンクファイルの保存
-$tmpFilePath = $_FILES['file']['tmp_name'];
-$targetPath = $upload_dir . $file_name . '.part' . $chunk_index;
-
-if (!file_exists($upload_dir)) {
-    mkdir($upload_dir, 0755, true);
-}
-
-// チェックするディレクトリ
-$storage_upload_dir = '/var/www/html/moodle/uploads/movie/';
-$total_file_size = $_POST['total_file_size'] ?? 0;
-if (!check_storage_limit($storage_upload_dir, $total_file_size)) {
-    $_SESSION['message_error'] = 'ストレージ容量が不足しています';
-    echo json_encode(['status' => 'error']);
-    exit;
-}
-
-// チャンクを保存
-move_uploaded_file($tmpFilePath, $targetPath);
-
-// すべてのチャンクがアップロードされたら結合
-if ($chunk_index == $total_chunks - 1) {
-    $finalFilePath = $upload_dir . $file_name;
-    $outputFile = fopen($finalFilePath, 'wb');
-
-    // チャンクの結合
-    for ($i = 0; $i < $total_chunks; $i++) {
-        $chunk_file = $upload_dir . $file_name . '.part' . $i;
-        fwrite($outputFile, file_get_contents($chunk_file));
-        unlink($chunk_file); // チャンク削除
-    }
-
-    fclose($outputFile);
-
-    // DBへの登録処理
-    $data = new stdClass();
-    $data->file_name  = $file_name;
-    $data->course_info_id = $course_info_id;
-    $data->updated_at = date('Y-m-d H:i:s');
-
-    try {
-        $transaction = $DB->start_delegated_transaction();
-        $id = (int)$_POST['id'] ?? null;
-
-        if (!empty($id)) {
-            $data->id = $id;
-            $DB->update_record('course_movie', $data);
-        } else {
-            $data->created_at = date('Y-m-d H:i:s');
-            $DB->insert_record('course_movie', $data);
+switch ($mode) {
+    case 'init':
+        $file_name = $_POST['file_name'] ?? '';
+        if (empty($file_name) || empty($course_info_id) || empty($course_no)) {
+            echo json_encode(['status' => 'error', 'message' => '必要な情報が不足しています']);
+            exit;
         }
 
-        // 成功時に同ディレクトリ内のすべての動画を削除する
-        if (is_dir($upload_dir)) {
-            $files = scandir($upload_dir);
+        $key = "videos/{$course_info_id}/{$course_no}/" . basename($file_name);
 
-            foreach ($files as $file) {
-                $file_path = $upload_dir . $file;
+        try {
+            // マルチパートアップロードのための初期化処理
+            $result = $s3->createMultipartUpload([
+                'Bucket' => $bucket,
+                'Key'    => $key,
+                'ACL'    => 'private',
+                'ContentType' => 'video/mp4'
+            ]);
 
-                // 「.」「..」はスキップ & AAA.mp4 は削除しない
-                if ($file === '.' || $file === '..' || $file === $file_name) {
-                    continue;
+            echo json_encode([
+                'uploadId' => $result['UploadId'], // マルチパートアップロード識別ID 
+                'key' => $key
+            ]);
+        } catch (Throwable $e) {
+            error_log('createMultipartUploadエラー: ' . $e->getMessage() . $course_info_id);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
+    case 'presign':
+        $uploadId = $_POST['uploadId'] ?? '';
+        $key = $_POST['key'] ?? '';
+        $partNumber = (int)$_POST['partNumber'];
+
+        try {
+            // S3 API リクエスト構築
+            $cmd = $s3->getCommand('UploadPart', [
+                'Bucket' => $bucket,
+                'Key' => $key,
+                'UploadId' => $uploadId,
+                'PartNumber' => $partNumber
+            ]);
+            header('Content-Type: application/json');
+            $url = (string)$s3->createPresignedRequest($cmd, '+1 hour')->getUri(); // 署名付きURL作成
+            echo json_encode(['url' => $url]);
+        } catch (Throwable $e) {
+            error_log('動画アップロードエラー: ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
+    case 'complete':
+        // CSRF & 情報チェック
+        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            echo json_encode(['status' => 'error', 'message' => 'CSRFトークンが無効です']);
+            exit;
+        }
+
+        $course_info_id = (int)($_POST['course_info_id'] ?? 0);
+        $course_no = (int)($_POST['course_no'] ?? 0);
+        $file_name = $_POST['file_name'] ?? '';
+        if (empty($course_info_id) || empty($course_no)) {
+            error_log('動画アップロードエラー: ' . 'コース情報が不足しています');
+            echo json_encode(['status' => 'error', 'message' => 'コース情報が不足しています']);
+            exit;
+        }
+
+        $uploadId = $_POST['uploadId'] ?? '';
+        $key = $_POST['key'] ?? '';
+        $parts = json_decode($_POST['parts'] ?? '[]', true);
+
+        if (!$uploadId || !$key || empty($parts)) {
+            error_log('動画アップロードエラー: ' . 'パラメータが不足しています');
+            echo json_encode(['status' => 'error', 'message' => 'パラメータが不足しています']);
+            exit;
+        }
+
+        try {
+            // すべてのチャンクを1つのファイルとして結合
+            $s3->completeMultipartUpload([
+                'Bucket' => $bucket,
+                'Key' => $key,
+                'UploadId' => $uploadId,
+                'MultipartUpload' => [
+                    'Parts' => $parts
+                ]
+            ]);
+
+            $file_name = "videos/{$course_info_id}/{$course_no}/" . basename($file_name) . '.m3u8';
+
+            // DBへの登録処理
+            $data = new stdClass();
+            $data->file_name  = $file_name;
+            $data->course_info_id = $course_info_id;
+            $data->updated_at = date('Y-m-d H:i:s');
+
+            try {
+                $transaction = $DB->start_delegated_transaction();
+                $id = (int)$_POST['id'] ?? null;
+
+                if (!empty($id)) {
+                    $data->id = $id;
+                    $DB->update_record('course_movie', $data);
+                } else {
+                    $data->created_at = date('Y-m-d H:i:s');
+                    $DB->insert_record('course_movie', $data);
                 }
 
-                // ファイルなら削除
-                if (is_file($file_path)) {
-                    unlink($file_path);
-                }
+                $transaction->allow_commit();
+                $_SESSION['message_success'] = '登録が完了しました';
+                unset($_SESSION['message_error']);
+                echo json_encode(['status' => 'success']);
+                exit;
+            } catch (Exception $e) {
+                $transaction->rollback($e);
+                error_log('動画アップロードエラー: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => '登録に失敗しました']);
+                exit;
             }
+            echo json_encode(['status' => 'success']);
+        } catch (Throwable $e) {
+            error_log('動画アップロードエラー: ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
+        break;
 
-        $transaction->allow_commit();
-        $_SESSION['message_success'] = '登録が完了しました';
-        echo json_encode(['status' => 'success']);
-        exit;
-    } catch (Exception $e) {
-        $transaction->rollback($e);
-        echo json_encode(['status' => 'error', 'message' => '登録に失敗しました']);
-        exit;
-    }
-} else {
-    // チャンクがアップロード中の段階では何も返さない
-    echo json_encode(['status' => 'success']);
-    exit;
-}
-
-function check_storage_limit($upload_dir, $file_size, $max_usage_ratio = 0.9)
-{
-    // 総ストレージ容量
-    $total_space = disk_total_space($upload_dir);
-    // 現在の空き容量
-    $free_space = disk_free_space($upload_dir);
-    // 現在の使用済み容量
-    $used_space = $total_space - $free_space;
-    // 現在の使用率
-    $usage_ratio = $used_space / $total_space;
-
-    // アップロード後の使用率を計算
-    $new_usage_ratio = ($used_space + $file_size) / $total_space;
-
-    // ログ出力（デバッグ用）
-    error_log("Total Space: {$total_space} bytes");
-    error_log("Used Space: {$used_space} bytes");
-    error_log("Free Space: {$free_space} bytes");
-    error_log("Current Usage: " . ($usage_ratio * 100) . "%");
-    error_log("New Usage After Upload: " . ($new_usage_ratio * 100) . "%");
-
-    // 9割を超えたらエラー
-    if ($new_usage_ratio >= $max_usage_ratio) {
-        return false;
-    }
-    return true;
+    default:
+        error_log('動画アップロードエラー: ' . '不正なモードです');
+        echo json_encode(['status' => 'error', 'message' => '不正なモードです']);
+        break;
 }

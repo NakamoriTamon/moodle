@@ -29,6 +29,7 @@ function is_mobile_device()
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/l10n/ja.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="shortcut icon" href="/custom/admin/public/img/icons/icon-48x48.png" />
     <link rel="canonical" href="https://demo.adminkit.io/" />
