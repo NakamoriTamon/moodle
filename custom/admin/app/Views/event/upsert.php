@@ -138,7 +138,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<input type="hidden" id="event_id" name="id" value="<?= $id ?? '' ?>">
 									<div class=" mb-3">
 										<label class="form-label">イベント区分　※一度登録すると変更できません。間違えた場合はイベントを削除してください。</label>
-										<select name="event_kbn" class="form-control mb-3" <?php if ($start_event_flg): ?>style="pointer-events: none; background-color: #e6e6e6;" tabindex="-1" <?php endif ?>>
+										<select name="event_kbn" class="form-control mb-3" <?php if ($start_event_flg || !empty($id)): ?>style="pointer-events: none; background-color: #e6e6e6;" tabindex="-1" <?php endif ?>>
 											<?php foreach ($event_kbns as $kbn_id => $name): ?>
 												<option value="<?= htmlspecialchars($kbn_id) ?>"
 													<?= isSelected($kbn_id, $eventData['event_kbn'] ?? null, $old_input['event_kbn'] ?? null) ? 'selected' : '' ?>>
