@@ -28,7 +28,6 @@ class EventRegistrationController
         global $USER;
         global $DB;
 
-
         // 検索項目取得
         $keyword = $_POST['keyword'] ?? null;
         $page = $_POST['page'] ?? null;
@@ -179,6 +178,16 @@ class EventRegistrationController
             }
         }
 
+        // 保護者氏名が存在し、14歳未満の場合保護者氏名表示フラグをあげる
+        $is_guardian_name = false;
+        foreach ($application_course_info_list_count as $index => $application_checklist) {
+            $target_user = reset($application_checklist['application'])['user'];
+            if (!empty($target_user['guardian_name']) && $this->getAge($target_user['birthday']) < 14) {
+                $is_guardian_name = true;
+                break;
+            }
+        }
+
         // 表示データを取得・整形する
         $application_list = [];
         $application_customfield_list = [];
@@ -205,6 +214,7 @@ class EventRegistrationController
             // お連れ様の場合はユーザー情報は取得しない
             if ($application_course_info['ticket_type'] == TICKET_TYPE['SELF']) {
                 $name = $application['user']['name'];
+                $guardian_name = $application['user']['guardian_name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
                 if ($application['pay_method'] != FREE_EVENT) {
@@ -261,6 +271,10 @@ class EventRegistrationController
                 'trigger_txt_str' => $trigger_txt_str,
                 'application_customfield_list' => $application_customfield_list
             ];
+
+            if ($is_guardian_name) {
+                $application_list[$key]['guardian_name'] = $guardian_name;
+            }
         }
 
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
@@ -279,7 +293,8 @@ class EventRegistrationController
             'current_page' => $current_page,
             'page' => $current_page,
             'course_list' => $course_list,
-            'customfield_header_list' => $customfield_header_list
+            'customfield_header_list' => $customfield_header_list,
+            'is_guardian_name' => $is_guardian_name
         ];
 
         return $data;
