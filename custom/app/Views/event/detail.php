@@ -243,7 +243,8 @@ function escapeWithLink(string $text): string
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php if ($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
+                    <?php if ($event['event_kbn'] == PLURAL_EVENT && DEADLINE_END != $event['set_event_deadline_status'] && count($event['select_course']) > 1 && $event['is_apply_btn'] === IS_APPLY_BTN['ENABLED'] && $event['is_all_apply_btn'] === IS_APPLY_BTN['ENABLED']): ?>
+                        <!-- 適塾限定イベントの場合 -->
                         <?php if ($event['is_tekijuku_only'] == EVENT_TEKIJUKU_ONLY): ?>
                             <?php if ($tekijuku_user_flg): ?>
                                 <?php if ($event['check_all_capacity']): ?>
@@ -255,6 +256,7 @@ function escapeWithLink(string $text): string
                                     ※単発でお申込みされる場合は開催日程の各講義内容下のボタンよりお申し込みください。
                                 </p>
                             <?php else: ?>
+                                <!-- 適塾会員でなければ非活性にして押下不可とする -->
                                 <?php if ($event['check_all_capacity']): ?>
                                     <button type="button" class="btn btn_gray arrow">全日程を一括で申し込む</button>
                                 <?php else: ?>
