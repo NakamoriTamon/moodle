@@ -67,13 +67,13 @@ if ($_SESSION['errors']['start_hour'] === null && $_SESSION['errors']['end_hour'
     // 開始時間を終了時間に変換
     $start_time = DateTime::createFromFormat('H:i', $start_hour);
     $end_time = DateTime::createFromFormat('H:i', $end_hour);
-    
+
     // 開始時間が終了時間より後の場合、値を交換する
     if ($start_time > $end_time) {
         $temp = $start_hour;
         $start_hour = $end_hour;
         $end_hour = $temp;
-    
+
         $_POST['start_hour'] = $start_hour;
         $_POST['end_hour'] = $end_hour;
     }
@@ -85,17 +85,17 @@ $google_map = $_POST['google_map'] ?? null; // Google Map
 $_SESSION['errors']['google_map'] = validate_google_map($google_map, 'Google Map', false);
 $is_top = !isset($_POST['is_top']) ? 0 : $_POST['is_top']; // トップに固定
 $is_best = !isset($_POST['is_best']) ? 0 : $_POST['is_best']; // 推しイベント設定
-if(!empty($is_best)) {
+if (!empty($is_best)) {
     $best_event_img = $_FILES['best_event_img'] ?? null; // 推しイベント画像　新規登録は必須
     $tag = $_POST['best_event_img_tag'] ?? null;
     $best_event_sp_img = $_FILES['best_event_sp_img'] ?? null; // 推しイベント画像　新規登録は必須
     $sp_tag = $_POST['best_event_sp_img_tag'] ?? null;
-    if(empty($best_event_img['name']) && !empty($id) && !empty($tag)) {
+    if (empty($best_event_img['name']) && !empty($id) && !empty($tag)) {
         $_SESSION['errors']['best_event_img'] = null;
     } else {
         $_SESSION['errors']['best_event_img'] = validate_image_file($best_event_img, '推しイベント画像 パソコン表示用', true); // バリデーションチェック
     }
-    if(empty($best_event_sp_img['name']) && !empty($id) && !empty($sp_tag)) {
+    if (empty($best_event_sp_img['name']) && !empty($id) && !empty($sp_tag)) {
         $_SESSION['errors']['best_event_sp_img'] = null;
     } else {
         $_SESSION['errors']['best_event_sp_img'] = validate_image_file($best_event_sp_img, '推しイベント画像 スマホ表示用', true); // バリデーションチェック
@@ -196,7 +196,7 @@ $event_survey_customfield_category_id = empty($_POST['event_survey_customfield_c
 $_SESSION['errors']['event_survey_customfield_category_id'] = validate_select($event_survey_customfield_category_id, 'アンケートカスタム区分', false); // バリデーションチェック
 $note = $_POST['note'] ?? null; // その他
 $_SESSION['errors']['note'] = validate_textarea($note, 'その他', false); // バリデーションチェック
-
+$is_all_apply_btn = isset($_POST['is_all_apply_btn']) ? 1 : 0; // 一括申込みボタンを表示する
 
 // 講師、講義名、講義概要のデータ構造
 $lectures = [];
@@ -245,10 +245,10 @@ if ($event_kbn == SINGLE_EVENT) {
             }
 
             // アーカイブ公開日が入力されている場合
-            if(!empty($_POST["release_date"])) {
+            if (!empty($_POST["release_date"])) {
                 $release_date_input_flg = true; // 入力判定
             }
-            if(!empty($_POST["material_release_date"])) {
+            if (!empty($_POST["material_release_date"])) {
                 $material_release_date_input_flg = true; //入力判定
             }
 
@@ -360,10 +360,10 @@ if ($event_kbn == SINGLE_EVENT) {
             }
 
             // アーカイブ公開日が入力されている場合
-            if(!empty($_POST["release_date_{$lectureNumber}"])) {
+            if (!empty($_POST["release_date_{$lectureNumber}"])) {
                 $release_date_input_flg = true; // 入力判定
             }
-            if(!empty($_POST["material_release_date_{$lectureNumber}"])) {
+            if (!empty($_POST["material_release_date_{$lectureNumber}"])) {
                 $material_release_date_input_flg = true; //入力判定
             }
 
@@ -436,12 +436,12 @@ if ($event_kbn == SINGLE_EVENT) {
                 ) {
                     $error_flg = true;
                 }
-                    
+
                 // アーカイブ公開日が入力されている場合
-                if(!empty($_POST["release_date"])) {
+                if (!empty($_POST["release_date"])) {
                     $release_date_input_flg = true; // 入力判定
                 }
-                if(!empty($_POST["material_release_date"])) {
+                if (!empty($_POST["material_release_date"])) {
                     $material_release_date_input_flg = true; //入力判定
                 }
 
@@ -512,14 +512,14 @@ if ($event_kbn == SINGLE_EVENT) {
     }
 }
 
-if($release_date_input_flg && empty($archive_streaming_period)) {
+if ($release_date_input_flg && empty($archive_streaming_period)) {
     $_SESSION['errors']['archive_streaming_period'] = "アーカイブ公開日が指定されています。アーカイブ配信期間を入力してください。";
-} else if(!$release_date_input_flg && !empty($archive_streaming_period)) {
+} else if (!$release_date_input_flg && !empty($archive_streaming_period)) {
     $_SESSION['errors']['archive_streaming_period'] = "アーカイブ公開日を指定するか、アーカイブ配信期間の入力を削除してください。";
 }
-if($material_release_date_input_flg && empty($material_release_period)) {
+if ($material_release_date_input_flg && empty($material_release_period)) {
     $_SESSION['errors']['material_release_period'] = "講義資料公開日が指定されています。講義資料公開期間を入力してください。";
-} else if(!$material_release_date_input_flg && !empty($material_release_period)) {
+} else if (!$material_release_date_input_flg && !empty($material_release_period)) {
     $_SESSION['errors']['material_release_period'] = "講義資料公開日を指定するか、講義資料公開期間の入力を削除してください。";
 }
 
@@ -626,6 +626,7 @@ try {
                 inquiry_mail = :inquiry_mail,
                 is_best = :is_best,
                 is_tekijuku_only = :is_tekijuku_only,
+                is_all_apply_btn = :is_all_apply_btn,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ");
@@ -667,6 +668,7 @@ try {
             ':inquiry_mail' => $inquiry_mail,
             ':is_best' => $is_best,
             ':is_tekijuku_only' => $is_tekijuku_only,
+            ':is_all_apply_btn' => $is_all_apply_btn,
             ':id' => $id // 一意の識別子をWHERE条件として設定
         ]);
 
@@ -679,7 +681,7 @@ try {
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_customfield_category_id, is_apply_btn, start_event_date, end_event_date
-                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only
+                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only, is_all_apply_btn
             ) 
             VALUES (
                 :userid, :name, :description
@@ -687,7 +689,7 @@ try {
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_customfield_category_id, :is_apply_btn, :start_event_date, :end_event_date
-                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only, :is_all_apply_btn
             )
         ");
 
@@ -729,7 +731,8 @@ try {
             ':material_release_period' => $material_release_period,
             ':inquiry_mail' => $inquiry_mail,
             ':is_best' => $is_best,
-            ':is_tekijuku_only' => $is_tekijuku_only
+            ':is_tekijuku_only' => $is_tekijuku_only,
+            ':is_all_apply_btn' => $is_all_apply_btn
         ]);
 
         // mdl_eventの挿入IDを取得
@@ -830,7 +833,7 @@ try {
             return;
         }
     }
-    
+
     if (!empty($eventId) && !empty($is_best) && !empty($best_event_img['name'])) {
         if ($best_event_img && $best_event_img['error'] === UPLOAD_ERR_OK) {
             // 一時ファイルと元のファイル情報を取得
@@ -936,7 +939,7 @@ try {
             return;
         }
     }
-    
+
     if (!empty($eventId) && !empty($is_best) && !empty($best_event_sp_img['name'])) {
         if ($best_event_sp_img && $best_event_sp_img['error'] === UPLOAD_ERR_OK) {
             // 一時ファイルと元のファイル情報を取得
