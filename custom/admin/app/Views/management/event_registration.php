@@ -150,7 +150,6 @@ $page = $result_list['page'];
                                                         <th class="ps-4 pe-4">会員番号</th>
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <?php if ($is_guardian_name) { ?><th class="ps-4 pe-4">保護者氏名</th> <?php } ?>
-                                                        <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
                                                         <th class="ps-4 pe-4">年齢</th>
                                                         <th class="ps-4 pe-4">本イベントはどのようにお知りになりましたか</th>
