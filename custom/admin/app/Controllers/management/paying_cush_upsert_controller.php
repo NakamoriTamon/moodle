@@ -15,8 +15,19 @@ $fk_user_id = htmlspecialchars(required_param('fk_user_id', PARAM_INT), ENT_QUOT
 $type_code = htmlspecialchars(required_param('type_code', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $name_size = 50;
 $size = 500;
-// 決済状態
-$paid_status = htmlspecialchars(required_param('paid_status', PARAM_INT), ENT_QUOTES, 'UTF-8');
+
+// 決済状態 
+$paid_status = htmlspecialchars($_POST['paid_status'], ENT_QUOTES, 'UTF-8');
+if (empty($paid_status)) {
+    if (!empty($_POST['unsubscribe_paid_status'])) {
+        $paid_status = htmlspecialchars($_POST['unsubscribe_paid_status'], ENT_QUOTES, 'UTF-8');
+    } else {
+        $_SESSION['message_error'] = '登録に失敗しました';
+        header('Location: /custom/admin/app/Views/management/paying_cush.php');
+        exit;
+    }
+}
+
 $old_paid_status = htmlspecialchars(required_param('old_paid_status', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $id = htmlspecialchars(required_param('tekijuku_commemoration_id', PARAM_INT), ENT_QUOTES, 'UTF-8');
 $name = htmlspecialchars(required_param('tekijuku_name', PARAM_TEXT), ENT_QUOTES, 'UTF-8');
@@ -122,7 +133,6 @@ try {
         $tekijuku_commemoration->note = $note;
         $tekijuku_commemoration->is_published = $is_published;
         $tekijuku_commemoration->fk_user_id = $fk_user_id;
-
         $tekijuku_commemoration->department = $department;
         $tekijuku_commemoration->major = $major;
         $tekijuku_commemoration->official = $official;

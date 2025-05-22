@@ -220,11 +220,9 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0 mt-3">適塾記念会 会員情報<?php if (!empty($tekijuku_commemoration['id'])) {
-                                                                                    echo " 編集";
-                                                                                } else {
-                                                                                    echo " 新規登録";
-                                                                                } ?></h5>
+                                    <h5 class="card-title mb-0 mt-3">適塾記念会 会員情報
+                                        <?= !empty($tekijuku_commemoration['id']) ? " 編集" : " 新規登録"; ?>
+                                    </h5>
                                 </div>
                                 <div class="card-body">
                                     <input type="hidden" name="fk_user_id" value="<?= htmlspecialchars(isSetValue($fk_user_id, $old_input['fk_user_id'] ?? '')); ?>">
@@ -270,7 +268,8 @@ function determinePaymentStatus($tekijuku_commemoration, $current_fiscal_year)
                                             </select>
                                         <?php endif; ?>
                                         <?php if ((int)$tekijuku_commemoration['is_delete'] === TEKIJUKU_COMMEMORATION_IS_DELETE['INACTIVE']) : ?>
-                                            <div class="inactive-text">（退会済み）</div>
+                                            <span class="inactive-text">（退会済み）</span>
+                                            <input type="hidden" name="unsubscribe_paid_status" value="<?= htmlspecialchars($tekijuku_commemoration['paid_status']) ?>">
                                         <?php endif; ?>
                                     </div>
                                     <div class="mb-3">
