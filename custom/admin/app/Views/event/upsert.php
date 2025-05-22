@@ -818,6 +818,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span name="is_apply_btn" class=" form-check-label">申込みボタンを表示する</span>
 										</label>
 									</div>
+									<div id="all_application_button" class="mb-3">
+										<label class="form-label">
+											<input type="checkbox" name="is_all_apply_btn" class="form-check-input" value="1" <?= isSelected(1, $eventData['is_all_apply_btn'] ?? null, $old_input['is_all_apply_btn'] ?? null) ? 'checked' : '' ?>>
+											<span name="is_all_apply_btn" class=" form-check-label">一括申込みボタンを表示する</span>
+										</label>
+									</div>
 									<!-- イベントカスタム区分は一時的に非表示とする -->
 									<div class="mb-3 d-none">
 										<label class="form-label">イベントカスタム区分</label>
@@ -911,6 +917,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		const deadlineArea = $('#deadline_area');
 		const is_best = $('#is_best').prop('checked'); // 推しイベント設定
 		const best_event_img_tag = $('#best_event_img_tag'); // 推しイベント画像
+		const all_application_button = $('#all_application_button');
 
 		if (is_best) {
 			best_event_img_tag.css('display', 'block');
@@ -933,6 +940,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			deadlineReq.css('display', 'block');
 			allDeadlineReq.css('display', 'block');
 			deadlineArea.css('display', 'block');
+			all_application_button.css('display', 'block');
 		} else if (eventKbnElement.value == '3') { // 3：期間内に毎日開催のイベント
 			onetimeArea.css('display', 'none');
 			oneArea.css('display', 'block');
@@ -947,6 +955,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			deadlineReq.css('display', 'none');
 			allDeadlineReq.css('display', 'none');
 			deadlineArea.css('display', 'none');
+			all_application_button.css('display', 'none');
 		} else { // 1：単発のイベント
 			onetimeArea.css('display', 'block');
 			oneArea.css('display', 'block');
@@ -960,6 +969,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 			participationFeeReq.css('display', 'inline-block');
 			deadlineReq.css('display', 'block');
 			deadlineArea.css('display', 'block');
+			all_application_button.css('display', 'none');
 		}
 
 		const ids = ['lecture_format_id', 'category_id'];
@@ -988,6 +998,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				deadlineReq.css('display', 'none');
 				allDeadlineReq.css('display', 'none');
 				deadlineArea.css('display', 'none');
+				all_application_button.css('display', 'none');
 			} else if ($(this).val() == 2) {
 				onetimeArea.css('display', 'none');
 				oneArea.css('display', 'none');
@@ -1001,6 +1012,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				deadlineReq.css('display', 'block');
 				allDeadlineReq.css('display', 'block');
 				deadlineArea.css('display', 'block');
+				all_application_button.css('display', 'block');
 			} else {
 				onetimeArea.css('display', 'block');
 				oneArea.css('display', 'block');
@@ -1013,6 +1025,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 				deadlineLabel.text("申し込み締切日");
 				deadlineReq.css('display', 'block');
 				deadlineArea.css('display', 'block');
+				all_application_button.css('display', 'none');
 			}
 		});
 		let itemCount = 1; // 初期値として1を設定
