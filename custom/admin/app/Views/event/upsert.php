@@ -203,8 +203,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 													id="thumbnail_img_tag"
 													src="<?= htmlspecialchars($eventData['thumbnail_img']) ?>"
 													width="300" />
-												<button type="button" class="delete-link delete_btn btn btn-danger ms-auto me-0" data-id="<?= $id ?>">削除</button>
 											</div>
+											<button type="button" class="delete-link delete_btn btn btn-danger ms-auto me-0" data-id="<?= $id ?>">削除</button>
 										<?php endif; ?>
 										<?php if (!empty($errors['thumbnail_img'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['thumbnail_img']); ?></div>
