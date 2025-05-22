@@ -19,6 +19,7 @@ $event_list = $result_list['event_list']  ?? [];
 $application_list = $result_list['application_list'];
 $course_list = $result_list['course_list'] ?? [];
 $customfield_header_list = $result_list['customfield_header_list'] ?? [];
+$is_guardian_name = $result_list['is_guardian_name'];
 
 // ページネーション
 $total_count = $result_list['total_count'];
@@ -148,6 +149,8 @@ $page = $result_list['page'];
                                                         <?php if (!$result_list['is_single']): ?><th class="ps-4 pe-4">講座回数</th><?php endif; ?>
                                                         <th class="ps-4 pe-4">会員番号</th>
                                                         <th class="ps-4 pe-4">ユーザー名</th>
+                                                        <?php if ($is_guardian_name) { ?><th class="ps-4 pe-4">保護者氏名</th> <?php } ?>
+                                                        <th class="ps-4 pe-4">ユーザー名</th>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
                                                         <th class="ps-4 pe-4">年齢</th>
                                                         <th class="ps-4 pe-4">本イベントはどのようにお知りになりましたか</th>
@@ -171,6 +174,7 @@ $page = $result_list['page'];
                                                             <?php if (!$result_list['is_single']): ?><td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['no']) ?></td><?php endif; ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['user_id']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
+                                                            <?php if ($is_guardian_name) { ?><td class="ps-4 pe-4"><?= htmlspecialchars($application['guardian_name']) ?></td> <?php } ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['trigger_txt_str']) ?></td>

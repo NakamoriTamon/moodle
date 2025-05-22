@@ -152,6 +152,16 @@ try {
         }
     }
 
+    // 保護者氏名が存在し、14歳未満の場合保護者氏名表示フラグをあげる
+    $is_guardian_name = false;
+    foreach ($application_course_info_list as $index => $application_checklist) {
+        $target_user = reset($application_checklist['application'])['user'];
+        if (!empty($target_user['guardian_name']) && getAge($target_user['birthday']) < 14) {
+            $is_guardian_name = true;
+            break;
+        }
+    }
+
     if ($is_single) {
         // CSVヘッダー
         $csv_list[0] = [
@@ -191,6 +201,11 @@ try {
         ];
     }
 
+    if ($is_guardian_name) {
+        $user_name_index = array_search('ユーザー名', $csv_list[0]);
+        array_splice($csv_list[0], $user_name_index + 1, 0, '保護者氏名');
+    }
+
     $insert_index = array_search('備考', $csv_list[0]);
     $insert_index++;
     array_splice($csv_list[0], $insert_index, 0, $customfield_header_list);
@@ -223,6 +238,7 @@ try {
         // お連れ様の場合はユーザー情報は取得しない
         if ($application['user']['email'] == $application_course_info['participant_mail']) {
             $name = $application['user']['name'];
+            $guardian_name = $application['user']['guardian_name'];
             $formatted_id = sprintf('%08d', $application["user"]['id']);
             $user_id = substr_replace($formatted_id, ' ', 4, 0);
 
@@ -298,6 +314,10 @@ try {
                 $application_date,
                 IS_PARTICIPATION_LIST[$application_course_info['participation_kbn']]
             ];
+        }
+
+        if ($is_guardian_name) {
+            array_splice($csv_array, $user_name_index + 1, 0, $guardian_name);
         }
 
         // カスタムフィールド回答結果を収集
