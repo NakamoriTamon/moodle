@@ -89,9 +89,7 @@ if (!empty($path)) {
         const video = document.getElementById('movie_video');
         const signedUrl = <?= json_encode($signedUrl) ?>;
         const controls_area = document.getElementById('controls_area');
-        const signedUrl = <?= json_encode($signedUrl) ?>;
         if (signedUrl) {
-            const m3u8Url = "https://d1q5pewnweivby.cloudfront.net/" + s3_file_name;
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(signedUrl);
