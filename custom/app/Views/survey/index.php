@@ -73,7 +73,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                今までに大阪大学<?php echo htmlspecialchars(' [ ' . $department . ' ] ' ?? '', ENT_QUOTES, 'UTF-8'); ?>主催のイベントに参加されたことはありますか
+                                今までに大阪大学主催のイベントに参加されたことはありますか
                             </h4>
                             <div class="list_field f_radio">
                                 <label>
@@ -303,7 +303,7 @@ $event_kbn = $event->event_kbn;
                         </li>
                         <li>
                             <h4 class="sub_ttl">
-                                今後の大阪大学<?php echo htmlspecialchars(' [ ' . $department . ' ] ' ?? '', ENT_QUOTES, 'UTF-8'); ?>主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください。
+                                今後の大阪大学主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください。
                             </h4>
                             <div class="list_field f_txtarea">
                                 <textarea name="lecture_suggestions" row="20px"><?php echo htmlspecialchars($old_input['lecture_suggestions'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
