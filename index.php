@@ -122,10 +122,10 @@ $now = $now->format('Ymd');
                                             <li class="end"><?= DEADLINE_LIST[DEADLINE_END] ?></li>
                                         <?php else: ?>
                                             <?php foreach (DEADLINE_LIST as $key => $status): ?>
-                                                <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status']): ?>
-                                                    <li class="active"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
-                                                <?php elseif ($key == 3 && $key == $row['deadline_status']): ?>
-                                                    <li class="end"><?= DEADLINE_LIST[$row['deadline_status']] ?></li>
+                                                <?php if (($key == 1 || $key == 2) && $key == $row['deadline_status_max']): ?>
+                                                    <li class="active"><?= DEADLINE_LIST[$row['deadline_status_max']] ?></li>
+                                                <?php elseif ($key == 3 && $key == $row['deadline_status_max']): ?>
+                                                    <li class="end"><?= DEADLINE_LIST[$row['deadline_status_max']] ?></li>
                                                 <?php endif ?>
                                             <?php endforeach; ?>
                                         <?php endif ?>

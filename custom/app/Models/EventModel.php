@@ -40,6 +40,15 @@ class EventModel extends BaseModel
                             LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
                             LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
                             GROUP BY e.id
+                        ),
+                        max_deadlines AS (
+                            SELECT 
+                                e.id AS event_id,
+                                MAX(c.deadline_date) AS max_deadline
+                            FROM mdl_event e
+                            LEFT JOIN mdl_event_course_info ec ON e.id = ec.event_id
+                            LEFT JOIN mdl_course_info c ON ec.course_info_id = c.id
+                            GROUP BY e.id
                         )
                         SELECT 
                             e.*,
@@ -102,13 +111,20 @@ class EventModel extends BaseModel
 
                                 ELSE 0
                             END AS deadline_status,
+                             CASE
+                                WHEN :current_timestamp <= md.max_deadline - INTERVAL 5 DAY THEN 1
+                                WHEN :current_timestamp > md.max_deadline - INTERVAL 5 DAY AND :current_timestamp <= md.max_deadline THEN 2
+                                WHEN :current_timestamp > md.max_deadline THEN 3
+                                ELSE 0
+                            END AS deadline_status_max,
                             user.department
                         FROM mdl_event e
                         LEFT JOIN event_dates ed ON e.id = ed.event_id
                     LEFT JOIN mdl_event_course_info eci ON eci.event_id = e.id
                     LEFT JOIN mdl_course_info ci ON eci.course_info_id = ci.id
                     LEFT JOIN mdl_event_application ea ON ea.event_id = e.id
-                    LEFT JOIN mdl_user user ON user.id = e.userid';
+                    LEFT JOIN mdl_user user ON user.id = e.userid
+                    LEFT JOIN max_deadlines md ON md.event_id = e.id';
 
                 $where = ' WHERE e.visible = 1';
                 $groupBy = ' GROUP BY e.id';
