@@ -7,7 +7,7 @@ $baseModel = new BaseModel();
 $model = new EventApplicationModel();
 $applications = $model->getEventApplicationByPaymentKbn_Zero();
 
-foreach($applications as $row) {
+foreach ($applications as $row) {
     try {
         $application_date = $row['application_date']; // 申込日
         $payment_date = $row['payment_date']; // 支払日
@@ -41,7 +41,7 @@ foreach($applications as $row) {
             }
         }
 
-        if(!empty($payment_kbn)) {
+        if (!empty($payment_kbn)) {
             $pdo = $baseModel->getPdo();
             $pdo->beginTransaction();
 
@@ -57,7 +57,10 @@ foreach($applications as $row) {
                 ':payment_kbn' => $payment_kbn,
                 ':id' => $id
             ]);
-            
+            // キャンセル扱いの場合はログに残すようにする
+            if ($payment_kbn == 2) {
+                error_log("未払いキャンセルに変更します : id=" . $id);
+            }
             $pdo->commit();
         }
     } catch (Exception $e) {
