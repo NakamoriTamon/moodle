@@ -242,6 +242,9 @@ if ($event_kbn == SINGLE_EVENT) {
                     || $_SESSION['errors']["material_release_date"])
             ) {
                 $error_flg = true;
+                $_SESSION['old_input'] = $_POST;
+                header('Location: /custom/admin/app/Views/event/upsert.php' . ($id ? '?id=' . $id : ''));
+                exit;
             }
 
             // アーカイブ公開日が入力されている場合
@@ -357,6 +360,9 @@ if ($event_kbn == SINGLE_EVENT) {
                     || $_SESSION['errors']["course_date_1"])
             ) {
                 $error_flg = true;
+                $_SESSION['old_input'] = $_POST;
+                header('Location: /custom/admin/app/Views/event/upsert.php' . ($id ? '?id=' . $id : ''));
+                exit;
             }
 
             // アーカイブ公開日が入力されている場合
@@ -435,6 +441,9 @@ if ($event_kbn == SINGLE_EVENT) {
                         || $_SESSION['errors']["material_release_date"])
                 ) {
                     $error_flg = true;
+                    $_SESSION['old_input'] = $_POST;
+                    header('Location: /custom/admin/app/Views/event/upsert.php' . ($id ? '?id=' . $id : ''));
+                    exit;
                 }
 
                 // アーカイブ公開日が入力されている場合
