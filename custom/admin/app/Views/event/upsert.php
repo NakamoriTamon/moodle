@@ -824,6 +824,15 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<span name="is_all_apply_btn" class=" form-check-label">一括申込みボタンを表示する</span>
 										</label>
 									</div>
+									<div class="mb-3">
+										<div class="form-label d-flex">
+											<label class="me-2">公開予約日時</label>
+										</div>
+										<div class="d-flex align-items-center">
+											<input name="" class="w-50 me-3 form-control" type="date" value="" />
+											<input name="all_deadline" class="w-25 me-2 form-control" type="number" min=1 max=24 value="" />時
+										</div>
+									</div>
 									<!-- イベントカスタム区分は一時的に非表示とする -->
 									<div class="mb-3 d-none">
 										<label class="form-label">イベントカスタム区分</label>
@@ -858,7 +867,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<?php if (!$start_event_flg): ?>
-											<input type="submit" id="submit" class="btn btn-primary" value="登録">
+											<input type="submit" id="submit" class="btn btn-primary me-3" value="登録">
+											<input type="button" id="submit" class="btn btn-primary" value="プレビュー">
 										<?php endif ?>
 									</div>
 								</form>

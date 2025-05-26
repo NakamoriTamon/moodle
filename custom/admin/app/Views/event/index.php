@@ -55,7 +55,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 									<div class="sp-ms-0 ms-3 mb-3 w-100">
 										<label class="form-label" for="notyf-message">開催ステータス</label>
 										<select name="select_event_status" class="form-control">
-											<option value="">すべて</option>$
+											<option value="">すべて</option>
 											<?php foreach ($event_statuses as $id => $name): ?>
 												<option value="<?= htmlspecialchars($id) ?>"
 													<?= isset($old_input['select_event_status']) && $id == $old_input['select_event_status'] ? 'selected' : '' ?>>
@@ -65,19 +65,29 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 										</select>
 									</div>
 								</div>
-								<div class="mb-4">
-									<label class="form-label" for="notyf-message">イベント名</label>
-									<select name="select_event_id" class="form-control">
-										<option value="">すべて</option>
-										<?php if (isset($events) && !empty($events)): ?>
-											<?php foreach ($events as $event): ?>
-												<option value="<?= htmlspecialchars($event['id']) ?>"
-													<?= isset($old_input['select_event_id']) && $event['id'] == $old_input['select_event_id'] ? 'selected' : '' ?>>
-													<?= htmlspecialchars($event['name']) ?>
-												</option>
-											<?php endforeach; ?>
-										<?php endif; ?>
-									</select>
+								<div class="sp-block d-flex justify-content-between">
+									<div class="mb-4 w-100">
+										<label class="form-label" for="notyf-message">イベント名</label>
+										<select name="select_event_id" class="form-control">
+											<option value="">すべて</option>
+											<?php if (isset($events) && !empty($events)): ?>
+												<?php foreach ($events as $event): ?>
+													<option value="<?= htmlspecialchars($event['id']) ?>"
+														<?= isset($old_input['select_event_id']) && $event['id'] == $old_input['select_event_id'] ? 'selected' : '' ?>>
+														<?= htmlspecialchars($event['name']) ?>
+													</option>
+												<?php endforeach; ?>
+											<?php endif; ?>
+										</select>
+									</div>
+									<div class="sp-ms-0 ms-3 mb-3 w-100">
+										<label class="form-label" for="notyf-message">公開状態</label>
+										<select name="" class="form-control">
+											<option value="">すべて</option>
+											<option value="">公開中</option>
+											<option value="">公開予約</option>
+										</select>
+									</div>
 								</div>
 								<!-- <hr> -->
 								<div class="d-flex w-100">
@@ -99,6 +109,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 												<th class="ps-4 pe-4">ID</th>
 												<th class="ps-4 pe-4">タイトル</th>
 												<th class="ps-4 pe-4">開催ステータス</th>
+												<th class="ps-4 pe-4">公開予約日</th>
 												<th class="ps-4 pe-4">講義形式</th>
 												<th class="ps-4 pe-4">会場名</th>
 												<th class="ps-4 pe-4">定員</th>
@@ -113,6 +124,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 														<td class="ps-4 pe-4"><?= htmlspecialchars($event['id']); ?></td>
 														<td class="ps-4 pe-4"><?= htmlspecialchars($event['name']); ?></td>
 														<td class="ps-4 pe-4"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
+														<td class="ps-4 pe-4"></td>
 														<td class="ps-4 pe-4">
 															<?php foreach ($event['lecture_formats'] as $key => $lecture_format): ?>
 																<?php if ($key == 0): ?>
@@ -180,7 +192,7 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 											<?php for ($i = 1; $i <= ceil($totalCount / $perPage); $i++): ?>
 												<li class="paginate_button page-item <?= $i == $pageNo ? 'active' : '' ?>"><a href="?page=<?= $i ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link"><?= $i ?></a></li>
 											<?php endfor; ?>
-											<?php if ($totalCount/$perPage >= intval($pageNo) + 1 && $totalCount > $perPage): ?>
+											<?php if ($totalCount / $perPage >= intval($pageNo) + 1 && $totalCount > $perPage): ?>
 												<li class="paginate_button page-item next" id="datatables-buttons_next"><a href="?page=<?= intval($pageNo) + 1 ?>&<?= $queryString ?>" aria-controls="datatables-buttons" class="page-link">Next</a></li>
 											<?php endif; ?>
 										</ul>
