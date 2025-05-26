@@ -39,7 +39,7 @@ $diffMinutes = $diffSeconds / 60;
 
 if ($surveys['exist']) {
     echo '<script type="text/javascript">
-            window.location.href = "/custom/app/Views/event/register.php";
+            window.location.href = "/custom/app/Views/survey/exist.php";
           </script>';
     exit;
 }
