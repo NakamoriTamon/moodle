@@ -1,6 +1,5 @@
 <?php
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
-
 require_once('/var/www/html/moodle/custom/app/Controllers/tekijuku/tekijuku_index_controller.php');
 
 $tekijuku_index_controller = new TekijukuIndexController;

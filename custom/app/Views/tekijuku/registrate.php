@@ -2,12 +2,13 @@
 require_once('/var/www/html/moodle/config.php');
 require_once($CFG->dirroot . '/custom/helpers/form_helpers.php');
 $payment_select_list = PAYMENT_SELECT_LIST;
+$message_error = $_SESSION['message_error'] ?? [];
 $errors = $_SESSION['errors'] ?? [];
 // $old_input = $_SESSION['old_input'] ?? [];
 
 include('/var/www/html/moodle/custom/app/Views/common/header.php');
 $user_data = $_SESSION['USER'];
-unset($_SESSION['errors'], $_SESSION['old_input']);
+unset($_SESSION['errors'], $_SESSION['old_input'], $_SESSION['user_message_error']);
 
 // ログインせずに直接URLで移動してきた場合はログイン画面に移動
 if (!$login_check_flg) {
@@ -33,6 +34,7 @@ if (!$login_check_flg) {
             </ul>
             <form method="POST" action="/custom/app/Controllers/tekijuku/tekijuku_controller.php" class="whitebox form_cont">
                 <div class="inner_m">
+                    <?php if (!empty($message_error)) { ?><p class="error"> <?= $message_error ?></p><?php } ?>
                     <ul class="list">
                         <li class="list_item01 req">
                             <p class="list_label">会員種別</p>

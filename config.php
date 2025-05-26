@@ -458,5 +458,7 @@ $event_trigger_list = [
 ];
 define('EVENT_TRIGGER_LIST', $event_trigger_list);
 
+$tekijuku_renumbering_num = 10000000;
+define('TEKIJUKU_RENUMBERING_NUM', $tekijuku_renumbering_num);
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
