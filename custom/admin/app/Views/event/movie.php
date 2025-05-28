@@ -156,7 +156,7 @@ if (!empty($path)) {
 													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
-											<div class="d-flex flex-wrap align-items-end gap-3 w-100">
+											<div id="movie_disp_area" class="d-flex flex-wrap align-items-end gap-3 w-100">
 												<!-- サムネイル用画像 -->
 												<div class="w-100">
 													<img id="movie_img" src="" alt="サムネイル">
@@ -260,6 +260,9 @@ if (!empty($path)) {
 						controls_area.appendChild(speedBtn);
 					}
 
+				});
+				hls.on(Hls.Events.ERROR, function(event, data) {
+					$('#movie_video').after('<p class="fs-5 mt-3 mb-3 w-100">動画変換中です。少々お待ちください...</p>');
 				});
 			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 				video.src = m3u8Url;
