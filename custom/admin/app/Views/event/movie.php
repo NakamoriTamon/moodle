@@ -22,6 +22,7 @@ $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
 $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 $course_list = $result_list['course_list'] ?? [];
+$is_empty = empty($movie) ? true : false;
 
 // 講義動画取得
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
@@ -262,7 +263,10 @@ if (!empty($path)) {
 
 				});
 				hls.on(Hls.Events.ERROR, function(event, data) {
-					$('#movie_video').after('<p class="fs-5 mt-3 mb-3 w-100">動画変換中です。少々お待ちください...</p>');
+					const is_empty = <?= json_encode($is_empty) ?>;
+					if (!is_empty) {
+						$('#movie_video').after('<p class="fs-5 mt-3 mb-3 w-100">動画変換中です。少々お待ちください...</p>');
+					}
 				});
 			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 				video.src = m3u8Url;
