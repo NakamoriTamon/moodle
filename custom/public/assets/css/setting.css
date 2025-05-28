@@ -67,6 +67,10 @@
   text-align: center;
   color: #a1a1a1;
 }
+#setting .login_fail_txt{
+  margin-top: 45px;
+  color: #a1a1a1;
+}
 #setting .set_form .new_rink a {
   display: inline;
   text-decoration: underline;
@@ -79,7 +83,7 @@
   padding: 100px 0 !important;
 }
 .login .set_form .set_inner {
-  max-width: 500px !important;
+  max-width: 550px !important;
 }
 
 /*-------------------------------------

@@ -458,7 +458,11 @@ $event_trigger_list = [
 ];
 define('EVENT_TRIGGER_LIST', $event_trigger_list);
 
-$tekijuku_renumbering_num = 10000000;
+$tekijuku_renumbering_num = 10000000; // 再設定時にこのIDを基準に最大値を確認
 define('TEKIJUKU_RENUMBERING_NUM', $tekijuku_renumbering_num);
+
+$login_fail_check_count = 3; // ログインに3回ミスしたら再設定画面へ遷移させる
+define('LOGIN_FAIL_CHECK_COUNT', $login_fail_check_count);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
