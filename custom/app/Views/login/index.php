@@ -1,5 +1,7 @@
 <?php
-include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
+include('/var/www/html/moodle/custom/app/Views/common/header.php');
+$login_fail_count = $_SESSION['login_fail_count'];
+?>
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/setting.css" />
 
 <main id="subpage">
@@ -40,6 +42,7 @@ include('/var/www/html/moodle/custom/app/Views/common/header.php'); ?>
                         </li>
                     </ul>
                     <a href="../user/pass_mail.php" class="pass_rink">パスワードをお忘れですか？</a>
+                    <p class="login_fail_txt">再度ログインに失敗すると、パスワード再設定画面へ遷移します。</p>
                     <input type="submit" class="btn btn_red" value="ログイン" />
                     <p class="new_rink">初めての方は<a href="/custom/app/Views/user/index.php">こちらから会員登録</a></p>
                 </div>
