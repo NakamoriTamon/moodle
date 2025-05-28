@@ -64,6 +64,9 @@ try {
     $header = array_merge(
         $header,
         [
+            '年代を教えて下さい',
+            'ご職業や学生区分を教えてください',
+            'お住まいの地域を教えてください',
             '本日のイベントについて、ご意見・ご感想をお書きください',
             '今までに大阪大学主催のイベントに参加されたことはありますか',
             '本日のイベントをどのようにしてお知りになりましたか',
@@ -73,10 +76,7 @@ try {
             '本日のイベントの満足度について、あてはまるもの1つをお選びください',
             '（会場での開催の場合のみ回答ください）本日のイベントの開催環境について、あてはまるものを１つお選びください。',
             '「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。',
-            '今後の大阪大学主催で、希望するジャンルやテーマ、話題があれば、ご提案ください',
-            '年代を教えて下さい',
-            'ご職業や学生区分を教えてください',
-            'お住まいの地域を教えてください'
+            '今後の大阪大学主催で、希望するジャンルやテーマ、話題があれば、ご提案ください'
         ]
     );
 
@@ -136,6 +136,9 @@ try {
         }
 
         $csv_array = array_merge($csv_array, [
+            $age,
+            $work,
+            $address_combined,
             $survey['thoughts'] ?? '',
             $attend,
             $found_method,
@@ -145,10 +148,7 @@ try {
             $satisfaction,
             $holding_environment,
             $survey['no_good_environment_reason'] ?? '',
-            $survey['lecture_suggestions'] ?? '',
-            $age,
-            $work,
-            $address_combined
+            $survey['lecture_suggestions'] ?? ''
         ]);
 
         foreach ($survey_field_list as $field) {
