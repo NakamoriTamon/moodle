@@ -63,6 +63,118 @@ $event_kbn = $event->event_kbn;
             <input type="hidden" name="event_survey_customfield_category_id" value="<?php echo $event_survey_customfield_category_id ?>">
             <?php if (!empty($basic_error)) { ?><p class="error"> <?= $basic_error ?></p><?php } ?>
             <div class="inner_s">
+                <div class="form_block form03">
+                    <!-- <p class="red">
+                        <span>以下の質問について、差し支えない範囲でご回答ください。(任意)</span>
+                    </p> -->
+                    <ul class="list">
+                        <li>
+                            <h4 class="sub_ttl">年代を教えて下さい。</h4>
+                            <div class="list_field f_radio">
+                                <label>
+                                    <input type="radio" name="age" value="1" <?php if (isset($old_input['age']) && $old_input['age'] === '1') echo 'checked'; ?>>
+                                    20歳未満
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="2" <?php if (isset($old_input['age']) && $old_input['age'] === '2') echo 'checked'; ?>>
+                                    20歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="3" <?php if (isset($old_input['age']) && $old_input['age'] === '3') echo 'checked'; ?>>
+                                    30歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="4" <?php if (isset($old_input['age']) && $old_input['age'] === '4') echo 'checked'; ?>>
+                                    40歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="5" <?php if (isset($old_input['age']) && $old_input['age'] === '5') echo 'checked'; ?>>
+                                    50歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="6" <?php if (isset($old_input['age']) && $old_input['age'] === '6') echo 'checked'; ?>>
+                                    60歳台
+                                </label>
+                                <label>
+                                    <input type="radio" name="age" value="7" <?php if (isset($old_input['age']) && $old_input['age'] === '7') echo 'checked'; ?>>
+                                    70歳以上
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <h4 class="sub_ttl">ご職業や学生区分を教えてください。</h4>
+                            <div class="list_field f_radio">
+                                <label>
+                                    <input type="radio" name="work" value="1" <?php if (isset($old_input['work']) && $old_input['work'] === '1') echo 'checked'; ?>>
+                                    高校生以下
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="2" <?php if (isset($old_input['work']) && $old_input['work'] === '2') echo 'checked'; ?>>
+                                    学生（高校生、大学生、大学院生等）
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="3" <?php if (isset($old_input['work']) && $old_input['work'] === '3') echo 'checked'; ?>>
+                                    会社員
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="4" <?php if (isset($old_input['work']) && $old_input['work'] === '4') echo 'checked'; ?>>
+                                    自営業・フリーランス
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="5" <?php if (isset($old_input['work']) && $old_input['work'] === '5') echo 'checked'; ?>>
+                                    公務員
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="6" <?php if (isset($old_input['work']) && $old_input['work'] === '6') echo 'checked'; ?>>
+                                    教職員
+                                </label>
+                                <label>
+                                    <input type="radio" name="work" value="7" <?php if (isset($old_input['work']) && $old_input['work'] === '7') echo 'checked'; ?>>
+                                    無職
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <h4 class="sub_ttl">
+                                お住まいの地域を教えてください。
+                                <span class="comment">※〇〇県△△市のようにご回答ください（例：大阪府豊中市）。</span>
+                            </h4>
+                            <div class="list_field f_area">
+                                <div class="area_item01">
+                                    <label>都道府県 </label>
+                                    <div class="select">
+                                        <select name="prefecture_disabled" disabled>
+                                            <?php foreach ($prefectures as $prefecture) { ?>
+                                                <option value="<?= htmlspecialchars($prefecture) ?>"
+                                                    <?= isSelected($prefecture, $USER->city ?? null, null) ? 'selected' : '' ?>>
+                                                    <?= $prefecture ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
+                                        <input type="hidden" name="prefecture" value="<?= htmlspecialchars($USER->city ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    </div>
+                                </div>
+                                <div class="area_item02">
+                                    <label>市町村 </label>
+                                    <input type="text" name="address" id="address" style="width: 50%;" value="<?php echo htmlspecialchars($old_input['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php if (!empty($errors['address'])): ?>
+                                        <div class="error-msg">
+                                            <?= htmlspecialchars($errors['address']); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </li>
+                        <?php if (!empty($errors['passage'])): ?>
+                            <?php foreach ($errors['passage'] as $key => $message): ?>
+                                <?php if (!empty($message)): ?>
+                                    <div class="error-msg"><?= htmlspecialchars($message); ?></div><br>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <?php echo $passage ?>
+                    </ul>
+                </div>
                 <div class="form_block form01">
                     <ul class="list">
                         <li>
@@ -314,118 +426,6 @@ $event_kbn = $event->event_kbn;
                                 </div>
                             <?php endif; ?>
                         </li>
-                    </ul>
-                </div>
-                <div class="form_block form03">
-                    <p class="red">
-                        <span>以下の質問について、差し支えない範囲でご回答ください。(任意)</span>
-                    </p>
-                    <ul class="list">
-                        <li>
-                            <h4 class="sub_ttl">年代を教えて下さい。</h4>
-                            <div class="list_field f_radio">
-                                <label>
-                                    <input type="radio" name="age" value="1" <?php if (isset($old_input['age']) && $old_input['age'] === '1') echo 'checked'; ?>>
-                                    20歳未満
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="2" <?php if (isset($old_input['age']) && $old_input['age'] === '2') echo 'checked'; ?>>
-                                    20歳台
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="3" <?php if (isset($old_input['age']) && $old_input['age'] === '3') echo 'checked'; ?>>
-                                    30歳台
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="4" <?php if (isset($old_input['age']) && $old_input['age'] === '4') echo 'checked'; ?>>
-                                    40歳台
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="5" <?php if (isset($old_input['age']) && $old_input['age'] === '5') echo 'checked'; ?>>
-                                    50歳台
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="6" <?php if (isset($old_input['age']) && $old_input['age'] === '6') echo 'checked'; ?>>
-                                    60歳台
-                                </label>
-                                <label>
-                                    <input type="radio" name="age" value="7" <?php if (isset($old_input['age']) && $old_input['age'] === '7') echo 'checked'; ?>>
-                                    70歳以上
-                                </label>
-                            </div>
-                        </li>
-                        <li>
-                            <h4 class="sub_ttl">ご職業や学生区分を教えてください。</h4>
-                            <div class="list_field f_radio">
-                                <label>
-                                    <input type="radio" name="work" value="1" <?php if (isset($old_input['work']) && $old_input['work'] === '1') echo 'checked'; ?>>
-                                    高校生以下
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="2" <?php if (isset($old_input['work']) && $old_input['work'] === '2') echo 'checked'; ?>>
-                                    学生（高校生、大学生、大学院生等）
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="3" <?php if (isset($old_input['work']) && $old_input['work'] === '3') echo 'checked'; ?>>
-                                    会社員
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="4" <?php if (isset($old_input['work']) && $old_input['work'] === '4') echo 'checked'; ?>>
-                                    自営業・フリーランス
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="5" <?php if (isset($old_input['work']) && $old_input['work'] === '5') echo 'checked'; ?>>
-                                    公務員
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="6" <?php if (isset($old_input['work']) && $old_input['work'] === '6') echo 'checked'; ?>>
-                                    教職員
-                                </label>
-                                <label>
-                                    <input type="radio" name="work" value="7" <?php if (isset($old_input['work']) && $old_input['work'] === '7') echo 'checked'; ?>>
-                                    無職
-                                </label>
-                            </div>
-                        </li>
-                        <li>
-                            <h4 class="sub_ttl">
-                                お住まいの地域を教えてください。
-                                <span class="comment">※〇〇県△△市のようにご回答ください（例：大阪府豊中市）。</span>
-                            </h4>
-                            <div class="list_field f_area">
-                                <div class="area_item01">
-                                    <label>都道府県 </label>
-                                    <div class="select">
-                                        <select name="prefecture_disabled" disabled>
-                                            <?php foreach ($prefectures as $prefecture) { ?>
-                                                <option value="<?= htmlspecialchars($prefecture) ?>"
-                                                    <?= isSelected($prefecture, $USER->city ?? null, null) ? 'selected' : '' ?>>
-                                                    <?= $prefecture ?>
-                                                </option>
-                                            <?php } ?>
-                                        </select>
-                                        <input type="hidden" name="prefecture" value="<?= htmlspecialchars($USER->city ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                    </div>
-                                </div>
-                                <div class="area_item02">
-                                    <label>市町村 </label>
-                                    <input type="text" name="address" id="address" style="width: 50%;" value="<?php echo htmlspecialchars($old_input['address'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                    <?php if (!empty($errors['address'])): ?>
-                                        <div class="error-msg">
-                                            <?= htmlspecialchars($errors['address']); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </li>
-                        <?php if (!empty($errors['passage'])): ?>
-                            <?php foreach ($errors['passage'] as $key => $message): ?>
-                                <?php if (!empty($message)): ?>
-                                    <div class="error-msg"><?= htmlspecialchars($message); ?></div><br>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                        <?php echo $passage ?>
                     </ul>
                 </div>
             </div>
