@@ -25,7 +25,7 @@ $_SESSION['errors'] = [
 foreach ($_SESSION['errors'] as $error) {
     if (!empty($error)) {
         $_SESSION['login_fail_count']++;
-        if ($_SESSION['login_fail_count']++ >= LOGIN_FAIL_CHECK_COUNT) {
+        if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
             unset($_SESSION['errors']);
             header('Location: /custom/app/Views/user/pass_mail.php');
         } else {
@@ -51,7 +51,7 @@ if (!$user_list) {
 if (!$user_list) {
     $_SESSION['login_fail_count']++;
     $_SESSION['message_error'] = 'ログインに失敗しました。';
-    if ($_SESSION['login_fail_count']++ >= LOGIN_FAIL_CHECK_COUNT) {
+    if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
         unset($_SESSION['errors']);
         header('Location: /custom/app/Views/user/pass_mail.php');
     } else {
@@ -76,7 +76,7 @@ foreach ($user_list as $user) {
 
 $_SESSION['login_fail_count']++;
 $_SESSION['message_error'] = 'ログインに失敗しました。';
-if ($_SESSION['login_fail_count']++ >= LOGIN_FAIL_CHECK_COUNT) {
+if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
     unset($_SESSION['errors']);
     header('Location: /custom/app/Views/user/pass_mail.php');
 } else {
