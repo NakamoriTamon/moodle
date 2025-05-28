@@ -41,15 +41,15 @@ if (isset($SESSION->formdata)) {
                     <ul class="list">
                         <li class="list_item01">
                             <p class="list_label">お名前</p>
-                            <p class="list_field f_txt"><?= $name ?></p>
+                            <p class="list_field f_txt"><?= htmlspecialchars($name) ?></p>
                         </li>
                         <li class="list_item02">
                             <p class="list_label">メールアドレス</p>
-                            <p class="list_field f_txt"><?= $email ?></p>
+                            <p class="list_field f_txt"><?= htmlspecialchars($email) ?></p>
                         </li>
                         <li class="list_item04">
                             <p class="list_label">お問い合わせの項目</p>
-                            <p class="list_field f_select"><?= $event_name ?></p>
+                            <p class="list_field f_select"><?= htmlspecialchars($event_name) ?></p>
                         </li>
                         <li class="list_item05 long_item">
                             <p class="list_label">お問い合わせ内容</p>
@@ -77,4 +77,5 @@ if (isset($SESSION->formdata)) {
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 
 </body>
+
 </html>
