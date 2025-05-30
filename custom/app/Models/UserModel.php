@@ -341,7 +341,7 @@ class UserModel extends BaseModel
                 JOIN mdl_role_assignments ra ON u.id = ra.userid
                 JOIN mdl_role r ON ra.roleid = r.id";
 
-                $where = " WHERE u.deleted = 0";
+                $where = " WHERE u.deleted = 0 AND confirmed = 1";
                 $where .= " AND r.shortname = 'user'";
                 $orderBy = ' ORDER BY u.lastname, u.firstname ASC';
 
