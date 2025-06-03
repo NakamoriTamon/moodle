@@ -206,6 +206,10 @@ class MessageSelectController
         // 表示データを取得・整形する
         $application_list = [];
         foreach ($application_course_info_list as $key => $application_course_info) {
+            if ($application_course_info['participation_kbn'] == IS_PARTICIPATION_CANCEL) {
+                unset($application_course_info_list[$key]);
+                continue;
+            }
             $application = reset($application_course_info['application']);
             $event = $application['event'];
             $application_date = new DateTime($application['application_date']);

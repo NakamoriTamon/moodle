@@ -277,6 +277,10 @@ define('TEENAGER_AGE', $teenager_age);
 $is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);
 
+// イベントキャンセル区分
+$is_participation_cancel = 3;
+define('IS_PARTICIPATION_CANCEL', $is_participation_cancel);
+
 // アカウント承認状態
 $is_apply_list = [0 => '未承認', 1 => '承認'];
 define('IS_APPLY_LIST', $is_apply_list);
