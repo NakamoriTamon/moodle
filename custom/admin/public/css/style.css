@@ -182,6 +182,11 @@ input.timepicker {
 #best-image-preview > img,
 #best-sp-image-preview > img{
     width: 100%;
+    max-width: 500px;
+}
+.delete-link_exit{
+    width: 18px;
+    display: inline-block;
 }
 /* 講義動画読込 */
 #movie_img{

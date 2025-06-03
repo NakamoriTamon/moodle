@@ -26,6 +26,14 @@ if (isset($eventData) && $eventData['event_kbn'] == EVERY_DAY_EVENT) {
 	$every_event_flg = true;
 }
 
+$scheduled_publish_date = null;
+$scheduled_publish_hour = null;
+if (!empty($eventData['scheduled_publish_at'])) {
+	$scheduled_publish_at = new DateTime($eventData['scheduled_publish_at']);
+	$scheduled_publish_date = $scheduled_publish_at->format('Y-m-d');
+	$scheduled_publish_hour = $scheduled_publish_at->format('G');
+}
+
 // セッションからエラーメッセージを取得
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
@@ -132,7 +140,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 										</span>
 									</form>
 								<?php endif ?>
-								<form method="POST" action="/custom/admin/app/Controllers/event/event_upsert_controller.php" enctype="multipart/form-data">
+								<form id="upsert-form" method="POST" action="/custom/admin/app/Controllers/event/event_upsert_controller.php" enctype="multipart/form-data">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 									<input type="hidden" name="action" value="createUpdate">
 									<input type="hidden" id="event_id" name="id" value="<?= $id ?? '' ?>">
@@ -667,13 +675,6 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											</div>
 										<?php endforeach; ?>
 									</div>
-									<!-- <div class="mb-3">
-										<label class="form-label">プログラム</label>
-										<textarea name="program" class=" form-control" rows="5"><?= htmlspecialchars($eventData['program'] ?? ($old_input['program'] ?? '')) ?></textarea>
-										<?php if (!empty($errors['program'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['program']); ?></div>
-										<?php endif; ?>
-									</div> -->
 									<div class="mb-3">
 										<label class="form-label">主催</label>
 										<input name="sponsor" class=" form-control" type="text"
@@ -826,12 +827,15 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<div class="form-label d-flex">
-											<label class="me-2">公開予約日時</label>
+											<label class="me-2">公開予約日時　※未入力の場合、即時公開されます。</label>
 										</div>
 										<div class="d-flex align-items-center">
-											<input name="" class="w-50 me-3 form-control" type="date" value="" />
-											<input name="all_deadline" class="w-25 me-2 form-control" type="number" min=1 max=24 value="" />時
+											<input name="scheduled_publish_date" class="w-50 me-3 form-control" type="date" value="<?= htmlspecialchars(isSetValue($scheduled_publish_date ?? '', $old_input['scheduled_publish_date'] ?? '')) ?>" />
+											<input name="scheduled_publish_time" class="w-25 me-2 form-control" type="number" min=1 max=24 value="<?= htmlspecialchars(isSetValue($scheduled_publish_hour ?? '', $old_input['scheduled_publish_time'] ?? '')) ?>" />時
 										</div>
+										<?php if (!empty($errors['scheduled_publish_at'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_at']); ?></div>
+										<?php endif; ?>
 									</div>
 									<!-- イベントカスタム区分は一時的に非表示とする -->
 									<div class="mb-3 d-none">
@@ -843,7 +847,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<?php endforeach ?>
 										</select>
 										<?php if (!empty($errors['event_customfield_category_id'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_customfield_category_id']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -855,7 +859,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<?php endforeach ?>
 										</select>
 										<?php if (!empty($errors['event_survey_customfield_category_id'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['note']); ?></div>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['event_survey_customfield_category_id']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -867,8 +871,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									</div>
 									<div class="mb-3">
 										<?php if (!$start_event_flg): ?>
-											<input type="submit" id="submit" class="btn btn-primary me-3" value="登録">
-											<input type="button" id="submit" class="btn btn-primary" value="プレビュー">
+											<input type="button" id="form-submit" class="btn btn-primary me-3" value="登録">
+											<input type="button" id="preview" class="btn btn-primary" value="プレビュー">
 										<?php endif ?>
 									</div>
 								</form>
@@ -896,6 +900,24 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<button type="submit" id="confirm_delete" class="btn btn-danger">削除</button>
 								</div>
 							</form>
+						</div>
+					</div>
+				</div>
+				<!-- 即時公開モーダル -->
+				<div class="modal fade" id="upsert_confirm_modal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="deleteConfirmModalLabel">即時公開</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body fw-bold fs-4 mt-3 mb-3">
+								本イベントは即時公開となります。<br class="pc-none">本当によろしいですか？
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+								<button type="button" id="confirm_upsert" class="btn btn-danger">はい</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -1294,6 +1316,19 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					var modal = bootstrap.Modal.getInstance($('#delete_confirm_modal'));
 					modal.hide();
 				});
+		});
+		$('#form-submit').on('click', function(event) {
+			const scheduled_publish_date = $('input[name="scheduled_publish_date"]').val();
+			const scheduled_publish_time = $('input[name="scheduled_publish_time"]').val();
+			if (!scheduled_publish_date && !scheduled_publish_time) {
+				const modal = new bootstrap.Modal(document.getElementById('upsert_confirm_modal'));
+				modal.show();
+			} else {
+				$('#upsert-form').submit();
+			}
+		});
+		$('#confirm_upsert').on('click', function(event) {
+			$('#upsert-form').submit();
 		});
 	});
 </script>

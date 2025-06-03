@@ -27,6 +27,7 @@ $perPage = 15; // 1ページあたりの件数
 $category_id = $_GET['select_category_id'] ?? '';
 $event_status = $_GET['select_event_status'] ?? '';
 $event_id = $_GET['select_event_id'] ?? '';
+$publication_status = $_GET['publication_status'] ?? '';
 
 $events = $eventModel->getEvents([
     'category_id' => $category_id,
@@ -43,7 +44,7 @@ $totalCount = $eventModel->getEventTotal([
     'userid' => $userid,
     'shortname' => $shortname
 ]);
-if(empty($totalCount)) {
+if (empty($totalCount)) {
     $totalCount = 0;
 }
 // フォーム送信（POST）でコントローラーを呼び出す処理
@@ -54,6 +55,23 @@ $queryParams = $_GET; // GETパラメータを取得
 $_SESSION['old_input'] = $_GET;
 unset($queryParams['page']); // ページ番号は後で設定するため削除
 $queryString = http_build_query($queryParams); // クエリ文字列を作成
+
+// 公開予約イベントか判定する
+foreach ($events as $key => $value) {
+    // 日付フォーマット変換（共通処理）
+    if (!empty($value['scheduled_publish_at'])) {
+        $scheduled_publish_at = new DateTime($value['scheduled_publish_at']);
+        $events[$key]['scheduled_publish_at'] = $scheduled_publish_at->format('Y年n月j日 G時');
+    }
+
+    // 公開状態によってフィルター
+    if (
+        ($publication_status == IS_PUBLISHING && !empty($value['scheduled_publish_at'])) ||
+        ($publication_status == IS_RESERVED && empty($value['scheduled_publish_at']))
+    ) {
+        unset($events[$key]);
+    }
+}
 
 if ($action === 'index') {
     include '/var/www/html/moodle/custom/admin/app/Views/event/index.php';

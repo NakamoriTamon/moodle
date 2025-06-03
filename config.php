@@ -458,5 +458,18 @@ $event_trigger_list = [
 ];
 define('EVENT_TRIGGER_LIST', $event_trigger_list);
 
+$publication_status_list = [
+  1 => 'すべて',
+  2 => '公開中',
+  3 => '公開予約',
+];
+define('PUBLICATION_STATUS_LIST', $publication_status_list);
+
+$is_publishing = 2; // 公開中イベント
+define('IS_PUBLISHING', $is_publishing);
+
+$is_reserved = 3; // 公開予約イベント
+define('IS_RESERVED', $is_reserved);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

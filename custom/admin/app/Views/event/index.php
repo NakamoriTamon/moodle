@@ -82,10 +82,12 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 									</div>
 									<div class="sp-ms-0 ms-3 mb-3 w-100">
 										<label class="form-label" for="notyf-message">公開状態</label>
-										<select name="" class="form-control">
-											<option value="">すべて</option>
-											<option value="">公開中</option>
-											<option value="">公開予約</option>
+										<select name="publication_status" class="form-control">
+											<?php foreach (PUBLICATION_STATUS_LIST as $key => $public_status) { ?>
+												<option value="<?= htmlspecialchars($key) ?>"
+													<?= isset($old_input['publication_status']) && $key == $old_input['publication_status'] ? 'selected' : '' ?>>
+													<?= htmlspecialchars($public_status) ?></option>
+											<?php } ?>
 										</select>
 									</div>
 								</div>
@@ -121,11 +123,11 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 											<?php if (isset($events) && !empty($events)): ?>
 												<?php foreach ($events as $key => $event): ?>
 													<tr>
-														<td class="ps-4 pe-4"><?= htmlspecialchars($event['id']); ?></td>
-														<td class="ps-4 pe-4"><?= htmlspecialchars($event['name']); ?></td>
-														<td class="ps-4 pe-4"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
-														<td class="ps-4 pe-4"></td>
-														<td class="ps-4 pe-4">
+														<td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($event['id']); ?></td>
+														<td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($event['name']); ?></td>
+														<td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($event_statuses[$event['event_status']]); ?></td>
+														<td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($event['scheduled_publish_at']); ?></td>
+														<td class="ps-4 pe-4 text-nowrap">
 															<?php foreach ($event['lecture_formats'] as $key => $lecture_format): ?>
 																<?php if ($key == 0): ?>
 																	<?= htmlspecialchars($lecture_format['name']); ?>
@@ -134,15 +136,15 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 																<?php endif; ?>
 															<?php endforeach; ?>
 														</td>
-														<td class="ps-4 pe-4"><?= htmlspecialchars($event['venue_name']); ?></td>
-														<td class="ps-4 pe-4">
+														<td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($event['venue_name']); ?></td>
+														<td class="ps-4 pe-4 text-nowrap">
 															<?php if ($event['capacity'] < 1):  ?>
 																無制限
 															<?php else: ?>
 																<?= htmlspecialchars(number_format($event['capacity'])); ?>人
 															<?php endif; ?>
 														</td>
-														<td class="ps-4 pe-4">
+														<td class="ps-4 pe-4 text-nowrap">
 															<?php if ($event['participation_fee'] < 1):  ?>
 																無料
 															<?php else: ?>
@@ -151,9 +153,11 @@ unset($_SESSION['old_input']); // 一度表示したら削除
 														</td>
 														<td class="text-center ps-4 pe-4 text-nowrap">
 															<a href="/custom/admin/app/Views/event/upsert.php?id=<?= htmlspecialchars($event['id']); ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-															<?php if ($event['event_status'] != EVENT_END): ?>
+															<?php if ($event['event_status'] != EVENT_END) { ?>
 																<a class="delete-link" data-id="<?= htmlspecialchars($event['id']) ?>" data-name="<?= htmlspecialchars($event['name']) ?>"><i class=" align-middle" data-feather="trash"></i></a>
-															<?php endif; ?>
+															<?php } else { ?>
+																<a class="delete-link_exit"></i></a>
+															<?php } ?>
 														</td>
 													</tr>
 												<?php endforeach; ?>

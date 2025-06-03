@@ -13,6 +13,7 @@ $targets = $targetModel->getTargets();
 global $USER, $DB;
 $userid = $USER->id;
 $event_kbns = EVENT_KBN_LIST;
+
 // フォームからのデータを受け取る
 $id = $_POST['id'] ?? null;
 $event_kbn = $_POST['event_kbn'] ?? null; // イベント区分
@@ -34,6 +35,23 @@ $_SESSION['errors']['target'] = validate_select($target, '対象', false);
 $event_date = empty($_POST['event_date']) ? null : $_POST['event_date']; // 開催日
 $start_event_date = null;
 $end_event_date = null;
+
+// 公開予約入力の取得
+$scheduled_publish_at = null;
+$scheduled_publish_date = $_POST['scheduled_publish_date'] ?? '';
+$scheduled_publish_time = $_POST['scheduled_publish_time'] ?? '';
+if (!empty($scheduled_publish_date) xor !empty($scheduled_publish_time)) {
+    $_SESSION['errors']['scheduled_publish_at'] = '公開予約を設定する場合は、日付と時間の両方が必要です';
+} elseif (!empty($scheduled_publish_date) && !empty($scheduled_publish_time)) {
+    $scheduled_publish_at = sprintf('%s %02d:00:00', $scheduled_publish_date, (int)$scheduled_publish_time);
+}
+
+// 値のチェック
+if (!empty($scheduled_publish_at) && strtotime($scheduled_publish_at) < time()) {
+    $_SESSION['errors']['scheduled_publish_at'] = '公開予約は未来の日付を入力してください';
+}
+
+// 値のチェック
 if ($event_kbn == SINGLE_EVENT) {
     $_SESSION['errors']['event_date'] = validate_date($event_date, '開催日', true);
     $_SESSION['errors']['start_event_date'] = null;
@@ -566,12 +584,15 @@ if (
     || $_SESSION['errors']['thumbnail_img']
     || $_SESSION['errors']['best_event_img']
     || $_SESSION['errors']['best_event_sp_img']
+    || $_SESSION['errors']['scheduled_publish_at']
     || $error_flg
 ) {
     $_SESSION['old_input'] = $_POST; // 入力内容も保持
     if ($id) {
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $id);
     } else {
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/event/upsert.php');
     }
     exit;
@@ -587,7 +608,7 @@ $updatedAt = date('Y-m-d H:i:s');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $_SESSION['message_error'] = '登録に失敗しました: ' . $e->getMessage();
+        $_SESSION['message_error'] = '登録に失敗しました';
         header('Location: /custom/admin/app/Views/event/index.php');
         return;
     }
@@ -636,6 +657,7 @@ try {
                 is_best = :is_best,
                 is_tekijuku_only = :is_tekijuku_only,
                 is_all_apply_btn = :is_all_apply_btn,
+                scheduled_publish_at = :scheduled_publish_at,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ");
@@ -678,6 +700,7 @@ try {
             ':is_best' => $is_best,
             ':is_tekijuku_only' => $is_tekijuku_only,
             ':is_all_apply_btn' => $is_all_apply_btn,
+            ':scheduled_publish_at' => $scheduled_publish_at,
             ':id' => $id // 一意の識別子をWHERE条件として設定
         ]);
 
@@ -690,7 +713,7 @@ try {
                 , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
                 , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
                 , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_customfield_category_id, is_apply_btn, start_event_date, end_event_date
-                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only, is_all_apply_btn
+                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only, is_all_apply_btn, scheduled_publish_at
             ) 
             VALUES (
                 :userid, :name, :description
@@ -698,7 +721,7 @@ try {
                 , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
                 , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
                 , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_customfield_category_id, :is_apply_btn, :start_event_date, :end_event_date
-                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only, :is_all_apply_btn
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only, :is_all_apply_btn, :scheduled_publish_at
             )
         ");
 
@@ -741,7 +764,8 @@ try {
             ':inquiry_mail' => $inquiry_mail,
             ':is_best' => $is_best,
             ':is_tekijuku_only' => $is_tekijuku_only,
-            ':is_all_apply_btn' => $is_all_apply_btn
+            ':is_all_apply_btn' => $is_all_apply_btn,
+            ':scheduled_publish_at' => $scheduled_publish_at
         ]);
 
         // mdl_eventの挿入IDを取得
