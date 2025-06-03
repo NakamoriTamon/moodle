@@ -20,6 +20,7 @@ class EventModel extends BaseModel
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
                 $now_time = time(); // 現在のタイムスタンプ（秒）
+                var_dump($now_time);
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
@@ -144,6 +145,11 @@ class EventModel extends BaseModel
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
+                // 予約公開日前イベントは取得しない
+                if (!empty($filters['is_not_reserved'])) {
+                    $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
+                    $params[':now_unix'] = $now_time;
+                }
                 if (!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if ($filters['shortname'] != ROLE_ADMIN) {
                         $where .= ' AND e.userid = :userid';
@@ -452,6 +458,11 @@ class EventModel extends BaseModel
                     ':current_timestamp' => $currentTimestamp
                 ];
                 $having = "";
+                // 予約公開日前イベントは取得しない
+                if (!empty($filters['is_not_reserved'])) {
+                    $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
+                    $params[':now_unix'] = $now_time;
+                }
                 if (!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if ($filters['shortname'] != ROLE_ADMIN) {
                         $where .= ' AND e.userid = :userid';
