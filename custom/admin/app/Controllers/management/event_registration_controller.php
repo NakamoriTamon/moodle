@@ -217,6 +217,7 @@ class EventRegistrationController
                 $guardian_name = $application['user']['guardian_name'];
                 $formatted_id =  str_pad($application["user"]['id'], 8, "0", STR_PAD_LEFT);
                 $user_id  = substr_replace($formatted_id, ' ', 4, 0);
+                $phone1 = $application['user']['phone1'];
                 if ($application['pay_method'] != FREE_EVENT) {
                     $payment_type = PAYMENT_SELECT_LIST[$application['pay_method']];
                     $is_paid = !empty($application['payment_date']) ? '決済済' : '未決済';
@@ -260,6 +261,7 @@ class EventRegistrationController
                 'user_id' => $user_id,
                 'name' => $name,
                 'email' => $application_course_info['participant_mail'],
+                'phone1' => $phone1,
                 'payment_type' => $payment_type,
                 'is_paid' => $is_paid,
                 'payment_date' => $payment_date,
