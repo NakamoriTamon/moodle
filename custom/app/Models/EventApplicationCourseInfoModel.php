@@ -190,7 +190,7 @@ class EventApplicationCourseInfoModel extends BaseModel
         if ($this->pdo) {
             try {
                 // ベースとなる SQL
-                $sql = "SELECT id, name, email, child_name, birthday, guardian_name FROM mdl_user";
+                $sql = "SELECT id, name, email, child_name, birthday, guardian_name, phone1 FROM mdl_user";
                 $where = [];
                 $params = [];
 

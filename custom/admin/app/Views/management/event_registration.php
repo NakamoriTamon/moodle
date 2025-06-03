@@ -151,6 +151,7 @@ $page = $result_list['page'];
                                                         <th class="ps-4 pe-4">ユーザー名</th>
                                                         <?php if ($is_guardian_name) { ?><th class="ps-4 pe-4">保護者氏名</th> <?php } ?>
                                                         <th class="ps-4 pe-4">メールアドレス</th>
+                                                        <th class="ps-4 pe-4">電話番号</th>
                                                         <th class="ps-4 pe-4">年齢</th>
                                                         <th class="ps-4 pe-4">本イベントはどのようにお知りになりましたか</th>
                                                         <th class="ps-4 pe-4">その他</th>
@@ -175,6 +176,7 @@ $page = $result_list['page'];
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['name']) ?></td>
                                                             <?php if ($is_guardian_name) { ?><td class="ps-4 pe-4"><?= htmlspecialchars($application['guardian_name']) ?></td> <?php } ?>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['email']) ?></td>
+                                                            <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['phone1']) ?></td>
                                                             <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($application['age'] ?? '') ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['trigger_txt_str']) ?></td>
                                                             <td class="ps-4 pe-4 text-wrap break-cell"><?= htmlspecialchars($application['other']) ?></td>
