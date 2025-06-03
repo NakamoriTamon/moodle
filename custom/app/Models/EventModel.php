@@ -20,7 +20,6 @@ class EventModel extends BaseModel
                 $now = new DateTime();
                 $currentTimestamp = $now->format('Y-m-d H:i:s');
                 $now_time = time(); // 現在のタイムスタンプ（秒）
-                var_dump($now_time);
                 // ベースのSQLクエリ
                 $sql = 'WITH closest_dates AS (
                             SELECT 
