@@ -191,6 +191,7 @@ class EventRegistrationController
         // 表示データを取得・整形する
         $application_list = [];
         $application_customfield_list = [];
+        $minus_count = 0;
         foreach ($application_course_info_list as $key => $application_course_info) {
             $application_customfield_list = [];
             $application = reset($application_course_info['application']);
@@ -208,6 +209,7 @@ class EventRegistrationController
 
             // 支払区分（payment_kbn）が「未払い(期限切れ)（2）」のデータは除外する
             if ($application['payment_kbn'] === 2) {
+                $minus_count++;
                 continue;
             }
 
@@ -281,6 +283,7 @@ class EventRegistrationController
 
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
+        $total_count = $total_count - $minus_count;
 
         $data = [
             'category_list' => $category_list,
