@@ -41,7 +41,7 @@ class MessageSelectController
         // システム管理者以外は自身のイベントのみ表示する
         $kbn_id_list = KBN_ID_LIST;
         if ($shortname !== ROLE_ADMIN && $USER->id != MEMBERSHIP_ACCESS_ACOUNT) {
-            unset($kbn_id_list[2]);
+            unset($kbn_id_list[2], $kbn_id_list[3]);
         }
 
         $kbn_id = $_POST['kbn_id'] ?? 0;
