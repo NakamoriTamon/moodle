@@ -83,7 +83,7 @@ class EventApplicationCourseInfoModel extends BaseModel
         if ($this->pdo) {
             try {
                 $stmt = $this->pdo->prepare(
-                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, ticket_type, e.event_kbn 
+                    "SELECT eaci.id, event_id, event_application_id, course_info_id, participant_mail, participation_kbn, ticket_type, payment_kbn, e.event_kbn 
                     FROM mdl_event_application_course_info eaci
                     LEFT JOIN mdl_event e ON event_id = e.id
                     WHERE event_id = ? "
