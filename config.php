@@ -471,5 +471,14 @@ define('IS_PUBLISHING', $is_publishing);
 $is_reserved = 3; // 公開予約イベント
 define('IS_RESERVED', $is_reserved);
 
+$upcoming_event = 1; // 開催前イベント
+define('UPCOMING_EVENT', $upcoming_event);
+
+$ongoing_event = 2; // 開催中イベント
+define('ONGOING_EVENT', $ongoing_event);
+
+$finished_event = 3; // 開催終了イベント
+define('FINISHED_EVENT', $finished_event);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

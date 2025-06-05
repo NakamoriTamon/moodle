@@ -1330,5 +1330,34 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		$('#confirm_upsert').on('click', function(event) {
 			$('#upsert-form').submit();
 		});
+
+		// プレビューボタン
+		$('#preview').on('click', function(e) {
+			e.preventDefault();
+			const form = document.getElementById('upsert-form');
+			const form_data = new FormData(form);
+			const load_path = location.pathname + location.search;
+
+			$.ajax({
+				url: '/custom/admin/app/Api/event/event_preview_api.php',
+				type: 'POST',
+				data: form_data,
+				processData: false,
+				contentType: false,
+				success: function(response) {
+					const res = JSON.parse(response);
+					if (res.success && res.preview_id) {
+						setTimeout(() => {
+							window.open('/custom/admin/app/Views/event/preview.php?id=' + encodeURIComponent(res.preview_id), '_blank');
+						}, 300);
+					} else {
+						location.href = load_path;
+					}
+				},
+				error: function(xhr) {
+					location.href = load_path;
+				}
+			});
+		});
 	});
 </script>

@@ -662,6 +662,7 @@ select {
   display: flex;
   gap: 10px;
   margin-top: 15px;
+  flex-wrap: wrap;
 }
 .event_item .event_category li {
   height: 20px;

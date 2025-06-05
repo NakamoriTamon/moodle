@@ -149,6 +149,11 @@ class EventModel extends BaseModel
                     $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
                     $params[':now_unix'] = $now_time;
                 }
+                // プレビュージ時に同一イベントは取得しない
+                if (!empty($filters['prev_event_id'])) {
+                    $where .= ' AND e.id != :prev_event_id';
+                    $params[':prev_event_id'] = $filters['prev_event_id'];
+                }
                 if (!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if ($filters['shortname'] != ROLE_ADMIN) {
                         $where .= ' AND e.userid = :userid';
