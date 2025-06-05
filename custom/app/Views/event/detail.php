@@ -126,7 +126,7 @@ function escapeWithLink(string $text): string
                         <div class="detail_item">
                             <h2 class="block_ttl">内容</h2>
                             <p class="sent">
-                                <?= nl2br(htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8')); ?>
+                                <?= escapeWithLink($event['description']); ?>
                             </p>
                         </div>
                     <?php endif; ?>

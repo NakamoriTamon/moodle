@@ -277,6 +277,10 @@ define('TEENAGER_AGE', $teenager_age);
 $is_participation_list = [1 => '参加済', 2 => '不参加', 3 => 'キャンセル'];
 define('IS_PARTICIPATION_LIST', $is_participation_list);
 
+// イベントキャンセル区分
+$is_participation_cancel = 3;
+define('IS_PARTICIPATION_CANCEL', $is_participation_cancel);
+
 // アカウント承認状態
 $is_apply_list = [0 => '未承認', 1 => '承認'];
 define('IS_APPLY_LIST', $is_apply_list);
@@ -458,6 +462,7 @@ $event_trigger_list = [
 ];
 define('EVENT_TRIGGER_LIST', $event_trigger_list);
 
+
 $publication_status_list = [
   1 => 'すべて',
   2 => '公開中',
@@ -479,6 +484,12 @@ define('ONGOING_EVENT', $ongoing_event);
 
 $finished_event = 3; // 開催終了イベント
 define('FINISHED_EVENT', $finished_event);
+
+$tekijuku_renumbering_num = 10000000; // 再設定時にこのIDを基準に最大値を確認
+define('TEKIJUKU_RENUMBERING_NUM', $tekijuku_renumbering_num);
+
+$login_fail_check_count = 3; // ログインに3回ミスしたら再設定画面へ遷移させる
+define('LOGIN_FAIL_CHECK_COUNT', $login_fail_check_count);
 
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

@@ -267,4 +267,30 @@ class TekijukuCommemorationModel extends BaseModel
 
         return $filter_list;
     }
+
+    // 再入会時の最大会員IDを取得
+    public function get_tekijuku_max_number()
+    {
+        if ($this->pdo) {
+            try {
+                $sql = "SELECT MAX(number) AS max_number FROM mdl_tekijuku_commemoration WHERE number >= :minval";
+                $params = ['minval' => TEKIJUKU_RENUMBERING_NUM];
+
+                // SQLを実行
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                $tekijuku_max_number = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $tekijuku_max_number;
+            } catch (\PDOException $e) {
+                error_log('適塾記念会ユーザー一覧取得エラー: ' . $e->getMessage());
+                echo 'データの取得に失敗しました';
+            }
+        } else {
+            error_log('データベース接続が確立されていません');
+            echo "データの取得に失敗しました";
+        }
+
+        return [];
+    }
 }

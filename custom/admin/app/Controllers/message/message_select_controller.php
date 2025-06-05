@@ -41,7 +41,7 @@ class MessageSelectController
         // システム管理者以外は自身のイベントのみ表示する
         $kbn_id_list = KBN_ID_LIST;
         if ($shortname !== ROLE_ADMIN && $USER->id != MEMBERSHIP_ACCESS_ACOUNT) {
-            unset($kbn_id_list[2]);
+            unset($kbn_id_list[2], $kbn_id_list[3]);
         }
 
         $kbn_id = $_POST['kbn_id'] ?? 0;
@@ -205,11 +205,24 @@ class MessageSelectController
 
         // 表示データを取得・整形する
         $application_list = [];
+        $minus_count = 0;
         foreach ($application_course_info_list as $key => $application_course_info) {
+            if ($application_course_info['participation_kbn'] == IS_PARTICIPATION_CANCEL) {
+                unset($application_course_info_list[$key]);
+                $minus_count++;
+                continue;
+            }
+
             $application = reset($application_course_info['application']);
             $event = $application['event'];
             $application_date = new DateTime($application['application_date']);
             $application_date = $application_date->format("Y年n月j日");
+
+            // 未払い(期限切れ)のデータは除外する
+            if ($application['payment_kbn'] == 2) {
+                $minus_count++;
+                continue;
+            }
 
             $name = '';
             $user_id = '';
@@ -279,6 +292,7 @@ class MessageSelectController
 
         $event_list = !empty($event_id) && empty($event_status_id) && empty($category_id) ?  $select_event_list : $event_list;
         $category_list = $this->categoryModel->getCategories();
+        $total_count = $total_count - $minus_count;
 
         $data = [
             'category_list' => $category_list,

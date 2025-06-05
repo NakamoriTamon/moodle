@@ -5,10 +5,11 @@ require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
 
+if (!isset($_SESSION['login_fail_count'])) {
+    $_SESSION['login_fail_count'] = 0;
+}
 
 $email = $_POST['email'];
-// $password = $_POST['password'];
-
 $password = required_param('password', PARAM_RAW); // パスワード
 $_SESSION['old_input'] = $_POST;
 
@@ -23,7 +24,13 @@ $_SESSION['errors'] = [
 
 foreach ($_SESSION['errors'] as $error) {
     if (!empty($error)) {
-        redirect('/custom/app/Views/login/index.php');
+        $_SESSION['login_fail_count']++;
+        if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
+            unset($_SESSION['errors']);
+            header('Location: /custom/app/Views/user/pass_mail.php');
+        } else {
+            header('Location: /custom/app/Views/login/index.php');
+        }
         exit;
     }
 }
@@ -42,8 +49,14 @@ if (!$user_list) {
 
 // ユーザー情報がなければログイン不可
 if (!$user_list) {
+    $_SESSION['login_fail_count']++;
     $_SESSION['message_error'] = 'ログインに失敗しました。';
-    header('Location: /custom/app/Views/login/index.php');
+    if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
+        unset($_SESSION['errors']);
+        header('Location: /custom/app/Views/user/pass_mail.php');
+    } else {
+        header('Location: /custom/app/Views/login/index.php');
+    }
     exit;
 }
 foreach ($user_list as $user) {
@@ -55,12 +68,18 @@ foreach ($user_list as $user) {
     ) {
         complete_user_login($user); // 追加　セッションに$USER情報を入れる
         $_SESSION['user_id'] = $user->id; // DBから取得したユーザーID(会員番号)を保存
-        unset($_SESSION['old_input']['email']);
+        unset($_SESSION['old_input']['email'], $_SESSION['login_fail_count']);
         header('Location: /custom/app/Views/index.php');
         exit;
     }
 }
 
+$_SESSION['login_fail_count']++;
 $_SESSION['message_error'] = 'ログインに失敗しました。';
-header('Location: /custom/app/Views/login/index.php');
+if ($_SESSION['login_fail_count'] >= LOGIN_FAIL_CHECK_COUNT) {
+    unset($_SESSION['errors']);
+    header('Location: /custom/app/Views/user/pass_mail.php');
+} else {
+    header('Location: /custom/app/Views/login/index.php');
+}
 exit;

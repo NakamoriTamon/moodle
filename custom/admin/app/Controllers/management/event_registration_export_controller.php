@@ -170,6 +170,7 @@ try {
             '会員番号',
             'ユーザー名',
             'メールアドレス',
+            '電話番号',
             '年齢',
             '本イベントはどのようにお知りになりましたか',
             'その他',
@@ -189,6 +190,7 @@ try {
             '会員番号',
             'ユーザー名',
             'メールアドレス',
+            '電話番号',
             '年齢',
             '本イベントはどのようにお知りになりましたか',
             'その他',
@@ -241,6 +243,7 @@ try {
             $guardian_name = $application['user']['guardian_name'];
             $formatted_id = sprintf('%08d', $application["user"]['id']);
             $user_id = substr_replace($formatted_id, ' ', 4, 0);
+            $phone1 = $application['user']['phone1'];
 
             if ($application['pay_method'] != FREE_EVENT) {
                 $payment_type = PAYMENT_SELECT_LIST[$application['pay_method']];
@@ -286,6 +289,7 @@ try {
                 $user_id,
                 $name,
                 $application_course_info['participant_mail'],
+                '="' .  $phone1 . '"',
                 $age,
                 $trigger_txt_str,
                 $congnition_note,

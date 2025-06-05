@@ -4,6 +4,7 @@ require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/local/commonlib/lib.php');
 require_once($CFG->dirroot . '/custom/app/Models/BaseModel.php');
 require_once($CFG->dirroot . '/custom/app/Models/EventModel.php');
+require_once($CFG->dirroot . '/custom/app/Models/TekijukuCommemorationModel.php');
 
 // 登録内容
 $values = $_SESSION['old_input'];
@@ -25,22 +26,23 @@ $official = $values['official'];
 $is_published = (int)$values['is_published'];
 $is_subscription = (int)$values['is_subscription'];
 try {
-    // 将来的にはユニークにするので下記制約は不要となる(確認中)
-    $max_number = $DB->get_record_sql("
-        SELECT number FROM {tekijuku_commemoration} 
-        ORDER BY number DESC 
-        LIMIT 1
-    ");
-
-    $max_number = $max_number->number + 1;
+    // 既にアカウントを作成しているか確認
     $fk_user_id = (int)$_SESSION['USER']->id;
-    // ゼロ埋め　sprintf('%08d', $max_number)
+    $exist_tekijuku_account = $DB->get_record('tekijuku_commemoration', ['number' => $fk_user_id]);
+
+    if (!empty($exist_tekijuku_account)) {
+        $tekijuku_commemoration_model = new TekijukuCommemorationModel();
+        $max_number = $tekijuku_commemoration_model->get_tekijuku_max_number();
+        $number = !empty($max_number['max_number']) ? $max_number['max_number'] + 1 :  TEKIJUKU_RENUMBERING_NUM;
+    } else {
+        $number = $fk_user_id;
+    }
 
     $transaction = $DB->start_delegated_transaction();
     $tekijuku_commemoration = new stdClass();
     $tekijuku_commemoration->created_at = date('Y-m-d H:i:s');
     $tekijuku_commemoration->updated_at = date('Y-m-d H:i:s');
-    $tekijuku_commemoration->number = $fk_user_id;
+    $tekijuku_commemoration->number = $number;
     $tekijuku_commemoration->type_code = $type_code;
     $tekijuku_commemoration->name = $name;
     $tekijuku_commemoration->kana = $kana;
@@ -135,6 +137,8 @@ try {
     }
     exit;
 } catch (Exception $e) {
+    var_dump($e);
+    die();
     error_log('適塾登録エラー: ' . $e->getMessage());
     try {
         $transaction->rollback($e);

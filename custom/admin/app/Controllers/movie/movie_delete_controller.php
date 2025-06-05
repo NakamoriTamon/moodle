@@ -55,12 +55,23 @@ try {
     }
 
     if (!empty($deleteObjects)) {
-        $s3->deleteObjects([
-            'Bucket' => $bucket,
-            'Delete' => ['Objects' => $deleteObjects],
-        ]);
+        $chunks = array_chunk($deleteObjects, 1000);
+        foreach ($chunks as $i => $chunk) {
+            try {
+                $s3->deleteObjects([
+                    'Bucket' => $bucket,
+                    'Delete' => [
+                        'Objects' => $chunk,
+                        'Quiet' => true,
+                    ],
+                ]);
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+                error_log("S3削除失敗（チャンク #{$i}）: " . $e->getMessage());
+                throw new Exception('削除に失敗しました');
+            }
+        }
     } else {
-        throw new Exception('ファイルの削除に失敗しました。');
+        throw new Exception('削除に失敗しました');
     }
 
     $DB->delete_records('course_movie', ['id' => $id]);
@@ -73,7 +84,7 @@ try {
         $transaction->rollback($e);
         error_log('ファイル削除失敗: ' . $e);
     } catch (Exception $rollbackException) {
-        $_SESSION['message_error'] = '登録に失敗しました';
+        $_SESSION['message_error'] = '削除に失敗しました';
         header('Location: /custom/admin/app/Views/event/movie.php');
         exit;
     }

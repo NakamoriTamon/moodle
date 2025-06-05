@@ -143,6 +143,9 @@ $page         = max(1, (int)$page);
 										<tr>
 											<th class="w-25 p-4">回答時間</th>
 											<?php if ($is_disp_no) { ?><th class="w-25 p-4">回数</th><?php } ?>
+											<th class="w-25 p-4">年代を教えて下さい</th>
+											<th class="w-25 p-4">ご職業や学生区分を教えてください</th>
+											<th class="w-25 p-4">お住まいの地域を教えてください</th>
 											<th class="w-25 p-4">本日のイベントについて、ご意見・ご感想をお書きください</th>
 											<th class="w-25 p-4">今までに大阪大学主催のイベントに参加されたことはありますか </th>
 											<th class="w-25 p-4">本日のイベントをどのようにしてお知りになりましたか</th>
@@ -155,9 +158,6 @@ $page         = max(1, (int)$page);
 											</th>
 											<th class="w-25 p-4">「あまり快適ではなかった」「全く快適ではなかった」と回答された方はその理由を教えてください。</th>
 											<th class="w-25 p-4">今後の大阪大学主催のイベントで、希望するジャンルやテーマ、話題があれば、ご提案ください</th>
-											<th class="w-25 p-4">年代を教えて下さい</th>
-											<th class="w-25 p-4">ご職業や学生区分を教えてください</th>
-											<th class="w-25 p-4">お住まいの地域を教えてください</th>
 											<?php foreach ($survey_field_list as $survey_field): ?>
 												<th class="w-25 p-4"><?= htmlspecialchars($survey_field['name']) ?></th>
 											<?php endforeach; ?>
@@ -175,6 +175,11 @@ $page         = max(1, (int)$page);
 												<?php if ($is_disp_no) { ?>
 													<td class="p-4"><?= '第' . htmlspecialchars($survey['course_info']['no'] ?? '') . '回' ?></td>
 												<?php } ?>
+												<td class="p-4"><?= htmlspecialchars(AGE_LIST[$survey['age']] ?? '') ?></td>
+												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
+												<td class="p-4">
+													<?= htmlspecialchars(($survey['prefectures'] ?? '') . ($survey['address'] ?? '')) ?>
+												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['thoughts'] ?? '') ?></td>
 												<td class="p-4">
 													<?= htmlspecialchars(DECISION_LIST[$survey['attend']] ?? '') ?>
@@ -207,11 +212,6 @@ $page         = max(1, (int)$page);
 												</td>
 												<td class="p-4"><?= htmlspecialchars($survey['no_good_environment_reason'] ?? '') ?></td>
 												<td class="p-4"><?= htmlspecialchars($survey['lecture_suggestions'] ?? '') ?></td>
-												<td class="p-4"><?= htmlspecialchars(AGE_LIST[$survey['age']] ?? '') ?></td>
-												<td class="p-4"><?= htmlspecialchars(WORK_LIST[$survey['work']] ?? '') ?></td>
-												<td class="p-4">
-													<?= htmlspecialchars(($survey['prefectures'] ?? '') . ($survey['address'] ?? '')) ?>
-												</td>
 												<?php foreach ($survey['customfiel'] as $customfiel): ?>
 													<td class="p-4"><?= htmlspecialchars($customfiel['input_data'] ?? '') ?></td>
 												<?php endforeach; ?>

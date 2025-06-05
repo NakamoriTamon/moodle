@@ -110,6 +110,7 @@ class EventApplicationCourseInfoModel extends BaseModel
 
                 return $result_list;
             } catch (\PDOException $e) {
+                var_dump($e);
                 error_log('イベント別申込取得エラー: ' . $e->getMessage() . ' EventID: ' . $id);
                 echo 'データの取得に失敗しました';
             }
@@ -190,7 +191,7 @@ class EventApplicationCourseInfoModel extends BaseModel
         if ($this->pdo) {
             try {
                 // ベースとなる SQL
-                $sql = "SELECT id, name, email, child_name, birthday, guardian_name FROM mdl_user";
+                $sql = "SELECT id, name, email, child_name, birthday, guardian_name, phone1 FROM mdl_user";
                 $where = [];
                 $params = [];
 

@@ -22,6 +22,7 @@ $event_list = $result_list['event_list']  ?? [];
 $movie = $result_list['movie'] ?? [];
 $file_name = !empty($movie['file_name']) ? $movie['file_name'] : null;
 $course_list = $result_list['course_list'] ?? [];
+$is_empty = empty($movie) ? true : false;
 
 // 講義動画取得
 $dotenv = Dotenv::createImmutable('/var/www/html/moodle/custom');
@@ -156,7 +157,7 @@ if (!empty($path)) {
 													<input type="file" class="form-control" name="file" id="video_input" accept="video/*">
 												</div>
 											</div>
-											<div class="d-flex flex-wrap align-items-end gap-3 w-100">
+											<div id="movie_disp_area" class="d-flex flex-wrap align-items-end gap-3 w-100">
 												<!-- サムネイル用画像 -->
 												<div class="w-100">
 													<img id="movie_img" src="" alt="サムネイル">
@@ -260,6 +261,12 @@ if (!empty($path)) {
 						controls_area.appendChild(speedBtn);
 					}
 
+				});
+				hls.on(Hls.Events.ERROR, function(event, data) {
+					const is_empty = <?= json_encode($is_empty) ?>;
+					if (!is_empty) {
+						$('#movie_video').after('<p class="fs-5 mt-3 mb-3 w-100">動画変換中です。少々お待ちください...</p>');
+					}
 				});
 			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 				video.src = m3u8Url;
