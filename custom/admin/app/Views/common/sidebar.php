@@ -30,6 +30,9 @@
 						<?php if (in_array('admin', $roles)): ?>
 							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/paying_cush.php">適塾会費情報管理</a></li>
 						<?php endif; ?>
+						<?php if (in_array('admin', $roles)): ?>
+							<li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/information.php">お知らせ一覧</a></li>
+						<?php endif; ?>
 						<!-- <li class="sidebar-item"><a class="sidebar-link" href="/custom/admin/app/Views/management/cash_application.php">管理者用申込画面<p class="side_break">( 現金ユーザー登録 )</p></a></li> -->
 					</ul>
 				</li>
@@ -101,6 +104,10 @@
 			}
 			if (currentPath == "/custom/admin/app/Views/master/target/upsert.php") {
 				currentPath = "/custom/admin/app/Views/master/target/index.php";
+			}
+			// お知らせ登録
+			if (currentPath == "/custom/admin/app/Views/management/information_upsert.php") {
+				currentPath = "/custom/admin/app/Views/management/information.php";
 			}
 
 			const sidebarLinks = $(".sidebar-link");
