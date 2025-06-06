@@ -1326,7 +1326,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 		$('#form-submit').on('click', function(event) {
 			const scheduled_publish_date = $('input[name="scheduled_publish_date"]').val();
 			const scheduled_publish_time = $('input[name="scheduled_publish_time"]').val();
-			if (!scheduled_publish_date && !scheduled_publish_time) {
+			const is_immediate = <?= json_encode($is_immediate) ?>;
+			if (!is_immediate && !scheduled_publish_date && !scheduled_publish_time) {
 				const modal = new bootstrap.Modal(document.getElementById('upsert_confirm_modal'));
 				modal.show();
 			} else {

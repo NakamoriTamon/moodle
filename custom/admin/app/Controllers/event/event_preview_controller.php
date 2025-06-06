@@ -20,7 +20,7 @@ $targets = $targetModel->getTargets();
 $page = $_GET['page'] ?? 1;
 $prev_event_id = $_GET['id'] ?? null;
 $bf_event_id = $_GET['bf_event_id'] ?? null;
-if (!empty($prev_event_id)) {
+if (empty($prev_event_id)) {
     redirect(new moodle_url('/404.html'));
     exit;
 }
