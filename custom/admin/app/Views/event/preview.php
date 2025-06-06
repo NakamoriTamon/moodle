@@ -13,11 +13,11 @@ unset($SESSION->formdata);
 <link rel="stylesheet" type="text/css" href="/custom/public/assets/css/event.css" />
 
 <!-- 一時的に検索フォームを非表示にします -->
-<style>
+<!-- <style>
     #search {
         display: none;
     }
-</style>
+</style> -->
 
 <main id="subpage">
     <section id="heading" class="inner_l">
@@ -27,8 +27,10 @@ unset($SESSION->formdata);
     <div class="inner_l">
         <section id="search">
             <h3 class="ttl_event">絞り込み検索</h3>
-            <form method="" action="/custom/app/Controllers/event/event_controller.php" id="search_cont" class="whitebox">
+            <form method="" action="/custom/admin/app/Controllers/event/event_preview_controller.php" id="search_cont" class="whitebox">
                 <input type="hidden" name="action" value="index">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($prev_event_id) ?>">
+                <input type="hidden" name="bf_event_id" value="<?= htmlspecialchars($bf_event_id) ?>">
                 <div class="inner_s">
                     <ul class="search_list">
                         <li>
@@ -125,7 +127,7 @@ unset($SESSION->formdata);
                 <?php if (isset($events) && !empty($events)): ?>
                     <?php foreach ($events as $row): ?>
                         <li class="<?php echo ($row['is_top'] === 1) ? 'rec ' : ''; ?>event_item">
-                            <a href="/custom/app/Views/event/detail.php?id=<?= $row['id'] ?>">
+                            <a style="pointer-events: none;" href="#">
                                 <figure class="img"><img src="<?= htmlspecialchars(empty($row['thumbnail_img']) ? DEFAULT_THUMBNAIL : $row['thumbnail_img']); ?>" alt="" /></figure>
                                 <div class="event_info">
                                     <ul class="event_status">

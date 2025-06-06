@@ -34,6 +34,11 @@ if (!empty($eventData['scheduled_publish_at'])) {
 	$scheduled_publish_hour = $scheduled_publish_at->format('G');
 }
 
+$is_immediate = false;
+if (!empty($id) && empty($scheduled_publish_date) && empty($scheduled_publish_hour)) {
+	$is_immediate = true;
+}
+
 // セッションからエラーメッセージを取得
 $errors = $_SESSION['errors'] ?? [];
 $old_input = $_SESSION['old_input'] ?? [];
@@ -95,7 +100,6 @@ for ($i = 1; $i < 10; $i++) {
 		'no' => $i,
 	]];
 }
-
 
 $event_kbns = EVENT_KBN_LIST;
 unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削除
@@ -830,8 +834,8 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 											<label class="me-2">公開予約日時　※未入力の場合、即時公開されます。</label>
 										</div>
 										<div class="d-flex align-items-center">
-											<input name="scheduled_publish_date" class="w-50 me-3 form-control" type="date" value="<?= htmlspecialchars(isSetValue($scheduled_publish_date ?? '', $old_input['scheduled_publish_date'] ?? '')) ?>" />
-											<input name="scheduled_publish_time" class="w-25 me-2 form-control" type="number" min=1 max=24 value="<?= htmlspecialchars(isSetValue($scheduled_publish_hour ?? '', $old_input['scheduled_publish_time'] ?? '')) ?>" />時
+											<input name="scheduled_publish_date" class="w-50 me-3 form-control" type="date" <?= $is_immediate ? 'disabled' : ''; ?> value="<?= htmlspecialchars(isSetValue($scheduled_publish_date ?? '', $old_input['scheduled_publish_date'] ?? '')) ?>" />
+											<input name="scheduled_publish_time" class="w-25 me-2 form-control" type="number" <?= $is_immediate ? 'disabled' : ''; ?> min=1 max=24 value="<?= htmlspecialchars(isSetValue($scheduled_publish_hour ?? '', $old_input['scheduled_publish_time'] ?? '')) ?>" />時
 										</div>
 										<?php if (!empty($errors['scheduled_publish_at'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_at']); ?></div>
@@ -872,7 +876,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 									<div class="mb-3">
 										<?php if (!$start_event_flg): ?>
 											<input type="button" id="form-submit" class="btn btn-primary me-3" value="登録">
-											<input type="button" id="preview" class="btn btn-primary" value="プレビュー">
+											<?php if (!$is_immediate) { ?>
+												<input type="button" id="preview" class="btn btn-primary" value="プレビュー">
+											<?php } ?>
 										<?php endif ?>
 									</div>
 								</form>
@@ -1348,13 +1354,14 @@ unset($_SESSION['errors'], $_SESSION['old_input']); // 一度表示したら削�
 					const res = JSON.parse(response);
 					if (res.success && res.preview_id) {
 						setTimeout(() => {
-							window.open('/custom/admin/app/Views/event/preview.php?id=' + encodeURIComponent(res.preview_id), '_blank');
+							window.open('/custom/admin/app/Views/event/preview.php?id=' + encodeURIComponent(res.preview_id) + '&bf_event_id=' + encodeURIComponent(res.bf_event_id), '_blank');
 						}, 300);
 					} else {
 						location.href = load_path;
 					}
 				},
 				error: function(xhr) {
+					console.log('Raw response:', xhr);
 					location.href = load_path;
 				}
 			});

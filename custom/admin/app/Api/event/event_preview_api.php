@@ -8,8 +8,6 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
 require_once($CFG->libdir . '/filelib.php');
 
-$preview_id = uniqid('preview_', true);
-
 $targetModel = new TargetModel();
 $targets = $targetModel->getTargets();
 
@@ -21,6 +19,7 @@ $_SESSION['message_error'] = 'プレビュー画面の生成に失敗しまし�
 
 // フォームからのデータを受け取る
 $id = $_POST['id'] ?? null;
+$before_event_id = !empty($id) ? $id : null;
 $event_kbn = $_POST['event_kbn'] ?? null; // イベント区分
 $_SESSION['errors']['event_kbn'] = validate_select($event_kbn, 'イベント区分', true); // バリデーションチェック
 $name = $_POST['name'] ?? null; // イベントタイトル　必須
@@ -225,6 +224,13 @@ $is_all_apply_btn = isset($_POST['is_all_apply_btn']) ? 1 : 0; // 一括申込�
 $lectures = [];
 $error_flg = false;
 
+// 接続情報取得
+$baseModel = new BaseModel();
+$eventModel = new EventModel();
+$pdo = $baseModel->getPdo();
+
+$pdo->beginTransaction();
+
 $count = 0;
 $release_date_input_flg = false; // アーカイブ公開日が入力されたか判定
 $material_release_date_input_flg = false; // 講義資料公開日が入力されたか判定
@@ -379,7 +385,7 @@ if ($event_kbn == SINGLE_EVENT) {
                 $error_flg = true;
                 $_SESSION['old_input'] = $_POST;
                 http_response_code(500);
-                echo json_encode(['success' => false]);
+                echo json_encode(['success' => false, 'message' => '詳細バリデーションエラー']);
                 exit;
             }
 
@@ -501,19 +507,8 @@ if ($event_kbn == SINGLE_EVENT) {
             }
         }
 
-        if (!empty($id)) {
-            $stmt = $pdo->prepare("
-                SELECT course_info_id
-                FROM mdl_event_course_info 
-                WHERE event_id = :event_id
-            ");
-            $stmt->execute([':event_id' => $id]);
-            $eventCourseInfos = $stmt->fetchAll(PDO::FETCH_COLUMN); // course_info_id のリストを取得
-        } else {
-            $eventCourseInfos = null;
-        }
-
         // 各 `course_date` ごとに `deadline_date` を設定
+        $eventCourseInfos = null;
         foreach ($courseDates as $key => $courseDate) {
             $deadlineDate = new DateTime($courseDate);
             if ($event_kbn == EVERY_DAY_EVENT && !empty($all_deadline)) {
@@ -590,151 +585,541 @@ if (
 ) {
     $_SESSION['old_input'] = $_POST;
     http_response_code(500);
-    echo json_encode(['success' => false,]);
+    echo json_encode(['success' => false]);
     exit;
 }
 
-// 画像を一時フォルダに保存する
-if (!empty($thumbnail_img['name'])) {
-    if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
-        // 一時ファイルと元のファイル情報を取得
-        $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
-        $originalName = pathinfo($thumbnail_img['name'], PATHINFO_FILENAME); // 元のファイル名
-        $extension = pathinfo($thumbnail_img['name'], PATHINFO_EXTENSION);  // 拡張子
-
-        // 保存先ディレクトリの設定
-        $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
-        $uploadsDir = $moodleDir . '/uploads';
-        $thumbnailsDir = $uploadsDir . '/tmp/thumbnails';
-        $eventDir = $thumbnailsDir . '/' . $eventId;
-
-        // 必要なディレクトリを順番に作成
-        if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
-            $result = mkdir($uploadsDir, 0755, true);
-            if (!$result) {
-                $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'システムエラー']);
-                exit;
-            }
-        }
-
-        if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
-            $result = mkdir($thumbnailsDir, 0755, true);
-            if (!$result) {
-                $_SESSION['message_error'] = 'thumbnailsディレクトリの作成に失敗しました';
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'システムエラー']);
-                exit;
-            }
-        }
-
-        if (!file_exists($eventDir) && !is_dir($eventDir)) {
-            $result = mkdir($eventDir, 0755, true);
-            if (!$result) {
-                $_SESSION['message_error'] = "イベント用ディレクトリの作成に失敗しました: $eventDir";
-                $_SESSION['old_input'] = $_POST; // 入力内容も保持
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'システムエラー']);
-                exit;
-            }
-        }
-
-        // 1. 保存先ディレクトリの全ファイルを取得
-        $allFiles = scandir($eventDir);
-
-        // 保存先ファイルパスを生成
-        $timestamp = date('YmdHis');
-        $newFileName = "thumbnail_{$timestamp}.{$extension}";
-        $destination = $eventDir . '/' . $newFileName;
-
-        // ファイルを保存
-        if (move_uploaded_file($tmpName, $destination)) {
-
-            // ファイルURLを取得
-            $relativePath = '/uploads/tmp/thumbnails/' . $eventId . '/' . $newFileName;
-            $fileUrl = new moodle_url($relativePath);
-
-            foreach ($allFiles as $file) {
-                if ($file === '.' || $file === '..') {
-                    continue; // カレントディレクトリと親ディレクトリをスキップ
-                }
-                if ($eventDir . $file != $relativePath) {
-                    unlink($eventDir .  '/' . $file); // ファイルを削除
-                }
-            }
-        }
-    }
-}
-
-/* ▼ プレビュー用に表示するデータを整形し集計する ▼ */
-
-// 開催回数と開催日を取得する
-$select_course_list = [];
-foreach ($lectures as $key => $lecture) {
-    $select_course_list[$key] = ['no' => $key, 'course_date' => $lecture['course_date']];
-}
-
-// カテゴリーを取得する
-$category_list = [];
-foreach ($selectedCategories as $category_id) {
-    $category_list[] = ['category_id' => $category_id];
-}
-
-// 開催ステータスを指定する
-$event_status = null;
-$first_event_date = null;
-$now = new DateTime();
-$current_time = new DateTime($now->format('H:i'));
-foreach ($select_course_list as $no => $select_course) {
-    $course_date = DateTime::createFromFormat('Y-m-d', $select_course['course_date']);
-    if ($course_date === false) {
-        continue;
-    }
-    if ($course_date->format('Y-m-d') === $now->format('Y-m-d')) {
-        // 今日かつ時間内なら「開催中」
-        if ($current_time >= new DateTime($start_hour) && $current_time <= new DateTime($end_hour)) {
-            $event_status = $ongoing_event;
-            break;
-        }
-    } elseif ($course_date > $now) {
-        // 開催日が未来なら「開催前」
-        $first_event_date = DateTime::createFromFormat('Y-m-d', $select_course['course_date']);
-        $event_status = $upcoming_event;
-    }
-}
-switch ($event_kbn) {
-    case $single_event:
-        $_SESSION['preview'][$preview_id] = [
-            'name' => $name,
-            'event_kbn' => $single_event,
-            'is_top' => (int)$is_top,
-            'categorys' => $category_list,
-            'select_course' => $select_course_list,
-            'event_status' => $event_status,
-            'deadline_status_max' => 1, // 現状固定
-            'thumbnail_img' => $relativePath,
-            'first_event_date' => $first_event_date,
-            'prev_event_id' => $id,
-        ];
-        break;
-    case $plural_event:
-        echo "公開済みです";
-        break;
-    case $every_day_event:
-        echo "アーカイブ済みです";
-        break;
-    default:
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         http_response_code(500);
         echo json_encode(['success' => false]);
         exit;
+    }
 }
 
-session_write_close();
-echo json_encode([
-    'success' => true,
-    'preview_id' => $preview_id
-]);
-exit;
+// イベント登録パスを取得する
+$bf_thumbnail_img_path = '';
+if (!empty($before_event_id) && empty($thumbnail_img['name'])) {
+    $bf_event = $DB->get_record('event', ['id' => $before_event_id]);
+    if (!$bf_event) {
+        error_log('プレビュー元のイベントが削除されました。');
+        echo json_encode(['success' => false]);
+        exit;
+    }
+    $bf_thumbnail_img_path = $bf_event->thumbnail_img;
+}
+
+try {
+    $stmt = $pdo->prepare("
+            INSERT INTO mdl_event (
+                userid, name, description
+                , event_date, start_hour, end_hour, target, venue_name, access
+                , google_map, is_top, program, sponsor, co_host, sponsorship, cooperation, plan, capacity
+                , participation_fee, single_participation_fee, deadline, all_deadline, archive_streaming_period, is_double_speed, note, thumbnail_img
+                , created_at, updated_at, event_kbn, event_customfield_category_id, event_survey_customfield_category_id, is_apply_btn, start_event_date, end_event_date
+                , tekijuku_discount, real_time_distribution_url, material_release_period, inquiry_mail, is_best, is_tekijuku_only, is_all_apply_btn, scheduled_publish_at, is_preview
+            ) 
+            VALUES (
+                :userid, :name, :description
+                , :event_date, :start_hour, :end_hour, :target, :venue_name, :access
+                , :google_map, :is_top, :program, :sponsor, :co_host, :sponsorship, :cooperation, :plan, :capacity
+                , :participation_fee, :single_participation_fee, :deadline, :all_deadline, :archive_streaming_period, :is_double_speed, :note, :thumbnail_img
+                , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_kbn, :event_customfield_category_id, :event_survey_customfield_category_id, :is_apply_btn, :start_event_date, :end_event_date
+                , :tekijuku_discount, :real_time_distribution_url, :material_release_period, :inquiry_mail, :is_best, :is_tekijuku_only, :is_all_apply_btn, :scheduled_publish_at, :is_preview
+            )
+        ");
+
+    $stmt->execute([
+        'userid' => $userid,
+        ':name' => $name,
+        ':description' => $description,
+        ':event_date' => $event_date,
+        ':start_hour' => $start_hour,
+        ':end_hour' => $end_hour,
+        ':target' => $target,
+        ':venue_name' => $venue_name,
+        ':access' => $access,
+        ':google_map' => $google_map,
+        ':is_top' => $is_top,
+        ':program' => $program,
+        ':sponsor' => $sponsor,
+        ':co_host' => $co_host,
+        ':sponsorship' => $sponsorship,
+        ':cooperation' => $cooperation,
+        ':plan' => $plan,
+        ':capacity' => $capacity,
+        ':participation_fee' => $participation_fee,
+        ':single_participation_fee' => $single_participation_fee,
+        ':deadline' => $deadline,
+        ':all_deadline' => $all_deadline,
+        ':archive_streaming_period' => $archive_streaming_period,
+        ':is_double_speed' => $is_double_speed,
+        ':note' => $note,
+        ':thumbnail_img' => $bf_thumbnail_img_path,
+        ':event_kbn' => $event_kbn,
+        ':event_customfield_category_id' => $event_customfield_category_id,
+        ':event_survey_customfield_category_id' => $event_survey_customfield_category_id,
+        ':is_apply_btn' => $is_apply_btn,
+        ':start_event_date' => $start_event_date,
+        ':end_event_date' => $end_event_date,
+        ':tekijuku_discount' => $tekijuku_discount,
+        ':real_time_distribution_url' => $real_time_distribution_url,
+        ':material_release_period' => $material_release_period,
+        ':inquiry_mail' => $inquiry_mail,
+        ':is_best' => $is_best,
+        ':is_tekijuku_only' => $is_tekijuku_only,
+        ':is_all_apply_btn' => $is_all_apply_btn,
+        ':scheduled_publish_at' => $scheduled_publish_at,
+        ':is_preview' => 1
+    ]);
+
+    // mdl_eventの挿入IDを取得
+    $eventId = $pdo->lastInsertId();
+
+    if (!empty($eventId) && !empty($thumbnail_img['name'])) {
+        if ($thumbnail_img && $thumbnail_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $tmpName = $thumbnail_img['tmp_name']; // 一時ファイルパス
+            $originalName = pathinfo($thumbnail_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $extension = pathinfo($thumbnail_img['name'], PATHINFO_EXTENSION);  // 拡張子
+
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/thumbnails';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'thumbnailsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "イベント用ディレクトリの作成に失敗しました: $eventDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    header('Location: /custom/admin/app/Views/event/upsert.php?id=' . $eventId);
+                    return;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($eventDir);
+
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $newFileName = "thumbnail_{$timestamp}.{$extension}";
+            $destination = $eventDir . '/' . $newFileName;
+
+            // ファイルを保存
+            if (move_uploaded_file($tmpName, $destination)) {
+
+                // ファイルURLを取得
+                $relativePath = '/uploads/thumbnails/' . $eventId . '/' . $newFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($eventDir . $file != $relativePath) {
+                        unlink($eventDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        thumbnail_img = :thumbnail_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':thumbnail_img' => $fileUrl, // ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                header('Location: /custom/admin/app/Views/event/upsert.php');
+                return;
+            }
+        } else {
+            $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
+            $_SESSION['old_input'] = $_POST; // 入力内容も保持
+            header('Location: /custom/admin/app/Views/event/upsert.php');
+            return;
+        }
+    }
+
+    if (!empty($eventId) && !empty($is_best) && !empty($best_event_img['name'])) {
+        if ($best_event_img && $best_event_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $tmpName = $best_event_img['tmp_name']; // 一時ファイルパス
+            $originalName = pathinfo($best_event_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $extension = pathinfo($best_event_img['name'], PATHINFO_EXTENSION);  // 拡張子
+
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/best_event';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+            $pcDir = $eventDir . '/pc';
+
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'best_eventディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用ディレクトリの作成に失敗しました: $eventDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($pcDir) && !is_dir($pcDir)) {
+                $result = mkdir($pcDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = "推しイベント用pcディレクトリの作成に失敗しました: $pcDir";
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false]);
+                    exit;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($pcDir);
+
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $newFileName = "best_event_{$timestamp}.{$extension}";
+            $destination = $pcDir . '/' . $newFileName;
+
+            // ファイルを保存
+            if (move_uploaded_file($tmpName, $destination)) {
+
+                // ファイルURLを取得
+                $relativePath = '/uploads/best_event/' . $eventId . '/pc/' . $newFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($pcDir . $file != $relativePath) {
+                        unlink($pcDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        best_event_img = :best_event_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':best_event_img' => $fileUrl, // ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['message_error'] = "ファイルの保存に失敗しました: $destination";
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                http_response_code(500);
+                echo json_encode(['success' => false]);
+                exit;
+            }
+        } else {
+            $_SESSION['message_error'] = "アップロードに失敗しました。エラーコード: " . $thumbnail_img['error'];
+            $_SESSION['old_input'] = $_POST; // 入力内容も保持
+            http_response_code(500);
+            echo json_encode(['success' => false]);
+            exit;
+        }
+    }
+
+    if (!empty($eventId) && !empty($is_best) && !empty($best_event_sp_img['name'])) {
+        if ($best_event_sp_img && $best_event_sp_img['error'] === UPLOAD_ERR_OK) {
+            // 一時ファイルと元のファイル情報を取得
+            $spTmpName = $best_event_sp_img['tmp_name']; // 一時ファイルパス
+            $spOriginalName = pathinfo($best_event_sp_img['name'], PATHINFO_FILENAME); // 元のファイル名
+            $spExtension = pathinfo($best_event_sp_img['name'], PATHINFO_EXTENSION);  // 拡張子
+
+            // 保存先ディレクトリの設定
+            $moodleDir = realpath(__DIR__ . '/../../../../../'); // Moodleのルートディレクトリ
+            $uploadsDir = $moodleDir . '/uploads';
+            $thumbnailsDir = $uploadsDir . '/best_event';
+            $eventDir = $thumbnailsDir . '/' . $eventId;
+            $spDir = $eventDir . '/sp';
+
+            // 必要なディレクトリを順番に作成
+            if (!file_exists($uploadsDir) && !is_dir($uploadsDir)) {
+                $result = mkdir($uploadsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['message_error'] = 'uploadsディレクトリの作成に失敗しました';
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false,]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($thumbnailsDir) && !is_dir($thumbnailsDir)) {
+                $result = mkdir($thumbnailsDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false,]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($eventDir) && !is_dir($eventDir)) {
+                $result = mkdir($eventDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    http_response_code(500);
+                    echo json_encode(['success' => false,]);
+                    exit;
+                }
+            }
+
+            if (!file_exists($spDir) && !is_dir($spDir)) {
+                $result = mkdir($spDir, 0755, true);
+                if (!$result) {
+                    $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                    error_log("推しイベント用spディレクトリの作成に失敗しました: $spDir");
+                    http_response_code(500);
+                    echo json_encode(['success' => false,]);
+                    exit;
+                }
+            }
+
+            // 1. 保存先ディレクトリの全ファイルを取得
+            $allFiles = scandir($spDir);
+
+            // 保存先ファイルパスを生成
+            $timestamp = date('YmdHis');
+            $spNewFileName = "best_event_sp_{$timestamp}.{$spExtension}";
+            $spDestination = $spDir . '/' . $spNewFileName;
+
+            // ファイルを保存
+            if (move_uploaded_file($spTmpName, $spDestination)) {
+
+                // ファイルURLを取得
+                $relativePath = '/uploads/best_event/' . $eventId . '/sp/' . $spNewFileName;
+                $fileUrl = new moodle_url($relativePath);
+
+                $spRelativePath = '/uploads/best_event/' . $eventId . '/sp/' . $spNewFileName;
+                $spFileUrl = new moodle_url($spRelativePath);
+
+                foreach ($allFiles as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue; // カレントディレクトリと親ディレクトリをスキップ
+                    }
+                    if ($spDir . $file != $relativePath) {
+                        unlink($spDir .  '/' . $file); // ファイルを削除
+                    }
+                }
+
+                // データベースに保存する場合
+                $stmt = $pdo->prepare("
+                    UPDATE mdl_event
+                    SET 
+                        best_event_sp_img = :best_event_sp_img,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $stmt->execute([
+                    ':best_event_sp_img' => $spFileUrl, // SP用ファイルURLを保存
+                    ':id' => $eventId // イベントID
+                ]);
+            } else {
+                $_SESSION['old_input'] = $_POST; // 入力内容も保持
+                error_log('イベントプレビュー登録失敗 : ' . $destination);
+                http_response_code(500);
+                echo json_encode(['success' => false,]);
+            }
+        } else {
+            $_SESSION['old_input'] = $_POST; // 入力内容も保持
+            http_response_code(500);
+            echo json_encode(['success' => false,]);
+            exit;
+        }
+    }
+
+    // $eventIdに紐づくデータを削除
+    $stmt = $pdo->prepare("DELETE FROM mdl_event_category WHERE event_id = :event_id");
+    $stmt->execute([':event_id' => $eventId]); // 削除対象のevent_id
+
+
+    // カテゴリー登録処理
+    foreach ($selectedCategories as $key => $category_id) {
+        // 2. mdl_event_categoryへのINSERT
+        $stmt = $pdo->prepare("
+            INSERT INTO mdl_event_category (
+                created_at, updated_at, event_id, category_id
+            )
+            VALUES (
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :category_id
+            )
+        ");
+
+        $stmt->execute([
+            ':event_id' => $eventId, // mdl_eventの挿入IDを使用
+            ':category_id' => $category_id
+        ]);
+    }
+
+    // $eventIdに紐づくデータを削除
+    $stmt = $pdo->prepare("DELETE FROM mdl_event_lecture_format WHERE event_id = :event_id");
+    $stmt->execute([':event_id' => $eventId]); // 削除対象のevent_id
+
+    // 講義形式登録処理
+    foreach ($lecture_format_ids as $key => $lecture_format_id) {
+        // 2. mdl_event_lecture_formatへのINSERT
+        $stmt = $pdo->prepare("
+            INSERT INTO mdl_event_lecture_format (
+                created_at, updated_at, event_id, lecture_format_id
+            )
+            VALUES (
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :lecture_format_id
+            )
+        ");
+
+        $stmt->execute([
+            ':event_id' => $eventId, // mdl_eventの挿入IDを使用
+            ':lecture_format_id' => $lecture_format_id
+        ]);
+    }
+
+    // 講座登録登録処理
+    foreach ($lectures as $key => $lecture) {
+        // mdl_courseへのINSERT
+        $stmt = $pdo->prepare("
+                INSERT INTO mdl_course_info (
+                    created_at, updated_at, no, course_date, release_date, deadline_date, material_release_date
+                )
+                VALUES (
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :no, :course_date, :release_date, :deadline_date, :material_release_date
+                )
+            ");
+
+        $stmt->execute([
+            ':no' => $key,
+            ':course_date' => $lecture["course_date"],
+            ':release_date' => $lecture["release_date"],
+            ':deadline_date' => $lecture["deadline_date"],
+            ':material_release_date' => $lecture["material_release_date"],
+        ]);
+        $courseInfoId = $pdo->lastInsertId();
+
+        // 講座詳細登録処理
+        foreach ($lecture["detail"] as $key => $detail) {
+            // mdl_course_info_detailへのINSERT
+            $stmt = $pdo->prepare("
+                INSERT INTO mdl_course_info_detail (
+                    created_at, updated_at, course_info_id, tutor_id, name, program, tutor_name
+                )
+                VALUES (
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :course_info_id, :tutor_id, :name, :program, :tutor_name
+                )
+            ");
+
+            $tutor_id = empty($detail["tutor_id"]) ? null : $detail["tutor_id"];
+            $tutor_name = null;
+            if (empty($tutor_id)) {
+                $tutor_name = empty($detail["tutor_name"]) ? "" : $detail["tutor_name"];
+            }
+            $stmt->execute([
+                ':course_info_id' => $courseInfoId,
+                ':tutor_id' => $tutor_id,
+                ':name' => $detail["lecture_name"],
+                ':program' => $detail["program"],
+                ':tutor_name' => $tutor_name,
+            ]);
+        }
+
+        // mdl_courseへのINSERT
+        $stmt = $pdo->prepare("
+                INSERT INTO mdl_event_course_info (
+                    created_at, updated_at, event_id, course_info_id
+                )
+                VALUES (
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :event_id, :course_info_id
+                )
+            ");
+
+        $stmt->execute([
+            ':event_id' => $eventId, // mdl_eventの挿入IDを使用
+            ':course_info_id' => $courseInfoId
+        ]);
+    }
+    $pdo->commit();
+    echo json_encode([
+        'success' => true,
+        'preview_id' => $eventId,
+        'bf_event_id' => $before_event_id,
+    ]);
+    exit;
+} catch (PDOException $e) {
+    try {
+        $pdo->rollBack();
+        $_SESSION['old_input'] = $_POST;
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        http_response_code(500);
+        echo json_encode(['success' => false]);
+        exit;
+    } catch (Exception $rollbackException) {
+        error_log('イベントプレビュー登録失敗 : ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        exit;
+    }
+}

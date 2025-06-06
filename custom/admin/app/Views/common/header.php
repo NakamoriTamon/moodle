@@ -78,11 +78,6 @@ if (isset($_SESSION['message_error'])) {
             minuteIncrement: 5,
             defaultHour: 0,
             defaultMinute: 0,
-            disable: [
-                function(date) {
-                    return (date.getMinutes() % 15 !== 0);
-                }
-            ]
         });
     });
 </script>

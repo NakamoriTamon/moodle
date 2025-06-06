@@ -491,5 +491,8 @@ define('TEKIJUKU_RENUMBERING_NUM', $tekijuku_renumbering_num);
 $login_fail_check_count = 3; // ログインに3回ミスしたら再設定画面へ遷移させる
 define('LOGIN_FAIL_CHECK_COUNT', $login_fail_check_count);
 
+$event_display_count = 12; // イベント一覧での1ページあたりの表示数
+define('EVENT_DISPLAY_COUNT', $event_display_count);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

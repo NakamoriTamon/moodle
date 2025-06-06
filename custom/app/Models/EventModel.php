@@ -137,7 +137,6 @@ class EventModel extends BaseModel
                         ELSE 5  -- その他（万が一 event_status の値が 1, 2, 3 以外の場合）
                     END,
                     MIN(ci.course_date) ASC, MIN(ci.course_date) ASC';
-
                 // 動的に検索条件を追加
                 $params = [
                     ':now_time' => $now_time,
@@ -146,13 +145,27 @@ class EventModel extends BaseModel
                 $having = "";
                 // 予約公開日前イベントは取得しない
                 if (!empty($filters['is_not_reserved'])) {
-                    $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
-                    $params[':now_unix'] = $now_time;
+                    // プレビュー対象イベントは表示する ( プレビュー画面のみ )
+                    if (!empty($filters['prev_event_id'])) {
+                        $where .= ' AND (e.id = :prev_event_id OR (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00"))))';
+                        $params[':prev_event_id'] = $filters['prev_event_id'];
+                        $params[':now_unix'] = $now_time;
+                    } else {
+                        $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
+                        $params[':now_unix'] = $now_time;
+                    }
                 }
                 // プレビュージ時に同一イベントは取得しない
+                if (!empty($filters['bf_event_id'])) {
+                    $where .= ' AND e.id != :bf_event_id';
+                    $params[':bf_event_id'] = $filters['bf_event_id'];
+                }
+                // プレビューイベントで自身のみ取得する
                 if (!empty($filters['prev_event_id'])) {
-                    $where .= ' AND e.id != :prev_event_id';
+                    $where .= ' AND (e.is_preview = 0 OR e.id = :prev_event_id)';
                     $params[':prev_event_id'] = $filters['prev_event_id'];
+                } else {
+                    $where .= ' AND e.is_preview = 0';
                 }
                 if (!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if ($filters['shortname'] != ROLE_ADMIN) {
@@ -464,8 +477,27 @@ class EventModel extends BaseModel
                 $having = "";
                 // 予約公開日前イベントは取得しない
                 if (!empty($filters['is_not_reserved'])) {
-                    $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
-                    $params[':now_unix'] = $now_time;
+                    // プレビュー対象イベントは表示する ( プレビュー画面のみ )
+                    if (!empty($filters['prev_event_id'])) {
+                        $where .= ' AND (e.id = :prev_event_id OR (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00"))))';
+                        $params[':prev_event_id'] = $filters['prev_event_id'];
+                        $params[':now_unix'] = $now_time;
+                    } else {
+                        $where .= ' AND (e.scheduled_publish_at IS NULL OR UNIX_TIMESTAMP(e.scheduled_publish_at) <= UNIX_TIMESTAMP(CONVERT_TZ(FROM_UNIXTIME(:now_unix), "+00:00", "+09:00")))';
+                        $params[':now_unix'] = $now_time;
+                    }
+                }
+                // プレビュージ時に同一イベントは取得しない
+                if (!empty($filters['bf_event_id'])) {
+                    $where .= ' AND e.id != :bf_event_id';
+                    $params[':bf_event_id'] = $filters['bf_event_id'];
+                }
+                // プレビューイベントで自身のみ取得する
+                if (!empty($filters['prev_event_id'])) {
+                    $where .= ' AND (e.is_preview = 0 OR e.id = :prev_event_id)';
+                    $params[':prev_event_id'] = $filters['prev_event_id'];
+                } else {
+                    $where .= ' AND e.is_preview = 0';
                 }
                 if (!empty($filters['shortname']) && !empty($filters['userid'])) {
                     if ($filters['shortname'] != ROLE_ADMIN) {

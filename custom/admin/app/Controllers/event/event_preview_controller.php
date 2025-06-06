@@ -18,10 +18,10 @@ $lectureFormats = $lectureFormatModel->getLectureFormats();
 $targets = $targetModel->getTargets();
 
 $page = $_GET['page'] ?? 1;
-$preview_id = $_GET['id'];
-$preview_array = $_SESSION['preview'][$preview_id];
-if (empty($preview_id) || empty($preview_array)) {
-    echo "プレビュー画面の表示に失敗しました。";
+$prev_event_id = $_GET['id'] ?? null;
+$bf_event_id = $_GET['bf_event_id'] ?? null;
+if (!empty($prev_event_id)) {
+    redirect(new moodle_url('/404.html'));
     exit;
 }
 
@@ -43,7 +43,6 @@ $target = $_GET['target'] ?? '';
 $keyword = $_GET['keyword'] ?? '';
 $event_start_date = $_GET['event_start_date'] ?? '';
 $event_end_date = $_GET['event_end_date'] ?? '';
-$prev_event_id = $preview_array['prev_event_id'] ?? '';
 
 $events = $eventModel->getEvents([
     'event_status' => $event_status,
@@ -56,83 +55,11 @@ $events = $eventModel->getEvents([
     'category_id' => $category_id,
     'is_not_reserved' => true,
     'prev_event_id' => $prev_event_id,
+    'bf_event_id' => $bf_event_id,
 ], $currentPage, $perPage);
 
 $now = new DateTime();
 $now = $now->format('Ymd');
-
-// -------------------------------------------------------
-//  ▼ プレビューイベントを含めた集計結果(ページネーション)に再集計 ▼
-// -------------------------------------------------------
-
-// 今日の日付を基準に各イベントの最も近い開催日を取得
-$nearest_dates = [];
-$today = new DateTime('today', new DateTimeZone('Asia/Tokyo'));
-foreach ($events as $key => $event) {
-    $nearest_date = null;
-    $min_diff = null;
-
-    foreach ($event['course_infos'] as $course) {
-        if (empty($course['course_date'])) {
-            continue;
-        }
-
-        $date = DateTime::createFromFormat('Y-m-d H:i:s', $course['course_date']);
-        if (!$date) {
-            continue;
-        }
-
-        if ($date >= $today) {
-            $diff = $date->getTimestamp() - $today->getTimestamp();
-            if ($min_diff === null || $diff < $min_diff) {
-                $min_diff = $diff;
-                $nearest_date = $date;
-            }
-        }
-    }
-
-    $nearest_dates[$key] = $nearest_date;
-}
-
-$valid_dates = array_filter($nearest_dates, fn($d) => $d instanceof DateTime);
-
-// 対象日を仮追加
-$target_event = [
-    'start' => $preview_array['first_event_date'],
-    'is_prev_event' => true,
-];
-
-$valid_dates = [];
-foreach ($nearest_dates as $index => $date) {
-    if ($date instanceof DateTime) {
-        $valid_dates[$index] = $date;
-    }
-}
-
-// 仮キーで対象日を追加
-$temp_key = '___TARGET___';
-$valid_dates[$temp_key] = $target_event['start'];
-
-// 並び順から仮キーの位置を取得
-uasort($valid_dates, fn($a, $b) => $a <=> $b);
-$ordered_keys = array_keys($valid_dates);
-$insert_index = array_search($temp_key, $ordered_keys);
-
-// var_dump($valid_dates);
-// var_dump($insert_index);
-
-// DBイベントデータにプレビューデータを加える
-array_splice($events, $insert_index, 0, [$preview_array]);
-
-// var_dump($events[3]);
-// die();
-
-
-
-
-
-
-
 
 // イベントが存在しないページを指定された又は文字列をページに指定された場合は１ページ目を取得する　※リダイレクトでURLを奇麗にする。
 $url_violation = true;
@@ -165,7 +92,6 @@ if (!$url_violation) {
     exit;
 }
 
-// DBイベントデータにプレビューデータを加える
 if (!empty($events)) {
     foreach ($events as &$event) {
         $select_lecture_formats = [];
@@ -231,8 +157,6 @@ if (!empty($events)) {
     }
 }
 
-// 
-
 $totalCount = $eventModel->getEventTotal([
     'event_status' => $event_status,
     'deadline_status' => $deadline_status,
@@ -242,7 +166,9 @@ $totalCount = $eventModel->getEventTotal([
     'event_start_date' => $event_start_date,
     'event_end_date' => $event_end_date,
     'category_id' => $category_id,
-    'is_not_reserved' => true
+    'is_not_reserved' => true,
+    'prev_event_id' => $prev_event_id,
+    'bf_event_id' => $bf_event_id,
 ]);
 // フォーム送信（POST）でコントローラーを呼び出す処理
 $action = optional_param('action', '', PARAM_ALPHA); // アクションパラメータを取得
@@ -260,8 +186,6 @@ if ($action === 'index') {
 function checkCapacity($eventId, $courseInfoId)
 {
     $capacity_flg = false;
-    // $courseInfoIdが無い場合、空数が最小のレコードを取得
-    // $courseInfoIdが有る場合、指定した開催日のレコードを取得
     global $eventApplicationModel;
     $result = $eventApplicationModel->getSumTicketCountByEventId($eventId, empty($courseInfoId) ? null : $courseInfoId, true);
     if (!empty($result)) {
