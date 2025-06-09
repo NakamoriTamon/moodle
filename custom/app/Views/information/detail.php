@@ -35,7 +35,7 @@ $result = $information_controller->detail($id);
 
 <ul id="pankuzu" class="inner_l">
     <li><a href="../index.php">トップページ</a></li>
-    <li>受講ガイド</li>
+    <li>お知らせ詳細</li>
 </ul>
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>

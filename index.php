@@ -89,7 +89,7 @@ $now = $now->format('Ymd');
                     </li>
                 </ul>
                 <div class="more_btn_area">
-                    <a href="/custom/app/Views/tekijuku/index.php" class="btn btn_blue arrow">全てのお知らせを見る</a>
+                    <a href="/custom/app/Views/information/index.php" class="btn btn_blue arrow">全てのお知らせを見る</a>
                 </div>
             </div>
         </div>

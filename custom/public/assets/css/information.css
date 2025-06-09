@@ -100,6 +100,28 @@
   text-decoration: none;
 }
 
+/* お知らせ一覧ページ */
+#information-heading{
+  padding: 235px 0 0px;
+}
+#information-heading .head_ttl {
+  position: relative;
+  font-weight: 700;
+  font-size: 4.6rem;
+  z-index: 1;
+}
+#information-heading .head_ttl::after {
+  content: attr(data-en);
+  margin-top: 20px;
+  display: block;
+  color: #81bfda;
+  font-family: Arial;
+  font-size: 2.2rem;
+  letter-spacing: 0.05em;
+}
+.information_list{
+  padding-bottom: 0px !important;
+}
 /*  mobile & smart phone
 ---------------------------------------------- */
 @media only screen and (max-width: 959px) {

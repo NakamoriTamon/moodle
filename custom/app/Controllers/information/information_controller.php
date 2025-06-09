@@ -6,6 +6,69 @@ require_once('/var/www/html/moodle/custom/app/Models/EventModel.php');
 class InformationController
 {
 
+    public function index()
+    {
+
+        // ダミーデータ
+        $information_list = [
+            [
+                'start_date' => '2024/02/15',
+                'title' => '春学期履修ガイダンスのお知らせ'
+            ],
+            [
+                'start_date' => '2024/02/28',
+                'title' => '卒業予定者向け事務手続きの案内'
+            ],
+            [
+                'start_date' => '2024/03/05',
+                'title' => '図書館蔵書点検に伴う一時休館のお知らせ'
+            ],
+            [
+                'start_date' => '2024/03/10',
+                'title' => '2024年度前期奨学金申請受付開始について'
+            ],
+            [
+                'start_date' => '2024/03/24',
+                'title' => '新入生オリエンテーション日程のご案内'
+            ],
+            [
+                'start_date' => '2024/04/01',
+                'title' => '2024年度入学式の開催について'
+            ],
+            [
+                'start_date' => '2024/04/05',
+                'title' => '授業開始に伴う教室変更のお知らせ'
+            ],
+            [
+                'start_date' => '2024/04/12',
+                'title' => '健康診断実施のお知らせ'
+            ],
+            [
+                'start_date' => '2024/04/20',
+                'title' => '避難訓練実施のお知らせ（全学部対象）'
+            ],
+            [
+                'start_date' => '2024/05/01',
+                'title' => 'ゴールデンウィーク期間中の窓口対応について'
+            ],
+        ];
+
+        // 日付の降順（新しい順）に並び替え
+        usort($information_list, function ($a, $b) {
+            return strtotime($b['start_date']) - strtotime($a['start_date']);
+        });
+
+        $data = [
+            'information_list' => $information_list,
+            'currentPage' => 1,
+            'totalCount' => 40,
+            'perPage' => 10,
+            'queryString' => '',
+
+        ];
+
+        return  $data;
+    }
     public function detail(int $id)
     {
 
@@ -53,8 +116,8 @@ class InformationController
                     </li>
                 </ul>
         
-                <div style="margin-top: 1.5em; padding: 1em; background-color: #fff;">
-                    <p style="font-size: 0.95em; color: #333;">
+                <div style="margin-top: 1.5em; padding: 1em; background-color: #fff; border: 1px solid #ccc; border-radius: 5px;">
+                    <p style="font-size: 0.95em; color: #333; ">
                         ※ 本研究は、農林水産省による「次世代農業技術開発プロジェクト」の一環として推進されています。関連する研究成果や実証実験の進展は、順次本学ウェブサイト等にて公開予定です。
                     </p>
                 </div>
@@ -71,6 +134,7 @@ class InformationController
         $config->set('HTML.SafeIframe', true); // iframe無効( クリックジャッキング対策 )
         $config->set('CSS.AllowTricky', true);
         $config->set('HTML.TargetBlank', true);
+        $config->set('HTML.SafeInlineCSS', true);
         $config->set('HTML.Allowed', implode(',', [
             'p[style]',
             'b',
@@ -110,7 +174,9 @@ class InformationController
             'padding-bottom',
             'padding-left',
             'padding-right',
-            'display'
+            'display',
+            'border',
+            'border-radius'
         ]);
 
         $purifier = new HTMLPurifier($config);
