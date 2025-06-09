@@ -279,6 +279,78 @@
   z-index: 99;
 }
 
+/*-------------------------------------
+ informations
+ -------------------------------------*/
+#information {
+  padding: 120px 0 75px;
+}
+#information h2{
+  margin-bottom: 55px;
+}
+#information .info-left {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+#information .info-left p {
+  margin-bottom: 1rem;
+}
+#information .more_btn_area{
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#information .info-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  color: #0c1a3c;
+  font-weight: bold;
+}
+#information .info-link .arrow {
+  background-color: #0c1a3c;
+  color: white;
+  border-radius: 50%;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+}
+#information .info-right {
+  flex-grow: 1;
+}
+#information .info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#information .info-list li {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #d4d4d4;
+  position: relative;
+}
+#information .info-date {
+  background-color: #81bfda;
+  color: white;
+  border-radius: 20px;
+  padding: 0.6rem 1.5rem;
+  margin-right: 3rem;
+  font-size: 12px;
+  white-space: nowrap;
+}
+#information .info-title {
+  flex-grow: 1;
+  text-decoration: none;
+}
+#information .info-title:hover {
+  display: inline-block;
+  color: #81bfda !important;
+}
+
 /*  ipad
 ---------------------------------------------- */
 @media only screen and (max-width: 1024px) {

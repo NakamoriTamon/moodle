@@ -67,6 +67,34 @@ $now = $now->format('Ymd');
         <div class="swiper-pagination"></div>
     </section>
 
+    <section id="information" class="info-section">
+        <div class="new_head inner_l">
+            <h2 class="ttl_home">
+                <span class="en">INFORMATION</span>
+                最新のお知らせ
+            </h2>
+            <div class="info-right">
+                <ul class="info-list">
+                    <li>
+                        <span class="info-date">2025/03/13</span>
+                        <a href="/custom/app/Views/information/detail.php" class="info-title">【日程変更のお知らせ】K42/K43「オンライン・会場」老いと死を科学する</a>
+                    </li>
+                    <li>
+                        <span class="info-date">2025/02/26</span>
+                        <a href="/custom/app/Views/information/detail.php" class="info-title">【キャンパス所在地自治体にお住まいの方へ】2025年度春夏期 割引講座のご案内</a>
+                    </li>
+                    <li>
+                        <span class="info-date">2025/02/26</span>
+                        <a href="/custom/app/Views/information/detail.php" class="info-title">2025年度 春夏期・秋冬期講座（ビジネス／一般教養）の申込開始について</a>
+                    </li>
+                </ul>
+                <div class="more_btn_area">
+                    <a href="/custom/app/Views/tekijuku/index.php" class="btn btn_blue arrow">全てのお知らせを見る</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="about">
         <div class="about_cont inner_l">
             <h2 class="ttl_home">

@@ -122,7 +122,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 				['font', ['bold', 'underline', 'clear']],
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],
-				['insert', ['link', 'picture', 'video']],
+				// ['insert', ['link', 'video']], 無しの仕様で。必要ならYoutube + Google Driveの2つを許可か。iframeはやや危険
 				['view', ['codeview']]
 			]
 		});
