@@ -160,7 +160,7 @@
                     <p class="sent guide_list-item">
                         また同じ箇所からアンケートに回答していただくことも可能です。
                     </p>
-                    <img src="/custom/public/assets/common/img/img_guide_view01.jpg" alt="" class="guide_flow-img" />
+                    <img src="/custom/public/assets/common/img/img_guide_view02.jpg" alt="" class="guide_flow-img" />
                 </div>
             </div>
         </section>
@@ -175,4 +175,5 @@
 
 <?php include('/var/www/html/moodle/custom/app/Views/common/footer.php'); ?>
 </body>
+
 </html>
