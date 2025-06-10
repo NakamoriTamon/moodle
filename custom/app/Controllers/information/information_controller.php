@@ -131,7 +131,6 @@ class InformationController
 
         // body内をサニタイズ( 登録時も確認する事 )
         $config = HTMLPurifier_Config::createDefault();
-        $config->set('HTML.SafeIframe', true); // iframe無効( クリックジャッキング対策 )
         $config->set('CSS.AllowTricky', true);
         $config->set('HTML.TargetBlank', true);
         $config->set('HTML.SafeInlineCSS', true);
