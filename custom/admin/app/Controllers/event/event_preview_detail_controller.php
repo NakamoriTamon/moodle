@@ -29,16 +29,6 @@ if (empty($event)) {
     redirect(new moodle_url('/custom/app/Views/404.php'));
     exit;
 }
-// プレビューイベントか確認する
-if ($event['is_preview'] == IS_PREVIEW_NUMBER) {
-    redirect(new moodle_url('/custom/app/Views/404.php'));
-    exit;
-}
-// 公開予約日以降か確認する
-if (!empty($event['scheduled_publish_at']) && strtotime($event['scheduled_publish_at']) > time()) {
-    redirect(new moodle_url('/custom/app/Views/404.php'));
-    exit;
-}
 
 $select_lecture_formats = [];
 $select_categorys = [];

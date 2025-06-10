@@ -494,5 +494,8 @@ define('LOGIN_FAIL_CHECK_COUNT', $login_fail_check_count);
 $event_display_count = 12; // イベント一覧での1ページあたりの表示数
 define('EVENT_DISPLAY_COUNT', $event_display_count);
 
+$is_preview_number = 1; // プレビューイベント
+define('IS_PREVIEW_NUMBER', $is_preview_number);
+
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!
