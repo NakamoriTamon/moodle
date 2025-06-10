@@ -71,7 +71,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">掲載開始日時　※未入力の場合、即時掲載されます。</label>
 										</div>
 										<div class="d-flex align-items-center">
-											<input name="" class="w-50 me-3 form-control" type="date" value="" />
+											<input name="sample" class="w-50 me-3 form-control" type="date" value="" />
 											<input name="" class="w-25 me-2 form-control" type="number" min=1 max=24 value="" />時
 										</div>
 										<?php if (!empty($errors['scheduled_publish_at'])): ?>
@@ -103,6 +103,24 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 			</main>
 		</div>
 	</div>
+	<!-- 即時公開モーダル -->
+	<div class="modal fade" id="upsert_confirm_modal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="deleteConfirmModalLabel">即時公開</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body fw-bold fs-4 mt-3 mb-3">
+					本お知らせは即時公開となります。<br class="pc-none">本当によろしいですか？
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+					<button type="button" id="confirm_upsert" class="btn btn-danger">はい</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>
@@ -126,11 +144,18 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 				['view', ['codeview']]
 			]
 		});
-
 		$('#upsert_button').on('click', function() {
-			window.location.href = '/custom/admin/app/Views/management/information.php';
-			// 実際はコントローラーで渡してください。
 			<?php $_SESSION['message_success'] = '登録が完了しました'; ?>
+			const val = $('input[name="sample"]').val();
+			if (!val) {
+				$('#upsert_confirm_modal').modal('show');
+			} else {
+				window.location.href = '/custom/admin/app/Views/management/information.php';
+				// 実際はコントローラーで渡してください。
+			}
+		});
+		$('#confirm_upsert').on('click', function() {
+			window.location.href = '/custom/admin/app/Views/management/information.php';
 		});
 	});
 </script>
