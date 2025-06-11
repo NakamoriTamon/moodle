@@ -10,7 +10,9 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 // コントローラに id を渡す
 $information_controller = new InformationController();
 $result = $information_controller->edit($id);
-
+$data_item = $result['data_item'] ?? [];
+$errors = $_SESSION['errors'] ?? [];
+$old_input = $_SESSION['old_input'] ?? [];
 unset($_SESSION['errors'], $_SESSION['old_input']);
 ?>
 
@@ -23,7 +25,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 					<i class="hamburger align-self-center"></i>
 				</a>
 				<div class="navbar-collapse collapse">
-					<p class="title header-title ms-4 fs-4 fw-bold mb-0">お知らせ登録</p>
+					<p class="title header-title ms-4 fs-4 fw-bold mb-0" id="heder">お知らせ登録</p>
 					<ul class="navbar-nav navbar-align">
 						<li class="nav-item dropdown">
 							<a class="nav-icon pe-md-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -40,9 +42,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 				<div class="col-12 col-lg-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<p class="content_title p-3">お知らせ登録</p>
+							<p class="content_title p-3" id="title">お知らせ登録</p>
 							<div class="form-wrapper">
-								<form method="POST" enctype="multipart/form-data">
+								<form method="POST" enctype="multipart/form-data" action="/custom/admin/app/Controllers/management/information_upsert_controller.php" id="form">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 									<input type="hidden" id="event_id" name="id" value="<?= $id ?? '' ?>">
 									<div class="mb-3">
@@ -50,10 +52,10 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">件名</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<input type="name" name="name" class="form-control" placeholder=""
-											value="" />
-										<?php if (!empty($errors['name'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['name']); ?></div>
+										<input type="text" name="title" class="form-control" placeholder=""
+											value="<?= htmlspecialchars(isSetValue($data_item['title'] ?? '', ($old_input['title'] ?? ''))) ?>" maxlength="225"/>
+										<?php if (!empty($errors['title'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['title']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -61,9 +63,9 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">本文</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<textarea name="description" id="editor" class=" form-control" rows="7"><?= htmlspecialchars(isSetValue($eventData['description'] ?? '', ($old_input['description'] ?? ''))) ?></textarea>
-										<?php if (!empty($errors['description'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['description']); ?></div>
+										<textarea name="body" id="editor" class=" form-control" rows="7" max=10000><?= htmlspecialchars(isSetValue($data_item['body'] ?? '', ($old_input['body'] ?? ''))) ?></textarea>
+										<?php if (!empty($errors['body'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['body']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -71,11 +73,12 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">掲載開始日時　※未入力の場合、即時掲載されます。</label>
 										</div>
 										<div class="d-flex align-items-center">
-											<input name="" class="w-50 me-3 form-control" type="date" value="" />
-											<input name="" class="w-25 me-2 form-control" type="number" min=1 max=24 value="" />時
+											<input name="publish_start_date" class="w-50 me-3 form-control" type="date" value="<?= htmlspecialchars(isSetValue($data_item['publish_start_date'] ?? '', ($old_input['publish_start_date'] ?? ''))) ?>"/>
+											<input name="publish_start_hour" class="w-25 me-2 form-control" type="number" min=1 max=24 value="<?= htmlspecialchars(isSetValue($data_item['publish_start_hour'] ?? '', ($old_input['publish_start_hour'] ?? ''))) ?>" />時
+											<input type="hidden" name="publish_start_at" id="publish_start_at" value="" />
 										</div>
-										<?php if (!empty($errors['scheduled_publish_at'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_at']); ?></div>
+										<?php if (!empty($errors['scheduled_publish_start_at'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_start_at']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
@@ -83,17 +86,38 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">掲載終了日時　未入力の場合、該当のお知らせは継続して表示されます。</label>
 										</div>
 										<div class="d-flex align-items-center">
-											<input name="" class="w-50 me-3 form-control" type="date" <?= $is_immediate ? 'disabled' : ''; ?> value="" />
-											<input name="" class="w-25 me-2 form-control" type="number" <?= $is_immediate ? 'disabled' : ''; ?> min=1 max=24 value="" />時
+											<input name="publish_end_date" class="w-50 me-3 form-control" type="date" <?= $is_immediate ? 'disabled' : ''; ?> value="<?= htmlspecialchars(isSetValue($data_item['publish_end_date'] ?? '', ($old_input['publish_end_date'] ?? ''))) ?>"/>
+											<input name="publish_end_hour" class="w-25 me-2 form-control" type="number" <?= $is_immediate ? 'disabled' : ''; ?> min=1 max=24 value="<?= htmlspecialchars(isSetValue($data_item['publish_end_hour'] ?? '', ($old_input['publish_end_hour'] ?? ''))) ?>" />時
+											<input type="hidden" name="publish_end_at" id="publish_end_at" value="" />
 										</div>
-										<?php if (!empty($errors['scheduled_publish_at'])): ?>
-											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_at']); ?></div>
+										<?php if (!empty($errors['scheduled_publish_end_at'])): ?>
+											<div class="text-danger mt-2"><?= htmlspecialchars($errors['scheduled_publish_end_at']); ?></div>
 										<?php endif; ?>
 									</div>
 									<div class="mb-3">
 										<?php if (!$start_event_flg): ?>
-											<input type="button" id="upsert_button" class="btn btn-primary" value="登録">
+											<input type="submit" id="upsert_button" class="btn btn-primary" value="登録">
 										<?php endif ?>
+									</div>
+									<!--お知らせ即時公開モーダル -->
+									<div class="modal fade" id="confirmInformationModal" tabindex="-1" aria-hidden="true">
+										<div class="modal-dialog modal-dialog-centered">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title">お知らせの即時公開確認</h5>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body">
+													<p class="mt-3">本お知らせは即時公開となります。本当によろしいですか？</p>
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+													<?php if (!$start_event_flg): ?>
+														<input type="submit" id="modal_upsert_button" class="btn btn-primary" value="はい">
+													<?php endif ?>
+												</div>
+											</div>
+										</div>
 									</div>
 								</form>
 							</div>
@@ -126,11 +150,48 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 				['view', ['codeview']]
 			]
 		});
-
-		$('#upsert_button').on('click', function() {
-			window.location.href = '/custom/admin/app/Views/management/information.php';
-			// 実際はコントローラーで渡してください。
-			<?php $_SESSION['message_success'] = '登録が完了しました'; ?>
+		// 登録処理
+   		let modalSubmit = false;
+		$("#form").on("submit", function(e) {
+			if (!modalSubmit) {
+				// 日付と時を結合してhiddenにセット
+				const startDate = $('[name="publish_start_date"]').val();
+				let startHour = $('[name="publish_start_hour"]').val();
+				startHour = startHour ? startHour.padStart(2, '0') : '00';
+				const endDate = $('[name="publish_end_date"]').val();
+				let endHour = $('[name="publish_end_hour"]').val();
+				endHour = endHour ? endHour.padStart(2, '0') : '00';
+				let startTimestamp = '';
+				let endTimestamp = '';
+				if (startDate) {
+					startTimestamp = `${startDate} ${startHour}:00:00`;
+				}
+				if (endDate) {
+					endTimestamp = `${endDate} ${endHour}:00:00`;
+				}
+				$('#publish_start_at').val(startTimestamp);
+				$('#publish_end_at').val(endTimestamp);
+				console.log('Start Timestamp:', startTimestamp);
+				// 日付と時刻の両方が入力されていない場合、モーダルを表示
+				if(!startDate && startHour === '00') {
+					e.preventDefault();
+					$('#confirmInformationModal').modal('show');
+					return false;
+				}
+			}
+			modalSubmit = false; // リセット
 		});
+		// モーダルの登録ボタンでフォーム送信
+		$('#modal_upsert_button').on('click', function() {
+			modalSubmit = true;
+			$('#confirmInformationModal').modal('hide');
+			$('#form').submit();
+		});
+		// 既存の情報がある場合、タイトルとボタンのテキストを変更	
+		if(<?=json_encode($result['is_edit'])?>){
+			$('#heder').text('お知らせ編集');
+			$('#title').text('お知らせ編集');
+			$('#upsert_button').val('更新');
+		} 
 	});
 </script>

@@ -6,7 +6,7 @@ include($CFG->dirroot . '/custom/admin/app/Views/common/header.php');
 
 $information_controller = new InformationController();
 $result_list = $information_controller->index();
-$sample_list = $result_list['sample_list'];
+$data_list = $result_list['data_list'];
 
 // バリデーションエラー
 $errors   = $_SESSION['errors']   ?? [];
@@ -94,16 +94,16 @@ $page = $result_list['page'];
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($sample_list as $key => $sample) { ?>
+                                            <?php foreach ($data_list as $key => $data) { ?>
                                                 <tr>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($sample['id']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($sample['title']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($sample['body']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($sample['start_date']) ?></td>
-                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($sample['end_date']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['id']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['title']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap body-content"><?= htmlspecialchars($data['body']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['start_date']) ?></td>
+                                                    <td class="ps-4 pe-4 text-nowrap"><?= htmlspecialchars($data['end_date']) ?></td>
                                                     <td class="text-center ps-4 pe-4 text-nowrap">
-                                                        <a href="/custom/admin/app/Views/management/information_upsert.php?id=<?= $sample['id'] ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
-                                                        <a class="delete-link" data-id="<?= $sample['id'] ?>" data-name="<?= $sample['title'] ?>"><i class=" align-middle" data-feather="trash"></i></a>
+                                                        <a href="/custom/admin/app/Views/management/information_upsert.php?id=<?= $data['id'] ?>" class="me-3"><i class="align-middle" data-feather="edit-2"></i></a>
+                                                        <a class="delete-link" data-id="<?= $data['id'] ?>" data-name="<?= $data['title'] ?>"><i class=" align-middle" data-feather="trash"></i></a>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -112,7 +112,7 @@ $page = $result_list['page'];
                                 </div>
                                 <!-- 削除確認モーダル -->
                                 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-                                    <form id="deleteForm" method="POST" action="" enctype="multipart/form-data">
+                                    <form id="deleteForm" method="POST" action="/custom/admin/app/Controllers/management/information_delete_controller.php" enctype="multipart/form-data">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -192,11 +192,22 @@ $page = $result_list['page'];
 </html>
 <script>
     $(document).ready(function() {
-        // ページネーション押下時
+        // 検索フォームから検索時URLを動的に変更
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = $('input[name="page"]').val();
+        params.set('page', currentPage);
+        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+        // 新規登録押下時
         $('#upsert_button').on('click', function() {
             window.location.href = '/custom/admin/app/Views/management/information_upsert.php';
         });
-
+        // ページネーションのリンクをクリックしたとき
+        $('.pagination a').on('click', function(event) {
+            event.preventDefault();
+            const page = $(this).data('page');
+            $('#page').val(page);
+            $('#form').submit();
+        });
         let selectedId;
         let selectedName;
         // 削除リンクがクリックされたとき
@@ -213,6 +224,13 @@ $page = $result_list['page'];
             $('#deleteForm').submit();
             $('#confirmDeleteModal').modal('hide');
             $(`.delete-link[data-id="${selectedId}"]`).closest('li').remove();
+        });
+        // bodyテキスト50文字切り詰め
+        $('.body-content').each(function() {
+            const text = $(this).text();
+            if (text.length > 50) {
+                $(this).text(text.substring(0, 50) + '…');
+            }
         });
     });
 </script>
