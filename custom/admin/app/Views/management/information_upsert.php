@@ -99,19 +99,19 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<input type="submit" id="upsert_button" class="btn btn-primary" value="登録">
 										<?php endif ?>
 									</div>
-									<!--お知らせ即時公開モーダル -->
+									<!-- 即時公開モーダル -->
 									<div class="modal fade" id="confirmInformationModal" tabindex="-1" aria-hidden="true">
 										<div class="modal-dialog modal-dialog-centered">
 											<div class="modal-content">
 												<div class="modal-header">
-													<h5 class="modal-title">お知らせの即時公開確認</h5>
+												<h5 class="modal-title" id="deleteConfirmModalLabel">即時公開</h5>
 													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 												</div>
-												<div class="modal-body">
-													<p class="mt-3">本お知らせは即時公開となります。本当によろしいですか？</p>
+												<div class="modal-body fw-bold fs-4 mt-3 mb-3">
+													本お知らせは即時公開となります。<br class="pc-none">本当によろしいですか？
 												</div>
 												<div class="modal-footer">
-													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+													<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
 													<?php if (!$start_event_flg): ?>
 														<input type="submit" id="modal_upsert_button" class="btn btn-primary" value="はい">
 													<?php endif ?>
