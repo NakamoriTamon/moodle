@@ -55,61 +55,62 @@ try {
     }
 
     // body内をサニタイズ( 登録時も確認する事 )
-    $config = HTMLPurifier_Config::createDefault();
+    // $config = HTMLPurifier_Config::createDefault();
+
+    $body = htmlspecialchars($body, ENT_QUOTES, 'UTF-8');
     var_dump("テスト2");
     exit;
-    $config->set('CSS.AllowTricky', true);
-    $config->set('HTML.TargetBlank', true);
-    $config->set('HTML.SafeInlineCSS', true);
-    $config->set('HTML.Allowed', implode(',', [
-        'p[style]',
-        'b',
-        'strong',
-        'i',
-        'em',
-        'ul[style]',
-        'ol[style]',
-        'li[style]',
-        'a[href|target|rel|style]',
-        'iframe[src|width|height|frameborder|allowfullscreen]',
-        'br',
-        'span[style]',
-        'div[style]',
-        'h1[style]',
-        'h2[style]',
-        'h3[style]',
-        'h4[style]',
-        'h5[style]',
-        'h6[style]',
-        'img[src|alt|width|height]',
-    ]));
+    // $config->set('CSS.AllowTricky', true);
+    // $config->set('HTML.TargetBlank', true);
+    // $config->set('HTML.SafeInlineCSS', true);
+    // $config->set('HTML.Allowed', implode(',', [
+    //     'p[style]',
+    //     'b',
+    //     'strong',
+    //     'i',
+    //     'em',
+    //     'ul[style]',
+    //     'ol[style]',
+    //     'li[style]',
+    //     'a[href|target|rel|style]',
+    //     'iframe[src|width|height|frameborder|allowfullscreen]',
+    //     'br',
+    //     'span[style]',
+    //     'div[style]',
+    //     'h1[style]',
+    //     'h2[style]',
+    //     'h3[style]',
+    //     'h4[style]',
+    //     'h5[style]',
+    //     'h6[style]',
+    //     'img[src|alt|width|height]',
+    // ]));
 
-    $config->set('CSS.AllowedProperties', [
-        'color',
-        'background-color',
-        'font-size',
-        'text-align',
-        'line-height',
-        'margin',
-        'margin-top',
-        'margin-bottom',
-        'margin-left',
-        'margin-right',
-        'padding',
-        'padding-top',
-        'padding-bottom',
-        'padding-left',
-        'padding-right',
-        'display',
-        'border',
-        'border-radius'
-    ]);
+    // $config->set('CSS.AllowedProperties', [
+    //     'color',
+    //     'background-color',
+    //     'font-size',
+    //     'text-align',
+    //     'line-height',
+    //     'margin',
+    //     'margin-top',
+    //     'margin-bottom',
+    //     'margin-left',
+    //     'margin-right',
+    //     'padding',
+    //     'padding-top',
+    //     'padding-bottom',
+    //     'padding-left',
+    //     'padding-right',
+    //     'display',
+    //     'border',
+    //     'border-radius'
+    // ]);
 
-    $purifier = new HTMLPurifier($config);
-    $clean_html = $purifier->purify($body); // サニタイズ
+    // $purifier = new HTMLPurifier($config);
+    // $clean_html = $purifier->purify($body); // サニタイズ
 
-    $body  =  $clean_html;
-
+    // $body  =  $clean_html;
     $transaction = $DB->start_delegated_transaction();
     $information = new stdClass();
     if (!$id) {
