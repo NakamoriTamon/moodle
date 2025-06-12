@@ -56,6 +56,8 @@ try {
 
     // body内をサニタイズ( 登録時も確認する事 )
     $config = HTMLPurifier_Config::createDefault();
+    var_dump("テスト2");
+    exit;
     $config->set('CSS.AllowTricky', true);
     $config->set('HTML.TargetBlank', true);
     $config->set('HTML.SafeInlineCSS', true);
@@ -107,8 +109,7 @@ try {
     $clean_html = $purifier->purify($body); // サニタイズ
 
     $body  =  $clean_html;
-    var_dump("テスト2");
-    exit;
+
     $transaction = $DB->start_delegated_transaction();
     $information = new stdClass();
     if (!$id) {
