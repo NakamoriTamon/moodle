@@ -63,7 +63,7 @@ unset($_SESSION['errors'], $_SESSION['old_input']);
 											<label class="me-2">本文</label>
 											<span class="badge bg-danger">必須</span>
 										</div>
-										<textarea name="body" id="editor" class=" form-control" rows="7" max=10000><?= htmlspecialchars(isSetValue($data_item['body'] ?? '', ($old_input['body'] ?? ''))) ?></textarea>
+										<textarea name="body" id="editor" class="form-control" rows="7" max="10000"><?= htmlspecialchars(isSetValue($data_item['body'] ?? '', ($old_input['body'] ?? ''))) ?></textarea>
 										<?php if (!empty($errors['body'])): ?>
 											<div class="text-danger mt-2"><?= htmlspecialchars($errors['body']); ?></div>
 										<?php endif; ?>
