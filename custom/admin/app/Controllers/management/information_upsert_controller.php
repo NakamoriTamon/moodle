@@ -11,6 +11,7 @@ $title = $_POST['title'] ?? null;
 $body = $_POST['body'] ?? null;
 $publish_start_at = $_POST['publish_start_at'] ?? null;
 $publish_end_at  = $_POST['publish_end_at'] ?? null;
+var_dump("テスト");
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']) || empty($USER->id)) {
