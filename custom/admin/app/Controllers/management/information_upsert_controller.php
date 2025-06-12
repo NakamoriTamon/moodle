@@ -11,8 +11,7 @@ $title = $_POST['title'] ?? null;
 $body = $_POST['body'] ?? null;
 $publish_start_at = $_POST['publish_start_at'] ?? null;
 $publish_end_at  = $_POST['publish_end_at'] ?? null;
-var_dump("テスト");
-exit;
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']) || empty($USER->id)) {
@@ -25,6 +24,7 @@ try {
             exit;
         }
     }
+    var_dump("テスト");
     $hasError = false;
     if (empty($title)) {
         $_SESSION['errors']['title'] = '件名は必須です';
@@ -54,7 +54,7 @@ try {
             }
         exit;
     }
-
+    var_dump("テスト2");
     // body内をサニタイズ( 登録時も確認する事 )
     $config = HTMLPurifier_Config::createDefault();
     $config->set('CSS.AllowTricky', true);
