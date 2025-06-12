@@ -15,16 +15,22 @@ $publish_end_at  = $_POST['publish_end_at'] ?? null;
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']) || empty($USER->id)) {
+            var_dump("テストcsrf");
             $_SESSION['message_error'] = '登録に失敗しました';
             if ($id) {
+                 var_dump("テストid");
+                 exit;
                 header('Location: /custom/admin/app/Views/management/information_upsert.php?id=' . $id);
             } else {
+                   var_dump("テスト新規");
+                 exit;
                 header('Location: /custom/admin/app/Views/management/information_upsert.php');
             }
             exit;
         }
     }
-    var_dump("テスト");
+    var_dump("テストfirst");
+    exit;
     $hasError = false;
     if (empty($title)) {
         $_SESSION['errors']['title'] = '件名は必須です';
