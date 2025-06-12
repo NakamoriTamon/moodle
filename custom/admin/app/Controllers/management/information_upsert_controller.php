@@ -58,8 +58,6 @@ try {
     // $config = HTMLPurifier_Config::createDefault();
 
     $body = htmlspecialchars($body, ENT_QUOTES, 'UTF-8');
-    var_dump("テスト2");
-    exit;
     // $config->set('CSS.AllowTricky', true);
     // $config->set('HTML.TargetBlank', true);
     // $config->set('HTML.SafeInlineCSS', true);
