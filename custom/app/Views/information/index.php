@@ -31,8 +31,12 @@ $queryString = $result['queryString'];
                     <ul class="info-list">
                         <?php foreach ($information_list as $information) { ?>
                             <li>
-                                <span class="info-date"><?= htmlspecialchars($information['start_date']) ?></span>
-                                <a href="/custom/app/Views/information/detail.php" class="info-title"><?= htmlspecialchars($information['title']) ?></a>
+                                <span class="info-date">
+                                    <?= htmlspecialchars(
+                                        (new DateTime($information['publish_start_at'] ?? $information['updated_at']))->format('Y/m/d')
+                                    ) ?>
+                                </span>
+                                <a href="/custom/app/Views/information/detail.php?id=<?= htmlspecialchars($information['id']) ?>" class="info-title"><?= htmlspecialchars($information['title']) ?></a>
                             </li>
                         <?php } ?>
                     </ul>

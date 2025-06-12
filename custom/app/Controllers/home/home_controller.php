@@ -5,12 +5,14 @@ require_once('/var/www/html/moodle/custom/app/Models/CategoryModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/LectureFormatModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/TargetModel.php');
 require_once('/var/www/html/moodle/custom/app/Models/EventApplicationModel.php');
+require_once('/var/www/html/moodle/custom/app/Models/InformationModel.php');
 
 $eventModel = new EventModel();
 $categoryModel = new CategoryModel();
 $lectureFormatModel = new LectureFormatModel();
 $targetModel = new TargetModel();
 $eventApplicationModel = new EventApplicationModel();
+$informationModel = new InformationModel();
 
 $categorys = $categoryModel->getCategories();
 $lectureFormats = $lectureFormatModel->getLectureFormats();
@@ -98,6 +100,10 @@ if(!empty($events)) {
     }
     
 }
+$filters = [
+    'limit' => 3,
+];
+$information_list = $informationModel->getAllInformation($filters);
 
 function checkCapacity($eventId,$courseInfoId){
     $capacity_flg = false;

@@ -75,18 +75,16 @@ $now = $now->format('Ymd');
             </h2>
             <div class="info-right">
                 <ul class="info-list">
+                <?php foreach ($information_list as $info): ?>
                     <li>
-                        <span class="info-date">2025/03/13</span>
-                        <a href="/custom/app/Views/information/detail.php" class="info-title">【日程変更のお知らせ】K42/K43「オンライン・会場」老いと死を科学する</a>
+                        <span class="info-date">
+                            <?= htmlspecialchars(
+                                (new DateTime($info['publish_start_at'] ?? $info['updated_at']))->format('Y/m/d')
+                            ) ?>
+                        </span>
+                        <a href="/custom/app/Views/information/detail.php?id=<?= htmlspecialchars($info['id']) ?>" class="info-title"><?= htmlspecialchars($info['title']) ?></a>
                     </li>
-                    <li>
-                        <span class="info-date">2025/02/26</span>
-                        <a href="/custom/app/Views/information/detail.php" class="info-title">【キャンパス所在地自治体にお住まいの方へ】2025年度春夏期 割引講座のご案内</a>
-                    </li>
-                    <li>
-                        <span class="info-date">2025/02/26</span>
-                        <a href="/custom/app/Views/information/detail.php" class="info-title">2025年度 春夏期・秋冬期講座（ビジネス／一般教養）の申込開始について</a>
-                    </li>
+                <?php endforeach; ?>
                 </ul>
                 <div class="more_btn_area">
                     <a href="/custom/app/Views/information/index.php" class="btn btn_blue arrow">全てのお知らせを見る</a>
