@@ -54,6 +54,7 @@ try {
         exit;
     }
     var_dump("テスト2");
+    exit;
     // body内をサニタイズ( 登録時も確認する事 )
     $config = HTMLPurifier_Config::createDefault();
     $config->set('CSS.AllowTricky', true);
@@ -127,8 +128,6 @@ try {
         $information->publish_end_at = $publish_end_at ? date('Y-m-d H:i:s', strtotime($publish_end_at)) : null;
         $DB->update_record('information', $information);
     }
-    var_dump("テスト3");
-    exit;
     $transaction->allow_commit();
     $_SESSION['message_success'] = '登録が完了しました';
     header('Location: /custom/admin/app/Views/management/information.php');
