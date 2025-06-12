@@ -74,3 +74,14 @@ $queryString = $result['queryString'];
 </body>
 
 </html>
+<script>
+    $(document).ready(function() {
+        // ページネーションのリンクをクリックしたとき
+        $('.pagination a').on('click', function(event) {
+            event.preventDefault();
+            const page = $(this).data('page');
+            $('#page').val(page);
+            $('#form').submit();
+        });
+    });
+</script>

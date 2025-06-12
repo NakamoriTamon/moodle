@@ -19,7 +19,7 @@ class InformationController
             'limit' => 10, // 1ページあたりの表示件数
         ];
         $per_page = 10; // 1ページあたりの表示件数
-        $current_page = $_POST['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
+        $current_page = $_GET['page'] ?? 1; // 現在のページ番号（デフォルト: 1）
         $information_list = $this->informationModel->getAllInformation($filters, $current_page, $per_page);
         $total_count =$this->informationModel->getInformationCount($filters);
         $data = [
