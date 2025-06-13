@@ -119,8 +119,10 @@ class LoginController
             'version' => 'latest',
             'region'  => 'ap-northeast-1', // 東京リージョン
             'credentials' => [
-                'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
-                'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+                // 'key'    => $_ENV['AWS_ACCESS_KEY_ID'],
+                // 'secret' => $_ENV['AWS_SECRET_ACCESS_KEY_ID'],
+                'key'    => 'AKIAY3DSB4ELQBRBXVPL',
+                'secret' => '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',
             ]
         ]);
 
@@ -144,7 +146,8 @@ class LoginController
                     'ToAddresses' => $recipients,
                 ],
                 'ReplyToAddresses' => ['no-reply@example.com'],
-                'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                // 'Source' => "知の広場 <{$_ENV['MAIL_FROM_ADDRESS']}>",
+                'Source' => "知の広場 <info@open-univ.osaka-u.ac.jp>",
                 'Message' => [
                     'Subject' => [
                         'Data' => $subject,
